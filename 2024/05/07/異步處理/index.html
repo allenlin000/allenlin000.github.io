@@ -1,32 +1,205 @@
-extends includes/layout.pug
-
-block content
-  #post
-    if top_img === false
-      include includes/header/post-info.pug
-
-    article#article-container.post-content!=page.content
-    include includes/post/post-copyright.pug
-    .tag_share
-      if (theme.post_meta.post.tags)
-        .post-meta__tag-list
-          each item, index in page.tags.data
-            a(href=url_for(item.path)).post-meta__tags #[=item.name]
-      include includes/third-party/share/index.pug
-        
-    if theme.reward.enable && theme.reward.QR_code
-      !=partial('includes/post/reward', {}, {cache: true})
-
-    //- ad
-    if theme.ad && theme.ad.post
-      .ads-wrap!=theme.ad.post
-
-    if theme.post_pagination
-      include includes/pagination.pug
-    if theme.related_post && theme.related_post.enable
-      != related_posts(page,site.posts)
-
-    if page.comments !== false && theme.comments && theme.comments.use
-      - var commentsJsLoad = true
-      !=partial('includes/third-party/comments/index', {}, {cache: true})
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Asynchronous Programming (一. 初探) | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="最近公司專案上寫了一個Job，目的是能夠定期的去封存一些過期的資料，而Job執行過程中會有備份資料這一步，於是就想到往S3拋，開開心心寫完後執行，檢查了一下S3，ㄜ…資料沒上傳出去，這才發現自己對於非同步的寫法有許多不熟悉的地方 案件釐清基本上傳S3的方法比照官網的作法這沒甚麼大問題 12345678910111213private async Task UpdateS3DataAsync(str">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Asynchronous Programming (一. 初探)">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/05/07/%E7%95%B0%E6%AD%A5%E8%99%95%E7%90%86/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="最近公司專案上寫了一個Job，目的是能夠定期的去封存一些過期的資料，而Job執行過程中會有備份資料這一步，於是就想到往S3拋，開開心心寫完後執行，檢查了一下S3，ㄜ…資料沒上傳出去，這才發現自己對於非同步的寫法有許多不熟悉的地方 案件釐清基本上傳S3的方法比照官網的作法這沒甚麼大問題 12345678910111213private async Task UpdateS3DataAsync(str">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/ptNmOOD.png">
+<meta property="article:published_time" content="2024-05-07T03:04:05.000Z">
+<meta property="article:modified_time" content="2024-06-16T08:55:56.431Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Asynchronous Programming">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/ptNmOOD.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/05/07/%E7%95%B0%E6%AD%A5%E8%99%95%E7%90%86/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Asynchronous Programming (一. 初探)',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-06-16 16:55:56'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
       
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">26</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Asynchronous Programming (一. 初探)</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-05-07T03:04:05.000Z" title="Created 2024-05-07 11:04:05">2024-05-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-06-16T08:55:56.431Z" title="Updated 2024-06-16 16:55:56">2024-06-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Asynchronous-Programming/">Asynchronous Programming</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Asynchronous Programming (一. 初探)"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>最近公司專案上寫了一個Job，目的是能夠定期的去封存一些過期的資料，而Job執行過程中會有備份資料這一步，於是就想到往S3拋，開開心心寫完後執行，檢查了一下S3，ㄜ…資料沒上傳出去，這才發現自己對於非同步的寫法有許多不熟悉的地方</p>
+<h2 id="案件釐清"><a href="#案件釐清" class="headerlink" title="案件釐清"></a>案件釐清</h2><p>基本上傳S3的方法比照官網的作法這沒甚麼大問題</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">async</span> Task <span class="title">UpdateS3DataAsync</span>(<span class="params"><span class="built_in">string</span> s3RecordData, <span class="built_in">string</span> s3Path</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">var</span> stream = <span class="keyword">new</span> MemoryStream(Encoding.UTF8.GetBytes(s3RecordData));</span><br><span class="line">    <span class="keyword">var</span> request = <span class="keyword">new</span> PutObjectRequest &#123; BucketName = <span class="keyword">this</span>._bucketName, InputStream = stream, Key = s3Path &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> response = <span class="keyword">await</span> <span class="keyword">this</span>._amazonS3.PutObjectAsync(request);</span><br><span class="line">    <span class="keyword">if</span> (response.HttpStatusCode != HttpStatusCode.OK)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ApplicationException(<span class="string">$&quot;處理備份時發生錯誤 - 上傳至S3錯誤：<span class="subst">&#123;response.ResponseMetadata&#125;</span> StatusCode : <span class="subst">&#123;response.HttpStatusCode&#125;</span>,備份失敗不可往下執行&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>._logger.LogInformation(<span class="string">$&quot;商品頁資料備份至S3新增完畢, 位置：<span class="subst">&#123;s3Path&#125;</span>&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>問題就在出在呼叫端沒有下等待，也沒有在最後取得Task結果</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">_testService.UploadToS3Async(shopProductBadgePair.Key, productBadge.ProductBadge_Id, salepageIds);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<div class="note primary flat"><p>呼叫端沒有下 <mark class="hl-label default">await</mark>  (或更古老的 GetAwaiter)，結果就是程式碼，繼續往下執行，也不管S3上傳是否安好，不聞不問，彷彿一切與我何干</p>
+</div>
+
+<p>我們可以修正為以下方式來確保資料有上傳完成</p>
+<p>1.以同步的方式等待方法執行完成</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 以同步的方式等待方法執行完成</span></span><br><span class="line"><span class="keyword">await</span> _testService.UploadToS3Async(shopProductBadgePair.Key, productBadge.ProductBadge_Id, salepageIds);</span><br></pre></td></tr></table></figure>
+
+<p>2.以非同步的方式等待方法執行完成才結束整個流程</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 先交出不前的狀態，但呼叫端可以先繼續往下執行</span></span><br><span class="line">Task task = _testService.UploadToS3Async(shopProductBadgePair.Key, productBadge.ProductBadge_Id, salepageIds);</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ ...做其他事情</span></span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 事情都最完了，等待最後非同步任務的結果</span></span><br><span class="line"><span class="keyword">await</span> task;</span><br><span class="line"><span class="string">$&quot;<span class="subst">&#123;task.IsCompleted&#125;</span>&quot;</span>.Dump();</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>回顧一下MS Doc說明，使用 <mark class="hl-label default">async</mark>  修飾詞來將方法指定為非同步方法，就會啟用下列兩項功能:</p>
+<pre><code>1.標記的非同步方法可以使用 &#123;% label await %&#125; 來指定暫停點。 &#123;% label await %&#125; 運算子會告知編譯器，非同步方法只有在等候的非同步處理序完成後，才能繼續通過該點。 同時，控制權會返回非同步方法的呼叫端。
+
+2.標記的非同步方法本身可以做為其呼叫方法的等候目標。(就是說我可以去 &#123;% label await %&#125; 這個有經過 &#123;% label async %&#125; 修飾的方法)
+</code></pre>
+<p>以MS Doc 的圖示進一步說明<br><img src="https://i.imgur.com/7CokFn9.png" alt="Image"></p>
+<div class="note primary flat"><p>1.步驟6指出，遇到 <mark class="hl-label default">await</mark> ，暫且記住 <mark class="hl-label default">await</mark>  敘述所在的程式碼位置，接著內部會起始一個非同步 I&#x2F;O 工作，而且不等該工作完成便把控制流先返回呼叫端</p>
+<p>2.等到 <mark class="hl-label default">await</mark>  所等待的那個非同步工作執行完畢，控制流才又會切回來繼續執行剛才保留而未執行的程式碼。</p>
+</div>
+
+
+
+<p>也可以自行在在LINQPAD測試了一下同一個方法加上 <mark class="hl-label default">await</mark>  的差別</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">async</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">var</span> startTime = DateTime.Now.ToString(<span class="string">&quot;HH:mm:ss&quot;</span>);</span><br><span class="line"></span><br><span class="line">	Task task = LogAsync();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> endTime = DateTime.Now.ToString(<span class="string">&quot;HH:mm:ss&quot;</span>);</span><br><span class="line">	<span class="string">$&quot;<span class="subst">&#123;startTime&#125;</span> -- <span class="subst">&#123;endTime&#125;</span>&quot;</span>.Dump();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">await</span> task;</span><br><span class="line">    <span class="string">$&quot;完成沒 : <span class="subst">&#123;task.IsCompleted&#125;</span>&quot;</span>.Dump();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">LogAsync</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">await</span> Task.Delay(<span class="number">5000</span>);</span><br><span class="line">	<span class="built_in">string</span> path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), <span class="string">&quot;log.txt&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">using</span> (<span class="keyword">var</span> writer = <span class="keyword">new</span> StreamWriter(path, <span class="literal">true</span>))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">await</span> writer.WriteLineAsync(DateTime.Now.ToString(<span class="string">&quot;HH:mm:ss&quot;</span>));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正確的加上 <mark class="hl-label default">await</mark> ，也就是正確的執行等待，讓這個方法去等待LogAsync去完成，此時的執行續可以釋放出來去幹別的事情，”等待”事情做完再繼續往下走，</p>
+<h2 id="非同步操作，回歸基本"><a href="#非同步操作，回歸基本" class="headerlink" title="非同步操作，回歸基本"></a>非同步操作，回歸基本</h2><p>其實根據上述的情境與測試結果，還是不算了解非同步的操作背後的意涵，經驗不夠深刻，以此為基礎，讓我們透過一個生活化的例子，來更深入地理解非同步操作的概念。</p>
+<p>模擬一下洗內褲的情境：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="string">&quot;準備來洗內褲囉!&quot;</span>.Dump();</span><br><span class="line">	Thread.Sleep(TimeSpan.FromSeconds(<span class="number">1</span>));</span><br><span class="line"></span><br><span class="line">	<span class="comment"><span class="doctag">///</span>/ 洗內褲的任務</span></span><br><span class="line">	<span class="keyword">var</span> task = <span class="keyword">new</span> Task&lt;<span class="built_in">int</span>&gt;(() =&gt; </span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">int</span> time = <span class="keyword">new</span> Random().Next(<span class="number">1</span>,<span class="number">5</span>);</span><br><span class="line">		Thread.Sleep(TimeSpan.FromSeconds(time));</span><br><span class="line">		<span class="keyword">return</span> time;</span><br><span class="line">	&#125;);</span><br><span class="line">	</span><br><span class="line">	Thread.Sleep(TimeSpan.FromSeconds(<span class="number">1</span>));</span><br><span class="line">	<span class="string">&quot;洗衣機開始洗內褲...&quot;</span>.Dump();</span><br><span class="line">	</span><br><span class="line">	task.Start();</span><br><span class="line">	Thread.Sleep(TimeSpan.FromSeconds(<span class="number">1</span>));</span><br><span class="line">	<span class="string">&quot;先去看一下進擊的巨人，好在意結局阿&quot;</span>.Dump();</span><br><span class="line">	Thread.Sleep(TimeSpan.FromSeconds(<span class="number">3</span>));</span><br><span class="line">	</span><br><span class="line">	<span class="string">&quot;嗚嗚好感動，阿內褲洗完了沒?&quot;</span>.Dump();</span><br><span class="line">	Thread.Sleep(TimeSpan.FromSeconds(<span class="number">1</span>));</span><br><span class="line">	<span class="string">$&quot;洗衣機 : <span class="subst">&#123;task.IsCompleted&#125;</span>&quot;</span>.Dump();</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span>(task.IsCompleted)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="string">$&quot;洗內褲洗了 : <span class="subst">&#123;task.Result&#125;</span> 秒&quot;</span>.Dump();</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="string">&quot;等等，快洗完了&quot;</span>.Dump();</span><br><span class="line">		task.Wait();</span><br><span class="line">		<span class="string">$&quot;洗內褲洗了 : <span class="subst">&#123;task.Result&#125;</span> 秒鐘&quot;</span>.Dump();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="string">&quot;洗完了，曬一曬，來去吃麥當勞&quot;</span>.Dump();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 準備來洗內褲囉!</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 洗衣機開始洗內褲...</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 先去看一下進擊的巨人，好在意結局阿</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 嗚嗚好感動，阿內褲洗完了沒?</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 洗衣機 : True</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 洗內褲洗了 : 4 秒</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 洗完了，曬一曬，來去吃麥當勞</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>值得注意的是，我們使用 <mark class="hl-label default">task.Start()</mark>   來啟動洗內褲的任務，但不等待它完成，而是繼續執行後面的程式碼。在這個例子中，我們去看了進擊的巨人的結局，並花了一些時間感動(?)。</p>
+<p>我們回來查看內褲是否洗完了，通過 <mark class="hl-label default">task.IsCompleted</mark>   屬性來檢查任務是否已經完成。如果完成了，我們就輸出洗內褲的時間；如果還沒完成，我們就等待一下，直到任務完成，然後再輸出洗內褲的時間。</p>
+<p>藉由這個例子，我們可以更清楚地理解非同步操作的概念。非同步操作允許我們在執行長時間運行的任務時，不會阻塞當下的執行流程，而是可以去做其他的事情。當任務完成後，我們再回來處理任務的結果。<br><img src="https://i.imgur.com/K7a2j8n.png" alt="Image"></p>
+<h2 id="Performance-與-Throughput"><a href="#Performance-與-Throughput" class="headerlink" title="Performance 與 Throughput"></a>Performance 與 Throughput</h2><p>這裡我們以效能與產能的角度來看非同步</p>
+<p>非同步的核心精神在於減少等待，讓執行緒同時處理更多作業藉以提升產能(Throughput)，而不是效能(Performance)，</p>
+<p>這樣的說明感覺有點模糊，我根據自己的理解嘗試翻譯成白話文:</p>
+<p>在這裡Throughput我們可以以整個工廠的維度理解，假設這個工廠需要製作產品A與產品B，今天執行續開始製作產品A，中間有一段需要交給外包來完成，這等待的時間裡，同一個執行續去製作產品B，而不是在那邊站著冥想，一段時間後，產品A的外包商再次交還產品A，執行續再次回來將它完成，這樣的時間利用，雖然相當沒有人性，但使得整個工廠可以單位時間內產出的產品變多了，但你說，製作單一產品的速度有變快(Performance)嗎? 並沒有，我們還是要等這個產品得所有細節一步步都要走完，才能產出</p>
+<h2 id="I-O-Bound-Work-與-CPU-Bound-Work"><a href="#I-O-Bound-Work-與-CPU-Bound-Work" class="headerlink" title="I&#x2F;O Bound Work 與 CPU Bound Work"></a>I&#x2F;O Bound Work 與 CPU Bound Work</h2><p>I&#x2F;O Bound 表示作業的大部分時間都在等待 I&#x2F;O 操作完成,例如:</p>
+<p>從磁碟讀寫文件<br>向數據庫發送查詢並等待結果<br>通過網絡發送或接收數據<br>與外部設備或服務進行通信</p>
+<p>在這些情況下,執行緒(Thread)大部分時間都處於空閒狀態,等待 I&#x2F;O 操作完成。如果使用同步處理,執行緒會一直阻塞直到 I&#x2F;O 操作完成,這期間不能處理其他任務。而使用非同步處理,當執行緒遇到 I&#x2F;O 操作時,它可以將 I&#x2F;O 操作交給系統處理,自己則空閒出來處理其他任務。當 I&#x2F;O 操作完成時,執行緒再回來繼續處理。這樣可以大大提高執行緒的利用率和系統的整體產能(Throughput)。</p>
+<p>但如果今天有大量的CPU Bound作業需要完成，就沒有空閒的Thread有在等待，也就沒有空閒去做別的事情，在這個情況下非同步的效果就會看不出來</p>
+<p>這一篇有關於Async Programming的說明先就基礎與意義上做了一些琢磨與說明，之後會在更深的探討使用的方式，背後的機制，以及例子</p>
+<h2 id="精神能量分析"><a href="#精神能量分析" class="headerlink" title="精神能量分析"></a>精神能量分析</h2><p>精神能量 : 😎</p>
+<p>雖然這兩天感冒了，但以此為由可以暫時離開辦公室，兩天都請了半天假，體會到彈性工作的優勢之處，但也相對的，在自主性以及安排時間的能力<br>上需要建立一定程度的信任感，才會有更多的這種機會</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/05/07/%E7%95%B0%E6%AD%A5%E8%99%95%E7%90%86/">https://allenlin000.github.io.git/2024/05/07/%E7%95%B0%E6%AD%A5%E8%99%95%E7%90%86/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Asynchronous-Programming/">Asynchronous Programming</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/ptNmOOD.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/05/04/Cache-1-OutputCache/" title="Cache (一. OutputCache)"><img class="cover" src="https://i.imgur.com/hyHuUUs.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Cache (一. OutputCache)</div></div></a></div><div class="next-post pull-right"><a href="/2024/05/11/JsonIgnore/" title="Json Ignore"><img class="cover" src="https://i.imgur.com/eKYq4tC.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Json Ignore</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">26</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">推code推到六親不認</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%88%E4%BB%B6%E9%87%90%E6%B8%85"><span class="toc-number">1.</span> <span class="toc-text">案件釐清</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E5%90%8C%E6%AD%A5%E6%93%8D%E4%BD%9C%EF%BC%8C%E5%9B%9E%E6%AD%B8%E5%9F%BA%E6%9C%AC"><span class="toc-number">2.</span> <span class="toc-text">非同步操作，回歸基本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Performance-%E8%88%87-Throughput"><span class="toc-number">3.</span> <span class="toc-text">Performance 與 Throughput</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#I-O-Bound-Work-%E8%88%87-CPU-Bound-Work"><span class="toc-number">4.</span> <span class="toc-text">I&#x2F;O Bound Work 與 CPU Bound Work</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B2%BE%E7%A5%9E%E8%83%BD%E9%87%8F%E5%88%86%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text">精神能量分析</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/06/16/hello-world/" title="Hello World"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello World"/></a><div class="content"><a class="title" href="/2024/06/16/hello-world/" title="Hello World">Hello World</a><time datetime="2024-06-16T08:37:20.405Z" title="Created 2024-06-16 16:37:20">2024-06-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/" title="Window Function"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Window Function"/></a><div class="content"><a class="title" href="/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/" title="Window Function">Window Function</a><time datetime="2024-06-09T08:02:34.000Z" title="Created 2024-06-09 16:02:34">2024-06-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95-2/" title="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN"/></a><div class="content"><a class="title" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95-2/" title="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN">LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN</a><time datetime="2024-06-08T15:50:34.000Z" title="Created 2024-06-08 23:50:34">2024-06-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95/" title="STRING_AGG"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="STRING_AGG"/></a><div class="content"><a class="title" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95/" title="STRING_AGG">STRING_AGG</a><time datetime="2024-06-08T03:49:34.000Z" title="Created 2024-06-08 11:49:34">2024-06-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/06/LINQ-4/" title="Query Expression Syntax vs Method Chaining Syntax"><img src="https://i.imgur.com/cBfeEDY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Query Expression Syntax vs Method Chaining Syntax"/></a><div class="content"><a class="title" href="/2024/06/06/LINQ-4/" title="Query Expression Syntax vs Method Chaining Syntax">Query Expression Syntax vs Method Chaining Syntax</a><time datetime="2024-06-06T15:59:34.000Z" title="Created 2024-06-06 23:59:34">2024-06-06</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

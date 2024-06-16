@@ -1,32 +1,183 @@
-extends includes/layout.pug
-
-block content
-  #post
-    if top_img === false
-      include includes/header/post-info.pug
-
-    article#article-container.post-content!=page.content
-    include includes/post/post-copyright.pug
-    .tag_share
-      if (theme.post_meta.post.tags)
-        .post-meta__tag-list
-          each item, index in page.tags.data
-            a(href=url_for(item.path)).post-meta__tags #[=item.name]
-      include includes/third-party/share/index.pug
-        
-    if theme.reward.enable && theme.reward.QR_code
-      !=partial('includes/post/reward', {}, {cache: true})
-
-    //- ad
-    if theme.ad && theme.ad.post
-      .ads-wrap!=theme.ad.post
-
-    if theme.post_pagination
-      include includes/pagination.pug
-    if theme.related_post && theme.related_post.enable
-      != related_posts(page,site.posts)
-
-    if page.comments !== false && theme.comments && theme.comments.use
-      - var commentsJsLoad = true
-      !=partial('includes/third-party/comments/index', {}, {cache: true})
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>HttpClient (二. Headers ) | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="在 ASP.NET 中，使用 HttpClient 發送請求時，網路上建議使用 SendAsync 方法，而不是特定的 HTTP 動詞,如 GetAsync、PostAsync…， 原因在於，SendAsync 讓我們可以藉由HttpRequestMessage將資訊傳遞出去，那為甚麼要使用 HttpRequestMessage 呢? 由於 HttpClient instance 應該在多個 Re">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HttpClient (二. Headers )">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/05/21/HttpClient-2/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="在 ASP.NET 中，使用 HttpClient 發送請求時，網路上建議使用 SendAsync 方法，而不是特定的 HTTP 動詞,如 GetAsync、PostAsync…， 原因在於，SendAsync 讓我們可以藉由HttpRequestMessage將資訊傳遞出去，那為甚麼要使用 HttpRequestMessage 呢? 由於 HttpClient instance 應該在多個 Re">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/hZWviQz.png">
+<meta property="article:published_time" content="2024-05-21T15:28:05.000Z">
+<meta property="article:modified_time" content="2024-06-16T08:55:56.227Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="HttpClient">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/hZWviQz.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/05/21/HttpClient-2/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'HttpClient (二. Headers )',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-06-16 16:55:56'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
       
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">26</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">HttpClient (二. Headers )</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-05-21T15:28:05.000Z" title="Created 2024-05-21 23:28:05">2024-05-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-06-16T08:55:56.227Z" title="Updated 2024-06-16 16:55:56">2024-06-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/HttpClient/">HttpClient</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="HttpClient (二. Headers )"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>在 ASP.NET 中，使用 HttpClient 發送請求時，網路上建議使用 SendAsync 方法，而不是特定的 HTTP 動詞,如 GetAsync、PostAsync…，<br></p>
+<p>原因在於，SendAsync 讓我們可以藉由HttpRequestMessage將資訊傳遞出去，那為甚麼要使用 HttpRequestMessage 呢?<br></p>
+<p>由於 HttpClient instance 應該在多個 Request 之間共享, 假如我們直接使用 DefaultHeader 來設定 Header ， 例如驗證token，就會導致驗證資訊混用, 因為他不是 Thread Safe 的<br></p>
+<p>因此實際上，我們常需要的情境是，在相同的 HttpClient instance 下執行不同類型的 Request、不同的 EndPoint 以及不同的 Headers (例如驗證身分) 時，使用 HttpRequestMessage 讓我們可以把 Headers 放在單獨的 Request 上,而不是放在 HttpClient 本身上，也就是每個 Request 進來都設定自己的 Header。</p>
+<h2 id="關於DefaultHeader"><a href="#關於DefaultHeader" class="headerlink" title="關於DefaultHeader"></a>關於DefaultHeader</h2><p>來看一個stackOverFlow的問題</p>
+<p><img src="https://i.imgur.com/QBqNxcP.png" alt="Image"></p>
+<p>1.這種方式在 HttpClient 上設定 Header 是否是 Thread Safe 呢？<br><br>2.由於只有一個 HttpClient instance，其他使用者是否也能存取到同樣的 Token?<br><br>3.每次使用同一個 HttpClient 物件發出請求時，是否需要再次添加 Header ？<br></p>
+<p>在這個案例下，微軟提供可以設定 HttpRequestMessage 來支持使用 SendAsync的方式來發送 Request 而不是使用 DefaultHeader，Header 是特別在每個 Request 下設定的，因此混淆 Headers 的問題就不會發生了。</p>
+<p><img src="https://i.imgur.com/l6FTEgT.png" alt="Image"></p>
+<p>所以可以像解答所提到的，設定成這樣</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> httpRequestMessage = <span class="keyword">new</span> HttpRequestMessage(HttpMethod.Get, <span class="string">&quot;http://path/to/wherever&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">    httpRequestMessage.Headers.Authorization = <span class="keyword">new</span> AuthenticationHeaderValue(<span class="string">&quot;Bearer&quot;</span>, <span class="string">&quot;TheToken&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> httpResponseMessage = httpClient.SendAsync(httpRequestMessage))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="身分驗證-Bearer-Basic"><a href="#身分驗證-Bearer-Basic" class="headerlink" title="身分驗證 : Bearer ? Basic ?"></a>身分驗證 : Bearer ? Basic ?</h2><p>現在許多的 API 驗證機制因為不想存大量的狀態資訊在 Server 端，因此常以 stateless 來做，例如 : Microsoft Graph API、Google Cloud API…<br></p>
+<p>在串接時常會看到 Bearer Token 或偶爾看到 Basic Token，他們其實就是把一些敏感資訊，打成看起來像亂碼的東西做傳輸，在從接收方解碼識別，但 Beaer Token 與 Basic Token 的差異是什麼?<br></p>
+<p>簡單來說 Basic 的做法就是透過 base64 編碼，而如之前的文章提過的，只要了解其中的規則，攻擊者可以輕易的解碼這段資訊，然後就可以在之後的任何時間，重複使用這些截取到的資訊做奇怪的事情。</p>
+<p>而 Bearer Token 則是 OAuth 2.0 的流程產出的 Token，流程較複雜且更安全，他會經過 Hash</p>
+<p>說明參考 : <a target="_blank" rel="noopener" href="https://vicxu.medium.com/%E6%B7%BA%E8%AB%87-authentication-%E4%B8%AD%E9%9B%86-token-based-authentication-90139fbcb897">https://vicxu.medium.com/%E6%B7%BA%E8%AB%87-authentication-%E4%B8%AD%E9%9B%86-token-based-authentication-90139fbcb897</a></p>
+<p>Basic Token</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> byteArray = Encoding.ASCII.GetBytes(<span class="string">&quot;allen:username&quot;</span>);</span><br><span class="line"><span class="keyword">var</span> auth = <span class="keyword">new</span> AuthenticationHeaderValue(<span class="string">&quot;Basic&quot;</span>, Convert.ToBase64String(byteArray));</span><br><span class="line">auth.Dump();</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Parameter YWxsZW46dXNlcm5hbWU=</span></span><br><span class="line">   <span class="comment">// Scheme Basic</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Bearer Token</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> signingKey = <span class="keyword">new</span> SymmetricSecurityKey(Encoding.UTF8.GetBytes(<span class="string">&quot;allen_is_a_very_long_secret_key_for_hmac_sha256&quot;</span>));</span><br><span class="line"><span class="keyword">var</span> tokenHandler = <span class="keyword">new</span> JwtSecurityTokenHandler();</span><br><span class="line"><span class="keyword">var</span> claims = <span class="keyword">new</span>[]</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">new</span> Claim(ClaimTypes.NameIdentifier, <span class="string">&quot;user_id&quot;</span>),</span><br><span class="line">    <span class="keyword">new</span> Claim(ClaimTypes.Name, <span class="string">&quot;username&quot;</span>)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tokenDescriptor = <span class="keyword">new</span> SecurityTokenDescriptor</span><br><span class="line">&#123;</span><br><span class="line">    Subject = <span class="keyword">new</span> ClaimsIdentity(claims),</span><br><span class="line">    Expires = DateTime.UtcNow.AddHours(<span class="number">1</span>),</span><br><span class="line">    SigningCredentials = <span class="keyword">new</span> SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> token = tokenHandler.CreateToken(tokenDescriptor);</span><br><span class="line"><span class="keyword">var</span> bearerToken = tokenHandler.WriteToken(token);</span><br><span class="line"><span class="keyword">var</span> auth = <span class="keyword">new</span> AuthenticationHeaderValue(<span class="string">&quot;Bearer&quot;</span>, bearerToken);</span><br><span class="line">auth.Dump();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Parameter : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJ1c2VyX2lkIiwidW5pcXVlX25hbWUiOiJ1c2VybmFtZSIsIm5iZiI6MTcxNjYxMDY5MCwiZXhwIjoxNzE2NjE0MjkwLCJpYXQiOjE3MTY2MTA2OTB9.FhLuXQ82HuzoK2gAuoS6JQZNzt8FEr41a__RkTEyqU8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Scheme : Bearer</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="精神能量分析"><a href="#精神能量分析" class="headerlink" title="精神能量分析"></a>精神能量分析</h2><p>精神能量 : 🐟</p>
+<p>今天阿冠帶我去旱溪夜市吃很美味的烤魚，真是意猶未盡啊…</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/05/21/HttpClient-2/">https://allenlin000.github.io.git/2024/05/21/HttpClient-2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/HttpClient/">HttpClient</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/hZWviQz.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/05/20/HttpClient-1/" title="HttpClient (一. BaseAddress)"><img class="cover" src="https://i.imgur.com/hZWviQz.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">HttpClient (一. BaseAddress)</div></div></a></div><div class="next-post pull-right"><a href="/2024/05/21/HttpClient-3/" title="HttpClient (三. Refit )"><img class="cover" src="https://i.imgur.com/hZWviQz.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">HttpClient (三. Refit )</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/05/20/HttpClient-1/" title="HttpClient (一. BaseAddress)"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-20</div><div class="title">HttpClient (一. BaseAddress)</div></div></a></div><div><a href="/2024/05/21/HttpClient-3/" title="HttpClient (三. Refit )"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-21</div><div class="title">HttpClient (三. Refit )</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">26</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">推code推到六親不認</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%9C%E6%96%BCDefaultHeader"><span class="toc-number">1.</span> <span class="toc-text">關於DefaultHeader</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BA%AB%E5%88%86%E9%A9%97%E8%AD%89-Bearer-Basic"><span class="toc-number">2.</span> <span class="toc-text">身分驗證 : Bearer ? Basic ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B2%BE%E7%A5%9E%E8%83%BD%E9%87%8F%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">精神能量分析</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/06/16/hello-world/" title="Hello World"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello World"/></a><div class="content"><a class="title" href="/2024/06/16/hello-world/" title="Hello World">Hello World</a><time datetime="2024-06-16T08:37:20.405Z" title="Created 2024-06-16 16:37:20">2024-06-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/" title="Window Function"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Window Function"/></a><div class="content"><a class="title" href="/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/" title="Window Function">Window Function</a><time datetime="2024-06-09T08:02:34.000Z" title="Created 2024-06-09 16:02:34">2024-06-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95-2/" title="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN"/></a><div class="content"><a class="title" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95-2/" title="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN">LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN</a><time datetime="2024-06-08T15:50:34.000Z" title="Created 2024-06-08 23:50:34">2024-06-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95/" title="STRING_AGG"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="STRING_AGG"/></a><div class="content"><a class="title" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95/" title="STRING_AGG">STRING_AGG</a><time datetime="2024-06-08T03:49:34.000Z" title="Created 2024-06-08 11:49:34">2024-06-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/06/LINQ-4/" title="Query Expression Syntax vs Method Chaining Syntax"><img src="https://i.imgur.com/cBfeEDY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Query Expression Syntax vs Method Chaining Syntax"/></a><div class="content"><a class="title" href="/2024/06/06/LINQ-4/" title="Query Expression Syntax vs Method Chaining Syntax">Query Expression Syntax vs Method Chaining Syntax</a><time datetime="2024-06-06T15:59:34.000Z" title="Created 2024-06-06 23:59:34">2024-06-06</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

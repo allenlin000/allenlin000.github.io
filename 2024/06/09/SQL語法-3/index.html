@@ -1,32 +1,192 @@
-extends includes/layout.pug
-
-block content
-  #post
-    if top_img === false
-      include includes/header/post-info.pug
-
-    article#article-container.post-content!=page.content
-    include includes/post/post-copyright.pug
-    .tag_share
-      if (theme.post_meta.post.tags)
-        .post-meta__tag-list
-          each item, index in page.tags.data
-            a(href=url_for(item.path)).post-meta__tags #[=item.name]
-      include includes/third-party/share/index.pug
-        
-    if theme.reward.enable && theme.reward.QR_code
-      !=partial('includes/post/reward', {}, {cache: true})
-
-    //- ad
-    if theme.ad && theme.ad.post
-      .ads-wrap!=theme.ad.post
-
-    if theme.post_pagination
-      include includes/pagination.pug
-    if theme.related_post && theme.related_post.enable
-      != related_posts(page,site.posts)
-
-    if page.comments !== false && theme.comments && theme.comments.use
-      - var commentsJsLoad = true
-      !=partial('includes/third-party/comments/index', {}, {cache: true})
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Window Function | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="在理解 Window function 前，我們先來想想看以下情境: 一個銷售團隊需要計算每個銷售人員的月度銷售業績排名和銷售額佔總銷售額的百分比。 一個學校需要計算每個學生最近三次考試成績的移動平均值，以評估學生的學習進度。 一個金融分析師需要計算每隻股票的每日漲跌幅和累計收益率，以評估股票的表現。 … 在這些例子中，觸及了 排名、百分比、移動平均、累計計算等概念，實現這些計算會需要為每一行資料">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Window Function">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="在理解 Window function 前，我們先來想想看以下情境: 一個銷售團隊需要計算每個銷售人員的月度銷售業績排名和銷售額佔總銷售額的百分比。 一個學校需要計算每個學生最近三次考試成績的移動平均值，以評估學生的學習進度。 一個金融分析師需要計算每隻股票的每日漲跌幅和累計收益率，以評估股票的表現。 … 在這些例子中，觸及了 排名、百分比、移動平均、累計計算等概念，實現這些計算會需要為每一行資料">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/NfCnwwU.png">
+<meta property="article:published_time" content="2024-06-09T08:02:34.000Z">
+<meta property="article:modified_time" content="2024-06-16T09:19:34.936Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="SQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/NfCnwwU.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Window Function',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-06-16 17:19:34'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
       
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">26</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Window Function</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-06-09T08:02:34.000Z" title="Created 2024-06-09 16:02:34">2024-06-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-06-16T09:19:34.936Z" title="Updated 2024-06-16 17:19:34">2024-06-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/SQL/">SQL</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Window Function"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>在理解 Window function 前，我們先來想想看以下情境:</p>
+<p>一個銷售團隊需要計算每個銷售人員的月度銷售業績排名和銷售額佔總銷售額的百分比。</p>
+<p>一個學校需要計算每個學生最近三次考試成績的移動平均值，以評估學生的學習進度。</p>
+<p>一個金融分析師需要計算每隻股票的每日漲跌幅和累計收益率，以評估股票的表現。</p>
+<p>…</p>
+<p>在這些例子中，觸及了 排名、百分比、移動平均、累計計算等概念，實現這些計算會需要為每一行資料提供一個 “窗口” 或 “框架”, 對當前這筆資料及其相鄰的行進行計算和分析，生成一個計算結果。</p>
+<p>舉個實際的例子</p>
+<p>有一個銷售資料表，包含銷售人員、銷售日期和銷售額，我們要為每個銷售人員的每筆銷售記錄計算截至該日期的累計銷售額</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> SalesPersonId, SaleDate, SaleAmount,</span><br><span class="line">       <span class="built_in">SUM</span>(SaleAmount) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> SalesPersonId <span class="keyword">ORDER</span> <span class="keyword">BY</span> SaleDate) <span class="keyword">AS</span> CumulativeSales</span><br><span class="line"><span class="keyword">FROM</span> SalesData;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在這個例子中，SUM(SaleAmount) OVER (…) 為每個銷售人員的每筆記錄生成一個累計銷售額。窗口按銷售人員劃分 (partition by)，並按銷售日期排序 (order by)。<br>對於每一行，Window function 計算從該銷售人員的第一筆記錄到當前行的銷售額總和，生成累計銷售額的結果，而不是針對這張表生成一個總和的結果</p>
+<h2 id="介紹"><a href="#介紹" class="headerlink" title="介紹"></a>介紹</h2><p>語法 Pattern是這樣</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="operator">&lt;</span><span class="keyword">Window</span> <span class="keyword">Function</span><span class="operator">&gt;</span> <span class="keyword">over</span> (<span class="keyword">partition</span> <span class="keyword">by</span> <span class="operator">&lt;</span>以哪個欄位做劃分<span class="operator">&gt;</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="operator">&lt;</span>以哪個欄位做排序<span class="operator">&gt;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以下再根據類型舉實例說明</p>
+<h2 id="Aggregate"><a href="#Aggregate" class="headerlink" title="Aggregate"></a>Aggregate</h2><p>讓我們看看stackOverFlow<br><img src="https://i.imgur.com/HmGplte.png" alt="Image"></p>
+<p>這個問題以 SUM 為例做 Winsow Function</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">  quatertime,</span><br><span class="line">  order_rate,</span><br><span class="line">  <span class="built_in">CAST</span>(CONCAT(<span class="keyword">YEAR</span>(quatertime), <span class="string">&#x27;-&#x27;</span>, </span><br><span class="line">              <span class="keyword">MONTH</span>(quatertime), <span class="string">&#x27;-&#x27;</span>, </span><br><span class="line">              <span class="keyword">DAY</span>(quatertime), <span class="string">&#x27; &#x27;</span>, </span><br><span class="line">              DATEPART(<span class="keyword">HOUR</span>, quatertime), <span class="string">&#x27;:00:00&#x27;</span>) <span class="keyword">AS</span> DATETIME) <span class="keyword">AS</span> CreatedDateHour,</span><br><span class="line">  <span class="built_in">SUM</span>(order_rate) <span class="keyword">OVER</span> (</span><br><span class="line">        <span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="built_in">CAST</span>(CONCAT(<span class="keyword">YEAR</span>(quatertime), <span class="string">&#x27;-&#x27;</span>, </span><br><span class="line">                                  <span class="keyword">MONTH</span>(quatertime), <span class="string">&#x27;-&#x27;</span>, </span><br><span class="line">                                  <span class="keyword">DAY</span>(quatertime), <span class="string">&#x27; &#x27;</span>, </span><br><span class="line">                                  DATEPART(<span class="keyword">HOUR</span>, quatertime), <span class="string">&#x27;:00:00&#x27;</span>) <span class="keyword">AS</span> DATETIME)</span><br><span class="line">        <span class="keyword">ORDER</span> <span class="keyword">BY</span> quatertime</span><br><span class="line">        <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> UNBOUNDED PRECEDING <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="type">ROW</span></span><br><span class="line">      ) <span class="keyword">AS</span> SUM_DAY_HOUR,</span><br><span class="line">  <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (</span><br><span class="line">        <span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="built_in">CAST</span>(CONCAT(<span class="keyword">YEAR</span>(quatertime), <span class="string">&#x27;-&#x27;</span>, </span><br><span class="line">                                 <span class="keyword">MONTH</span>(quatertime), <span class="string">&#x27;-&#x27;</span>, </span><br><span class="line">                                 <span class="keyword">DAY</span>(quatertime), <span class="string">&#x27; &#x27;</span>, </span><br><span class="line">                                 DATEPART(<span class="keyword">HOUR</span>, quatertime), <span class="string">&#x27;:00:00&#x27;</span>) <span class="keyword">AS</span> DATETIME)</span><br><span class="line">        <span class="keyword">ORDER</span> <span class="keyword">BY</span> quatertime</span><br><span class="line">        ) <span class="keyword">AS</span> DAY_HOUR_PART_NUMBER,</span><br><span class="line"><span class="keyword">FROM</span> </span><br><span class="line">  <span class="keyword">TABLE</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在這邊，我的作法是，我們把時間以小時區分，把它新增為一個新欄位，接著，使用 Window Funciton 紀錄每一組的 總和與序號，這也是為了方便確認結果<br>但我沒有他手邊的資料，資料大概會像這樣</p>
+<h2 id="RANK-DENSE-RANK"><a href="#RANK-DENSE-RANK" class="headerlink" title="RANK() &amp; DENSE_RANK()"></a>RANK() &amp; DENSE_RANK()</h2><p>ROW_NUMBER: 為每一行分配一個唯一的連續編號，不考慮分數是否相同。因此，即使 Bob 和 Carol 的分數相同，他們的 ROW_NUMBER 也是連續的。<br>RANK: 為每一行分配一個排名，同分數的行獲得相同的排名。當出現並列時，會跳過之後的排名。例如，Bob 和 Carol 並列第四名，因此沒有第五名，Eve 直接是第六名。<br>DENSE_RANK: 與 RANK 類似，為每一行分配一個排名，同分數的行獲得相同的排名。但是，當出現並列時，不會跳過之後的排名。例如，Bob 和 Carol 並列第四名，但 Eve 仍然是第五名。</p>
+<p>一樣，我們來看 Window Function 怎麼來解決現實人類遇到的問題</p>
+<p><img src="https://i.imgur.com/7ReJVtC.png" alt="Image"><br>參考連結 : <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/76673928/dense-rank-when-order-by-column-values-are-the-same">https://stackoverflow.com/questions/76673928/dense-rank-when-order-by-column-values-are-the-same</a></p>
+<p>根據作者的描述，他嘗試用 DENSE_RANK () 函數對一組支付資料排名，並按照 [PAYROLL DATE] 和 [PROCESS DATE] 兩個資料點對結果進行排序。他的要求如下:</p>
+<p>1.如果 [PAYROLL DATE] 為空，則應使用 [PROCESS DATE] 進行排序。<br>2.如果有多行數據具有相同的 [PAYROLL DATE], 則它們的排名相同。</p>
+<p>他不希望所有具有 payroll_date 的資料先被排名,然後才依照 process_date 排名。相反,他希望一次考慮 payroll_date 和 process_date 的值。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">-- 作者原有邏輯</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line"><span class="operator">*</span></span><br><span class="line">,PayNum <span class="operator">=</span> </span><br><span class="line"><span class="built_in">DENSE_RANK</span>() <span class="keyword">OVER</span> (</span><br><span class="line">	<span class="keyword">PARTITION</span> <span class="keyword">BY</span> [Plan_ID],ee_id,loan_number </span><br><span class="line">	<span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">CASE</span> <span class="keyword">WHEN</span> payroll_date <span class="keyword">IS</span> <span class="keyword">NULL</span> <span class="keyword">THEN</span> <span class="number">1</span> <span class="keyword">ELSE</span> <span class="number">0</span> <span class="keyword">END</span>, payroll_date, process_date <span class="keyword">ASC</span>)</span><br><span class="line"><span class="keyword">FROM</span> table1</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> ISNULL(payroll_date,process_date)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 解答邏輯</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line"><span class="operator">*</span></span><br><span class="line">,PayNum <span class="operator">=</span> </span><br><span class="line"><span class="built_in">DENSE_RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> [Plan_ID],ee_id,loan_number </span><br><span class="line">				   <span class="keyword">ORDER</span> <span class="keyword">BY</span>  <span class="built_in">COALESCE</span>(payroll_date, process_date) , <span class="keyword">CASE</span> <span class="keyword">WHEN</span> payroll_date <span class="keyword">IS</span> <span class="keyword">NULL</span> <span class="keyword">THEN</span> <span class="number">1</span> <span class="keyword">ELSE</span> <span class="number">0</span> <span class="keyword">END</span>)</span><br><span class="line"><span class="keyword">FROM</span> table1</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> ISNULL(payroll_date,process_date)</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<p>Window Function 使用了 DenseRank，表示有並存的排名時，不跳號，並且排名範圍在同一組 Plan_ID, ee_id, loan_number範圍下，排序規則在這裡有了分歧</p>
+<p>解答的排序規則:</p>
+<p>根據 COALESCE (payroll_date, process_date) 的值對資料進行排序。表示:</p>
+<p>如果 payroll_date 不為空，則按照 payroll_date 的值進行排序。<br>如果 payroll_date 為空，則按照 process_date 的值進行排序。</p>
+<p>接下來，在 COALESCE (payroll_date, process_date) 提出來的值相同的情況下，根據 CASE WHEN payroll_date IS NULL THEN 1 ELSE 0 END 的值對資料進行進一步排序，所以，當 payroll_date 和 process_date 的值相同時，payroll_date 不為空的資料 (CASE 表達式返回 0) 將排在 payroll_date 為空的資料 (CASE 表達式返回 1) 之前，因此符合作者的需求。<br><img src="https://i.imgur.com/h8JsMXB.png" alt="Image"></p>
+<p>Window Function 確實是很方便的工具，剩下的就等實戰經驗更多時再來分享吧!</p>
+<h2 id="精神能量分析"><a href="#精神能量分析" class="headerlink" title="精神能量分析"></a>精神能量分析</h2><p>精神能量 : 🖼️</p>
+<p>等等要爬山囉 (晚上才跑去爬山…)</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/">https://allenlin000.github.io.git/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/SQL/">SQL</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/NfCnwwU.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95-2/" title="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN</div></div></a></div><div class="next-post pull-right"><a href="/2024/06/16/hello-world/" title="Hello World"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hello World</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95/" title="STRING_AGG"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-06-08</div><div class="title">STRING_AGG</div></div></a></div><div><a href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95-2/" title="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-06-08</div><div class="title">LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">26</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">推code推到六親不認</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%B4%B9"><span class="toc-number">1.</span> <span class="toc-text">介紹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Aggregate"><span class="toc-number">2.</span> <span class="toc-text">Aggregate</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RANK-DENSE-RANK"><span class="toc-number">3.</span> <span class="toc-text">RANK() &amp; DENSE_RANK()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B2%BE%E7%A5%9E%E8%83%BD%E9%87%8F%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">精神能量分析</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/06/16/hello-world/" title="Hello World"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hello World"/></a><div class="content"><a class="title" href="/2024/06/16/hello-world/" title="Hello World">Hello World</a><time datetime="2024-06-16T08:37:20.405Z" title="Created 2024-06-16 16:37:20">2024-06-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/" title="Window Function"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Window Function"/></a><div class="content"><a class="title" href="/2024/06/09/SQL%E8%AA%9E%E6%B3%95-3/" title="Window Function">Window Function</a><time datetime="2024-06-09T08:02:34.000Z" title="Created 2024-06-09 16:02:34">2024-06-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95-2/" title="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN"/></a><div class="content"><a class="title" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95-2/" title="LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN">LEFT JOIN...IS NULL vs NOT EXISTS vs NOT IN</a><time datetime="2024-06-08T15:50:34.000Z" title="Created 2024-06-08 23:50:34">2024-06-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95/" title="STRING_AGG"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="STRING_AGG"/></a><div class="content"><a class="title" href="/2024/06/08/SQL%E8%AA%9E%E6%B3%95/" title="STRING_AGG">STRING_AGG</a><time datetime="2024-06-08T03:49:34.000Z" title="Created 2024-06-08 11:49:34">2024-06-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/06/06/LINQ-4/" title="Query Expression Syntax vs Method Chaining Syntax"><img src="https://i.imgur.com/cBfeEDY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Query Expression Syntax vs Method Chaining Syntax"/></a><div class="content"><a class="title" href="/2024/06/06/LINQ-4/" title="Query Expression Syntax vs Method Chaining Syntax">Query Expression Syntax vs Method Chaining Syntax</a><time datetime="2024-06-06T15:59:34.000Z" title="Created 2024-06-06 23:59:34">2024-06-06</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
