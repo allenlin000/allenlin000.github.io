@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>關於 null (一.) | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="關於 value type 的 “無值”value type 例如 : int, DateTime, bool…使用時應該有發現他不能被賦值為 null，為甚麼? 我們想一想，當一個數值被賦值為 “不存在” 是有意義的嗎 我們使用 int，先不論電腦世界的 0, 1，在我們的應用邏輯上，通常是數量、順序的概念，也就是有多寡、前後 例如一筆訂單 12345678910public class Ord">
+<meta property="og:type" content="article">
+<meta property="og:title" content="關於 null (一.)">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/07/06/null-1/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="關於 value type 的 “無值”value type 例如 : int, DateTime, bool…使用時應該有發現他不能被賦值為 null，為甚麼? 我們想一想，當一個數值被賦值為 “不存在” 是有意義的嗎 我們使用 int，先不論電腦世界的 0, 1，在我們的應用邏輯上，通常是數量、順序的概念，也就是有多寡、前後 例如一筆訂單 12345678910public class Ord">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/Zly1UDM.png">
+<meta property="article:published_time" content="2024-07-06T09:25:05.000Z">
+<meta property="article:modified_time" content="2024-07-13T15:34:57.616Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="C#">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/Zly1UDM.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/07/06/null-1/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '關於 null (一.)',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-07-13 23:34:57'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">關於 null (一.)</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-07-06T09:25:05.000Z" title="Created 2024-07-06 17:25:05">2024-07-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-07-13T15:34:57.616Z" title="Updated 2024-07-13 23:34:57">2024-07-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/C/">C#</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="關於 null (一.)"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="關於-value-type-的-“無值”"><a href="#關於-value-type-的-“無值”" class="headerlink" title="關於 value type 的 “無值”"></a>關於 value type 的 “無值”</h1><p>value type 例如 : int, DateTime, bool…使用時應該有發現他不能被賦值為 null，為甚麼?</p>
+<p>我們想一想，當一個數值被賦值為 “不存在” 是有意義的嗎</p>
+<p>我們使用 int，先不論電腦世界的 0, 1，在我們的應用邏輯上，通常是數量、順序的概念，也就是有多寡、前後</p>
+<p>例如一筆訂單</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Order</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> OrderId &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> DateTime OrderDate &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Quantity &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">decimal</span> TotalAmount &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">bool</span> IsShipped &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>OrderId: 即使是 0 也是有意義的（可能代表系統中的第一個訂單）。<br>OrderDate: 一個具體的日期和時間。<br>Quantity: 訂單中商品的數量。0 是有意義的（可能表示空訂單）。<br>TotalAmount: 訂單總金額。0 也是有效值（免費訂單）。<br>IsShipped: 這是一個 bool，要麼是 true（已發貨），要麼是 false（未發貨）。</p>
+<p>但..我們知道邏輯上是這樣沒錯，那我們實務上也需要防範他是 null 的狀況吧?</p>
+<p>這就已經交給 .NET 的框架處理了，對於 .NET 來說 ，value type 都會有一個預設值，例如 bool 預設是 false</p>
+<p>等等…那…例如折扣呢? 如果我們這筆訂單沒有折扣，讓他賦值為 null 會比 0 更有意義吧?</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Order</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ... 其他屬性 ...</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">decimal</span>? Discount &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我認為，這就脫離數值的職責了，我們不應該讓數值去判定”有沒有”這件事，而且這讓我們看到 Discount &#x3D; 0 時難以判斷這是折扣系統本來就有設計好 Discount  &#x3D; 0，還是說，這是一個失誤，我們不喜歡這種曖昧不清的關係(雖然有聽過一種說法是曖昧是最美好的時期)，因此應該修改為</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Order</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ... 其他屬性 ...</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">bool</span> HasDiscount &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">decimal</span> Discount &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如此一來，就會很明確這筆訂單是否有折扣而不是判定 if Discount !&#x3D; null 來確認是否有折扣了</p>
+<p>接著，說到背後機制上，value type 的記憶體分配在 stack 上，且他不會有額外的記憶體來儲存 “是否為 null” 的資訊，也就不用判斷是不是要引用 heap 上的位址，以省去這個記憶體空間</p>
+<h1 id="那-strcut-呢-struct-內部也可以有-reference-type-成員嗎-那也可以為-null"><a href="#那-strcut-呢-struct-內部也可以有-reference-type-成員嗎-那也可以為-null" class="headerlink" title="那 strcut 呢? struct 內部也可以有 reference type 成員嗎? 那也可以為 null?"></a>那 strcut 呢? struct 內部也可以有 reference type 成員嗎? 那也可以為 null?</h1><p>在 .NET ，struct 是一個 value type：</p>
+<p>因此</p>
+<p>struct 的 instance 整體是按照 value 複製的<br>struct 不能為 null（除非使用Null<T>）。<br>struct 直接存在 stack 上</p>
+<p>原因在於通常這是給輕、小量的資料建構用的，還是希望快，至於屬性成員包含 reference type 的話，例如 string，strcut 就會存取他的引用位置而不是值，如果為 null，就標記為不引用任何位置的值</p>
+<h1 id="null-在記憶體是怎麼運作的"><a href="#null-在記憶體是怎麼運作的" class="headerlink" title="null 在記憶體是怎麼運作的?"></a>null 在記憶體是怎麼運作的?</h1><p>null 並不真正 “存在” 於記憶體中。它是一個概念，由 RunTime 來處理。</p>
+<p>如果在 APP 中建立了幾個設為 null 的變數，每個變數本身佔用一定的記憶體空間來存它的 metadata（如 類型, 名稱）在 stack 中，變數被設為 null 時，它的引用值會被設置為一個特殊的值，這個值被 Runtime 識別為 “無引用” 的標記，所以也不占用 heap</p>
+<p>當 Runtime 成功識別為 null 時，它會特殊處理這種情況。<br>例如，如果嘗試調用 null 的方法，執行環境會拋出 NullReferenceException，而不是嘗試訪問無效的記憶體位置。</p>
+<p>以上是整理一下網上搜尋資料後對 null 的了解，其實在網路世界也有許許多多的討論，畢竟寫 Code 誰不碰 Null 呢?</p>
+<h2 id="今日精神能量分析"><a href="#今日精神能量分析" class="headerlink" title="今日精神能量分析"></a>今日精神能量分析</h2><p>精神能量 : 🥸</p>
+<p>今天看到路上的告示 : 如果有寵物在公共區域隨地大小便飼主不清理時，環保局可對飼主開罰 1200 元到 6000 元的罰單，我就開始在想，如果帶狗跑去總統府拉屎不清就是那個罰 6000 的案例嗎?</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/07/06/null-1/">https://allenlin000.github.io.git/2024/07/06/null-1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/C/">C#</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/Zly1UDM.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/07/02/Automapper/" title="AutoMapper"><img class="cover" src="https://i.imgur.com/KXBUhrt.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">AutoMapper</div></div></a></div><div class="next-post pull-right"><a href="/2024/07/06/null-2/" title="關於 null (二.)"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">關於 null (二.)</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/07/02/Automapper/" title="AutoMapper"><img class="cover" src="https://i.imgur.com/KXBUhrt.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-02</div><div class="title">AutoMapper</div></div></a></div><div><a href="/2024/04/29/Enum-1/" title="Enum (一. 探討Enum Value的使用)"><img class="cover" src="https://i.imgur.com/FAr325O.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-29</div><div class="title">Enum (一. 探討Enum Value的使用)</div></div></a></div><div><a href="/2024/06/20/Iterator/" title="實作 foreach 集合"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-06-20</div><div class="title">實作 foreach 集合</div></div></a></div><div><a href="/2024/05/01/String-1/" title="String_Truncate (一. 探討字串截取)"><img class="cover" src="https://i.imgur.com/rDzT5wT.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-01</div><div class="title">String_Truncate (一. 探討字串截取)</div></div></a></div><div><a href="/2024/07/06/null-2/" title="關於 null (二.)"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-06</div><div class="title">關於 null (二.)</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">推code推到六親不認</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%9C%E6%96%BC-value-type-%E7%9A%84-%E2%80%9C%E7%84%A1%E5%80%BC%E2%80%9D"><span class="toc-number">1.</span> <span class="toc-text">關於 value type 的 “無值”</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%82%A3-strcut-%E5%91%A2-struct-%E5%85%A7%E9%83%A8%E4%B9%9F%E5%8F%AF%E4%BB%A5%E6%9C%89-reference-type-%E6%88%90%E5%93%A1%E5%97%8E-%E9%82%A3%E4%B9%9F%E5%8F%AF%E4%BB%A5%E7%82%BA-null"><span class="toc-number">2.</span> <span class="toc-text">那 strcut 呢? struct 內部也可以有 reference type 成員嗎? 那也可以為 null?</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null-%E5%9C%A8%E8%A8%98%E6%86%B6%E9%AB%94%E6%98%AF%E6%80%8E%E9%BA%BC%E9%81%8B%E4%BD%9C%E7%9A%84"><span class="toc-number">3.</span> <span class="toc-text">null 在記憶體是怎麼運作的?</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8A%E6%97%A5%E7%B2%BE%E7%A5%9E%E8%83%BD%E9%87%8F%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">今日精神能量分析</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/07/13/SiteMemo/" title="網站的起源"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="網站的起源"/></a><div class="content"><a class="title" href="/2024/07/13/SiteMemo/" title="網站的起源">網站的起源</a><time datetime="2024-07-13T13:09:05.000Z" title="Created 2024-07-13 21:09:05">2024-07-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/07/07/Exception-2/" title="Exception Handling (二.)"><img src="https://i.imgur.com/I1A7fs1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Exception Handling (二.)"/></a><div class="content"><a class="title" href="/2024/07/07/Exception-2/" title="Exception Handling (二.)">Exception Handling (二.)</a><time datetime="2024-07-07T10:25:05.000Z" title="Created 2024-07-07 18:25:05">2024-07-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/07/06/Exception-1/" title="Exception Handling (一.)"><img src="https://i.imgur.com/I1A7fs1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Exception Handling (一.)"/></a><div class="content"><a class="title" href="/2024/07/06/Exception-1/" title="Exception Handling (一.)">Exception Handling (一.)</a><time datetime="2024-07-06T09:25:05.000Z" title="Created 2024-07-06 17:25:05">2024-07-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/07/06/null-2/" title="關於 null (二.)"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="關於 null (二.)"/></a><div class="content"><a class="title" href="/2024/07/06/null-2/" title="關於 null (二.)">關於 null (二.)</a><time datetime="2024-07-06T09:25:05.000Z" title="Created 2024-07-06 17:25:05">2024-07-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/07/06/null-1/" title="關於 null (一.)"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="關於 null (一.)"/></a><div class="content"><a class="title" href="/2024/07/06/null-1/" title="關於 null (一.)">關於 null (一.)</a><time datetime="2024-07-06T09:25:05.000Z" title="Created 2024-07-06 17:25:05">2024-07-06</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
