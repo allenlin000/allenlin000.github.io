@@ -1,0 +1,200 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>const、readonly 和 var：靈活性與類型安全的平衡 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="const寫過 C# 也寫過 JS，會發現二者的 const 有著大大的不同，程式語言的世界，沒把事情定義清楚就隨便用將導致精神能源之災 C# ： 123456789101112public class ConfigurationConstants&#123;    &#x2F;&#x2F; Compile-time constant    public const int MaxRetryAttempts &#x3D; 3;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="const、readonly 和 var：靈活性與類型安全的平衡">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/07/24/Csharp-var-X/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="const寫過 C# 也寫過 JS，會發現二者的 const 有著大大的不同，程式語言的世界，沒把事情定義清楚就隨便用將導致精神能源之災 C# ： 123456789101112public class ConfigurationConstants&#123;    &#x2F;&#x2F; Compile-time constant    public const int MaxRetryAttempts &#x3D; 3;">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/Zly1UDM.png">
+<meta property="article:published_time" content="2024-07-24T12:49:10.000Z">
+<meta property="article:modified_time" content="2024-11-25T00:14:38.861Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="C#">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/Zly1UDM.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/07/24/Csharp-var-X/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'const、readonly 和 var：靈活性與類型安全的平衡',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-25 08:14:38'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">76</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/Zly1UDM.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">const、readonly 和 var：靈活性與類型安全的平衡</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-07-24T12:49:10.000Z" title="Created 2024-07-24 20:49:10">2024-07-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-11-25T00:14:38.861Z" title="Updated 2024-11-25 08:14:38">2024-11-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/C-%E8%88%9E%E6%83%B3/">C# 舞想</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="const、readonly 和 var：靈活性與類型安全的平衡"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="const"><a href="#const" class="headerlink" title="const"></a>const</h1><p>寫過 C# 也寫過 JS，會發現二者的 const 有著大大的不同，程式語言的世界，沒把事情定義清楚就隨便用將導致精神能源之災</p>
+<p>C# ：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ConfigurationConstants</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Compile-time constant</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">const</span> <span class="built_in">int</span> MaxRetryAttempts = <span class="number">3</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">const</span> <span class="built_in">string</span> ApiVersion = <span class="string">&quot;v1.0&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">const</span> <span class="built_in">decimal</span> TaxRate = <span class="number">0.08</span>m;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Error: const cannot be used with values calculated at runtime</span></span><br><span class="line">    <span class="keyword">const</span> <span class="built_in">int</span> DynamicValue = DateTime.Now.Year; <span class="comment">// This line will cause a compilation error</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>微軟官方文件</p>
+<div class="note info flat"><p>Constants are immutable values which are known at compile time and do not change for the life of the program.</p>
+</div>
+
+<p>C# 的 const 是 Compile-time constant，表示：</p>
+<p>1.值必須在編譯時確定。<br>2.只能用於基本資料類型（如 int, string …）和 null 引用類型(這個不知道要怎麼用)。<br>3.在編譯時直接替換為其值。</p>
+<p>JavaScript ：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// JavaScript 中的 const 更靈活</span></span><br><span class="line"><span class="keyword">const</span> maxValue = <span class="number">100</span>;</span><br><span class="line"><span class="keyword">const</span> dynamicValue = <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getFullYear</span>(); <span class="comment">// 這在 JavaScript 中是允許的</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>JavaScript 的 const 則是 runtime constant，表示：</p>
+<p>1.值可以在 runtime 動態計算。<br>2.可以用於任何類型的值，包括 Object 和 Array。<br>3.防止重新賦值，但不防止對象內容的修改。</p>
+<p>也就是這樣是可以的</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;John&quot;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">30</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Modifying properties of the object is allowed</span></span><br><span class="line">person.<span class="property">age</span> = <span class="number">31</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="property">age</span>); <span class="comment">// Outputs: 31</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>從這兩者的比較可以發現</p>
+<p>C# 著重設計的是：</p>
+<p>Performance Optimization：編譯器可以直接 inline 這些值，減少 runtime 的查找開銷。<br>Type Safety：在編譯時就能發現型別錯誤。<br>Clear Intent：明確表示這些值是不變的，並且在整個應用程序中保持一致。</p>
+<blockquote>
+<blockquote>
+<p>著重在防止不確定性發生</p>
+</blockquote>
+</blockquote>
+<p>而 Javascript 則是 : </p>
+<p>靈活性：可以在 Runtime 動態設定常數值，適合需要根據環境變化的場景。</p>
+<p>這兩種設計反映了 C# 作為一種靜態類型、編譯語言和 JavaScript 作為一種動態、解釋型語言的本質差異。</p>
+<p>但其實在 C# 中更常被使用的是 readonly，</p>
+<p>那 C# 中 readonly &amp; const 的差異是?</p>
+<h1 id="C-readonly-const"><a href="#C-readonly-const" class="headerlink" title="C# readonly  &amp; const"></a>C# readonly  &amp; const</h1><p>嘗試模擬一下網路上的小實驗</p>
+<p>建立一個 ConsoleAPP &amp; ClassLibrary，並在 ClassLibrary 中定義一個 Class 分別使用 const, readonly 賦值，結果會印出<br><img src="https://i.imgur.com/9wKpdTo.png" alt="Image"></p>
+<p>接著只修改 ClassLibrary 的值並重新 compile 一個 dll，直接執行 ConsoleAPP.exe</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DataTest</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">const</span> <span class="built_in">int</span> ConstValue = <span class="number">2</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="built_in">string</span> ReadonlyValue = <span class="string">&quot;ReadMeChange&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>會發現ReadonlyValue動態的跟著 Class Library 新的 dll 發生改變了，而 const 不變<br><img src="https://i.imgur.com/p4RMwYa.png" alt="Image"></p>
+<p>使用上常會在 consturctor 讀取配置文件時使用(所以如果這時使用 const 就會發現怎麼 Code 改了還沒修復..)，而這概念就比較接近 JS 的 const 了</p>
+<h1 id="關於使用-var"><a href="#關於使用-var" class="headerlink" title="關於使用 var"></a>關於使用 var</h1><p>在 C# 的世界，使用 var 是相當主觀的，有人更傾向於 Code 的一致性，所以會看到一排 var，其實在微軟官方文件裡面有不少使用，如果方法和變數命名的好（如 var order &#x3D; GetLastOrder()），使用 var 就不會造成歧義。</p>
+<p>也有人認為清晰性第一，C# 的設計理念強調 Code 應該清晰明確，不應該產生歧義，當類型明顯時（如 var myVar &#x3D; new StringBuilder();），使用 var 是可以的，但當類型不明顯時（如 var myVar &#x3D; GetLast();），使用 var 就會使你的 Code 難以理解，你的老大幫你 Code Review 時，過度使用 var 可能會造成理解困難，因為它可能隱藏了一些資訊，結果你還是被找去問話了。</p>
+<p>雖然對 var 的使用存在不同意見，但大多數人同意應該在保持 Code 清晰和易於理解的前提下使用它。具體的使用方式可能因團隊或項目而異，但保持一致性和考慮 Code 的可讀性是最重要的。</p>
+<h1 id="關鍵字"><a href="#關鍵字" class="headerlink" title="關鍵字"></a>關鍵字</h1><p>Compile-time constant、Runtime constant、Type safety、Code Review、Inline optimization</p>
+<h1 id="精神能量分析"><a href="#精神能量分析" class="headerlink" title="精神能量分析"></a>精神能量分析</h1><p>精神能量 : 🎑</p>
+<p>昨天與阿冠、Winston、Bruce 玩 ChainTogether，阿冠很努力地要跳過雷射光，結果落地的地方不偏不倚地踩在雷射光上，結果一坨人就被尻到地獄裡面去了</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/07/24/Csharp-var-X/">https://allenlin000.github.io.git/2024/07/24/Csharp-var-X/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/C/">C#</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/Zly1UDM.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/07/24/dnSpy/" title="dnSpy"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">dnSpy</div></div></a></div><div class="next-post pull-right"><a href="/2024/07/25/%E7%95%B0%E6%AD%A5%E8%99%95%E7%90%86-2-x/" title="Asynchronous Programming (二. 從 Callback Hell 角度出發)"><img class="cover" src="https://i.imgur.com/ptNmOOD.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Asynchronous Programming (二. 從 Callback Hell 角度出發)</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/07/02/Automapper/" title="AutoMapper"><img class="cover" src="https://i.imgur.com/KXBUhrt.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-02</div><div class="title">AutoMapper</div></div></a></div><div><a href="/2024/10/23/Defferred-exe/" title="Deferred Execution"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-23</div><div class="title">Deferred Execution</div></div></a></div><div><a href="/2024/05/18/Dictionary-1/" title="Dictionary (一. 多執行續操作測試與分析)"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-18</div><div class="title">Dictionary (一. 多執行續操作測試與分析)</div></div></a></div><div><a href="/2024/10/22/IEICIL/" title="IEnumerable, ICollection, IList and List – Which One To Use?"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-22</div><div class="title">IEnumerable, ICollection, IList and List – Which One To Use?</div></div></a></div><div><a href="/2024/10/21/IQIE/" title="C# - IEnumerable&lt;T&gt; and IQueryable&lt;T&gt;"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-21</div><div class="title">C# - IEnumerable&lt;T&gt; and IQueryable&lt;T&gt;</div></div></a></div><div><a href="/2024/10/24/IEnumerable/" title="IEnumerable"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-24</div><div class="title">IEnumerable</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">76</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#const"><span class="toc-number">1.</span> <span class="toc-text">const</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#C-readonly-const"><span class="toc-number">2.</span> <span class="toc-text">C# readonly  &amp; const</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%9C%E6%96%BC%E4%BD%BF%E7%94%A8-var"><span class="toc-number">3.</span> <span class="toc-text">關於使用 var</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%9C%E9%8D%B5%E5%AD%97"><span class="toc-number">4.</span> <span class="toc-text">關鍵字</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B2%BE%E7%A5%9E%E8%83%BD%E9%87%8F%E5%88%86%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text">精神能量分析</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/11/24/lambdaExpression/" title="LambdaExpression"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LambdaExpression"/></a><div class="content"><a class="title" href="/2024/11/24/lambdaExpression/" title="LambdaExpression">LambdaExpression</a><time datetime="2024-11-24T03:24:09.000Z" title="Created 2024-11-24 11:24:09">2024-11-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/10/Delegate-2/" title="Delegate (二.)"><img src="https://i.imgur.com/zTSkblP.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Delegate (二.)"/></a><div class="content"><a class="title" href="/2024/11/10/Delegate-2/" title="Delegate (二.)">Delegate (二.)</a><time datetime="2024-11-09T23:33:00.000Z" title="Created 2024-11-10 07:33:00">2024-11-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/07/Delegate/" title="Delegate (一.)"><img src="https://i.imgur.com/zTSkblP.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Delegate (一.)"/></a><div class="content"><a class="title" href="/2024/11/07/Delegate/" title="Delegate (一.)">Delegate (一.)</a><time datetime="2024-11-07T09:57:00.000Z" title="Created 2024-11-07 17:57:00">2024-11-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/07/Anonymous-type/" title="AnonymousType (匿名型別)"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AnonymousType (匿名型別)"/></a><div class="content"><a class="title" href="/2024/11/07/Anonymous-type/" title="AnonymousType (匿名型別)">AnonymousType (匿名型別)</a><time datetime="2024-11-07T00:29:05.000Z" title="Created 2024-11-07 08:29:05">2024-11-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/03/Shallow-Copy-and-Deep-Clone/" title="Shallow Copy &amp; Deep Clone"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Shallow Copy &amp; Deep Clone"/></a><div class="content"><a class="title" href="/2024/11/03/Shallow-Copy-and-Deep-Clone/" title="Shallow Copy &amp; Deep Clone">Shallow Copy &amp; Deep Clone</a><time datetime="2024-11-03T01:15:01.000Z" title="Created 2024-11-03 09:15:01">2024-11-03</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
