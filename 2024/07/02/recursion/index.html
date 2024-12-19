@@ -1,0 +1,242 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Recursion | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="不知道大家有沒有被「無限螢幕」嚇到過？我記得自己年紀小一點的時候，第一次看到那種無限延伸的畫面，真的是心裡一緊，腳步一歪，還會本能地閃開，深怕自己一不小心就被吸進去，成為下一個走失在虛擬世界的都市傳說主角。 長大才發現其實這邊的世界好像沒有比較好，被各種事情跟人類拉扯，如同橡皮筋一樣失去彈性 離題了 無限螢幕的視覺現象就是一種遞迴的概念，螢幕分享者分享自己的螢幕同時，他也看著分享給其他人的畫面的那">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Recursion">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/07/02/recursion/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="不知道大家有沒有被「無限螢幕」嚇到過？我記得自己年紀小一點的時候，第一次看到那種無限延伸的畫面，真的是心裡一緊，腳步一歪，還會本能地閃開，深怕自己一不小心就被吸進去，成為下一個走失在虛擬世界的都市傳說主角。 長大才發現其實這邊的世界好像沒有比較好，被各種事情跟人類拉扯，如同橡皮筋一樣失去彈性 離題了 無限螢幕的視覺現象就是一種遞迴的概念，螢幕分享者分享自己的螢幕同時，他也看著分享給其他人的畫面的那">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/KXBUhrt.png">
+<meta property="article:published_time" content="2024-07-02T15:11:05.000Z">
+<meta property="article:modified_time" content="2024-12-18T01:21:04.590Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="C#">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/KXBUhrt.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/07/02/recursion/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Recursion',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-12-18 09:21:04'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">54</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/KXBUhrt.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Recursion</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-07-02T15:11:05.000Z" title="Created 2024-07-02 23:11:05">2024-07-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-12-18T01:21:04.590Z" title="Updated 2024-12-18 09:21:04">2024-12-18</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/C-%E8%88%9E%E6%83%B3/">C# 舞想</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Recursion"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>不知道大家有沒有被「無限螢幕」嚇到過？我記得自己年紀小一點的時候，第一次看到那種無限延伸的畫面，真的是心裡一緊，腳步一歪，還會本能地閃開，深怕自己一不小心就被吸進去，成為下一個走失在虛擬世界的都市傳說主角。</p>
+<p>長大才發現其實這邊的世界好像沒有比較好，被各種事情跟人類拉扯，如同橡皮筋一樣失去彈性</p>
+<p>離題了</p>
+<p>無限螢幕的視覺現象就是一種遞迴的概念，螢幕分享者分享自己的螢幕同時，他也看著分享給其他人的畫面的那個軟體呈現裡面分享的畫面的裡面也呈現分享的畫面…乾我已經不知道自己在講什麼惹</p>
+<p>拆解一下</p>
+<ol>
+<li>螢幕分享的起點：使用者啟動螢幕分享功能，開始分享自己螢幕上的畫面。</li>
+<li>分享軟體的畫面顯示：被分享的畫面包含著該螢幕分享軟體的視窗。</li>
+<li>視窗中的畫面再次重複：由於該視窗顯示的是「當前螢幕」，而當前螢幕中又包含了「分享軟體視窗」，因此再次將分享畫面顯示出來。</li>
+<li>這個遞迴循環效果，畫面中的畫面會不斷地循環，產生類似「無限鏡像」的視覺現象，有種永世不得超生的感覺</li>
+</ol>
+<p><img src="https://i.imgur.com/jWPqFzf.jpeg" alt="Image"></p>
+<h2 id="Simplest-Example"><a href="#Simplest-Example" class="headerlink" title="Simplest Example"></a>Simplest Example</h2><p>回到現實世界，我對 recursion 的理解是，想像成階層，然後我們一層一層去做某件事情，這些事情會累積成一個成果，並且處理的方向上是遞減的階層，也就是慢慢收束</p>
+<p>最經典的例子， Factorial (階層)<br><img src="https://i.imgur.com/DroOTjS.jpeg" alt="Image"></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="title">Factorial</span>(<span class="params"><span class="built_in">int</span> num</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/  Base case, 遞迴結束的條件</span></span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">0</span> || n == <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 前半部是該層在做的事情，後半部是 &quot;迭代&quot; 下一個遞迴的概念</span></span><br><span class="line">    num * Factorial(num);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="資料夾刪除"><a href="#資料夾刪除" class="headerlink" title="資料夾刪除"></a>資料夾刪除</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">MainFolder/</span><br><span class="line">  ├── file1.txt</span><br><span class="line">  ├── SubFolder1/</span><br><span class="line">  │   ├── file2.txt</span><br><span class="line">  │   └── SubSubFolder/</span><br><span class="line">  │       └── file3.txt</span><br><span class="line">  └── SubFolder2/</span><br><span class="line">      └── file4.txt</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>當執行 rd &#x2F;s MainFolder 時，刪除過程會:</p>
+<p>先進入最深層的 SubSubFolder</p>
+<ul>
+<li>刪除 file3.txt</li>
+<li>刪除 SubSubFolder 資料夾<br>返回上一層刪除 file2.txt</li>
+<li>刪除 SubFolder1</li>
+<li>刪除 SubFolder2 中的 file4.txt</li>
+<li>刪除 SubFolder2</li>
+<li>最後刪除 file1.txt 和 MainFolder</li>
+</ul>
+<p>這也是遞迴操作 - 同樣的操作在不同的 “階層” 重複執行，直到完成整個結構的處理。</p>
+<h2 id="要怎麼使用-Recursion-拆解問題"><a href="#要怎麼使用-Recursion-拆解問題" class="headerlink" title="要怎麼使用 Recursion 拆解問題"></a>要怎麼使用 Recursion 拆解問題</h2><p>教學 : <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=ngCos392W4w">https://www.youtube.com/watch?v=ngCos392W4w</a></p>
+<p><img src="https://i.imgur.com/AAMYcVS.jpeg" alt="Image"></p>
+<ol>
+<li>第一步 : 找出最收斂的例子</li>
+</ol>
+<p>以這個題目為例， base case 的實例有很多種，但有一個共通性是，只要一邊是 1 就只有一條路徑可走<br>所以 base case 為  n &#x3D; 1 or m &#x3D; 1 則 return 1</p>
+<ol start="2">
+<li>第二步 : 找一個稍微複雜一點的例子，把他降一等後，比較兩者個關係</li>
+</ol>
+<p><img src="https://i.imgur.com/9oA0FoD.jpeg" alt="Image"></p>
+<p>發現美每邊個各降一等的組合數量和 &#x3D; 下一級的組合數字</p>
+<ol start="3">
+<li>找出 Pattern</li>
+</ol>
+<p><img src="https://i.imgur.com/0BnyA4P.jpeg" alt="Image"></p>
+<ol start="4">
+<li>寫出程式碼</li>
+</ol>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="title">GridPattern</span>(<span class="params"><span class="built_in">int</span> m, <span class="built_in">int</span> n</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ base case, 只要一邊為 1, 就只有一條路徑可走</span></span><br><span class="line">    <span class="keyword">if</span>( m == <span class="number">1</span> || n == <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 每一層就是 每邊各減 1 計算 每邊各減 1 的總和, 直到每一個 subcase 都收束到 1 為止</span></span><br><span class="line">    <span class="keyword">return</span> GridPattern(GridPattern(m - <span class="number">1</span>,n) + GridPattern(m, n - <span class="number">1</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="工作實戰的例子"><a href="#工作實戰的例子" class="headerlink" title="工作實戰的例子"></a>工作實戰的例子</h2><p>我自己第一次研究與使用遞迴就開始被這個工具所吸引，因為他幫助我拆解了問題，就是英文常看到的 “Divide and Conquer”<br>我自己是很喜歡這種可以慢慢把大問題拆解的概念 <del>畢竟我沒那麼聰明可以一次想通複雜的事嗚嗚</del></p>
+<p>遞迴之所以適合用來處理 SKU 組合生成問題，主要基於以下幾點：</p>
+<p>每個階層（SaleProductSKURequestContentEntity）都需要與其他階層進行組合，而每個階層的處理方式是相同的：</p>
+<p>選出一個階層的項目。<br>將剩下的階層繼續遞迴處理，直到所有階層都被處理完成。<br>這種問題結構很適合遞迴，因為每一層的邏輯都是相似的。</p>
+<p>問題的拆解性（Problem Decomposition）</p>
+<p>可以將生成組合的問題拆解為更小的子問題，直到解決最小問題（基礎情況）。<br>每次處理一個階層的值，並將剩餘的部分交給遞迴去完成。</p>
+<p>基礎情況（Base Case）<br>遞迴必須有結束條件，否則會進入無窮遞迴。在這裡，基礎情況是當 depth &#x3D;&#x3D; input.Count() 時，表示所有階層的值都已經處理完畢，可以生成結果並返回。</p>
+<p>狀態的回溯（Backtracking）<br>遞迴允許在每次呼叫結束後回溯到上一層，恢復當前的狀態並嘗試其他可能性。<br>在這裡，回溯是透過 RemoveAt 將最近加入的階層項目從 currentDefault 和 currentTarget 中移除來實現的。</p>
+<p>逐步拆解</p>
+<ol>
+<li>問題定義<br>生成所有可能的 SKU 組合，例如以下輸入：</li>
+</ol>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> input = <span class="keyword">new</span> List&lt;SaleProductSKURequestContentEntity&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">new</span> SaleProductSKURequestContentEntity </span><br><span class="line">    &#123;</span><br><span class="line">        OptionDefault = <span class="string">&quot;尺寸&quot;</span>,</span><br><span class="line">        OptionTarget = <span class="string">&quot;Size&quot;</span>,</span><br><span class="line">        ItemDefault = <span class="keyword">new</span>[] &#123; <span class="string">&quot;大&quot;</span>, <span class="string">&quot;小&quot;</span> &#125;,</span><br><span class="line">        ItemTarget = <span class="keyword">new</span>[] &#123; <span class="string">&quot;Big&quot;</span>, <span class="string">&quot;Small&quot;</span> &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">new</span> SaleProductSKURequestContentEntity </span><br><span class="line">    &#123;</span><br><span class="line">        OptionDefault = <span class="string">&quot;顏色&quot;</span>,</span><br><span class="line">        OptionTarget = <span class="string">&quot;Color&quot;</span>,</span><br><span class="line">        ItemDefault = <span class="keyword">new</span>[] &#123; <span class="string">&quot;紅&quot;</span>, <span class="string">&quot;藍&quot;</span> &#125;,</span><br><span class="line">        ItemTarget = <span class="keyword">new</span>[] &#123; <span class="string">&quot;Red&quot;</span>, <span class="string">&quot;Blue&quot;</span> &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>目標是生成這些組合：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Key: -1:-1:尺寸:大;-1:-1:顏色:紅</span><br><span class="line">Value: -1:-1:Size:Big;-1:-1:Color:Red</span><br><span class="line"></span><br><span class="line">Key: -1:-1:尺寸:大;-1:-1:顏色:藍</span><br><span class="line">Value: -1:-1:Size:Big;-1:-1:Color:Blue</span><br><span class="line"></span><br><span class="line">Key: -1:-1:尺寸:小;-1:-1:顏色:紅</span><br><span class="line">Value: -1:-1:Size:Small;-1:-1:Color:Red</span><br><span class="line"></span><br><span class="line">Key: -1:-1:尺寸:小;-1:-1:顏色:藍</span><br><span class="line">Value: -1:-1:Size:Small;-1:-1:Color:Blue</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>處理流程<br>Step 1: 確認基礎情況<br>當所有選項都處理完時（depth &#x3D;&#x3D; input.Count()），組合已完成，可以生成結果並返回。</li>
+</ol>
+<p>對應程式碼：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">if</span> (depth == input.Count())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">string</span> key = <span class="built_in">string</span>.Join(<span class="string">&quot;;&quot;</span>, currentDefault.Select(pair =&gt; <span class="string">$&quot;-1:-1:<span class="subst">&#123;pair&#125;</span>&quot;</span>));</span><br><span class="line">    <span class="built_in">string</span> <span class="keyword">value</span> = <span class="built_in">string</span>.Join(<span class="string">&quot;;&quot;</span>, currentTarget.Select(pair =&gt; <span class="string">$&quot;-1:-1:<span class="subst">&#123;pair&#125;</span>&quot;</span>));</span><br><span class="line">    result.Add(key, <span class="keyword">value</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Step 2: 處理當前層的選項<br>每次進入方法時，會處理第 depth 層的項目：</p>
+<p>取得當前階層的 OptionDefault 和 OptionTarget。<br>Loop 該階層所有可能的項目（ItemDefault 和 ItemTarget），並將當前值加入到 currentDefault 和 currentTarget 中。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> option = input[depth];</span><br><span class="line"><span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; option.ItemDefault.Count(); i++)</span><br><span class="line">&#123;</span><br><span class="line">    currentDefault.Add(<span class="string">$&quot;<span class="subst">&#123;option.OptionDefault&#125;</span>:<span class="subst">&#123;option.ItemDefault[i]&#125;</span>&quot;</span>);</span><br><span class="line">    currentTarget.Add(<span class="string">$&quot;<span class="subst">&#123;option.OptionTarget&#125;</span>:<span class="subst">&#123;option.ItemTarget[i]&#125;</span>&quot;</span>);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Step 3: 遞迴處理下一層<br>當處理完當前階層的值後，遞迴進入下一層：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">GenerateSKUCombinations(input, depth + <span class="number">1</span>, currentDefault, currentTarget, result);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Step 4: 回溯</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">currentDefault.RemoveAt(currentDefault.Count - <span class="number">1</span>);</span><br><span class="line">currentTarget.RemoveAt(currentTarget.Count - <span class="number">1</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以輸入為例，遞迴執行的步驟如下：</p>
+<p>第一次遞迴：<br>初始呼叫： depth &#x3D; 0，處理第 0 層選項（”尺寸”）。<br>選擇 “大”，加入 currentDefault 和 currentTarget。<br>第二次遞迴：<br>呼叫遞迴：depth &#x3D; 1，處理第 1 層選項（”顏色”）。<br>選擇 “紅”，加入 currentDefault 和 currentTarget。<br>基礎情況：<br>遞迴結束：depth &#x3D; 2，所有選項都處理完，生成組合。<br>回溯：<br>回到 depth &#x3D; 1，移除 “紅”，嘗試 “藍”。<br>回到 depth &#x3D; 0，移除 “大”，嘗試 “小”。</p>
+<p>適用遞迴的條件<br>輸入結構具有層次性： 每個階層是獨立的，但彼此需要組合。<br>每層處理邏輯一致： 每層的操作是選擇項目並遞迴處理下一層。<br>可清楚定義基礎情況： 當所有階層都處理完成時，停止遞迴。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/07/02/recursion/">https://allenlin000.github.io.git/2024/07/02/recursion/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/C/">C#</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/KXBUhrt.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/06/27/Validation-2/" title=""><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info"></div></div></a></div><div class="next-post pull-right"><a href="/2024/07/02/Stripe-API/" title="Stripe"><img class="cover" src="https://i.imgur.com/QYGzWvo.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Stripe</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/07/02/Automapper/" title="AutoMapper"><img class="cover" src="https://i.imgur.com/KXBUhrt.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-02</div><div class="title">AutoMapper</div></div></a></div><div><a href="/2024/11/03/Shallow-Copy-and-Deep-Clone/" title="Shallow Copy &amp; Deep Clone"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-03</div><div class="title">Shallow Copy &amp; Deep Clone</div></div></a></div><div><a href="/2024/07/02/Stripe-API/" title="Stripe"><img class="cover" src="https://i.imgur.com/QYGzWvo.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-02</div><div class="title">Stripe</div></div></a></div><div><a href="/2024/07/06/null-2/" title="關於 null (二.)"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-06</div><div class="title">關於 null (二.)</div></div></a></div><div><a href="/2024/11/24/lambdaExpression/" title="LambdaExpression"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-24</div><div class="title">LambdaExpression</div></div></a></div><div><a href="/2024/10/16/yield-return/" title="C# - Yield Return"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-16</div><div class="title">C# - Yield Return</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">54</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Simplest-Example"><span class="toc-number">1.</span> <span class="toc-text">Simplest Example</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B3%87%E6%96%99%E5%A4%BE%E5%88%AA%E9%99%A4"><span class="toc-number">2.</span> <span class="toc-text">資料夾刪除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A6%81%E6%80%8E%E9%BA%BC%E4%BD%BF%E7%94%A8-Recursion-%E6%8B%86%E8%A7%A3%E5%95%8F%E9%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">要怎麼使用 Recursion 拆解問題</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%AF%A6%E6%88%B0%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="toc-number">4.</span> <span class="toc-text">工作實戰的例子</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/11/24/lambdaExpression/" title="LambdaExpression"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LambdaExpression"/></a><div class="content"><a class="title" href="/2024/11/24/lambdaExpression/" title="LambdaExpression">LambdaExpression</a><time datetime="2024-11-24T03:24:09.000Z" title="Created 2024-11-24 11:24:09">2024-11-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/07/Anonymous-type/" title="AnonymousType (匿名型別)"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AnonymousType (匿名型別)"/></a><div class="content"><a class="title" href="/2024/11/07/Anonymous-type/" title="AnonymousType (匿名型別)">AnonymousType (匿名型別)</a><time datetime="2024-11-07T00:29:05.000Z" title="Created 2024-11-07 08:29:05">2024-11-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/03/Shallow-Copy-and-Deep-Clone/" title="Shallow Copy &amp; Deep Clone"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Shallow Copy &amp; Deep Clone"/></a><div class="content"><a class="title" href="/2024/11/03/Shallow-Copy-and-Deep-Clone/" title="Shallow Copy &amp; Deep Clone">Shallow Copy &amp; Deep Clone</a><time datetime="2024-11-03T01:15:01.000Z" title="Created 2024-11-03 09:15:01">2024-11-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/10/16/yield-return/" title="C# - Yield Return"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="C# - Yield Return"/></a><div class="content"><a class="title" href="/2024/10/16/yield-return/" title="C# - Yield Return">C# - Yield Return</a><time datetime="2024-10-16T00:21:11.000Z" title="Created 2024-10-16 08:21:11">2024-10-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/10/13/LINQ-5-SelectMany/" title="LINQ (五.SelectMany)"><img src="https://i.imgur.com/cBfeEDY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LINQ (五.SelectMany)"/></a><div class="content"><a class="title" href="/2024/10/13/LINQ-5-SelectMany/" title="LINQ (五.SelectMany)">LINQ (五.SelectMany)</a><time datetime="2024-10-13T02:52:11.000Z" title="Created 2024-10-13 10:52:11">2024-10-13</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
