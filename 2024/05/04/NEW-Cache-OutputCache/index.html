@@ -1,0 +1,226 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>OutputCache | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="OutputCache 是 ASP.NET MVC 框架內建的功能之一，主要用來快取 Controller 回傳的結果，減少重複計算與資料查詢，提高整體效能。透過 OutputCache 屬性，我們可以指定多項快取參數，其中的 Location 是非常關鍵的設定，它決定了快取資料的儲存位置，包含：  Client 快取存在用戶端（例如瀏覽器）。 Server 快取存在伺服器的記憶體中。 Any 交">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OutputCache">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/05/04/NEW-Cache-OutputCache/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="OutputCache 是 ASP.NET MVC 框架內建的功能之一，主要用來快取 Controller 回傳的結果，減少重複計算與資料查詢，提高整體效能。透過 OutputCache 屬性，我們可以指定多項快取參數，其中的 Location 是非常關鍵的設定，它決定了快取資料的儲存位置，包含：  Client 快取存在用戶端（例如瀏覽器）。 Server 快取存在伺服器的記憶體中。 Any 交">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/0qzt8nB.png">
+<meta property="article:published_time" content="2024-05-04T04:04:10.000Z">
+<meta property="article:modified_time" content="2025-04-23T02:55:53.322Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Cache">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/0qzt8nB.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/05/04/NEW-Cache-OutputCache/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'OutputCache',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-23 10:55:53'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">47</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/0qzt8nB.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">OutputCache</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-05-04T04:04:10.000Z" title="Created 2024-05-04 12:04:10">2024-05-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-04-23T02:55:53.322Z" title="Updated 2025-04-23 10:55:53">2025-04-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%A8%8B%E6%80%9D%E8%88%9E%E6%83%B3/">程思舞想</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="OutputCache"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>OutputCache 是 ASP.NET MVC 框架內建的功能之一，主要用來快取 Controller 回傳的結果，減少重複計算與資料查詢，提高整體效能。透過 OutputCache 屬性，我們可以指定多項快取參數，其中的 Location 是非常關鍵的設定，它決定了快取資料的儲存位置，包含：</p>
+<ul>
+<li>Client 快取存在用戶端（例如瀏覽器）。</li>
+<li>Server 快取存在伺服器的記憶體中。</li>
+<li>Any 交由系統決定最合適的位置。</li>
+</ul>
+<p>這樣的設計讓開發者可以根據場景彈性選擇快取策略。與 Redis 等獨立快取系統相比，OutputCache 的使用門檻較低，無需額外安裝與維護快取伺服器，只要設定好屬性即可立即套用，對中小型應用特別友善。</p>
+<p>此外，OutputCache 並不限於傳統的 MVC 專案，它同樣支援 WebAPI、甚至在新版的 Minimal API 架構中也能透過 Middleware 的方式實作類似功能。</p>
+<p>在執行層面，這類快取通常儲存在伺服器記憶體中（In-Memory Cache），速度快且存取成本低，非常適合用來暫存不常變動、但請求頻繁的資料，例如商品列表、分類頁、熱門文章等。</p>
+<h3 id="OutputCache-Attribute"><a href="#OutputCache-Attribute" class="headerlink" title="OutputCache Attribute"></a>OutputCache Attribute</h3><p><img src="https://i.imgur.com/aCiZcuE.png" alt="Image"></p>
+<h3 id="Cache-Config"><a href="#Cache-Config" class="headerlink" title="Cache.Config"></a>Cache.Config</h3><p>專案很肥大，因此可想而知有個地方集中管理設定值</p>
+<p><img src="https://i.imgur.com/eZaMDBM.png" alt="Image"></p>
+<h2 id="🐾-實作-以-NET-Core-7-WebAPI-為例"><a href="#🐾-實作-以-NET-Core-7-WebAPI-為例" class="headerlink" title="🐾 實作 ( 以.NET Core 7 WebAPI 為例 )"></a>🐾 實作 ( 以.NET Core 7 WebAPI 為例 )</h2><h3 id="1-加入-Middleware"><a href="#1-加入-Middleware" class="headerlink" title="1. 加入 Middleware"></a>1. 加入 Middleware</h3><p>這邊設定有 3 種 Policy</p>
+<ul>
+<li>Expire : 快取時間</li>
+<li>Tag : 用在清除快取時，可以用 Tag 來識別與清除</li>
+</ul>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">builder.Services.AddOutputCache(options =&gt;</span><br><span class="line">&#123;</span><br><span class="line">options.AddBasePolicy(builder =&gt; builder.Expire(TimeSpan.FromSeconds(<span class="number">10</span>)).Tag(<span class="string">&quot;tag-all&quot;</span>));</span><br><span class="line">    options.AddPolicy(<span class="string">&quot;Expire20&quot;</span>, builder =&gt; builder.Expire(TimeSpan.FromSeconds(<span class="number">20</span>)).Tag(<span class="string">&quot;tag-short&quot;</span>));</span><br><span class="line">    options.AddPolicy(<span class="string">&quot;Expire_Min&quot;</span>, builder =&gt; builder.Expire(TimeSpan.FromMinutes(<span class="number">1</span>)).Tag(<span class="string">&quot;tag-long&quot;</span>));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.UseOutputCache();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="2-Attribute-參數設定"><a href="#2-Attribute-參數設定" class="headerlink" title="2. Attribute 參數設定"></a>2. Attribute 參數設定</h3><p>這邊設定了三個 Action</p>
+<ol>
+<li>快取 20 秒，依照 QueryKeys 執行快取</li>
+<li>第二個快取 1 分鐘，依照 QueryKeys 執行快取</li>
+<li>讓開發者依照 Tag 名稱清除快取</li>
+</ol>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">HttpGet</span>]</span><br><span class="line">[<span class="meta">OutputCache(PolicyName = <span class="string">&quot;Expire20&quot;</span>,VaryByQueryKeys = new string[</span>] &#123; <span class="string">&quot;category&quot;</span>, <span class="string">&quot;rating&quot;</span> &#125;)]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">Get</span>(<span class="params"><span class="built_in">string</span> category,<span class="built_in">string</span> rating</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">$&quot;DateTime :<span class="subst">&#123;DateTime.Now&#125;</span>, CacheForCategory :<span class="subst">&#123;category&#125;</span>, Rating : <span class="subst">&#123;rating&#125;</span>&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">HttpGet(<span class="string">&quot;GetLong&quot;</span>)</span>]</span><br><span class="line">[<span class="meta">OutputCache(PolicyName = <span class="string">&quot;Expire_Min&quot;</span>, VaryByQueryKeys = new string[</span>] &#123; <span class="string">&quot;category&quot;</span>, <span class="string">&quot;rating&quot;</span> &#125;)]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">GetLong</span>(<span class="params"><span class="built_in">string</span> category, <span class="built_in">string</span> rating</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">$&quot;DateTime :<span class="subst">&#123;DateTime.Now&#125;</span>, CacheForCategory :<span class="subst">&#123;category&#125;</span>, Rating : <span class="subst">&#123;rating&#125;</span>&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">HttpDelete(<span class="string">&quot;cache/&#123;tag&#125;&quot;</span>)</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">DeleteCache</span>(<span class="params">IOutputCacheStore cache, <span class="built_in">string</span> tag</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">await</span> cache.EvictByTagAsync(tag,<span class="literal">default</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-Demo"><a href="#3-Demo" class="headerlink" title="3. Demo"></a>3. Demo</h3><p>實測結果，成功快取資料<br><img src="/images/OutputCache1/PS_Test_OutputCache.jpg" alt="Image"></p>
+<p><img src="/images/OutputCache1/Cache_1_OutputCache.gif" alt="Image"></p>
+<h2 id="🐾-官方文件說明"><a href="#🐾-官方文件說明" class="headerlink" title="🐾 官方文件說明"></a>🐾 官方文件說明</h2><p>在深入研究 Microsoft 官方文件時，我遇到了兩個非常「中二」但貼切的專有名詞，它們分別代表著快取系統中常見的災難性情境</p>
+<h3 id="🌀-快取踐踏-Cache-Stampede"><a href="#🌀-快取踐踏-Cache-Stampede" class="headerlink" title="🌀 快取踐踏 (Cache Stampede)"></a>🌀 快取踐踏 (Cache Stampede)</h3><p><img src="https://i.imgur.com/k9xeEER.png" alt="Image"></p>
+<p>所謂「快取踐踏」，是指當某個熱門資料的快取過期時，瞬間湧入大量請求，導致所有請求同時打到原始資料來源（如資料庫或第三方 API），形成類似「踩踏」的效應。<br>這些請求原本應E2該從快取中直接取得結果，卻因快取剛好失效，全部穿透防線、直接進攻後端資源，造成伺服器短暫過載。</p>
+<p>📦 實際案例：<br>假設你有一個商品頁，每次顯示都包含了價格、樣式、庫存狀態等資訊。這些資料通常是快取的理想對象。但當電商促銷活動一開始，流量暴增，而快取又在這個時候剛好過期，所有用戶的請求就會「同時」觸發重新生成快取，導致伺服器一時間被壓垮。</p>
+<p>🔒 解法：<br>為了防止這種現象，系統會採用「資源鎖定（Lock）」機制，讓第一個進入的請求負責重建快取，其餘的請求等待結果完成後再讀取，這樣就能避免所有請求同時打進後端。</p>
+<p>這也是一個絕佳的壓力測試案例！可以刻意設計快取在高流量時過期，觀察系統是否有妥善應對。</p>
+<h3 id="🌀-雷鳴群聚-Thundering-Herd"><a href="#🌀-雷鳴群聚-Thundering-Herd" class="headerlink" title="🌀 雷鳴群聚 (Thundering Herd)"></a>🌀 雷鳴群聚 (Thundering Herd)</h3><p><img src="https://i.imgur.com/6ckbUrR.png" alt="Image"></p>
+<p>「雷鳴群聚」這個詞，形容的是在短時間內大量請求同時湧入，對快取系統或後端資源造成瞬間衝擊。不同於「快取踐踏」是因為某個快取過期才導致的，雷鳴群聚是主動湧現的洪流，常見於以下場景：</p>
+<p>🎟️ 典型案例：</p>
+<p>搶票網站開賣：演唱會門票一開放，數十萬人同時刷新頁面搶票。</p>
+<p>限時秒殺活動：某商品在 12:00 準時開搶，所有人都設好鬧鐘準時點擊。</p>
+<p>大型直播網站：重大賽事開打瞬間，用戶齊聚進入主頁。</p>
+<p>這類情境就像雷聲齊鳴、群獸奔騰，若系統快取策略與資源配置不足，很容易導致系統雪崩。</p>
+<p>🧯 解法建議：</p>
+<p>提前預熱（Warm-up）：可在活動前預先產生快取內容。</p>
+<p>分批引流：透過 CDN 或 queue 分流請求，避免同時進站。</p>
+<p>使用更具彈性的分布式快取（如 Redis + Lock 機制）。</p>
+<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><p>在使用 OutputCache 機制時，快取資料的仍受到一定限制，以避免對系統資源造成過大負擔。以下為主要的限制項目：</p>
+<ul>
+<li><p>SizeLimit<br>  指快取區域的總容量上限。當快取資料總量達到此上限時，若未進行資料逐出（Eviction），系統將不再快取任何新的回應。預設上限為 100 MB。</p>
+</li>
+<li><p>MaximumBodySize<br>  指單一回應（Response Body）可被快取的最大容量。若回應內容超過此大小，系統將不進行快取。預設值為 64 MB。</p>
+</li>
+<li><p>DefaultExpirationTimeSpan<br>  當快取政策（Policy）中未明確設定快取時間時，系統將自動套用預設的有效期限，預設為 60 秒。</p>
+</li>
+</ul>
+<h2 id="結語"><a href="#結語" class="headerlink" title="結語"></a>結語</h2><p>說到底，OutputCache 不只是技術的設計，它其實也像我們生活中的「省力機制」。<br>每一次的重複請求都像日常裡那些耗費心神的小事，而快取，就像是一種「記住重點、放過瑣碎」的智慧選擇。</p>
+<p>想想看，我們平常的生活也充滿了類似的快取策略：</p>
+<ul>
+<li><p>Google Maps 記住你常去的地點：你不用每次都重新輸入家裡或公司的地址，它幫你省下重複輸入的時間。</p>
+</li>
+<li><p>自動填入表單資訊：購物時瀏覽器自動填上你的姓名、地址、信用卡資料，快又方便。</p>
+</li>
+<li><p>手機上先幫 App 分好類，不用每次都找來找去</p>
+</li>
+<li><p>日常待辦清單 App 的提醒功能：記憶交給機器，人就能專心在創造與感受。</p>
+</li>
+</ul>
+<p>這些便利看似微小，卻一點一滴讓生活更流暢，也更從容。而在系統設計裡也是如此，OutputCache 讓程式不再重複跑相同邏輯、不再浪費 CPU 跑同樣的結果，而是將資源集中在真正需要即時計算的地方。這其實正是「有效率的活著」的縮影。</p>
+<h2 id="參考文章"><a href="#參考文章" class="headerlink" title="參考文章"></a>參考文章</h2><p><a target="_blank" rel="noopener" href="https://blog.darkthread.net/blog/aspnet-outputcache-experiment/">ASP.NET OutputCache 快取行為深入觀察</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/05/04/NEW-Cache-OutputCache/">https://allenlin000.github.io.git/2024/05/04/NEW-Cache-OutputCache/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Cache/">Cache</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/0qzt8nB.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/05/04/SiteSetUp/" title="架站 (一. Cloudfare體驗)"><img class="cover" src="https://i.imgur.com/hyHuUUs.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">架站 (一. Cloudfare體驗)</div></div></a></div><div class="next-post pull-right"><a href="/2024/05/11/NEW-JsonIgnore/" title="Json Ignore"><img class="cover" src="https://i.imgur.com/eKYq4tC.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Json Ignore</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">47</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#OutputCache-Attribute"><span class="toc-number">1.</span> <span class="toc-text">OutputCache Attribute</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cache-Config"><span class="toc-number">2.</span> <span class="toc-text">Cache.Config</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%BE-%E5%AF%A6%E4%BD%9C-%E4%BB%A5-NET-Core-7-WebAPI-%E7%82%BA%E4%BE%8B"><span class="toc-number"></span> <span class="toc-text">🐾 實作 ( 以.NET Core 7 WebAPI 為例 )</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8A%A0%E5%85%A5-Middleware"><span class="toc-number">1.</span> <span class="toc-text">1. 加入 Middleware</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Attribute-%E5%8F%83%E6%95%B8%E8%A8%AD%E5%AE%9A"><span class="toc-number">2.</span> <span class="toc-text">2. Attribute 參數設定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Demo"><span class="toc-number">3.</span> <span class="toc-text">3. Demo</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%BE-%E5%AE%98%E6%96%B9%E6%96%87%E4%BB%B6%E8%AA%AA%E6%98%8E"><span class="toc-number"></span> <span class="toc-text">🐾 官方文件說明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8C%80-%E5%BF%AB%E5%8F%96%E8%B8%90%E8%B8%8F-Cache-Stampede"><span class="toc-number">1.</span> <span class="toc-text">🌀 快取踐踏 (Cache Stampede)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8C%80-%E9%9B%B7%E9%B3%B4%E7%BE%A4%E8%81%9A-Thundering-Herd"><span class="toc-number">2.</span> <span class="toc-text">🌀 雷鳴群聚 (Thundering Herd)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%90%E5%88%B6"><span class="toc-number">3.</span> <span class="toc-text">限制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B5%90%E8%AA%9E"><span class="toc-number"></span> <span class="toc-text">結語</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%83%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number"></span> <span class="toc-text">參考文章</span></a></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/04/03/86-%E4%B8%8D%E5%AD%98%E5%9C%A8%E7%9A%84%E6%88%B0%E5%8D%80%E8%A7%80%E5%BD%B1%E5%BF%83%E5%BE%97/" title="86 不存在的戰區 - 請為自己努力活過而感到驕傲"><img src="https://i.imgur.com/NUblcQu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="86 不存在的戰區 - 請為自己努力活過而感到驕傲"/></a><div class="content"><a class="title" href="/2025/04/03/86-%E4%B8%8D%E5%AD%98%E5%9C%A8%E7%9A%84%E6%88%B0%E5%8D%80%E8%A7%80%E5%BD%B1%E5%BF%83%E5%BE%97/" title="86 不存在的戰區 - 請為自己努力活過而感到驕傲">86 不存在的戰區 - 請為自己努力活過而感到驕傲</a><time datetime="2025-04-03T08:37:34.000Z" title="Created 2025-04-03 16:37:34">2025-04-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/24/lambdaExpression/" title="LambdaExpression"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LambdaExpression"/></a><div class="content"><a class="title" href="/2024/11/24/lambdaExpression/" title="LambdaExpression">LambdaExpression</a><time datetime="2024-11-24T03:24:09.000Z" title="Created 2024-11-24 11:24:09">2024-11-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/24/%E5%8F%96%E5%BE%97%E7%B3%BB%E7%B5%B1%E8%B3%87%E8%A8%8A/" title="取得系統資訊"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="取得系統資訊"/></a><div class="content"><a class="title" href="/2024/11/24/%E5%8F%96%E5%BE%97%E7%B3%BB%E7%B5%B1%E8%B3%87%E8%A8%8A/" title="取得系統資訊">取得系統資訊</a><time datetime="2024-11-24T03:24:09.000Z" title="Created 2024-11-24 11:24:09">2024-11-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/03/Shallow-Copy-and-Deep-Clone/" title="Shallow Copy &amp; Deep Clone"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Shallow Copy &amp; Deep Clone"/></a><div class="content"><a class="title" href="/2024/11/03/Shallow-Copy-and-Deep-Clone/" title="Shallow Copy &amp; Deep Clone">Shallow Copy &amp; Deep Clone</a><time datetime="2024-11-03T01:15:01.000Z" title="Created 2024-11-03 09:15:01">2024-11-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/10/23/NEW-LINQ-2-Defferred-Execution/" title="Deferred Execution - 延遲的智慧"><img src="https://i.imgur.com/bUJj6Dn.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Deferred Execution - 延遲的智慧"/></a><div class="content"><a class="title" href="/2024/10/23/NEW-LINQ-2-Defferred-Execution/" title="Deferred Execution - 延遲的智慧">Deferred Execution - 延遲的智慧</a><time datetime="2024-10-23T00:29:11.000Z" title="Created 2024-10-23 08:29:11">2024-10-23</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
