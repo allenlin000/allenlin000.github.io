@@ -1,0 +1,263 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>NullReferenceException | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="窗外開始下雨了。不是傾盆，是那種輕輕敲在窗上的雨聲，像記憶敲著玻璃，提醒你今天又過去了一天。 房間裡只亮著一盞檯燈，桌上的咖啡溫度早已散去。你盯著螢幕，一行行程式碼像星辰般閃爍，帶著某種秩序，也藏著未解的謎題。 這時候，它又來了。 System.NullReferenceExceptionObject reference not set to an instance of an object. 我">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NullReferenceException">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/07/06/New-Exception-NullReferenceException/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="窗外開始下雨了。不是傾盆，是那種輕輕敲在窗上的雨聲，像記憶敲著玻璃，提醒你今天又過去了一天。 房間裡只亮著一盞檯燈，桌上的咖啡溫度早已散去。你盯著螢幕，一行行程式碼像星辰般閃爍，帶著某種秩序，也藏著未解的謎題。 這時候，它又來了。 System.NullReferenceExceptionObject reference not set to an instance of an object. 我">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/I1A7fs1.png">
+<meta property="article:published_time" content="2024-07-06T09:25:05.000Z">
+<meta property="article:modified_time" content="2025-05-07T00:44:30.500Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Exception Handling">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/I1A7fs1.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/07/06/New-Exception-NullReferenceException/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'NullReferenceException',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-05-07 08:44:30'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">37</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/I1A7fs1.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">NullReferenceException</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-07-06T09:25:05.000Z" title="Created 2024-07-06 17:25:05">2024-07-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-05-07T00:44:30.500Z" title="Updated 2025-05-07 08:44:30">2025-05-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%A4%9C%E5%AE%88%E8%AD%B7%E8%80%85/">深夜守護者</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="NullReferenceException"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>窗外開始下雨了。不是傾盆，是那種輕輕敲在窗上的雨聲，像記憶敲著玻璃，提醒你今天又過去了一天。</p>
+<p>房間裡只亮著一盞檯燈，桌上的咖啡溫度早已散去。你盯著螢幕，一行行程式碼像星辰般閃爍，帶著某種秩序，也藏著未解的謎題。</p>
+<p>這時候，它又來了。</p>
+<p>System.NullReferenceException<br>Object reference not set to an instance of an object.</p>
+<p>我滄桑的搖了搖頭，示意自己又大意了一回</p>
+<h2 id="理解-NullReferenceException"><a href="#理解-NullReferenceException" class="headerlink" title="理解 NullReferenceException"></a>理解 NullReferenceException</h2><p>當你試圖透過一個根本沒有指向任何物件的參考（null）來存取資料或方法，.NET 就會丟出 NullReferenceException。</p>
+<p>每一個「物件變數」本質上是一個指向記憶體位置的參考（Reference）。</p>
+<p>舉例來說：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Person person = <span class="keyword">new</span> Person();</span><br><span class="line">Person person = <span class="literal">null</span>;</span><br><span class="line">person.Name <span class="comment"><span class="doctag">///</span>/ ❌  NullReferenceException。</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>person 就像你手上拿是地址（像 Google Maps 上的定位點），而 person.Name 表示請你開車去那個地址，然後進門找「那個人的名字」，如果 peron &#x3D; null，則相當於你手上的地圖是空白的，沒地方去，登愣!</p>
+<blockquote>
+<p>person 實際上是一個「記憶體地址」 —— 也就是一個指向物件所在位置的參考。</p>
+</blockquote>
+<h2 id="維護團隊專案的心態"><a href="#維護團隊專案的心態" class="headerlink" title="維護團隊專案的心態"></a>維護團隊專案的心態</h2><p>對物件的存在永遠不要理所當然，設計時應「懷疑一切可能為 null」，尤其現實常見的情境如</p>
+<ul>
+<li>從資料庫抓不到資料卻直接使用</li>
+<li>DI 注入失敗或沒註冊物件</li>
+<li>JSON deserialize 成 null</li>
+<li>Service 回傳 null 未做檢查</li>
+</ul>
+<p>以及其他花式資料遺失的情境，當你 Exception 碰久了，會開始漸漸築起警戒心，但這也不是說，都是誰的錯，而是設計本身就是需要隨時思考資料的處理流向與處理的必要性，小小的 person.Name ，我們可能需要想，資料怎麼來的，又要怎麼去，是使用者輸入有誤嗎，我該抓出錯誤回報什麼錯誤訊息?…</p>
+<p>在面對 Null Reference Issue 時，我們可以透過不同的面向迎擊，例如專案開啟 Nullable Reference Types，編譯器會提示你哪些可能是 null，跑出那些小蚯蚓，以及語法糖的使用例如 ?. 和 ??，作為安全存取與設定預設值的工具，總之我們要避免過度信任外部資料	API、DB 回傳的值要小心檢查、建構函式就初始化好物件	不要等到用的時候才想起來、運用 DI（Dependency Injection）時，明確指出依賴，系統幫你處理物件注入並善用單元測試，檢查極端與例外情況，提早發現問題</p>
+<h2 id="❓-到處用-安心嗎？還是潛藏危機？"><a href="#❓-到處用-安心嗎？還是潛藏危機？" class="headerlink" title="❓ 到處用 ?. 安心嗎？還是潛藏危機？"></a>❓ 到處用 ?. 安心嗎？還是潛藏危機？</h2><p>在寫 C# 的時候，很多人喜歡用 ?.（null conditional operator）來「擋錯」，一不小心就寫了一串：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> result = data?.List?.FirstOrDefault()?.Name?.Trim()?.ToLower();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>看起來好像「防錯做滿了」，但這真的好嗎？</p>
+<p>🧠 回到問題的本質，我們應該問的是：</p>
+<p>「為什麼這個東西會是 null？」</p>
+<p>而不是</p>
+<p>「怎麼樣加 ?. 才不會噴錯？」</p>
+<p>合理使用 ?. 的情境，是你明確知道某個物件有可能是 null，例如：</p>
+<ul>
+<li>來自外部 API 回傳的資料</li>
+<li>資料庫查詢結果（尤其是左外連接）</li>
+<li>前端表單的非必填欄位</li>
+<li>Cookie、Session、QueryString 的值</li>
+</ul>
+<p>這些都是你無法掌控來源時，安全防禦的一環。</p>
+<p>⚠️ 不建議無腦加 ?. 的狀況</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> discount = order?.Coupon?.DiscountAmount ?? <span class="number">0</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>原本是預期：沒有 Coupon 就不要打折</p>
+<p>但問題來了：有些 order 資料在還沒綁定前，Coupon 是 null，應該套用預設折扣<br>但有時候是訂單不知道為甚麼資料不見了卻還是套用預設折扣，反而是走到後面然後資料不齊全到狀況</p>
+<p>我們改成更清楚、具判斷意圖的寫法：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">if</span> (order == <span class="literal">null</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 系統層錯誤，代表訂單不存在，這不應發生</span></span><br><span class="line">    logger.LogError(<span class="string">&quot;訂單為 null，無法計算折扣&quot;</span>);</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;訂單資訊異常&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (order.Coupon == <span class="literal">null</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 訂單存在，但沒有優惠券，屬於正常邏輯流程</span></span><br><span class="line">    logger.LogInformation(<span class="string">&quot;未套用優惠券，使用預設折扣&quot;</span>);</span><br><span class="line">    discount = defaultDiscount;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 有優惠券，正常折扣流程</span></span><br><span class="line">    discount = order.Coupon.DiscountAmount;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>或是登入資料不全的情境</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">if</span> (user == <span class="literal">null</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;訪客&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (user.Profile == <span class="literal">null</span>)</span><br><span class="line">&#123;</span><br><span class="line">    logger.LogWarning(<span class="string">&quot;登入使用者缺少 Profile，fallback 為『訪客』&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;訪客&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> user.Profile.Name;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我們是否不小心用 null propagation 來模糊掉異常狀態，反而導致發生異常除厝困難呢?</p>
+<h2 id="預設值"><a href="#預設值" class="headerlink" title="預設值"></a>預設值</h2><p>當我們已經確定某個資料為 null 是合理的情況，也就是說：</p>
+<p>「這筆資料可以沒有，即使缺失也不應影響整體流程。」</p>
+<p>這時候，使用預設值（例如 ?? 或 GetValueOrDefault()）來處理，就是一種非常合適的容錯策略。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> userName = user?.Profile?.Name ?? <span class="string">&quot;訪客&quot;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>這段程式碼的意圖是：在未登入時顯示「訪客」。這屬於正常的 UX fallback，因為匿名瀏覽是被允許的情境。</p>
+<p>但前提是 —— 你已確認 user &#x3D;&#x3D; null 就代表「未登入」，而不是系統異常或資料遺失。如果你清楚這點，那麼這樣使用 ?? 是合理的。<br>否則可能發生使用者登入，結果畫面還是顯示訪客的情況!</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> remark = campaign.Description ?? <span class="string">&quot;(無備註)&quot;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在行銷活動中，有些活動可能只設條件與優惠，而沒有填寫說明文字。這樣的缺值在業務上是被接受的。此時給一個親切的預設值，如「無備註」，會讓 UI 更完整，也不會誤導使用者。</p>
+<p>⚠️ 注意：有些人會習慣「看到 null 就補值」，但如果這個補的值沒有業務語意，只為了「不報錯」，反而容易造成誤導。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> total = order.TotalAmount ?? <span class="number">0</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>你知道為什麼 TotalAmount 是 null 嗎？<br>是訂單根本還沒完成？還是金額真的為 0？<br>這樣 fallback 可能讓後續報表失真、財務混亂!</p>
+<h2 id="string-interpolation"><a href="#string-interpolation" class="headerlink" title="string interpolation"></a>string interpolation</h2><p>當我們在使用 字串插值（string interpolation） 的語法，例如 $”{xxx}”，它看起來像是語法糖，但實際上背後經過了編譯器的轉換與優化。如果插入的是 nullable value type（例如 int?、bool?、DateTime?），那麼整個流程會非常貼心地自動處理 null 的情況，避免 NullReferenceException 發生。</p>
+<p>我們看一個例子：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="built_in">int</span>? age = <span class="literal">null</span>;</span><br><span class="line">Console.WriteLine(<span class="string">$&quot;Age: <span class="subst">&#123;age&#125;</span>&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Age:</span></span><br></pre></td></tr></table></figure>
+
+<p>它不會拋出例外，也不會印出 “null”。這是因為 C# 的編譯器會在背後幫你處理成這樣的邏輯：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">age.HasValue ? age.Value.ToString() : <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>也就是說等於</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Console.WriteLine(<span class="string">&quot;Age: &quot;</span> + (age.HasValue ? age.Value.ToString() : <span class="string">&quot;&quot;</span>));</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>雖然我們知道做輸出時，會 ToString, 但沒想到他會幫你做防呆吧!</p>
+<h2 id="HasValue-Value"><a href="#HasValue-Value" class="headerlink" title="HasValue &amp; .Value"></a>HasValue &amp; .Value</h2><p>當我們在 使用 Nullable<T>（例如 int?、bool?、DateTime?）時，HasValue 和 .Value 是兩個密不可分的屬性，但它們的角色截然不同，理解它們的搭配使用時機，可以幫助我們寫出更安全、更具掌控力的程式。</p>
+<p>在底層上，Nullable<T> 是個特殊的結構體（struct），內部實作類似以下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">struct</span> Nullable&lt;T&gt; <span class="keyword">where</span> T : <span class="keyword">struct</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">bool</span> hasValue;</span><br><span class="line">    <span class="keyword">private</span> T <span class="keyword">value</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">bool</span> HasValue =&gt; hasValue;</span><br><span class="line">    <span class="keyword">public</span> T Value =&gt; hasValue ? <span class="keyword">value</span> : <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;Nullable object must have a value.&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>這段程式碼告訴我們一件重要的事：<br>👉 你不能無條件地使用 .Value，否則可能會拋出 InvalidOperationException。</p>
+<p>在你準備使用 .Value 前，應該先使用 HasValue 做保險。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="built_in">int</span>? score = GetUserScore();</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (score.HasValue)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(<span class="string">$&quot;User Score: <span class="subst">&#123;score.Value&#125;</span>&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(<span class="string">&quot;User has no score yet.&quot;</span>);</span><br><span class="line">&#125;   </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>還有一招是</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="built_in">int</span>? age = <span class="literal">null</span>;</span><br><span class="line"><span class="built_in">int</span> <span class="keyword">value</span> = age.GetValueOrDefault();     <span class="comment">// 預設值為 0</span></span><br><span class="line"><span class="built_in">int</span> custom = age.GetValueOrDefault(<span class="number">99</span>);  <span class="comment">// 預設值為 99</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="is-null-null"><a href="#is-null-null" class="headerlink" title="is null &#x3D;&#x3D; null"></a>is null &#x3D;&#x3D; null</h2><p>✅ 基本語意</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">x == <span class="literal">null</span> <span class="comment"><span class="doctag">///</span>/ 	呼叫 operator == 比較</span></span><br><span class="line">x <span class="keyword">is</span> <span class="literal">null</span> <span class="comment"><span class="doctag">///</span>/ 判斷物件是否是 null（不可重寫）</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>✅ x &#x3D;&#x3D; null</p>
+<p>這是一個「運算子多載（operator overloading）」的呼叫。<br>也就是說，如果 x 是某個類別的實例，而這個類別有自定義 operator &#x3D;&#x3D;，那麼執行的就是該方法。意味著 &#x3D;&#x3D; null 可以被重寫、被干擾！</p>
+<p>✅ x is null<br>這是 C# 7.0 以後提供的 Pattern Matching Null Test，是一種語法層級的 null 判斷，不會被 operator 多載影響。</p>
+<p>也就是說，它永遠是單純的「這個參考是否為 null」。</p>
+<blockquote>
+<p>x is null 是語言本身的保證；x &#x3D;&#x3D; null 則是你或別人可以動手腳的合約。</p>
+</blockquote>
+<h2 id="☘️-結語。"><a href="#☘️-結語。" class="headerlink" title="☘️ 結語。"></a>☘️ 結語。</h2><p>如何分辨 x &#x3D;&#x3D; null 與 x is null 的本質差異?</p>
+<p>為何 ?. 不是萬靈丹，而應該搭配清楚的判斷邏輯使用?</p>
+<p>如何用 ?? 和 GetValueOrDefault() 做出真正貼合情境的預設值?</p>
+<p>還有那個最根本的提醒 —— 在使用 .Value 前，請先問自己：這真的有值嗎？</p>
+<p>在這 Debug 的深夜裡，我們怎麼與 null 相處</p>
+<p>🕯窗外的雨停了，城市的輪廓在路燈下緩緩清晰。</p>
+<br>
+
+<p>你儲存了檔案，啜了口早已冰涼的咖啡，心裡卻因為解開一個小謎題而泛起微光。這不是一場戰鬥，而是一種與混亂共舞的優雅。</p>
+<br>
+
+<p>下一次遇見 Null，你會更有感覺，也更從容。🌙</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/07/06/New-Exception-NullReferenceException/">https://allenlin000.github.io.git/2024/07/06/New-Exception-NullReferenceException/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Exception-Handling/">Exception Handling</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/I1A7fs1.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/07/06/New-Exception-BK1/" title="Exception Handling (一.)"><img class="cover" src="https://i.imgur.com/I1A7fs1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Exception Handling (一.)</div></div></a></div><div class="next-post pull-right"><a href="/2024/07/06/New-Exception-ArgumentException/" title="ArgumentException：堅守方法契約的守護者"><img class="cover" src="https://i.imgur.com/I1A7fs1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">ArgumentException：堅守方法契約的守護者</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/07/07/NEW-Exception-2/" title="Exception Handling (二.)"><img class="cover" src="https://i.imgur.com/I1A7fs1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-07</div><div class="title">Exception Handling (二.)</div></div></a></div><div><a href="/2024/07/06/New-Exception-ArgumentException/" title="ArgumentException：堅守方法契約的守護者"><img class="cover" src="https://i.imgur.com/I1A7fs1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-06</div><div class="title">ArgumentException：堅守方法契約的守護者</div></div></a></div><div><a href="/2024/07/06/New-Exception-BK1/" title="Exception Handling (一.)"><img class="cover" src="https://i.imgur.com/I1A7fs1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-06</div><div class="title">Exception Handling (一.)</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">37</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%90%86%E8%A7%A3-NullReferenceException"><span class="toc-number">1.</span> <span class="toc-text">理解 NullReferenceException</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B6%AD%E8%AD%B7%E5%9C%98%E9%9A%8A%E5%B0%88%E6%A1%88%E7%9A%84%E5%BF%83%E6%85%8B"><span class="toc-number">2.</span> <span class="toc-text">維護團隊專案的心態</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%93-%E5%88%B0%E8%99%95%E7%94%A8-%E5%AE%89%E5%BF%83%E5%97%8E%EF%BC%9F%E9%82%84%E6%98%AF%E6%BD%9B%E8%97%8F%E5%8D%B1%E6%A9%9F%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">❓ 到處用 ?. 安心嗎？還是潛藏危機？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A0%90%E8%A8%AD%E5%80%BC"><span class="toc-number">4.</span> <span class="toc-text">預設值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#string-interpolation"><span class="toc-number">5.</span> <span class="toc-text">string interpolation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HasValue-Value"><span class="toc-number">6.</span> <span class="toc-text">HasValue &amp; .Value</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#is-null-null"><span class="toc-number">7.</span> <span class="toc-text">is null &#x3D;&#x3D; null</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%98%98%EF%B8%8F-%E7%B5%90%E8%AA%9E%E3%80%82"><span class="toc-number">8.</span> <span class="toc-text">☘️ 結語。</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/05/02/NEW-High-Availibility-HA/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/05/02/NEW-High-Availibility-HA/" title="Untitled">Untitled</a><time datetime="2025-05-02T01:17:07.478Z" title="Created 2025-05-02 09:17:07">2025-05-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/04/03/86-%E4%B8%8D%E5%AD%98%E5%9C%A8%E7%9A%84%E6%88%B0%E5%8D%80%E8%A7%80%E5%BD%B1%E5%BF%83%E5%BE%97/" title="86 不存在的戰區 - 請為自己努力活過而感到驕傲"><img src="https://i.imgur.com/NUblcQu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="86 不存在的戰區 - 請為自己努力活過而感到驕傲"/></a><div class="content"><a class="title" href="/2025/04/03/86-%E4%B8%8D%E5%AD%98%E5%9C%A8%E7%9A%84%E6%88%B0%E5%8D%80%E8%A7%80%E5%BD%B1%E5%BF%83%E5%BE%97/" title="86 不存在的戰區 - 請為自己努力活過而感到驕傲">86 不存在的戰區 - 請為自己努力活過而感到驕傲</a><time datetime="2025-04-03T08:37:34.000Z" title="Created 2025-04-03 16:37:34">2025-04-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/24/%E5%8F%96%E5%BE%97%E7%B3%BB%E7%B5%B1%E8%B3%87%E8%A8%8A/" title="取得系統資訊"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="取得系統資訊"/></a><div class="content"><a class="title" href="/2024/11/24/%E5%8F%96%E5%BE%97%E7%B3%BB%E7%B5%B1%E8%B3%87%E8%A8%8A/" title="取得系統資訊">取得系統資訊</a><time datetime="2024-11-24T03:24:09.000Z" title="Created 2024-11-24 11:24:09">2024-11-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/24/lambdaExpression/" title="LambdaExpression"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LambdaExpression"/></a><div class="content"><a class="title" href="/2024/11/24/lambdaExpression/" title="LambdaExpression">LambdaExpression</a><time datetime="2024-11-24T03:24:09.000Z" title="Created 2024-11-24 11:24:09">2024-11-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/03/Shallow-Copy-and-Deep-Clone/" title="Shallow Copy &amp; Deep Clone"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Shallow Copy &amp; Deep Clone"/></a><div class="content"><a class="title" href="/2024/11/03/Shallow-Copy-and-Deep-Clone/" title="Shallow Copy &amp; Deep Clone">Shallow Copy &amp; Deep Clone</a><time datetime="2024-11-03T01:15:01.000Z" title="Created 2024-11-03 09:15:01">2024-11-03</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
