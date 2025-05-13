@@ -1,0 +1,294 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Dependency Injection - 1 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="森林的深處，有一間小木屋。每當霧氣升起，樹葉發出細碎的聲響，動物們會緩緩走進這裡 —— 這裡不熱鬧，卻總是剛剛好。 一隻老貓躺在椅上，望著壁爐裡跳動的火光，輕輕說：「我們啊，無法事事都靠自己。」這裡的每一份溫暖，都不是自己製造的，而是來自彼此的信任與協作。柴火是兔子帶來的，窗簾是松鼠縫的，茶是隔壁小鹿泡的。屋子本身沒有準備這一切 —— 但正因為如此，它才如此輕盈。 我們不在類別中自行建構一切，也">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dependency Injection - 1">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/05/11/NEW-DependencyInjection-1/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="森林的深處，有一間小木屋。每當霧氣升起，樹葉發出細碎的聲響，動物們會緩緩走進這裡 —— 這裡不熱鬧，卻總是剛剛好。 一隻老貓躺在椅上，望著壁爐裡跳動的火光，輕輕說：「我們啊，無法事事都靠自己。」這裡的每一份溫暖，都不是自己製造的，而是來自彼此的信任與協作。柴火是兔子帶來的，窗簾是松鼠縫的，茶是隔壁小鹿泡的。屋子本身沒有準備這一切 —— 但正因為如此，它才如此輕盈。 我們不在類別中自行建構一切，也">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/xAbpKgd.png">
+<meta property="article:published_time" content="2025-05-11T04:50:05.000Z">
+<meta property="article:modified_time" content="2025-05-13T07:57:19.118Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Dependency Injection">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/xAbpKgd.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/05/11/NEW-DependencyInjection-1/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Dependency Injection - 1',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-05-13 15:57:19'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">39</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/xAbpKgd.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Dependency Injection - 1</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-05-11T04:50:05.000Z" title="Created 2025-05-11 12:50:05">2025-05-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-05-13T07:57:19.118Z" title="Updated 2025-05-13 15:57:19">2025-05-13</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Dependency Injection - 1"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://i.imgur.com/xAbpKgd.png" alt="Image"></p>
+<p>森林的深處，有一間小木屋。每當霧氣升起，樹葉發出細碎的聲響，動物們會緩緩走進這裡 —— 這裡不熱鬧，卻總是剛剛好。</p>
+<p>一隻老貓躺在椅上，望著壁爐裡跳動的火光，輕輕說：「我們啊，無法事事都靠自己。」<br>這裡的每一份溫暖，都不是自己製造的，而是來自彼此的信任與協作。<br>柴火是兔子帶來的，窗簾是松鼠縫的，茶是隔壁小鹿泡的。屋子本身沒有準備這一切 —— 但正因為如此，它才如此輕盈。</p>
+<p>我們不在類別中自行建構一切，也不強求自己了解每個細節。我們只需要設計出一個能被好好照顧的容器，然後放手交給外界來注入所需的一切。</p>
+<h2 id="🪵-為什麼時常強調「依賴注入（DI）」是物件導向設計的重要概念？"><a href="#🪵-為什麼時常強調「依賴注入（DI）」是物件導向設計的重要概念？" class="headerlink" title="🪵 為什麼時常強調「依賴注入（DI）」是物件導向設計的重要概念？"></a>🪵 為什麼時常強調「依賴注入（DI）」是物件導向設計的重要概念？</h2><p>在物件導向（OOP）設計中，「依賴注入（Dependency Injection）」是一個常見的設計模式，用來解決模組之間的耦合問題，並提升系統的彈性與可測試性。</p>
+<p>但你可能會問：「為什麼要特別說是 OOP 呢？在其他程式語言或設計方式中，DI 不也可以使用嗎？」</p>
+<p>接下來，我們從幾種不同的程式設計範式（尤其是函數式與程序式）來探討這個問題。</p>
+<h3 id="函數式語言：天然就有「注入」的能力"><a href="#函數式語言：天然就有「注入」的能力" class="headerlink" title="函數式語言：天然就有「注入」的能力"></a>函數式語言：天然就有「注入」的能力</h3><p>在<strong>函數式程式語言（Functional Programming）</strong>中，例如 F#、Haskell 或甚至 JavaScript（部分支援 FP 風格），「函數」本身是一等公民（First-class citizen），也因此不太需要特別使用 OOP-style 的 DI 框架。</p>
+<p>✅ 什麼是「函數是一等公民」？</p>
+<ul>
+<li>這表示你可以像操作變數一樣操作函數：</li>
+<li>把函數當作參數傳進去</li>
+<li>把函數當成回傳值傳出來</li>
+<li>把函數存進變數、丟進資料結構裡</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sayHello</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Hello!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">runFunction</span>(<span class="params">fn</span>) &#123;</span><br><span class="line">    <span class="title function_">fn</span>();  <span class="comment">// 呼叫傳進來的函數</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">runFunction</span>(sayHello);  <span class="comment">// 輸出：Hello!</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>這段程式中，我們把 sayHello 函數「當作參數」傳給另一個函數 runFunction。這就像是把一個依賴塞進去一樣──所以，這裡根本不需要什麼「依賴注入框架」，因為「注入」本身就內建了。</p>
+<p><strong>函數式語言（Functional Programming, FP）是一種強調「純函數（pure functions）」與「資料不可變（immutability）」的程式設計方式。</strong></p>
+<h3 id="動態語言：型別鬆散，依賴可隨時替換"><a href="#動態語言：型別鬆散，依賴可隨時替換" class="headerlink" title="動態語言：型別鬆散，依賴可隨時替換"></a>動態語言：型別鬆散，依賴可隨時替換</h3><p>在動態語言（如 Python、JavaScript）中，由於不需要明確宣告變數型別，也可以在執行時任意更換函數或屬性，讓「替換依賴」變得非常簡單。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EmailService</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">send</span>(<span class="params">self, msg</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Sending email:&quot;</span>, msg)</span><br><span class="line"></span><br><span class="line">email = EmailService()</span><br><span class="line">email.send(<span class="string">&quot;Hello&quot;</span>)  <span class="comment"># 輸出：Sending email: Hello</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 替換成假的函數（mock）</span></span><br><span class="line">email.send = <span class="keyword">lambda</span> msg: <span class="built_in">print</span>(<span class="string">&quot;FAKE email:&quot;</span>, msg)</span><br><span class="line">email.send(<span class="string">&quot;Hello&quot;</span>)  <span class="comment"># 輸出：FAKE email: Hello</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在這裡，我們動態地替換掉原本的函數行為，這在 C#、Java 等靜態語言中就沒那麼容易做到（至少得透過介面、Mock 套件或 DI 框架）。</p>
+<p>✅ 結論：<br>在這些語言中，你可以隨時「偷偷換掉」某個功能的實作，不需要額外的注入設計，自然也不需要嚴格的 DI 容器。</p>
+<p><strong>這類型的語言比較偏向開發速度第一，讓工程師能夠快速試驗與修改程式，所以通常也沒有強制型別</strong></p>
+<h3 id="程序式語言：函數寫死地彼此呼叫，沒有注入點"><a href="#程序式語言：函數寫死地彼此呼叫，沒有注入點" class="headerlink" title="程序式語言：函數寫死地彼此呼叫，沒有注入點"></a>程序式語言：函數寫死地彼此呼叫，沒有注入點</h3><p>在程序式語言（Procedural Programming）中，例如 C 語言，程式邏輯是由一連串的函數直接呼叫彼此完成。這種寫法沒有「物件」與「抽象」，自然也沒有可以「注入依賴」的空間。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">logMessage</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* message)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Log: %s\n&quot;</span>, message);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">processOrder</span><span class="params">()</span> &#123;</span><br><span class="line">    logMessage(<span class="string">&quot;Order processed.&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在這裡，processOrder 直接呼叫了 logMessage，兩者已經「寫死」了依賴關係，無法說「我想換個 Logger 來用」，所以也談不上依賴注入。</p>
+<p><strong>但本質上 C 的哲學不是彈性，而是「精準與控制」</strong></p>
+<p>✅ DI 發揮不了作用的情境總結：</p>
+<ul>
+<li>沒有抽象（沒有 interface）</li>
+<li>沒有注入點（函數或物件直接建立其他物件）</li>
+<li>沒有彈性替換依賴的設計（寫死了）</li>
+</ul>
+<h3 id="回到-OOP：為什麼需要-DI？"><a href="#回到-OOP：為什麼需要-DI？" class="headerlink" title="回到 OOP：為什麼需要 DI？"></a>回到 OOP：為什麼需要 DI？</h3><p>在物件導向的設計中，我們追求「抽象與替換」，例如：</p>
+<ul>
+<li>Logger 是一個介面 ILogger</li>
+<li>我可以選擇用 ConsoleLogger 或 FileLogger</li>
+<li>在建構 OrderProcessor 的時候，我不想管使用哪個 Logger，只想說：「給我一個能用的就好」</li>
+</ul>
+<p>這時候，你就需要一種方式「把依賴注入進來」，而不是自己決定要用哪一種實作。這就是 DI 的舞台。</p>
+<p><strong>C# 是一種「多範式語言（multi-paradigm language）」，主要偏向物件導向（OOP），但也支援函數式風格</strong></p>
+<h2 id="🪵-怎麼理解-DI"><a href="#🪵-怎麼理解-DI" class="headerlink" title="🪵 怎麼理解 DI"></a>🪵 怎麼理解 DI</h2><p>你都怎麼叫同事？</p>
+<p>👨‍💻 RD：欸 PO<br>📊 PO：怎樣 RD？</p>
+<p>看起來好像有點冷淡，對吧？彼此之間只用職稱互稱，完全不知道對方是誰、是高是矮、是圓的扁的。但這其實就蘊含了Dependency Injection 的精髓：</p>
+<blockquote>
+<p>他們之間的互動，是依賴「抽象（角色）」，而不是「具體（人名）」</p>
+</blockquote>
+<p>RD 並不在乎對面的 PO 是小美、阿明還是新來的實習生，他只關心：</p>
+<p>「我現在需要一個能當 PO 的人，誰來都行，只要符合這個職責就好。」</p>
+<p>這就是所謂的依賴抽象（依賴介面），而不是綁定具體對象。</p>
+<h2 id="🪵-李氏替換不只是找人，更要找「能勝任的人」"><a href="#🪵-李氏替換不只是找人，更要找「能勝任的人」" class="headerlink" title="🪵 李氏替換不只是找人，更要找「能勝任的人」"></a>🪵 李氏替換不只是找人，更要找「能勝任的人」</h2><h3 id="👩‍⚖️-李氏替換原則是什麼？"><a href="#👩‍⚖️-李氏替換原則是什麼？" class="headerlink" title="👩‍⚖️ 李氏替換原則是什麼？"></a>👩‍⚖️ 李氏替換原則是什麼？</h3><blockquote>
+<p>如果程式碼原本可以使用某個「父類別或介面」，那麼它也應該可以毫無問題地使用所有子類別或實作類別來替代它。</p>
+</blockquote>
+<p>簡單說就是，抽象可以被它的具體實作所取代，而且程式還要能正常運作。</p>
+<p>有天老闆喊一聲：「我要一個 PO！」</p>
+<p>這個抽象的「PO」角色可以由任何實作來扮演，例如：HumanPO（一般人）、AI_PO（AI 寫的需求）、TrollPO（亂寫需求還放你鴿子）</p>
+<p>那問題來了：⚠️ 如果你注入了一個 TrollPO，導致整個專案爆炸，這就是違反李氏替換原則。</p>
+<p>也就是說，你雖然依賴的是抽象（PO 介面），但你注入的實作（具體的 PO）不能破壞原本的邏輯與行為期待！</p>
+<p>在 DI 的流程中：</p>
+<ul>
+<li>你寫的程式碼只依賴抽象（IPO 介面）</li>
+<li>DI 容器幫你注入實作（例如 HumanPO, AIPo）</li>
+<li>你預期不管是哪個 PO，系統都能正常跑！</li>
+</ul>
+<p>👉 這樣才符合「李氏替換原則」。</p>
+<p><img src="https://i.imgur.com/0MYgMG3.png" alt="Image"></p>
+<p>當然注入手法有很多，家族企業，小孩一出生就被安排進公司的血緣注入、在路上遇到伯樂，聊天後就進了公司的緣分注入、 被 headhunter 精準推薦進入公司的獵人頭注入…</p>
+<h2 id="🪵-實作一個簡單的-DI"><a href="#🪵-實作一個簡單的-DI" class="headerlink" title="🪵 實作一個簡單的 DI!"></a>🪵 實作一個簡單的 DI!</h2><p>在寫程式的過程中，常常會遇到「我需要某個功能，但不在乎是誰提供的」這種情境。這就是依賴注入（Dependency Injection, DI）登場的時刻。</p>
+<h3 id="🎭-Step-1：定義需求，而不是指定人選"><a href="#🎭-Step-1：定義需求，而不是指定人選" class="headerlink" title="🎭 Step 1：定義需求，而不是指定人選"></a>🎭 Step 1：定義需求，而不是指定人選</h3><p>我們先定義一個 RDInterface，任何人只要能實作 WriteCSHARP，我們就承認他是個合格的 RD：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">RDInterface</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">WriteCSHARP</span>()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>這就像職缺說明：「我們正在找一位會寫 C# 的工程師」，至於來的是誰、是男是女、是內向還是外向，一點都不重要。</p>
+<h3 id="👥-Step-2：Team-成立！只招募「能幹活的」"><a href="#👥-Step-2：Team-成立！只招募「能幹活的」" class="headerlink" title="👥 Step 2：Team 成立！只招募「能幹活的」"></a>👥 Step 2：Team 成立！只招募「能幹活的」</h3><p>Team 是我們要成立的開發團隊，它只在乎一件事：可以 WriteCSHARP 的 RD DoTheFuckingWork</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Team</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> RDInterface _RD;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Team</span>(<span class="params">RDInterface rD</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _RD = rD;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SetRD</span>(<span class="params">RDInterface newRD</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.Console.WriteLine(<span class="string">&quot;換換口味...&quot;</span>);</span><br><span class="line">        _RD = newRD;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">DoTheFuckingWork</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        _RD.WriteCSHARP();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="🧍‍♂️-Step-3：找人來幹活（注入實作）"><a href="#🧍‍♂️-Step-3：找人來幹活（注入實作）" class="headerlink" title="🧍‍♂️ Step 3：找人來幹活（注入實作）"></a>🧍‍♂️ Step 3：找人來幹活（注入實作）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Bruce</span> : <span class="title">RDInterface</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> PersonalityTrait trait = PersonalityTrait.DetailOriented;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">WriteCSHARP</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.Console.WriteLine(<span class="string">&quot;Write and feel sleepy...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Sleep</span>(<span class="params"><span class="built_in">int</span> hours</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.Console.WriteLine(<span class="string">$&quot;Bruce is sleeping for <span class="subst">&#123;hours&#125;</span> hours...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我們將 Bruce 注入 Team：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 工作流程</span></span><br><span class="line"><span class="keyword">var</span> brucezzz = <span class="keyword">new</span> Bruce();</span><br><span class="line"><span class="keyword">var</span> team = <span class="keyword">new</span> Team(brucezzz);</span><br><span class="line">team.DoTheFuckingWork();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> random2 = <span class="keyword">new</span> Random();</span><br><span class="line"><span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)</span><br><span class="line">&#123;</span><br><span class="line">    brucezzz.Sleep(random2.Next(<span class="number">1</span>, <span class="number">10</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">team.DoTheFuckingWork();</span><br><span class="line"><span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)</span><br><span class="line">&#123;</span><br><span class="line">    brucezzz.Sleep(random2.Next(<span class="number">1</span>, <span class="number">10</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Write and feel sleepy...</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Bruce is sleeping for 6 hours...</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ （…）</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Write and feel sleepy...</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="🔄-Step-4：換個人接手（動態更換依賴）"><a href="#🔄-Step-4：換個人接手（動態更換依賴）" class="headerlink" title="🔄 Step 4：換個人接手（動態更換依賴）"></a>🔄 Step 4：換個人接手（動態更換依賴）</h3><p>某天這個 Team 覺得 Bruce 不知道為啥很累的樣子，就換人接手幫忙</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Winston</span> : <span class="title">RDInterface</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> PersonalityTrait trait = PersonalityTrait.Impulsive;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">WriteCSHARP</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.Console.WriteLine(<span class="string">&quot;Running while Writing...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">RushAroundEverywhere</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.Console.WriteLine(<span class="string">$&quot;在公司跑來跑去....&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> win = <span class="keyword">new</span> Winston();</span><br><span class="line">team.SetRD(win);</span><br><span class="line">team.DoTheFuckingWork();</span><br><span class="line">win.RushAroundEverywhere();</span><br><span class="line">team.DoTheFuckingWork();</span><br><span class="line">win.RushAroundEverywhere();</span><br><span class="line">team.DoTheFuckingWork();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>輸出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Write and feel sleepy...</span><br><span class="line"></span><br><span class="line">Bruce is sleeping for 6 hours...</span><br><span class="line">Bruce is sleeping for 1 hours...</span><br><span class="line">Bruce is sleeping for 2 hours...</span><br><span class="line">Bruce is sleeping for 7 hours...</span><br><span class="line">Bruce is sleeping for 2 hours...</span><br><span class="line"></span><br><span class="line">Write and feel sleepy...</span><br><span class="line"></span><br><span class="line">Bruce is sleeping for 7 hours...</span><br><span class="line">Bruce is sleeping for 7 hours...</span><br><span class="line">Bruce is sleeping for 1 hours...</span><br><span class="line">Bruce is sleeping for 9 hours...</span><br><span class="line">Bruce is sleeping for 2 hours...</span><br><span class="line"></span><br><span class="line">換換口味...</span><br><span class="line"></span><br><span class="line">Running while Writing...</span><br><span class="line">在公司跑來跑去忘了帶電腦....</span><br><span class="line">Running while Writing...</span><br><span class="line">在公司跑來跑去忘了帶電腦....</span><br><span class="line">Running while Writing...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>隨然他有點好動，但總算還是把事情給幹完了皆大歡喜</p>
+<p>可以看到，對一個 Team 來說，他具有 Sleep 的特性還是 RushAroundEverywhere 不重要，他的需其僅是具有 WriteCSHARP 方法的人</p>
+<p>我們可以觀察到：</p>
+<ul>
+<li>Team 只依賴 抽象（RDInterface），不在乎是 Bruce 還是 Winston。</li>
+<li>只要實作了 WriteCSHARP()，誰都可以成為這個 Team 的成員。</li>
+<li>這樣的設計讓我們可以 彈性更換實作、方便測試、容易擴充。</li>
+</ul>
+<p>這就是 DI 的本質：</p>
+<ul>
+<li>分離創建與使用，依賴的是能力（抽象），不是對象本身。</li>
+<li>當 Team 不再自己決定誰來做事，而是接受外部「注入」的人選時，它變得更輕盈、更具彈性，就像那間森林裡的小木屋，不需要自己準備所有資源，卻因為協作而變得溫暖又豐富。</li>
+</ul>
+<p><strong>若你有多個職缺，可以把這些介面抽象設計再進一步細分（例如加上 IFrontend, IDevOps）。</strong><br><strong>若你要自動根據情境注入，可以搭配 DI 容器（像 ASP.NET Core 內建的 DI framework）。</strong></p>
+<h2 id="🪵-IoC"><a href="#🪵-IoC" class="headerlink" title="🪵 IoC"></a>🪵 IoC</h2><p>「依賴注入」是實現「控制反轉」的一種方式。</p>
+<p>在傳統寫程式的方式裡，主程式像個萬能老闆，什麼都自己決定：自己建立物件、自己控制流程、自己處理細節。<br>而所謂的「控制反轉」就是：把這個主導權交給外部系統來幫你安排。</p>
+<p>你不再主動 new 物件、決定策略，而是交給某個「外部管理者」來幫你處理這些事。這個管理者可能是：</p>
+<ul>
+<li>IoC 容器（像是 .NET 的 DI Container）</li>
+<li>事件派送器（Event Dispatcher）</li>
+<li>策略註冊中心（Strategy Registry）</li>
+</ul>
+<p>👩‍👦「我媽只說一句：我要去日本。剩下的訂機票、訂飯店、排行程，全都是旅行社幫她搞定。」 &#x3D;&gt; IoC！</p>
+<p>以前你想追 YouTuber 的新片，要怎麼辦？自己每天去他的頻道逛，看看有沒有更新。現在只要「訂閱 + 開啟小鈴鐺」：<br>YouTube 系統會自動在適當時機提醒你。你不需要主動出擊，而是被動接收通知。你本來掌控「看不看」，現在變成 YouTube 控制「通知你」。 &#x3D;&gt;  IoC！</p>
+<p>🧩 回過頭來，IoC 不等於 DI，但 DI 是 IoC 的一種做法</p>
+<p>依賴注入（DI）就是一種讓外部容器負責幫你建立與提供物件的方式。你不用管誰要負責 new，誰要被注入，只要拿來用就好。控制權反轉了，你的程式更鬆耦合、更好測試、更彈性擴充。</p>
+<h2 id="🪵-Dependency-Inversion-Principle（依賴反轉原則）"><a href="#🪵-Dependency-Inversion-Principle（依賴反轉原則）" class="headerlink" title="🪵 Dependency Inversion Principle（依賴反轉原則）"></a>🪵 Dependency Inversion Principle（依賴反轉原則）</h2><p>這個原則的核心有兩句經典台詞：</p>
+<p>✨ 「高層模組不應該依賴低層模組，兩者都應該依賴抽象（Abstraction）。」<br>✨ 「抽象不應該依賴細節；細節應該依賴抽象。」</p>
+<p>這句話聽起來很像哲學，其實它的意思很簡單：你寫程式時，不要直接依賴「某個具體的人來幫你做事」，<br>而是依賴你想要的功能長什麼樣子（介面），誰來做都可以換！</p>
+<p>假設你有個高層模組叫做 ReportGenerator，它要輸出報表，那它該怎麼處理輸出這件事？</p>
+<p>它不應該直接綁定 PdfExporter 或 ExcelExporter，因為這樣一改格式就要改高層邏輯，超麻煩！</p>
+<p>正確做法是：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IExporter</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Export</span>(<span class="params"><span class="built_in">string</span> content</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>讓 ReportGenerator 只依賴 IExporter 這個「抽象的出口」：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ReportGenerator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IExporter _exporter;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ReportGenerator</span>(<span class="params">IExporter exporter</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _exporter = exporter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">GenerateReport</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> report = <span class="string">&quot;這是報表內容&quot;</span>;</span><br><span class="line">        _exporter.Export(report);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<ul>
+<li>ReportGenerator（高層）只知道有個 IExporter，不管誰來做。</li>
+<li>PdfExporter、ExcelExporter（低層）實作 IExporter，可以互換。</li>
+</ul>
+<p>所以「兩邊都依賴抽象（IExporter）」，沒有誰綁誰。</p>
+<p>「高層說：我要什麼功能」<br>「低層說：我來實作這功能」</p>
+<blockquote>
+<p>👉 用抽象當中間橋梁，兩邊都不直接綁死。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/05/11/NEW-DependencyInjection-1/">https://allenlin000.github.io.git/2025/05/11/NEW-DependencyInjection-1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Dependency-Injection/">Dependency Injection</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/xAbpKgd.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2025/05/11/NEW-Exception-CouponAPIService/" title="錯誤防暴網設計 2 - 優惠券"><img class="cover" src="https://i.imgur.com/CxZINP1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">錯誤防暴網設計 2 - 優惠券</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">39</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E7%82%BA%E4%BB%80%E9%BA%BC%E6%99%82%E5%B8%B8%E5%BC%B7%E8%AA%BF%E3%80%8C%E4%BE%9D%E8%B3%B4%E6%B3%A8%E5%85%A5%EF%BC%88DI%EF%BC%89%E3%80%8D%E6%98%AF%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E8%A8%AD%E8%A8%88%E7%9A%84%E9%87%8D%E8%A6%81%E6%A6%82%E5%BF%B5%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">🪵 為什麼時常強調「依賴注入（DI）」是物件導向設計的重要概念？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B8%E5%BC%8F%E8%AA%9E%E8%A8%80%EF%BC%9A%E5%A4%A9%E7%84%B6%E5%B0%B1%E6%9C%89%E3%80%8C%E6%B3%A8%E5%85%A5%E3%80%8D%E7%9A%84%E8%83%BD%E5%8A%9B"><span class="toc-number">1.1.</span> <span class="toc-text">函數式語言：天然就有「注入」的能力</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8B%95%E6%85%8B%E8%AA%9E%E8%A8%80%EF%BC%9A%E5%9E%8B%E5%88%A5%E9%AC%86%E6%95%A3%EF%BC%8C%E4%BE%9D%E8%B3%B4%E5%8F%AF%E9%9A%A8%E6%99%82%E6%9B%BF%E6%8F%9B"><span class="toc-number">1.2.</span> <span class="toc-text">動態語言：型別鬆散，依賴可隨時替換</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E5%BC%8F%E8%AA%9E%E8%A8%80%EF%BC%9A%E5%87%BD%E6%95%B8%E5%AF%AB%E6%AD%BB%E5%9C%B0%E5%BD%BC%E6%AD%A4%E5%91%BC%E5%8F%AB%EF%BC%8C%E6%B2%92%E6%9C%89%E6%B3%A8%E5%85%A5%E9%BB%9E"><span class="toc-number">1.3.</span> <span class="toc-text">程序式語言：函數寫死地彼此呼叫，沒有注入點</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E5%88%B0-OOP%EF%BC%9A%E7%82%BA%E4%BB%80%E9%BA%BC%E9%9C%80%E8%A6%81-DI%EF%BC%9F"><span class="toc-number">1.4.</span> <span class="toc-text">回到 OOP：為什麼需要 DI？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E6%80%8E%E9%BA%BC%E7%90%86%E8%A7%A3-DI"><span class="toc-number">2.</span> <span class="toc-text">🪵 怎麼理解 DI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E6%9D%8E%E6%B0%8F%E6%9B%BF%E6%8F%9B%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%89%BE%E4%BA%BA%EF%BC%8C%E6%9B%B4%E8%A6%81%E6%89%BE%E3%80%8C%E8%83%BD%E5%8B%9D%E4%BB%BB%E7%9A%84%E4%BA%BA%E3%80%8D"><span class="toc-number">3.</span> <span class="toc-text">🪵 李氏替換不只是找人，更要找「能勝任的人」</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%91%A9%E2%80%8D%E2%9A%96%EF%B8%8F-%E6%9D%8E%E6%B0%8F%E6%9B%BF%E6%8F%9B%E5%8E%9F%E5%89%87%E6%98%AF%E4%BB%80%E9%BA%BC%EF%BC%9F"><span class="toc-number">3.1.</span> <span class="toc-text">👩‍⚖️ 李氏替換原則是什麼？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E5%AF%A6%E4%BD%9C%E4%B8%80%E5%80%8B%E7%B0%A1%E5%96%AE%E7%9A%84-DI"><span class="toc-number">4.</span> <span class="toc-text">🪵 實作一個簡單的 DI!</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8E%AD-Step-1%EF%BC%9A%E5%AE%9A%E7%BE%A9%E9%9C%80%E6%B1%82%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E6%8C%87%E5%AE%9A%E4%BA%BA%E9%81%B8"><span class="toc-number">4.1.</span> <span class="toc-text">🎭 Step 1：定義需求，而不是指定人選</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%91%A5-Step-2%EF%BC%9ATeam-%E6%88%90%E7%AB%8B%EF%BC%81%E5%8F%AA%E6%8B%9B%E5%8B%9F%E3%80%8C%E8%83%BD%E5%B9%B9%E6%B4%BB%E7%9A%84%E3%80%8D"><span class="toc-number">4.2.</span> <span class="toc-text">👥 Step 2：Team 成立！只招募「能幹活的」</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%A7%8D%E2%80%8D%E2%99%82%EF%B8%8F-Step-3%EF%BC%9A%E6%89%BE%E4%BA%BA%E4%BE%86%E5%B9%B9%E6%B4%BB%EF%BC%88%E6%B3%A8%E5%85%A5%E5%AF%A6%E4%BD%9C%EF%BC%89"><span class="toc-number">4.3.</span> <span class="toc-text">🧍‍♂️ Step 3：找人來幹活（注入實作）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%84-Step-4%EF%BC%9A%E6%8F%9B%E5%80%8B%E4%BA%BA%E6%8E%A5%E6%89%8B%EF%BC%88%E5%8B%95%E6%85%8B%E6%9B%B4%E6%8F%9B%E4%BE%9D%E8%B3%B4%EF%BC%89"><span class="toc-number">4.4.</span> <span class="toc-text">🔄 Step 4：換個人接手（動態更換依賴）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-IoC"><span class="toc-number">5.</span> <span class="toc-text">🪵 IoC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-Dependency-Inversion-Principle%EF%BC%88%E4%BE%9D%E8%B3%B4%E5%8F%8D%E8%BD%89%E5%8E%9F%E5%89%87%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">🪵 Dependency Inversion Principle（依賴反轉原則）</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/05/11/NEW-DependencyInjection-1/" title="Dependency Injection - 1"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Dependency Injection - 1"/></a><div class="content"><a class="title" href="/2025/05/11/NEW-DependencyInjection-1/" title="Dependency Injection - 1">Dependency Injection - 1</a><time datetime="2025-05-11T04:50:05.000Z" title="Created 2025-05-11 12:50:05">2025-05-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/05/11/NEW-Exception-CouponAPIService/" title="錯誤防暴網設計 2 - 優惠券"><img src="https://i.imgur.com/CxZINP1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="錯誤防暴網設計 2 - 優惠券"/></a><div class="content"><a class="title" href="/2025/05/11/NEW-Exception-CouponAPIService/" title="錯誤防暴網設計 2 - 優惠券">錯誤防暴網設計 2 - 優惠券</a><time datetime="2025-05-11T04:50:05.000Z" title="Created 2025-05-11 12:50:05">2025-05-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/05/10/NEW-API-Design-Exception-StatusCode/" title="你說你 200，但我知道你快崩潰了"><img src="https://i.imgur.com/CxZINP1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="你說你 200，但我知道你快崩潰了"/></a><div class="content"><a class="title" href="/2025/05/10/NEW-API-Design-Exception-StatusCode/" title="你說你 200，但我知道你快崩潰了">你說你 200，但我知道你快崩潰了</a><time datetime="2025-05-10T03:23:05.000Z" title="Created 2025-05-10 11:23:05">2025-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/05/07/New-Exception-trycatch/" title="TryAndCatch"><img src="https://i.imgur.com/I1A7fs1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="TryAndCatch"/></a><div class="content"><a class="title" href="/2025/05/07/New-Exception-trycatch/" title="TryAndCatch">TryAndCatch</a><time datetime="2025-05-07T00:25:05.000Z" title="Created 2025-05-07 08:25:05">2025-05-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/05/02/NEW-High-Availibility-HA/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/05/02/NEW-High-Availibility-HA/" title="Untitled">Untitled</a><time datetime="2025-05-02T01:17:07.478Z" title="Created 2025-05-02 09:17:07">2025-05-02</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
