@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>EF Core - Logging | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="為什麼要紀錄 EF Core 自動產生的 SQL 命令?由於 Entity Framework Core 是一套相當完整的 ORM 框架，我們可以利用 ORM 架構幫我們對資料進行建模(Modeling)，用「物件導向」的方式描述一份資料，方便我們可以用相對「抽象」的方式來存取資料。不過，有些時候透過 ORM 框架自動產生的 SQL 語法，可能會導致執行效能低落，這時我們就可以透過 Log">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EF Core - Logging">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/05/27/NEW-EFCORE-Logging/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="為什麼要紀錄 EF Core 自動產生的 SQL 命令?由於 Entity Framework Core 是一套相當完整的 ORM 框架，我們可以利用 ORM 架構幫我們對資料進行建模(Modeling)，用「物件導向」的方式描述一份資料，方便我們可以用相對「抽象」的方式來存取資料。不過，有些時候透過 ORM 框架自動產生的 SQL 語法，可能會導致執行效能低落，這時我們就可以透過 Log">
+<meta property="og:locale">
+<meta property="og:image" content="https://allenlin000.github.io.git/images/ocean.png">
+<meta property="article:published_time" content="2025-05-26T23:38:05.000Z">
+<meta property="article:modified_time" content="2025-05-27T00:21:55.116Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="EF CORE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://allenlin000.github.io.git/images/ocean.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/05/27/NEW-EFCORE-Logging/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'EF Core - Logging',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-05-27 08:21:55'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">52</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/ocean.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">EF Core - Logging</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-05-26T23:38:05.000Z" title="Created 2025-05-27 07:38:05">2025-05-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-05-27T00:21:55.116Z" title="Updated 2025-05-27 08:21:55">2025-05-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%B3%87%E6%96%99%E7%96%86%E7%95%8C%E7%9A%84%E8%88%AA%E5%9C%96/">資料疆界的航圖</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="EF Core - Logging"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="/images/ocean.png" alt="ocean"></p>
+<br>
+<br>
+
+<h2 id="為什麼要紀錄-EF-Core-自動產生的-SQL-命令"><a href="#為什麼要紀錄-EF-Core-自動產生的-SQL-命令" class="headerlink" title="為什麼要紀錄 EF Core 自動產生的 SQL 命令?"></a>為什麼要紀錄 EF Core 自動產生的 SQL 命令?</h2><p>由於 Entity Framework Core 是一套相當完整的 ORM 框架，我們可以利用 ORM 架構幫我們對資料進行建模(Modeling)，用「物件導向」的方式描述一份資料，方便我們可以用相對「抽象」的方式來存取資料。不過，有些時候透過 ORM 框架自動產生的 SQL 語法，可能會導致執行效能低落，這時我們就可以透過 Logging 的方式，將 EF Core 自動產生的 SQL 命令印出來（或寫到檔案中），藉此進一步分析如何優化這些 SQL 語法的執行效率。</p>
+<p>我們在做 Entity Framework 效能調教的時候，比較常見的方法是將複雜的查詢語法，改用預存程序(Stored Procedure)或檢視表(Views)來改善執行效率，但更多時候可能只是加入「索引」就可以大幅改善查詢效能。如果遇到需要批次新增、更新或刪除資料的情況，也會透過直接執行 SQL 的方式來執行，封裝成預存程序也是另一種可行的方案。</p>
+<p>設定 config 檔案的 logLevel</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;Logging&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;LogLevel&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Default&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Information&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Microsoft.AspNetCore&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Warning&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Microsoft.EntityFrameworkCore.Database.Command&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Information&quot;</span> <span class="comment">//// 設定為較低層級就印出來</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;AllowedHosts&quot;</span><span class="punctuation">:</span> <span class="string">&quot;*&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/EFCoreLogging.png" alt="EFCoreLogging"></p>
+<p>進一步印出資料</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">builder.Services.AddDbContext&lt;AdventureWorks2022&gt;(options =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    options.UseSqlServer(configurationManager.GetConnectionString(<span class="string">&quot;AdventureWorks2022&quot;</span>));</span><br><span class="line">    options.EnableSensitiveDataLogging();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/EFCoreLoggingSensitive.png" alt="EFCoreLoggingSensitive"></p>
+<p>可以進一步 Log 出經過的事件</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">builder.Services.AddDbContext&lt;AdventureWorks2022&gt;(options =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    options.UseSqlServer(configurationManager.GetConnectionString(<span class="string">&quot;AdventureWorks2022&quot;</span>));</span><br><span class="line">    options.EnableSensitiveDataLogging();</span><br><span class="line">    options.LogTo(Console.WriteLine); <span class="comment"><span class="doctag">///</span>/ 傳入 Action<span class="doctag">&lt;string&gt;</span></span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/EFCoreLoggingEvent.png" alt="EFCoreLoggingEvent"></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">options.LogTo(Console.WriteLine, LogLevel.Information);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">options.LogTo(Console.WriteLine, <span class="keyword">new</span>[] &#123; DbLoggerCategory.Database.Name &#125;, LogLevel.Information);</span><br></pre></td></tr></table></figure>
+
+<p>這個設定就可以讓我們特別篩選出 Microsoft.EntityFrameworkCore.Database.Command 紀錄類別就好。</p>
+<p>也可以輸出到檔案中，在 特定的 DbContext 加入以下</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">readonly</span> StreamWriter _logStream = <span class="keyword">new</span> StreamWriter(<span class="string">&quot;EFCoreDebug.log&quot;</span>, append: <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnConfiguring</span>(<span class="params">DbContextOptionsBuilder optionsBuilder</span>)</span></span><br><span class="line">    =&gt; optionsBuilder.LogTo(_logStream.WriteLine);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Dispose</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">base</span>.Dispose();</span><br><span class="line">    _logStream.Dispose();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">async</span> ValueTask <span class="title">DisposeAsync</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">await</span> <span class="keyword">base</span>.DisposeAsync();</span><br><span class="line">    <span class="keyword">await</span> _logStream.DisposeAsync();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://learn.microsoft.com/en-us/archive/msdn-magazine/2018/october/data-points-logging-sql-and-change-tracking-events-in-ef-core?WT.mc_id=DT-MVP-4015686" alt="Logging SQL and Change-Tracking Events in EF Core"></p>
+<p><img src="https://learn.microsoft.com/en-us/ef/core/logging-events-diagnostics/?tabs=v3&WT.mc_id=DT-MVP-4015686#other-applications" alt="Overview of Logging and Interception"></p>
+<p><img src="https://www.entityframeworktutorial.net/efcore/logging-in-entityframework-core.aspx" alt="Logging in Entity Framework Core"></p>
+<p><img src="https://itnext.io/entity-framework-core-show-parameter-values-in-logging-5ac58b6a4929" alt="Entity Framework Core: Show Parameter Values in Logging"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/05/27/NEW-EFCORE-Logging/">https://allenlin000.github.io.git/2025/05/27/NEW-EFCORE-Logging/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/EF-CORE/">EF CORE</a></div><div class="post_share"><div class="social-share" data-image="/images/ocean.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/05/25/NEW-EFCORE-Transaction-%E8%B7%A8/" title="EF Core - 交易的界線"><img class="cover" src="/images/ocean.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">EF Core - 交易的界線</div></div></a></div><div class="next-post pull-right"><a href="/2025/05/28/NEW-EFCORE-Update/" title="EF Core - Update"><img class="cover" src="/images/ocean.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">EF Core - Update</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/05/19/NEW-EFCORE-1/" title="EF Core - 1"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-19</div><div class="title">EF Core - 1</div></div></a></div><div><a href="/2025/05/28/NEW-EFCORE-DbUpdateConcurrencyException/" title="EF Core - InvalidOperationException"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - InvalidOperationException</div></div></a></div><div><a href="/2025/05/23/NEW-Dapper/" title="Dapper EF Core"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-23</div><div class="title">Dapper EF Core</div></div></a></div><div><a href="/2025/05/28/NEW-EFCORE-DbUpdateException/" title="EF Core - DbUpdateException"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - DbUpdateException</div></div></a></div><div><a href="/2025/05/28/NEW-EFCORE-Performance-Exist/" title="EF Core - 資料是否存在"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - 資料是否存在</div></div></a></div><div><a href="/2025/05/28/NEW-EFCORE-InvalidOperationException/" title="EF Core - InvalidOperationException"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - InvalidOperationException</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">52</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E8%A6%81%E7%B4%80%E9%8C%84-EF-Core-%E8%87%AA%E5%8B%95%E7%94%A2%E7%94%9F%E7%9A%84-SQL-%E5%91%BD%E4%BB%A4"><span class="toc-number">1.</span> <span class="toc-text">為什麼要紀錄 EF Core 自動產生的 SQL 命令?</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/05/28/NEW-EFCORE-DbUpdateConcurrencyException/" title="EF Core - InvalidOperationException"><img src="/images/ocean.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EF Core - InvalidOperationException"/></a><div class="content"><a class="title" href="/2025/05/28/NEW-EFCORE-DbUpdateConcurrencyException/" title="EF Core - InvalidOperationException">EF Core - InvalidOperationException</a><time datetime="2025-05-28T00:26:05.000Z" title="Created 2025-05-28 08:26:05">2025-05-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/05/28/NEW-EFCORE-DbUpdateException/" title="EF Core - DbUpdateException"><img src="/images/ocean.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EF Core - DbUpdateException"/></a><div class="content"><a class="title" href="/2025/05/28/NEW-EFCORE-DbUpdateException/" title="EF Core - DbUpdateException">EF Core - DbUpdateException</a><time datetime="2025-05-28T00:26:05.000Z" title="Created 2025-05-28 08:26:05">2025-05-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/05/28/NEW-EFCORE-Performance-Exist/" title="EF Core - 資料是否存在"><img src="/images/ocean.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EF Core - 資料是否存在"/></a><div class="content"><a class="title" href="/2025/05/28/NEW-EFCORE-Performance-Exist/" title="EF Core - 資料是否存在">EF Core - 資料是否存在</a><time datetime="2025-05-28T00:26:05.000Z" title="Created 2025-05-28 08:26:05">2025-05-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/05/28/NEW-EFCORE-InvalidOperationException/" title="EF Core - InvalidOperationException"><img src="/images/ocean.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EF Core - InvalidOperationException"/></a><div class="content"><a class="title" href="/2025/05/28/NEW-EFCORE-InvalidOperationException/" title="EF Core - InvalidOperationException">EF Core - InvalidOperationException</a><time datetime="2025-05-28T00:26:05.000Z" title="Created 2025-05-28 08:26:05">2025-05-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/05/28/NEW-EFCORE-TimeoutException/" title="EF Core - InvalidOperationException"><img src="/images/ocean.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EF Core - InvalidOperationException"/></a><div class="content"><a class="title" href="/2025/05/28/NEW-EFCORE-TimeoutException/" title="EF Core - InvalidOperationException">EF Core - InvalidOperationException</a><time datetime="2025-05-28T00:26:05.000Z" title="Created 2025-05-28 08:26:05">2025-05-28</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
