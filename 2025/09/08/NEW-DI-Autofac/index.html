@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>注入之森裡的嚮導 - Autofac | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="寫程式有時很像在蓋房子。剛開始是一間小木屋，只有幾個房間，想要新增功能時，就直接在牆上多開一扇門或窗，簡單粗暴。可隨著專案變大，房間越來越多、走道越來越複雜，你會發現： 有些門只接受某一把特殊的鑰匙（類別直接依賴具體實作，難以替換）。 有些門打不開，因為它需要另一個房間的鑰匙，而那個房間又反過來要依賴這個（循環依賴）。 有些地方明明只是臨時搭的走道，卻意外成了主要通道，導致一改就全系統崩潰。 這些">
+<meta property="og:type" content="article">
+<meta property="og:title" content="注入之森裡的嚮導 - Autofac">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/09/08/NEW-DI-Autofac/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="寫程式有時很像在蓋房子。剛開始是一間小木屋，只有幾個房間，想要新增功能時，就直接在牆上多開一扇門或窗，簡單粗暴。可隨著專案變大，房間越來越多、走道越來越複雜，你會發現： 有些門只接受某一把特殊的鑰匙（類別直接依賴具體實作，難以替換）。 有些門打不開，因為它需要另一個房間的鑰匙，而那個房間又反過來要依賴這個（循環依賴）。 有些地方明明只是臨時搭的走道，卻意外成了主要通道，導致一改就全系統崩潰。 這些">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/xAbpKgd.png">
+<meta property="article:published_time" content="2025-09-08T00:33:01.000Z">
+<meta property="article:modified_time" content="2025-09-10T00:52:46.126Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/xAbpKgd.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/09/08/NEW-DI-Autofac/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '注入之森裡的嚮導 - Autofac',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-09-10 08:52:46'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">46</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">15</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">10</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/xAbpKgd.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">注入之森裡的嚮導 - Autofac</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-09-08T00:33:01.000Z" title="Created 2025-09-08 08:33:01">2025-09-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-09-10T00:52:46.126Z" title="Updated 2025-09-10 08:52:46">2025-09-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%A3%AE/">注入之森</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="注入之森裡的嚮導 - Autofac"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>寫程式有時很像在蓋房子。剛開始是一間小木屋，只有幾個房間，想要新增功能時，就直接在牆上多開一扇門或窗，簡單粗暴。<br>可隨著專案變大，房間越來越多、走道越來越複雜，你會發現：</p>
+<p>有些門只接受某一把特殊的鑰匙（類別直接依賴具體實作，難以替換）。</p>
+<p>有些門打不開，因為它需要另一個房間的鑰匙，而那個房間又反過來要依賴這個（循環依賴）。</p>
+<p>有些地方明明只是臨時搭的走道，卻意外成了主要通道，導致一改就全系統崩潰。</p>
+<p>這些問題，就是物件之間錯綜複雜的依賴關係。當專案還小的時候，我們可能不會覺得有什麼大不了；但當專案逐漸長成一座龐大的建築，沒有良好的規劃，就會迷路、卡關，甚至動一根樑就牽動全局。</p>
+<p>這時候，一個好的 IoC 容器，就像是「建築師」。它幫你畫清楚藍圖，規範房間與房間之間該怎麼互通，並且在需要的時候，自動幫你準備好正確的鑰匙。</p>
+<h2 id="🪵-好的-IoC-容器"><a href="#🪵-好的-IoC-容器" class="headerlink" title="🪵 好的 IoC 容器"></a>🪵 好的 IoC 容器</h2><p>我們期望一個好的 IoC 容器要能做到</p>
+<ul>
+<li>在大型專案中不會亂拋錯</li>
+<li>易於使用，學習成本不能太高，以利維護</li>
+<li>功能強大，能支援多種注入方式（建構式、屬性、方法）</li>
+<li>錯誤提示友善，找錯誤不能像踩地雷一樣</li>
+<li>生命週期管理靈活，可以細緻地控制物件生命週期</li>
+<li>相容性強，能整合 ASP.NET Core、Web API…</li>
+</ul>
+<p>參考<a target="_blank" rel="noopener" href="https://blog.darkthread.net/blog/autofac-notes-1">Autofac筆記 1</a> 列出一些情境</p>
+<h2 id="🪵「註冊遞迴錯誤處理」"><a href="#🪵「註冊遞迴錯誤處理」" class="headerlink" title="🪵「註冊遞迴錯誤處理」"></a>🪵「註冊遞迴錯誤處理」</h2><p>假設不小心寫出：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">A</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">A</span>(<span class="params">B b</span>)</span> &#123; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title">B</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">B</span>(<span class="params">A a</span>)</span> &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這就會變成一個無窮遞迴的相依性（A 要 B、B 又要 A）。</p>
+<p>有些 IoC 容器遇到這種情況會怎樣？</p>
+<ul>
+<li>Autofac：會在註冊時或 resolve 時直接告訴你「你有循環依賴」，提示清楚。</li>
+<li>StructureMap、Ninject：早期版本可能會陷入 runtime 才崩潰，debug 地獄</li>
+<li>Unity：錯誤訊息難懂。</li>
+<li>Spring.NET：錯誤在 XML 配置裡，不好 trace。</li>
+</ul>
+<p>✅ Autofac 的錯誤處理明確且提前發現，有效避免開發踩雷。</p>
+<br>
+<br>
+
+<h2 id="🪵-建構式選取"><a href="#🪵-建構式選取" class="headerlink" title="🪵 建構式選取"></a>🪵 建構式選取</h2><p>在類別中寫了多個 constructor：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyService</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyService</span>()</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyService</span>(<span class="params">IDepA depA</span>)</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyService</span>(<span class="params">IDepA depA, IDepB depB</span>)</span> &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那 IoC 容器該選哪一個？錯選了可能就注入不到東西，或者拋錯！</p>
+<ul>
+<li>Autofac：能根據參數完整性自動選擇最合適的 constructor，或者你可以手動指定。</li>
+<li>Unity：曾經會亂選或報錯，導致硬性加 [InjectionConstructor]</li>
+<li>StructureMap：選擇機制比較死板，無法彈性控制</li>
+<li>Ninject：穩定性有待加強，有時會選錯或 fail silently</li>
+</ul>
+<p>✅ Autofac 對 constructor 的選擇機制既自動又可以自訂，安全又彈性。</p>
+<br>
+<br>
+
+<h2 id="🪵-Property-注入支援"><a href="#🪵-Property-注入支援" class="headerlink" title="🪵 Property 注入支援"></a>🪵 Property 注入支援</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyService</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> ILogger Logger &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這種注入方式叫 Property Injection，有時你不想在 constructor 塞太多參數時會這樣用。</p>
+<ul>
+<li>Autofac：支援良好，只要設定 .PropertiesAutowired() 就行</li>
+<li>Unity、Ninject：支援不完全，有些情況不會自動注入</li>
+<li>StructureMap：需要額外設定才會啟用</li>
+</ul>
+<p>✅ Autofac 對於非建構式注入支援更全面，降低耦合度的同時提升彈性。</p>
+<br>
+<br>
+
+
+<h2 id="🪵-學習曲線太陡"><a href="#🪵-學習曲線太陡" class="headerlink" title="🪵 學習曲線太陡"></a>🪵 學習曲線太陡</h2><p>Spring.NET 功能超強，根本是 Java Spring 的翻版，但使用者要用 XML 寫一堆設定：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="built_in">object</span> id=<span class="string">&quot;orderService&quot;</span> type=<span class="string">&quot;MyApp.Services.OrderService, MyApp&quot;</span>&gt;</span><br><span class="line">  &lt;property name=<span class="string">&quot;paymentService&quot;</span> <span class="keyword">ref</span>=<span class="string">&quot;paymentService&quot;</span>/&gt;</span><br><span class="line">&lt;/<span class="built_in">object</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>這種方式很麻煩，容易錯、難 trace、維護成本高。<br>✅ Autofac 用純 C# 註冊，不用 XML，易學易懂，也方便 refactor。</p>
+<br>
+<br>
+
+<h2 id="🪵-穩定性-社群支援"><a href="#🪵-穩定性-社群支援" class="headerlink" title="🪵 穩定性 &amp; 社群支援"></a>🪵 穩定性 &amp; 社群支援</h2><p>Ninject 曾經很流行，但後來長期沒有更新，導致出現相依套件版本衝突並且在 .NET Core 時代支援落後，相比之下，Autofac 一直活躍維護且更新速度快、社群大，StackOverflow 解法多<br>與 ASP.NET Core 相容性強，還提供 Autofac.Extensions.DependencyInjection 套件直接整合</p>
+<br>
+<br>
+
+
+
+<h2 id="🪵-大量使用-C-的-Lambda-Fluent-API-設計風格"><a href="#🪵-大量使用-C-的-Lambda-Fluent-API-設計風格" class="headerlink" title="🪵 大量使用 C# 的 Lambda &#x2F; Fluent API 設計風格"></a>🪵 大量使用 C# 的 Lambda &#x2F; Fluent API 設計風格</h2><p>Autofac 的註冊方式長得像這樣：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">builder.RegisterType&lt;MyService&gt;()</span><br><span class="line">       .As&lt;IMyService&gt;()</span><br><span class="line">       .InstancePerLifetimeScope()</span><br><span class="line">       .WithParameter(<span class="string">&quot;connectionString&quot;</span>, <span class="string">&quot;Data Source=...&quot;</span>)</span><br><span class="line">       .OnActivated(e =&gt; Console.WriteLine(<span class="string">&quot;已建立&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Lambda（像 .OnActivated(e &#x3D;&gt; …)）</li>
+<li>Fluent API（像 .As<T>().WithParameter().OnActivated()）</li>
+<li>鏈式語法 讓程式碼簡潔、直觀、可讀性高</li>
+</ul>
+<p>Autofac 特別擅長運用 Fluent API 和 Lambda 表達式來提供高可讀性且彈性的注入配置，這讓 C# 開發者可以用熟悉的語法風格完成複雜的依賴註冊。</p>
+<p>Autofac 像是提供你一支 自動排序、自動對齊、會說話的筆，而且你用的方法就是你平常習慣的寫字方式。Unity 或 Ninject 提供的是一般的筆，能寫沒錯，但要你自己對齊、標註格式。Spring.NET 給你一張紙，要你用鉛筆慢慢描（XML） 😅</p>
+<br>
+<br>
+
+<h2 id="🪵-術語"><a href="#🪵-術語" class="headerlink" title="🪵 術語"></a>🪵 術語</h2><br>
+
+<h3 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h3><p>Component 指的是你要註冊進 IoC Container 裡的類別，也就是「要被建立、被注入」的那個物件。<br>Component 是提供某種功能的「服務提供者」。它實際上是一個 C# 類別（通常會實作某個介面）。<br>Container 會記得這個 Component，然後在別人需要它的時候負責建立它的實體。<br>就像公司裡有一個「會計部門」是個 Component，Container 就像是秘書，安排要找誰來做帳。</p>
+<br>
+<br>
+
+<h2 id="🪵-Service"><a href="#🪵-Service" class="headerlink" title="🪵 Service"></a>🪵 Service</h2><p>Service 是指 Component 提供的「功能」，通常是透過一個 Interface 定義的。Service 是「你希望別人能使用的功能的抽象定義」。Component 實作 Service，也就是「某人能提供這個服務」。</p>
+<br>
+<br>
+
+<h2 id="🪵-Autowiring"><a href="#🪵-Autowiring" class="headerlink" title="🪵 Autowiring"></a>🪵 Autowiring</h2><p>Container 自動分析 Component 的建構式、屬性或方法參數，自動幫你注入所需的相依服務，這個功能稱為 Autowiring。它會自動比對建構式參數的型別，看誰能提供這些服務，然後自動塞進去。減少你手動指定依賴的工作，程式碼更簡潔。</p>
+<p>當你跟 IoC Container 說：「我要 A」時，它會做以下事情：</p>
+<p>查看 A 的建構式（Constructor）需要什麼參數（例如 B 和 C）。再去找有沒有已經註冊的 B 和 C。如果有，就自動幫你建立 B 和 C，然後把它們傳進 A 的建構式。如果 B 或 C 也依賴別人（像 D、E），也會一層一層往下解決。最後幫你把完整的 A 建出來，並回傳給你。這整個過程就是 Autowiring（自動接線、自動解析相依性）。</p>
+<br>
+<br>
+
+<h2 id="🪵-Transient-Component"><a href="#🪵-Transient-Component" class="headerlink" title="🪵 Transient Component"></a>🪵 Transient Component</h2><p>每次你向 Container 要一個服務時，Container 都會建立一個全新的實體給你，這就是 Transient。跟 Singleton 相反，Transient 不會重複使用實例。適合用在「無狀態」或「每次都要不同資料」的情境。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">builder.RegisterType&lt;MyService&gt;().As&lt;IMyService&gt;().InstancePerDependency(); <span class="comment">// Autofac 的 Transient</span></span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="🪵-Automatic-Registration"><a href="#🪵-Automatic-Registration" class="headerlink" title="🪵 Automatic Registration"></a>🪵 Automatic Registration</h2><p>Container 自動掃描整個組件或專案中的類別，自動找出哪些可以註冊為 Component 的類別，不需你一行一行手動註冊。透過 Reflection 或 Convention 自動將類別註冊進 Container。</p>
+<p>避免重複的樣板程式碼，尤其是大型專案會大量使用。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())</span><br><span class="line">       .Where(t =&gt; t.Name.EndsWith(<span class="string">&quot;Service&quot;</span>))</span><br><span class="line">       .AsImplementedInterfaces();</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="🪵-CommonServiceLocator"><a href="#🪵-CommonServiceLocator" class="headerlink" title="🪵 CommonServiceLocator"></a>🪵 CommonServiceLocator</h2><p>一個用來「統一介面」存取各種 IoC 容器的抽象層，讓你用同一組 API 操作不同的 IoC 容器（像 Unity、Autofac、Castle…）。這是 IoC 容器的抽象層，就像開發時寫 IDbConnection 而不是直接用 SqlConnection。讓程式不要綁死在特定 IoC 套件上，方便未來替換。就像你使用「提款機標準介面」，不管後面是台新、國泰還是富邦的銀行都能提款，因為操作介面一樣。</p>
+<br>
+<br>
+
+<h2 id="🪵-實作演示"><a href="#🪵-實作演示" class="headerlink" title="🪵 實作演示"></a>🪵 實作演示</h2><p>在開發程式時，物件與物件之間通常會互相依賴（例如 A 物件要使用 B 物件），這種情況下如果每個物件都自己「new」出它要的東西，整個程式的耦合度（coupling）會很高、測試變得困難、擴充性也差。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> IQueryable&lt;Memo&gt; <span class="title">GenSomeMemos</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//...略...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 這是 Autofac 的「容器建造器」，你可以想像它是一張圖紙或藍圖，我們要先把「怎麼組裝各種物件的方式」定義好。</span></span><br><span class="line"><span class="keyword">static</span> ContainerBuilder builder;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 這些步驟就是在告訴 Autofac：「如果有人說他需要某個物件，你要怎麼幫他生出來？」</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 當你需要一個 MemoChecker 物件時，Autofac 要自己幫你把它「生」出來，而 MemoChecker 需要兩個參數：一個是 IQueryable&lt;Memo&gt;，一個是 IMemoDueNotifier，這兩個東西也是由 Autofac 來生。</span></span><br><span class="line">builder.Register(c =&gt; <span class="keyword">new</span> MemoChecker(</span><br><span class="line">    c.Resolve&lt;IQueryable&lt;Memo&gt;&gt;(),</span><br><span class="line">    c.Resolve&lt;IMemoDueNotifier&gt;()));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果需要 IMemoDueNotifier，你就給他一個 PrintingNotifier。這是一種「介面導向」的設計方式，可以讓系統更容易替換實作。</span></span><br><span class="line">builder.Register(c =&gt; <span class="keyword">new</span> PrintingNotifier(</span><br><span class="line">    c.Resolve&lt;TextWriter&gt;())).As&lt;IMemoDueNotifier&gt;();</span><br><span class="line"></span><br><span class="line"><span class="comment">// RegisterInstance(memos)：把剛剛 GenSomeMemos() 生出來的資料，直接給 Autofac 用，不用他自己 new。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Console.Out 是用來印東西到主控台的，它是系統提供的，不是你自己 new 的，因此我們告訴 Autofac：「你可以用它，但不要幫我處理它的壽命。」（這叫做 ExternallyOwned）</span></span><br><span class="line">builder.RegisterInstance(memos);</span><br><span class="line">builder.RegisterInstance(Console.Out).As&lt;TextWriter&gt;().ExternallyOwned();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//這裡是整個 Autofac 的「運作時期」。你使用 builder.Build() 把剛剛定義的註冊全部組裝成一個可用的容器（Container），接著叫 Container 把 MemoChecker 生出來，並執行 CheckNow()。</span></span><br><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> container = builder.Build())</span><br><span class="line">&#123;</span><br><span class="line">    container.Resolve&lt;MemoChecker&gt;().CheckNow();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如果撰寫自己在使用的小程式是感覺不出它的好處的，若是維護大型專案就會面對許多挑戰，這也是位甚麼我們需要如此大費周章地先把系統建構好</p>
+<table>
+<thead>
+<tr>
+<th>問題 &#x2F; 挑戰</th>
+<th>解決方式（為何用 Autofac）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物件之間的依賴太多層</td>
+<td>Autofac 幫你解決誰要先被 new，誰需要參數</td>
+</tr>
+<tr>
+<td>要測試不同情境很麻煩</td>
+<td>只要改註冊就可以換掉實作，例如從 <code>PrintingNotifier</code> 換成 <code>EmailNotifier</code></td>
+</tr>
+<tr>
+<td>程式耦合度高，不易維護</td>
+<td>使用介面 + DI，可以讓你更換、擴充都很輕鬆</td>
+</tr>
+<tr>
+<td>建構太多重複的物件</td>
+<td>Autofac 幫你管理物件生命周期</td>
+</tr>
+<tr>
+<td>難以追蹤誰負責釋放資源</td>
+<td>用 <code>using</code> 包住 Container，Autofac 幫你釋放需要釋放的資源（實作了 <code>IDisposable</code> 的物件）</td>
+</tr>
+</tbody></table>
+<br>
+<br>
+
+<h2 id="🪵-結語"><a href="#🪵-結語" class="headerlink" title="🪵 結語"></a>🪵 結語</h2><p>從小木屋到摩天大樓，每個系統都會經歷一段「成長痛」。<br>當依賴開始纏繞，當修改變得危險，我們需要的不只是更強壯的牆，而是更聰明的設計。</p>
+<p>Autofac 就像是那位在背後默默規劃的建築師：</p>
+<ul>
+<li>它幫你確保每個房間都有正確的入口（依賴自動解析）。</li>
+<li>它幫你預留擴充的空間（介面導向、可替換的實作）。</li>
+<li>它幫你管理建材的循環使用（生命週期管理）。</li>
+</ul>
+<p>所以，與其說 Autofac 是個 IoC 容器，不如說它是一套 讓專案能健康長大的建築藍圖。<br>當我們回頭看自己搭建過的系統，就會發現：能安心專注在功能與價值，而不用每天被耦合與錯誤追著跑，本身就是一種溫暖。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/09/08/NEW-DI-Autofac/">https://allenlin000.github.io.git/2025/09/08/NEW-DI-Autofac/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/xAbpKgd.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2025/09/08/New-Config-Builder/" title="Config Builder"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Config/gear.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Config Builder</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">46</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">15</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">10</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E5%A5%BD%E7%9A%84-IoC-%E5%AE%B9%E5%99%A8"><span class="toc-number">1.</span> <span class="toc-text">🪵 好的 IoC 容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5%E3%80%8C%E8%A8%BB%E5%86%8A%E9%81%9E%E8%BF%B4%E9%8C%AF%E8%AA%A4%E8%99%95%E7%90%86%E3%80%8D"><span class="toc-number">2.</span> <span class="toc-text">🪵「註冊遞迴錯誤處理」</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E5%BB%BA%E6%A7%8B%E5%BC%8F%E9%81%B8%E5%8F%96"><span class="toc-number">3.</span> <span class="toc-text">🪵 建構式選取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-Property-%E6%B3%A8%E5%85%A5%E6%94%AF%E6%8F%B4"><span class="toc-number">4.</span> <span class="toc-text">🪵 Property 注入支援</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E5%AD%B8%E7%BF%92%E6%9B%B2%E7%B7%9A%E5%A4%AA%E9%99%A1"><span class="toc-number">5.</span> <span class="toc-text">🪵 學習曲線太陡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E7%A9%A9%E5%AE%9A%E6%80%A7-%E7%A4%BE%E7%BE%A4%E6%94%AF%E6%8F%B4"><span class="toc-number">6.</span> <span class="toc-text">🪵 穩定性 &amp; 社群支援</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E5%A4%A7%E9%87%8F%E4%BD%BF%E7%94%A8-C-%E7%9A%84-Lambda-Fluent-API-%E8%A8%AD%E8%A8%88%E9%A2%A8%E6%A0%BC"><span class="toc-number">7.</span> <span class="toc-text">🪵 大量使用 C# 的 Lambda &#x2F; Fluent API 設計風格</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E8%A1%93%E8%AA%9E"><span class="toc-number">8.</span> <span class="toc-text">🪵 術語</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Component"><span class="toc-number">8.1.</span> <span class="toc-text">Component</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-Service"><span class="toc-number">9.</span> <span class="toc-text">🪵 Service</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-Autowiring"><span class="toc-number">10.</span> <span class="toc-text">🪵 Autowiring</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-Transient-Component"><span class="toc-number">11.</span> <span class="toc-text">🪵 Transient Component</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-Automatic-Registration"><span class="toc-number">12.</span> <span class="toc-text">🪵 Automatic Registration</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-CommonServiceLocator"><span class="toc-number">13.</span> <span class="toc-text">🪵 CommonServiceLocator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E5%AF%A6%E4%BD%9C%E6%BC%94%E7%A4%BA"><span class="toc-number">14.</span> <span class="toc-text">🪵 實作演示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E7%B5%90%E8%AA%9E"><span class="toc-number">15.</span> <span class="toc-text">🪵 結語</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/09/08/NEW-DI-Autofac/" title="注入之森裡的嚮導 - Autofac"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="注入之森裡的嚮導 - Autofac"/></a><div class="content"><a class="title" href="/2025/09/08/NEW-DI-Autofac/" title="注入之森裡的嚮導 - Autofac">注入之森裡的嚮導 - Autofac</a><time datetime="2025-09-08T00:33:01.000Z" title="Created 2025-09-08 08:33:01">2025-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/08/New-Config-Builder/" title="Config Builder"><img src="https://github.com/CHI-KEKE/pics/blob/main/Config/gear.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Config Builder"/></a><div class="content"><a class="title" href="/2025/09/08/New-Config-Builder/" title="Config Builder">Config Builder</a><time datetime="2025-09-08T00:33:01.000Z" title="Created 2025-09-08 08:33:01">2025-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/02/New-Config-OptionsPattern-copy/" title="Options Pattern"><img src="https://github.com/CHI-KEKE/pics/blob/main/Config/gear.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Options Pattern"/></a><div class="content"><a class="title" href="/2025/09/02/New-Config-OptionsPattern-copy/" title="Options Pattern">Options Pattern</a><time datetime="2025-09-02T14:33:01.000Z" title="Created 2025-09-02 22:33:01">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/08/31/New-Teamwork-1/" title="開發流程"><img src="https://github.com/CHI-KEKE/pics/blob/main/Team/team.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="開發流程"/></a><div class="content"><a class="title" href="/2025/08/31/New-Teamwork-1/" title="開發流程">開發流程</a><time datetime="2025-08-31T01:56:01.000Z" title="Created 2025-08-31 09:56:01">2025-08-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/08/31/New-Teamwork-2/" title="開發流程"><img src="https://github.com/CHI-KEKE/pics/blob/main/Team/team.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="開發流程"/></a><div class="content"><a class="title" href="/2025/08/31/New-Teamwork-2/" title="開發流程">開發流程</a><time datetime="2025-08-31T01:56:01.000Z" title="Created 2025-08-31 09:56:01">2025-08-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
