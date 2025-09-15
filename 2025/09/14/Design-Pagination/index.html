@@ -1,0 +1,263 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Pagination | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="為什麼需要「分頁」當資料量很多時，一次全部載入會出現幾個問題：  傳輸時間變久（效能差） 前端渲染太慢（使用者體驗差） 資料可能會更新（你讀到的資料其實過時了） Server 壓力大（記憶體吃光、CPU 爆掉）  所以我們會把資料「一頁一頁」傳給前端，這就叫做 分頁（Pagination）。 Offset&#x2F;Limit 分頁用 OFFSET 跳過前幾筆資料，用 LIMIT 限制要拿幾筆。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pagination">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/09/14/Design-Pagination/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="為什麼需要「分頁」當資料量很多時，一次全部載入會出現幾個問題：  傳輸時間變久（效能差） 前端渲染太慢（使用者體驗差） 資料可能會更新（你讀到的資料其實過時了） Server 壓力大（記憶體吃光、CPU 爆掉）  所以我們會把資料「一頁一頁」傳給前端，這就叫做 分頁（Pagination）。 Offset&#x2F;Limit 分頁用 OFFSET 跳過前幾筆資料，用 LIMIT 限制要拿幾筆。">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/LF7L1Ws.png">
+<meta property="article:published_time" content="2025-09-14T14:00:03.000Z">
+<meta property="article:modified_time" content="2025-09-14T14:27:25.596Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/LF7L1Ws.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/09/14/Design-Pagination/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Pagination',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-09-14 22:27:25'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">51</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/LF7L1Ws.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Pagination</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-09-14T14:00:03.000Z" title="Created 2025-09-14 22:00:03">2025-09-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-09-14T14:27:25.596Z" title="Updated 2025-09-14 22:27:25">2025-09-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%A8%AD%E8%A8%88%E5%9B%B3%E9%91%91%E7%89%A9%E8%AA%9E/">設計図鑑物語</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Pagination"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="為什麼需要「分頁」"><a href="#為什麼需要「分頁」" class="headerlink" title="為什麼需要「分頁」"></a>為什麼需要「分頁」</h2><p>當資料量很多時，一次全部載入會出現幾個問題：</p>
+<ul>
+<li>傳輸時間變久（效能差）</li>
+<li>前端渲染太慢（使用者體驗差）</li>
+<li>資料可能會更新（你讀到的資料其實過時了）</li>
+<li>Server 壓力大（記憶體吃光、CPU 爆掉）</li>
+</ul>
+<p>所以我們會把資料「一頁一頁」傳給前端，這就叫做 分頁（Pagination）。</p>
+<h2 id="Offset-Limit-分頁"><a href="#Offset-Limit-分頁" class="headerlink" title="Offset&#x2F;Limit 分頁"></a>Offset&#x2F;Limit 分頁</h2><p>用 OFFSET 跳過前幾筆資料，用 LIMIT 限制要拿幾筆。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 假設每頁 10 筆</span></span><br><span class="line"><span class="comment">-- 第1頁</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Products <span class="keyword">ORDER</span> <span class="keyword">BY</span> Id LIMIT <span class="number">10</span> <span class="keyword">OFFSET</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 第2頁</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Products <span class="keyword">ORDER</span> <span class="keyword">BY</span> Id LIMIT <span class="number">10</span> <span class="keyword">OFFSET</span> <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 第3頁</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Products <span class="keyword">ORDER</span> <span class="keyword">BY</span> Id LIMIT <span class="number">10</span> <span class="keyword">OFFSET</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>問題一：效能差（尤其當 OFFSET 很大時）</strong></p>
+<p>就像你去圖書館要看第 10000 頁的書，圖書館員還是要翻過前面 9999 頁才能給你第 10000 頁。資料庫也是一樣，它要先讀取前面 9999 筆資料，再丟掉，只為了給你第 10000 筆開始的資料。所以 OFFSET 越大，查詢越慢。</p>
+<p><strong>問題二：資料會「跳頁」、「漏資料」、「重複資料」</strong></p>
+<p>這個是使用者看不出來，但實際超級致命的問題。</p>
+<p>假設你在第 2 頁看到的第 10 筆資料是「商品 A」，但就在你按下一頁之前，有人刪除了第 5 筆資料，導致整個排序往前移。</p>
+<p>你跳到第 3 頁時，本來應該出現的新資料被往前推，你就「跳過」了那些資料，永遠看不到！</p>
+<p>這就是所謂的：</p>
+<ul>
+<li>資料跳頁（跳過）</li>
+<li>漏資料</li>
+<li>重複資料</li>
+</ul>
+<h2 id="游標分頁（Cursor-based-Pagination）"><a href="#游標分頁（Cursor-based-Pagination）" class="headerlink" title="游標分頁（Cursor-based Pagination）"></a>游標分頁（Cursor-based Pagination）</h2><p>不是用「第幾頁」來找資料，而是用一個<strong>游標（Cursor）</strong>來「記住目前看到哪裡」。你跟資料庫說：「我上次看到 id &#x3D; 35 的資料，下一頁請給我 id &gt; 35 的前 10 筆。」</p>
+<p>這叫做 Keyset Pagination（或叫 Seek 分頁）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 第一頁</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Products <span class="keyword">ORDER</span> <span class="keyword">BY</span> Id LIMIT <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 第二頁（記得上一頁最後一筆是 Id = 35）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Products <span class="keyword">WHERE</span> Id <span class="operator">&gt;</span> <span class="number">35</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> Id LIMIT <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>速度快：可以用索引快速查找 WHERE Id &gt; ?</li>
+<li>穩定性高：資料不會漏、不會重複、不會跳頁</li>
+</ul>
+<p><strong>限制一：只能往後翻，不能直接跳到第 n 頁</strong></p>
+<p>因為你是「記得上一筆」，不是「我想看第幾頁」。要看第 100 頁就得從第一頁慢慢翻過去，沒辦法直接跳。</p>
+<p><strong>限制二：排序欄位必須 唯一、不會變動</strong></p>
+<p>假設你用「價格」來當 cursor，結果價格會改變，可能出現這種情況：</p>
+<p>第一次查到 price &#x3D; 100 的資料<br>下一頁你說 WHERE price &gt; 100，結果價格變動，資料亂了<br>所以最好是用主鍵（例如 Id、CreatedAt）來當作游標欄位</p>
+<h2 id="分頁-API-的回應要不要回傳總筆數"><a href="#分頁-API-的回應要不要回傳總筆數" class="headerlink" title="分頁 API 的回應要不要回傳總筆數"></a>分頁 API 的回應要不要回傳總筆數</h2><p>「API 回傳資料時，要不要同時告訴前端：總共有幾筆資料？（totalCount）」<br>👉 也就是「要不要多查一次 SELECT COUNT(*)？」</p>
+<table>
+<thead>
+<tr>
+<th>類型</th>
+<th>是否需要總筆數</th>
+<th>UI 特徵</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>可跳頁的分頁</strong></td>
+<td>✅ 需要</td>
+<td>有「第幾頁」、「共幾頁」、「前往第 n 頁」的功能</td>
+</tr>
+<tr>
+<td><strong>只能往前&#x2F;往後翻</strong>（無總頁數）</td>
+<td>❌ 不需要</td>
+<td>像 Facebook 或 Instagram 的滑動載入「載入更多」</td>
+</tr>
+</tbody></table>
+<p>✅ 回傳總筆數的優點<br>✅ 前端可以顯示「第 3 頁，共 20 頁」<br>✅ 可以顯示「共找到 1,234 筆資料」<br>✅ 可支援「跳至第 10 頁」<br>✅ 適合表格型 UI（DataGrid, Table）</p>
+<p>❌ 回傳總筆數的缺點</p>
+<p>❗ SELECT COUNT(<em>) 在資料很大的情況下效能會很差 尤其當有很多 JOIN 或 WHERE 條件時<br>❗ 查詢兩次資料庫（一次 COUNT(</em>)，一次查分頁資料）<br>❗ 資料如果經常變動，這個「總筆數」很快就不準了（瞬間有使用者新增&#x2F;刪除）</p>
+<p><a target="_blank" rel="noopener" href="https://blog.darkthread.net/blog/tsql-paging-and-get-totalcount/">https://blog.darkthread.net/blog/tsql-paging-and-get-totalcount/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.reddit.com/r/csharp/comments/gxwmqc/advanced_pagination_in_aspnet_core_webapi/?tl=zh-hant">https://www.reddit.com/r/csharp/comments/gxwmqc/advanced_pagination_in_aspnet_core_webapi/?tl=zh-hant</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.threads.com/@ti399/post/DOSYmz1D2pY?xmt=AQF0xTRiXSn6jiIKvTvr_7zLSgD3Q1ezL6LtAjZP_cczDAQ&slof=1">https://www.threads.com/@ti399/post/DOSYmz1D2pY?xmt=AQF0xTRiXSn6jiIKvTvr_7zLSgD3Q1ezL6LtAjZP_cczDAQ&amp;slof=1</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.threads.com/@chenstraveler/post/DMEnqQUS_xd?xmt=AQF0MmKf7TdhIxglns-F9w__62xcoqAQFZleWAtBsFmzbtw&slof=1">https://www.threads.com/@chenstraveler/post/DMEnqQUS_xd?xmt=AQF0MmKf7TdhIxglns-F9w__62xcoqAQFZleWAtBsFmzbtw&amp;slof=1</a></p>
+<p>資料量決定一切<br>我才不相信半年超過千萬筆的資料<br>每一筆客戶都說要<br>如果要餵資料分析 那需求一開始就不對了</p>
+<p>我還遇過不做分頁的，對於前端效能也是考驗</p>
+<p>我的api還是回傳巢狀的，直接設定最多500筆結果😈</p>
+<p>就問客戶：其實你想從系統知道什麼？😎</p>
+<p>一次撈半年的資料量前端要展示也是要考慮效能 🤣<br>但如果是 excel 那種要一次幾萬筆的話，使用非同步可能可以 🤔</p>
+<p>增加時間範圍的限制吧，既然查詢條件允許，為何不能順利執行？用戶也是依照正常的條件去查詢，沒有必要去質疑用戶</p>
+<p>怎麼設計一個高效又正確的「分頁 API」？為什麼 offset&#x2F;limit 在大資料量下會有問題？游標（keyset&#x2F;seek）分頁要注意什麼  </p>
+<p>這題剛好讀到，如有不夠完整再請脆友補充<br>offset&#x2F;limit 是先取出資料，然後再丟棄 offset 之前的資料，只保留 limit 筆資料。在大資料量的情況下，資料庫需要掃描並丟棄大量的資料，導致效能下降<br>所以可以使用問題提到的Keyset&#x2F;Seek來解決這個問題，基於特定順序id，紀錄最後一筆，下頁查詢從這筆id後開始，但會因此失去頁數資訊，因此如果有精確頁數需求，還需要討論一下前後端誰來處理</p>
+<p>另外，資料在用戶讀取期間變動的話，用 offset&#x2F;limit會造成漏掉資料或重複</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/09/14/Design-Pagination/">https://allenlin000.github.io.git/2025/09/14/Design-Pagination/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/LF7L1Ws.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/09/08/NEW-DI-Autofac/" title="注入之森裡的嚮導 - Autofac"><img class="cover" src="https://i.imgur.com/xAbpKgd.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">注入之森裡的嚮導 - Autofac</div></div></a></div><div class="next-post pull-right"><a href="/2025/09/15/Design-Encapsulation/" title="Encapsulation"><img class="cover" src="https://i.imgur.com/LF7L1Ws.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Encapsulation</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">51</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E9%9C%80%E8%A6%81%E3%80%8C%E5%88%86%E9%A0%81%E3%80%8D"><span class="toc-number">1.</span> <span class="toc-text">為什麼需要「分頁」</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Offset-Limit-%E5%88%86%E9%A0%81"><span class="toc-number">2.</span> <span class="toc-text">Offset&#x2F;Limit 分頁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%B8%E6%A8%99%E5%88%86%E9%A0%81%EF%BC%88Cursor-based-Pagination%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">游標分頁（Cursor-based Pagination）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E9%A0%81-API-%E7%9A%84%E5%9B%9E%E6%87%89%E8%A6%81%E4%B8%8D%E8%A6%81%E5%9B%9E%E5%82%B3%E7%B8%BD%E7%AD%86%E6%95%B8"><span class="toc-number">4.</span> <span class="toc-text">分頁 API 的回應要不要回傳總筆數</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/09/15/Design-Encapsulation/" title="Encapsulation"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Encapsulation"/></a><div class="content"><a class="title" href="/2025/09/15/Design-Encapsulation/" title="Encapsulation">Encapsulation</a><time datetime="2025-09-15T01:24:03.000Z" title="Created 2025-09-15 09:24:03">2025-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/14/Design-Pagination/" title="Pagination"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Pagination"/></a><div class="content"><a class="title" href="/2025/09/14/Design-Pagination/" title="Pagination">Pagination</a><time datetime="2025-09-14T14:00:03.000Z" title="Created 2025-09-14 22:00:03">2025-09-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/08/NEW-DI-Autofac/" title="注入之森裡的嚮導 - Autofac"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="注入之森裡的嚮導 - Autofac"/></a><div class="content"><a class="title" href="/2025/09/08/NEW-DI-Autofac/" title="注入之森裡的嚮導 - Autofac">注入之森裡的嚮導 - Autofac</a><time datetime="2025-09-08T00:33:01.000Z" title="Created 2025-09-08 08:33:01">2025-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/08/New-Config-Builder/" title="Config Builder"><img src="https://github.com/CHI-KEKE/pics/blob/main/Config/gear.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Config Builder"/></a><div class="content"><a class="title" href="/2025/09/08/New-Config-Builder/" title="Config Builder">Config Builder</a><time datetime="2025-09-08T00:33:01.000Z" title="Created 2025-09-08 08:33:01">2025-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/02/New-Config-OptionsPattern-copy/" title="Options Pattern"><img src="https://github.com/CHI-KEKE/pics/blob/main/Config/gear.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Options Pattern"/></a><div class="content"><a class="title" href="/2025/09/02/New-Config-OptionsPattern-copy/" title="Options Pattern">Options Pattern</a><time datetime="2025-09-02T14:33:01.000Z" title="Created 2025-09-02 22:33:01">2025-09-02</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
