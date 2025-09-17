@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Liskov Substitution Principle | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="在軟體設計中，繼承 (Inheritance) 的發生是再正常不過的事了，作為結構化的系統，我們可以視其為多個組件裝載而成的，當結構益龐大起來，就會想將行為類似的程式碼重用，而有了繼承的概念，但這也造成父類與子類使用上耦合造成的問題，繼承不應該只是為了「重複使用程式碼」而存在，而是應該基於行為上的一致性。 因此里氏替換原則 (LSP, Liskov Substitution Principle)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Liskov Substitution Principle">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/09/17/Design-LSP/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="在軟體設計中，繼承 (Inheritance) 的發生是再正常不過的事了，作為結構化的系統，我們可以視其為多個組件裝載而成的，當結構益龐大起來，就會想將行為類似的程式碼重用，而有了繼承的概念，但這也造成父類與子類使用上耦合造成的問題，繼承不應該只是為了「重複使用程式碼」而存在，而是應該基於行為上的一致性。 因此里氏替換原則 (LSP, Liskov Substitution Principle)">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/LF7L1Ws.png">
+<meta property="article:published_time" content="2025-09-17T01:00:03.000Z">
+<meta property="article:modified_time" content="2025-09-17T13:58:28.109Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/LF7L1Ws.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/09/17/Design-LSP/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Liskov Substitution Principle',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-09-17 21:58:28'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/LF7L1Ws.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Liskov Substitution Principle</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-09-17T01:00:03.000Z" title="Created 2025-09-17 09:00:03">2025-09-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-09-17T13:58:28.109Z" title="Updated 2025-09-17 21:58:28">2025-09-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%A8%AD%E8%A8%88%E5%9B%B3%E9%91%91%E7%89%A9%E8%AA%9E/">設計図鑑物語</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Liskov Substitution Principle"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://i.imgur.com/LF7L1Ws.png" alt="Design"></p>
+<p>在軟體設計中，繼承 (Inheritance) 的發生是再正常不過的事了，作為結構化的系統，我們可以視其為多個組件裝載而成的，當結構益龐大起來，就會想將行為類似的程式碼重用，而有了繼承的概念，但這也造成父類與子類使用上耦合造成的問題，繼承不應該只是為了「重複使用程式碼」而存在，而是應該基於行為上的一致性。</p>
+<p>因此里氏替換原則 (LSP, Liskov Substitution Principle) 就是在提醒我們</p>
+<p>👉 子類別必須能夠替代父類別而不影響系統的正確性。</p>
+<p>換句話說，當一個地方期待父類別時，若換成子類別，程式應該還是能正常運作、不會出現違反預期的行為。</p>
+<h2 id="🪵-先驗條件（Preconditions）不可加強"><a href="#🪵-先驗條件（Preconditions）不可加強" class="headerlink" title="🪵 先驗條件（Preconditions）不可加強"></a>🪵 先驗條件（Preconditions）不可加強</h2><p>子類別不能比父類別更挑剔輸入。想像你去餐廳，主廚說：「你隨便帶食材來，我都能幫你做菜。」結果徒弟廚師說：「不行！你只能帶牛肉來，不然我不煮。」這就是把條件變得更嚴格，使用者本來以為能帶什麼都行，結果換成子類卻被限制了。</p>
+<br>
+<br>
+
+<h2 id="🪵-後驗條件（Postconditions）不可削弱"><a href="#🪵-後驗條件（Postconditions）不可削弱" class="headerlink" title="🪵 後驗條件（Postconditions）不可削弱"></a>🪵 後驗條件（Postconditions）不可削弱</h2><p>子類別的輸出不能比父類別更弱，至少要保證一樣的結果。父類（物流公司）承諾：「只要你下單，我一定送達貨物，而且保證完好無損。」子類（加盟快遞）卻說：「嗯… 我只能保證幫你送，東西壞掉不關我的事。」這樣就削弱了原本的承諾，使用者會覺得契約被打折。</p>
+<br>
+<br>
+
+<h2 id="🪵-不變條件（Invariants）必須保持"><a href="#🪵-不變條件（Invariants）必須保持" class="headerlink" title="🪵 不變條件（Invariants）必須保持"></a>🪵 不變條件（Invariants）必須保持</h2><p>父類別所承諾的規則，子類別不能破壞。父類（紅綠燈）規則是「綠燈才能走，紅燈一定停」。子類（某路口的燈號系統）卻偷偷改成「紅燈也可以偶爾走一下」。這樣會讓所有使用者混亂，因為他們以為規則始終一致，但事實上卻被打破了。</p>
+<br>
+<br>
+
+<h2 id="🪵-錯誤的繼承方式"><a href="#🪵-錯誤的繼承方式" class="headerlink" title="🪵 錯誤的繼承方式"></a>🪵 錯誤的繼承方式</h2><p>假設我們有一個 SumCalculator，專門計算整數陣列的總和</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SumCalculator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">readonly</span> <span class="built_in">int</span>[] _numbers;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SumCalculator</span>(<span class="params"><span class="built_in">int</span>[] numbers</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _numbers = numbers;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">Calculate</span>()</span> =&gt; _numbers.Sum(); <span class="comment"><span class="doctag">///</span>/ 40</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在我想做一個「只計算偶數總和」的版本：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">EvenNumbersSumCalculator</span> : <span class="title">SumCalculator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">EvenNumbersSumCalculator</span>(<span class="params"><span class="built_in">int</span>[] numbers</span>)</span></span><br><span class="line"><span class="function">        : <span class="title">base</span>(<span class="params">numbers</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">new</span> <span class="built_in">int</span> <span class="title">Calculate</span>()</span> =&gt; _numbers.Where(x =&gt; x % <span class="number">2</span> == <span class="number">0</span>).Sum(); <span class="comment"><span class="doctag">///</span>/ 18</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>問題來了</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SumCalculator evenSum = <span class="keyword">new</span> EvenNumbersSumCalculator(numbers); <span class="comment"><span class="doctag">///</span>/ 呼叫父類別版本，結果卻是 40</span></span><br><span class="line">Console.WriteLine(evenSum.Calculate());</span><br></pre></td></tr></table></figure>
+
+<p>當我把子類別當成父類別使用時，得到的卻是錯誤的行為。這違反了 LSP，因為 子類別無法取代父類別而保持一致性。</p>
+<br>
+<br>
+
+<h2 id="🪵-正確的繼承方式"><a href="#🪵-正確的繼承方式" class="headerlink" title="🪵 正確的繼承方式"></a>🪵 正確的繼承方式</h2><p>為了避免這種問題，我們應該 使用多型 (Polymorphism)，讓父類別行為能被覆寫 (override)</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SumCalculator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">readonly</span> <span class="built_in">int</span>[] _numbers;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SumCalculator</span>(<span class="params"><span class="built_in">int</span>[] numbers</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _numbers = numbers;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> <span class="built_in">int</span> <span class="title">Calculate</span>()</span> =&gt; _numbers.Sum();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">EvenNumbersSumCalculator</span> : <span class="title">SumCalculator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">EvenNumbersSumCalculator</span>(<span class="params"><span class="built_in">int</span>[] numbers</span>)</span></span><br><span class="line"><span class="function">        : <span class="title">base</span>(<span class="params">numbers</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">int</span> <span class="title">Calculate</span>()</span> =&gt; _numbers.Where(x =&gt; x % <span class="number">2</span> == <span class="number">0</span>).Sum();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在，即使我們用父類別的參考，依然能得到正確的結果</p>
+<br>
+<br>
+
+<h2 id="🪵-更好的抽象：設計為抽象類別"><a href="#🪵-更好的抽象：設計為抽象類別" class="headerlink" title="🪵 更好的抽象：設計為抽象類別"></a>🪵 更好的抽象：設計為抽象類別</h2><p>其實更合理的設計是從一開始就抽象化，把「計算」這件事定義成契約</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">Calculator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">readonly</span> <span class="built_in">int</span>[] _numbers;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Calculator</span>(<span class="params"><span class="built_in">int</span>[] numbers</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _numbers = numbers;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="built_in">int</span> <span class="title">Calculate</span>()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然後不同的子類別各自去實作自己的邏輯</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SumCalculator</span> : <span class="title">Calculator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SumCalculator</span>(<span class="params"><span class="built_in">int</span>[] numbers</span>) : <span class="title">base</span>(<span class="params">numbers</span>)</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">int</span> <span class="title">Calculate</span>()</span> =&gt; _numbers.Sum();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">EvenNumbersSumCalculator</span> : <span class="title">Calculator</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">EvenNumbersSumCalculator</span>(<span class="params"><span class="built_in">int</span>[] numbers</span>) : <span class="title">base</span>(<span class="params">numbers</span>)</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">int</span> <span class="title">Calculate</span>()</span> =&gt; _numbers.Where(x =&gt; x % <span class="number">2</span> == <span class="number">0</span>).Sum();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>LSP 關注的是「行為」而不是「程式碼重用」子類別繼承父類別時，最重要的是「能否保持契約一致」。</p>
+<br>
+<br>
+
+<h2 id="🪵-參考文章"><a href="#🪵-參考文章" class="headerlink" title="🪵 參考文章"></a>🪵 參考文章</h2><a class="btn-beautify " target="_blank" rel="noopener" href="https://igouist.github.io/post/2020/11/oo-12-liskov-substitution-principle/" 
+  title="菜雞與物件導向 (12): 里氏替換原則"><i class="far fa-hand-point-right"></i><span>菜雞與物件導向 (12): 里氏替換原則</span></a>
+
+<br>
+
+<a class="btn-beautify " target="_blank" rel="noopener" href="https://code-maze.com/liskov-substitution-principle/" 
+  title="SOLID Principles in C# – Liskov Substitution Principle"><i class="far fa-hand-point-right"></i><span>SOLID Principles in C# – Liskov Substitution Principle</span></a></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/09/17/Design-LSP/">https://allenlin000.github.io.git/2025/09/17/Design-LSP/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/LF7L1Ws.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2025/09/17/Design-SRP/" title="Single Resposibility Principle"><img class="cover" src="https://i.imgur.com/LF7L1Ws.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Single Resposibility Principle</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E5%85%88%E9%A9%97%E6%A2%9D%E4%BB%B6%EF%BC%88Preconditions%EF%BC%89%E4%B8%8D%E5%8F%AF%E5%8A%A0%E5%BC%B7"><span class="toc-number">1.</span> <span class="toc-text">🪵 先驗條件（Preconditions）不可加強</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E5%BE%8C%E9%A9%97%E6%A2%9D%E4%BB%B6%EF%BC%88Postconditions%EF%BC%89%E4%B8%8D%E5%8F%AF%E5%89%8A%E5%BC%B1"><span class="toc-number">2.</span> <span class="toc-text">🪵 後驗條件（Postconditions）不可削弱</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E4%B8%8D%E8%AE%8A%E6%A2%9D%E4%BB%B6%EF%BC%88Invariants%EF%BC%89%E5%BF%85%E9%A0%88%E4%BF%9D%E6%8C%81"><span class="toc-number">3.</span> <span class="toc-text">🪵 不變條件（Invariants）必須保持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E9%8C%AF%E8%AA%A4%E7%9A%84%E7%B9%BC%E6%89%BF%E6%96%B9%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">🪵 錯誤的繼承方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E6%AD%A3%E7%A2%BA%E7%9A%84%E7%B9%BC%E6%89%BF%E6%96%B9%E5%BC%8F"><span class="toc-number">5.</span> <span class="toc-text">🪵 正確的繼承方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E6%9B%B4%E5%A5%BD%E7%9A%84%E6%8A%BD%E8%B1%A1%EF%BC%9A%E8%A8%AD%E8%A8%88%E7%82%BA%E6%8A%BD%E8%B1%A1%E9%A1%9E%E5%88%A5"><span class="toc-number">6.</span> <span class="toc-text">🪵 更好的抽象：設計為抽象類別</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%B5-%E5%8F%83%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">7.</span> <span class="toc-text">🪵 參考文章</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/09/17/Design-LSP/" title="Liskov Substitution Principle"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Liskov Substitution Principle"/></a><div class="content"><a class="title" href="/2025/09/17/Design-LSP/" title="Liskov Substitution Principle">Liskov Substitution Principle</a><time datetime="2025-09-17T01:00:03.000Z" title="Created 2025-09-17 09:00:03">2025-09-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/17/Design-SRP/" title="Single Resposibility Principle"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Single Resposibility Principle"/></a><div class="content"><a class="title" href="/2025/09/17/Design-SRP/" title="Single Resposibility Principle">Single Resposibility Principle</a><time datetime="2025-09-17T00:00:03.000Z" title="Created 2025-09-17 08:00:03">2025-09-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/16/Design-Polymorphism/" title="Polymorphism"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Polymorphism"/></a><div class="content"><a class="title" href="/2025/09/16/Design-Polymorphism/" title="Polymorphism">Polymorphism</a><time datetime="2025-09-16T00:00:03.000Z" title="Created 2025-09-16 08:00:03">2025-09-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/14/Design-Pagination/" title="Pagination"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Pagination"/></a><div class="content"><a class="title" href="/2025/09/14/Design-Pagination/" title="Pagination">Pagination</a><time datetime="2025-09-14T14:00:03.000Z" title="Created 2025-09-14 22:00:03">2025-09-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/08/NEW-DI-Autofac/" title="注入之森裡的嚮導 - Autofac"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="注入之森裡的嚮導 - Autofac"/></a><div class="content"><a class="title" href="/2025/09/08/NEW-DI-Autofac/" title="注入之森裡的嚮導 - Autofac">注入之森裡的嚮導 - Autofac</a><time datetime="2025-09-08T00:33:01.000Z" title="Created 2025-09-08 08:33:01">2025-09-08</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
