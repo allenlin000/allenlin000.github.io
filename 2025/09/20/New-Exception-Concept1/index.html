@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>誰來接住夜裡的錯誤？ | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="深夜裡，城市安靜下來，人們沉睡，街燈是唯一的光。資料依舊流動著，系統像一條河川般運行不息。就在這寧靜之中，錯誤悄然來訪．．． 🌊 Return Code在黑夜裡，錯誤敲然造房，我們只看到了一張紙條寫著 -1 程式是這樣寫的 123456789101112131415public int CallApi(string url, out string response)&#123;    resp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="誰來接住夜裡的錯誤？">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/09/20/New-Exception-Concept1/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="深夜裡，城市安靜下來，人們沉睡，街燈是唯一的光。資料依舊流動著，系統像一條河川般運行不息。就在這寧靜之中，錯誤悄然來訪．．． 🌊 Return Code在黑夜裡，錯誤敲然造房，我們只看到了一張紙條寫著 -1 程式是這樣寫的 123456789101112131415public int CallApi(string url, out string response)&#123;    resp">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/I1A7fs1.png">
+<meta property="article:published_time" content="2025-09-20T02:25:05.000Z">
+<meta property="article:modified_time" content="2025-09-20T02:14:42.171Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Exception Handling">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/I1A7fs1.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/09/20/New-Exception-Concept1/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '誰來接住夜裡的錯誤？',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-09-20 10:14:42'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/I1A7fs1.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">誰來接住夜裡的錯誤？</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-09-20T02:25:05.000Z" title="Created 2025-09-20 10:25:05">2025-09-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-09-20T02:14:42.171Z" title="Updated 2025-09-20 10:14:42">2025-09-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%A4%9C%E5%AE%88%E8%AD%B7%E8%80%85/">深夜守護者</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="誰來接住夜裡的錯誤？"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://i.imgur.com/I1A7fs1.png" alt="深夜守護者"></p>
+<p>深夜裡，城市安靜下來，人們沉睡，街燈是唯一的光。資料依舊流動著，系統像一條河川般運行不息。就在這寧靜之中，錯誤悄然來訪．．．</p>
+<h2 id="🌊-Return-Code"><a href="#🌊-Return-Code" class="headerlink" title="🌊 Return Code"></a>🌊 Return Code</h2><p>在黑夜裡，錯誤敲然造房，我們只看到了一張紙條寫著 -1</p>
+<p>程式是這樣寫的</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">CallApi</span>(<span class="params"><span class="built_in">string</span> url, <span class="keyword">out</span> <span class="built_in">string</span> response</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    response = <span class="built_in">string</span>.Empty;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">string</span>.IsNullOrEmpty(url))</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>; <span class="comment">// 錯誤：網址不合法</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">var</span> client = <span class="keyword">new</span> HttpClient();</span><br><span class="line">    <span class="keyword">var</span> result = client.GetAsync(url).Result;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!result.IsSuccessStatusCode)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-2</span>; <span class="comment">// 錯誤：HTTP 狀態碼非 200</span></span><br><span class="line"></span><br><span class="line">    response = result.Content.ReadAsStringAsync().Result;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 成功</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這是程式的呼叫端拼湊出來的應對訊息：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> data;</span><br><span class="line"><span class="built_in">int</span> result = CallApi(<span class="string">&quot;https://api.test.com&quot;</span>, <span class="keyword">out</span> data);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (result == <span class="number">0</span>)</span><br><span class="line">    Console.WriteLine(<span class="string">$&quot;API 成功：<span class="subst">&#123;data&#125;</span>&quot;</span>);</span><br><span class="line"><span class="comment">// else if (result == -1)</span></span><br><span class="line"><span class="comment">//     Console.WriteLine(&quot;錯誤：網址不合法&quot;);</span></span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (result == <span class="number">-2</span>)</span><br><span class="line">    Console.WriteLine(<span class="string">&quot;錯誤：API 呼叫失敗&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>-1 是甚麼意思?? 好像沒有應對方式，夜班實習搔搔頭</p>
+<p>這段程式邏輯的問題點是</p>
+<ul>
+<li>流程混雜 - 主流程與錯誤流程攪在一起，理解與維護困難。</li>
+<li>容易被忽略 - 若開發者忘記檢查某些錯誤碼，程式可能在錯誤狀態下繼續執行。</li>
+<li>資訊不足 - 僅靠 -1、-2 難以知道錯誤的真正原因，導致後續處理充滿硬編碼判斷。</li>
+</ul>
+<br>
+<br>
+
+<h2 id="🔔-真正的守衛登場"><a href="#🔔-真正的守衛登場" class="headerlink" title="🔔 真正的守衛登場"></a>🔔 真正的守衛登場</h2><p>真正的守衛 (Exception Handler) 擋在了錯誤面前，舉起火把，仔細端詳，甚至在必要時吹響警笛。這就是 Exception。</p>
+<p>程式是這樣寫的</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">CallApi</span>(<span class="params"><span class="built_in">string</span> url</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">string</span>.IsNullOrEmpty(url))</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentException(<span class="string">&quot;網址不可為空&quot;</span>, <span class="keyword">nameof</span>(url));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">var</span> client = <span class="keyword">new</span> HttpClient();</span><br><span class="line">    <span class="keyword">var</span> response = client.GetAsync(url).Result;</span><br><span class="line"></span><br><span class="line">    response.EnsureSuccessStatusCode();</span><br><span class="line">    <span class="keyword">return</span> response.Content.ReadAsStringAsync().Result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>呼叫端只需關注主流程與可能的錯誤</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">string</span> data = CallApi(<span class="string">&quot;https://api.test.com&quot;</span>);</span><br><span class="line">    Console.WriteLine(<span class="string">$&quot;API 成功：<span class="subst">&#123;data&#125;</span>&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (ArgumentException ex)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(<span class="string">$&quot;參數錯誤：<span class="subst">&#123;ex.Message&#125;</span>&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (HttpRequestException ex)</span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(<span class="string">$&quot;API 錯誤：<span class="subst">&#123;ex.Message&#125;</span>&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此可以做到主流程與錯誤流程分離，並且在使用時強迫錯誤處理（未捕捉時會一路往外拋，程式可能中斷）。取得例外物件會包含完整訊息與 Stack Trace。若有需要也可自定義錯誤類型以利維護。</p>
+<br>
+<br>
+
+<h2 id="🫧-泡泡與保護網-——-Unprotected-Main-Program"><a href="#🫧-泡泡與保護網-——-Unprotected-Main-Program" class="headerlink" title="🫧 泡泡與保護網 —— Unprotected Main Program"></a>🫧 泡泡與保護網 —— Unprotected Main Program</h2><p>錯誤像「泡泡」一樣會一路往上冒。若最上層（Main &#x2F; Thread）沒有保護網（try&#x2F;catch），小小錯誤就可能導致程式崩潰，讓使用者覺得不穩定。</p>
+<p>主程式的守衛，就是最後那張保護網。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] args</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">        RunApp();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Exception ex)</span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;程式出現未預期錯誤：<span class="subst">&#123;ex.Message&#125;</span>&quot;</span>);</span><br><span class="line">        <span class="comment">// 可加上 log 或通知</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="🌊-Checked-Exception（以-Java-為例）"><a href="#🌊-Checked-Exception（以-Java-為例）" class="headerlink" title="🌊 Checked Exception（以 Java 為例）"></a>🌊 Checked Exception（以 Java 為例）</h2><p>好的系統，會再正確的地方訓練守衛者並佈下保護網</p>
+<p>Java 提供 Checked Exception，用來提醒開發者某些「可預期但不常見」的錯誤，必須被顯式處理。例如 DB Timeout 屬於這一類問題：難以完全避免，但開發者應該知道如何應對（Rollback、Retry）。</p>
+<p>在 C# 中，沒有語言層級的 Checked Exception，我們需要查 MSDN 有哪些例外，或自定義例外</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">OrderProcessingException</span> : <span class="title">Exception</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">OrderProcessingException</span>(<span class="params"><span class="built_in">string</span> message, Exception innerException = <span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function">        : <span class="title">base</span>(<span class="params">message, innerException</span>)</span> &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>好處是一看就知道與訂單相關，並且有重用性，各種訂單操作都能拋出這類錯誤。<br>在維運時，值班人員看到 OrderProcessingException，可立刻判斷問題嚴重性。<br>但需要注意避免相依第三方實作，例如金流系統可用 PayException 取代特定 HappyPayException、CoolPayException</p>
+<br>
+<br>
+
+<h2 id="🥷🏻-夜裡的戰鬥-DB-Timeout"><a href="#🥷🏻-夜裡的戰鬥-DB-Timeout" class="headerlink" title="🥷🏻 夜裡的戰鬥 : DB Timeout"></a>🥷🏻 夜裡的戰鬥 : DB Timeout</h2><p>有些錯誤，是夜晚裡最難纏的敵人，例如 DB Timeout。它可能因為網路斷線、伺服器過載、鎖定衝突而來襲。他是屬於預期部會發生但難以完全避免的異常，此時訓練精良的守衛不會只是發現錯誤，還得拿起盾牌與之搏鬥：重試、回滾、記錄。並且在最後失敗時，也能告訴我們</p>
+<ul>
+<li>哪個 DB</li>
+<li>哪個 Table</li>
+<li>為了甚麼原因- 做了甚麼操作</li>
+</ul>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">OrderRepository</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ILogger _logger;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IEmailService _emailService;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IDbContext _dbContext;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="built_in">int</span> MaxRetryAttempts = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">OrderRepository</span>(<span class="params">ILogger logger, IEmailService emailService, IDbContext dbContext</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _logger = logger;</span><br><span class="line">        _emailService = emailService;</span><br><span class="line">        _dbContext = dbContext;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ProcessOrder</span>(<span class="params">Order order</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Exception lastException = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> attempt = <span class="number">1</span>; attempt &lt;= MaxRetryAttempts; attempt++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">try</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">using</span> <span class="keyword">var</span> transaction = _dbContext.BeginTransaction();</span><br><span class="line">                <span class="comment">// ...</span></span><br><span class="line">                <span class="comment">// ...</span></span><br><span class="line">                <span class="comment">// ...</span></span><br><span class="line">                transaction.Commit();</span><br><span class="line">                <span class="keyword">return</span>; <span class="comment">// 成功處理訂單，退出方法</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span> (DbUpdateConcurrencyException concurrencyEx)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">this</span>.Logger.Info(concurrencyEx.ToString(), <span class="string">$&quot;完成付款後更新 Order Table 訂單狀態時遇到Concurrency Exception, 第 <span class="subst">&#123;attempt&#125;</span> 次&quot;</span>);</span><br><span class="line">                transaction.Rollback();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果所有嘗試都失敗，拋出最後一次捕獲的異常</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> OrderProcessingException(<span class="string">&quot;完成付款後更新 Order Table 狀態失敗，且已達到最大重試次數&quot;</span>, lastException);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>類似的情境包含</p>
+<ul>
+<li>第三方服務掛掉</li>
+<li>與 Windows API 交互</li>
+<li>網路錯誤</li>
+<li>讀檔問題(咬檔, 權限變動…)</li>
+</ul>
+<p>適當的捕捉並識別這些問題可以讓我們節省時間與精力在釐清異常上</p>
+<br>
+<br>
+
+<h2 id="🌊-面對人的回應-UI"><a href="#🌊-面對人的回應-UI" class="headerlink" title="🌊 面對人的回應 : UI"></a>🌊 面對人的回應 : UI</h2><p>讓使用者看見的，不只是冰冷的錯誤代碼，而是「可採取行動的提醒」。這才是守衛的另一重責任。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">function 拍照() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">Picture</span> <span class="variable">p</span> <span class="operator">=</span> takePicture();        <span class="comment">// 嘗試拍照</span></span><br><span class="line">        savePicture(p);                   <span class="comment">// 儲存照片</span></span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">catch</span> (SDAccessException e) &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">msg</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (SD is full) &#123;</span><br><span class="line">            msg = <span class="string">&quot;SD 卡空間已滿，若要繼續拍照請先清除 SD 卡空間&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            msg = e.toString();           <span class="comment">// 其他 SD 存取錯誤</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        showErrMessage(msg);              <span class="comment">// 顯示錯誤訊息</span></span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        showErrMessage(e.toString());     <span class="comment">// 其他未知例外</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="🌅-天亮，守衛完成使命"><a href="#🌅-天亮，守衛完成使命" class="headerlink" title="🌅 天亮，守衛完成使命"></a>🌅 天亮，守衛完成使命</h2><p>當晨曦劃破黑夜，人們醒來，城市再次喧囂。我們或許不知道，夜裡系統經歷了什麼，但能確信它沒有孤軍奮戰。Exception 就是這位夜班的守護者。它不會讓錯誤悄然潛入，而是主動站出來，攔下、揭露，並將混亂化為可理解的訊息。</p>
+<p>錯誤處理的價值，不在於讓錯誤消失，而在於當錯誤發生時，有人能接住它。</p>
+<p>當天光降臨，守衛的任務暫告一段落。而我們也明白，在程式的世界裡，錯誤永遠可能來臨；真正重要的，是是否有人能在黑夜裡守住大門。Exception，就是那位不眠不休的夜班哨兵，守護直到天明。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/09/20/New-Exception-Concept1/">https://allenlin000.github.io.git/2025/09/20/New-Exception-Concept1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Exception-Handling/">Exception Handling</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/I1A7fs1.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2025/09/19/New-Exception-BadSmell/" title="BadSmell"><img class="cover" src="https://i.imgur.com/I1A7fs1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">BadSmell</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/07/06/New-Exception-BK1/" title="Exception Handling (一.)"><img class="cover" src="https://i.imgur.com/I1A7fs1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-06</div><div class="title">Exception Handling (一.)</div></div></a></div><div><a href="/2025/09/19/New-Exception-BadSmell/" title="BadSmell"><img class="cover" src="https://i.imgur.com/I1A7fs1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-19</div><div class="title">BadSmell</div></div></a></div><div><a href="/2025/05/07/New-Exception-trycatch/" title="Exception Handling - 1"><img class="cover" src="https://i.imgur.com/I1A7fs1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-07</div><div class="title">Exception Handling - 1</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">57</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-Return-Code"><span class="toc-number">1.</span> <span class="toc-text">🌊 Return Code</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%94-%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%AE%88%E8%A1%9B%E7%99%BB%E5%A0%B4"><span class="toc-number">2.</span> <span class="toc-text">🔔 真正的守衛登場</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AB%A7-%E6%B3%A1%E6%B3%A1%E8%88%87%E4%BF%9D%E8%AD%B7%E7%B6%B2-%E2%80%94%E2%80%94-Unprotected-Main-Program"><span class="toc-number">3.</span> <span class="toc-text">🫧 泡泡與保護網 —— Unprotected Main Program</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-Checked-Exception%EF%BC%88%E4%BB%A5-Java-%E7%82%BA%E4%BE%8B%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">🌊 Checked Exception（以 Java 為例）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%A5%B7%F0%9F%8F%BB-%E5%A4%9C%E8%A3%A1%E7%9A%84%E6%88%B0%E9%AC%A5-DB-Timeout"><span class="toc-number">5.</span> <span class="toc-text">🥷🏻 夜裡的戰鬥 : DB Timeout</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-%E9%9D%A2%E5%B0%8D%E4%BA%BA%E7%9A%84%E5%9B%9E%E6%87%89-UI"><span class="toc-number">6.</span> <span class="toc-text">🌊 面對人的回應 : UI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%85-%E5%A4%A9%E4%BA%AE%EF%BC%8C%E5%AE%88%E8%A1%9B%E5%AE%8C%E6%88%90%E4%BD%BF%E5%91%BD"><span class="toc-number">7.</span> <span class="toc-text">🌅 天亮，守衛完成使命</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/09/20/New-Exception-Concept1/" title="誰來接住夜裡的錯誤？"><img src="https://i.imgur.com/I1A7fs1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="誰來接住夜裡的錯誤？"/></a><div class="content"><a class="title" href="/2025/09/20/New-Exception-Concept1/" title="誰來接住夜裡的錯誤？">誰來接住夜裡的錯誤？</a><time datetime="2025-09-20T02:25:05.000Z" title="Created 2025-09-20 10:25:05">2025-09-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/19/New-Exception-BadSmell/" title="BadSmell"><img src="https://i.imgur.com/I1A7fs1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="BadSmell"/></a><div class="content"><a class="title" href="/2025/09/19/New-Exception-BadSmell/" title="BadSmell">BadSmell</a><time datetime="2025-09-19T00:25:05.000Z" title="Created 2025-09-19 08:25:05">2025-09-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/17/Design-DIP/" title="Dependency-Inversion Principle"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Dependency-Inversion Principle"/></a><div class="content"><a class="title" href="/2025/09/17/Design-DIP/" title="Dependency-Inversion Principle">Dependency-Inversion Principle</a><time datetime="2025-09-17T01:00:03.000Z" title="Created 2025-09-17 09:00:03">2025-09-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/17/Design-ISP/" title="Interface Segregation Principle"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Interface Segregation Principle"/></a><div class="content"><a class="title" href="/2025/09/17/Design-ISP/" title="Interface Segregation Principle">Interface Segregation Principle</a><time datetime="2025-09-17T01:00:03.000Z" title="Created 2025-09-17 09:00:03">2025-09-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/17/Design-LSP/" title="Liskov Substitution Principle"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Liskov Substitution Principle"/></a><div class="content"><a class="title" href="/2025/09/17/Design-LSP/" title="Liskov Substitution Principle">Liskov Substitution Principle</a><time datetime="2025-09-17T01:00:03.000Z" title="Created 2025-09-17 09:00:03">2025-09-17</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
