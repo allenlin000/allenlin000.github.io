@@ -1,0 +1,351 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>LINQ - SelectMany | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="艾倫家的地下室有三個抽屜，每個抽屜都要世界的秘密，我們想將它們都攤開  最外層是地下室 次一層表示抽屜們 下一層表示機密文件  Select 1[[照片,日記],[戰爭情報,國家情報],[美女照]]   使用 Select，我們等於搬著三個抽屜離開 SelectMany 1[照片,日記,戰爭情報,國家情報,美女照]  SelectMany，讓我們每一樣任務物品都可以輕易地取出排列整齊，還可以偷偷把">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LINQ - SelectMany">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/09/21/LINQ-SelectMany/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="艾倫家的地下室有三個抽屜，每個抽屜都要世界的秘密，我們想將它們都攤開  最外層是地下室 次一層表示抽屜們 下一層表示機密文件  Select 1[[照片,日記],[戰爭情報,國家情報],[美女照]]   使用 Select，我們等於搬著三個抽屜離開 SelectMany 1[照片,日記,戰爭情報,國家情報,美女照]  SelectMany，讓我們每一樣任務物品都可以輕易地取出排列整齊，還可以偷偷把">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/cBfeEDY.png">
+<meta property="article:published_time" content="2025-09-21T03:49:11.000Z">
+<meta property="article:modified_time" content="2025-09-21T14:11:18.200Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="LINQ">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/cBfeEDY.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/09/21/LINQ-SelectMany/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'LINQ - SelectMany',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-09-21 22:11:18'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">55</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/cBfeEDY.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">LINQ - SelectMany</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-09-21T03:49:11.000Z" title="Created 2025-09-21 11:49:11">2025-09-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-09-21T14:11:18.200Z" title="Updated 2025-09-21 22:11:18">2025-09-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/LINQ/">LINQ</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="LINQ - SelectMany"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>艾倫家的地下室有三個抽屜，每個抽屜都要世界的秘密，我們想將它們都攤開</p>
+<ul>
+<li>最外層是地下室</li>
+<li>次一層表示抽屜們</li>
+<li>下一層表示機密文件</li>
+</ul>
+<p>Select</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[照片,日記],[戰爭情報,國家情報],[美女照]] </span><br></pre></td></tr></table></figure>
+
+<p>使用 Select，我們等於搬著三個抽屜離開</p>
+<p>SelectMany</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[照片,日記,戰爭情報,國家情報,美女照] </span><br></pre></td></tr></table></figure>
+<p>SelectMany，讓我們每一樣任務物品都可以輕易地取出排列整齊，還可以偷偷把美女照藏起來</p>
+<br>
+<br>
+
+<h2 id="🐛-如果世界上沒有-SelectMany"><a href="#🐛-如果世界上沒有-SelectMany" class="headerlink" title="🐛 如果世界上沒有 SelectMany"></a>🐛 如果世界上沒有 SelectMany</h2><p>今天我們有這樣一個集合，有 7 個老師，每位老師有 3 名學生，共 21 個學生</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">List&lt;Teacher&gt; teachers = <span class="keyword">new</span> List&lt;Teacher&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">new</span> Teacher(<span class="string">&quot;Allen&quot;</span>,<span class="keyword">new</span> List&lt;Student&gt;&#123; <span class="keyword">new</span> Student(<span class="number">100</span>),<span class="keyword">new</span> Student(<span class="number">90</span>),<span class="keyword">new</span> Student(<span class="number">80</span>) &#125;),</span><br><span class="line">            <span class="keyword">new</span> Teacher(<span class="string">&quot;Bill&quot;</span>,<span class="keyword">new</span> List&lt;Student&gt;&#123; <span class="keyword">new</span> Student(<span class="number">100</span>),<span class="keyword">new</span> Student(<span class="number">90</span>),<span class="keyword">new</span> Student(<span class="number">60</span>) &#125;),</span><br><span class="line">            <span class="keyword">new</span> Teacher(<span class="string">&quot;Charlie&quot;</span>,<span class="keyword">new</span> List&lt;Student&gt;&#123; <span class="keyword">new</span> Student(<span class="number">100</span>),<span class="keyword">new</span> Student(<span class="number">90</span>),<span class="keyword">new</span> Student(<span class="number">40</span>) &#125;),</span><br><span class="line">            <span class="keyword">new</span> Teacher(<span class="string">&quot;Duck&quot;</span>,<span class="keyword">new</span> List&lt;Student&gt;&#123; <span class="keyword">new</span> Student(<span class="number">100</span>),<span class="keyword">new</span> Student(<span class="number">90</span>),<span class="keyword">new</span> Student(<span class="number">60</span>) &#125;),</span><br><span class="line">            <span class="keyword">new</span> Teacher(<span class="string">&quot;Elma&quot;</span>,<span class="keyword">new</span> List&lt;Student&gt;&#123; <span class="keyword">new</span> Student(<span class="number">100</span>),<span class="keyword">new</span> Student(<span class="number">90</span>),<span class="keyword">new</span> Student(<span class="number">50</span>) &#125;),</span><br><span class="line">            <span class="keyword">new</span> Teacher(<span class="string">&quot;Fish&quot;</span>,<span class="keyword">new</span> List&lt;Student&gt;&#123; <span class="keyword">new</span> Student(<span class="number">100</span>),<span class="keyword">new</span> Student(<span class="number">90</span>),<span class="keyword">new</span> Student(<span class="number">60</span>) &#125;),</span><br><span class="line">            <span class="keyword">new</span> Teacher(<span class="string">&quot;Google&quot;</span>,<span class="keyword">new</span> List&lt;Student&gt;&#123; <span class="keyword">new</span> Student(<span class="number">20</span>),<span class="keyword">new</span> Student(<span class="number">10</span>),<span class="keyword">new</span> Student(<span class="number">33</span>) &#125;)</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>需求是這樣，請把不及格的學生抓出來校長要<em>照顧</em>一下</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">List&lt;Student&gt; students = <span class="keyword">new</span> List&lt;Student&gt;();</span><br><span class="line"><span class="keyword">foreach</span>(<span class="keyword">var</span> teacher <span class="keyword">in</span> teachers)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 因為 stduent 關聯在 teacher 之下</span></span><br><span class="line">    <span class="keyword">foreach</span>(<span class="keyword">var</span> student <span class="keyword">in</span> students)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(student.Score &lt; <span class="number">60</span>&gt;)</span><br><span class="line">        &#123;</span><br><span class="line">            students.Add(student);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">students.Dump();</span><br></pre></td></tr></table></figure>
+
+<p>結果可以拿到<br><img src="https://i.imgur.com/3OOLYb9.png" alt="Image"></p>
+<p>但我們看到巢狀就頭暈貧血發作要怎麼辦</p>
+<p>別急，我們還有 Query Expressions !</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> students = <span class="keyword">from</span> t <span class="keyword">in</span> teachers</span><br><span class="line">               <span class="keyword">from</span> s <span class="keyword">in</span> students</span><br><span class="line">               <span class="keyword">where</span> s.Score &lt; <span class="number">60</span></span><br><span class="line">               <span class="keyword">select</span> s;</span><br></pre></td></tr></table></figure>
+
+<p>這種作法增加了 “SQL” 長期使用者的易讀性，描述了程式應該完成的任務 (就是所謂的 Declarative Programming)，而不指定具體的步驟，也就是，閱讀程式碼的人一眼知道你想幹嘛而不是研究具體的步驟怎麼處理</p>
+<p>由於我們因為太喜歡鏈式風格，我們不死心的嘗試 SELECT 兩次</p>
+<p>但問題在這，他的維度還是停留在 teachers 這一層， SELECT 100 次也沒有用</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> failingStudents = teachers</span><br><span class="line">    .Select(t =&gt; t.Students.Where(s =&gt; s.Score &lt; <span class="number">60</span>)).Select(teacher =&gt; teacher.Select(s =&gt; s));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ IEnumerable<span class="doctag">&lt;IEnumerable&lt;Student&gt;</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>等等，Aggregate 呢? 他讓我們自己定義一個邏輯，把一堆資料累加、合併、轉換成想要的結果。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> failingStudents = teachers</span><br><span class="line">    .Select(t =&gt; t.Students.Where(s =&gt; s.Score &lt; <span class="number">60</span>)) <span class="comment">// Still By Teacher</span></span><br><span class="line">    .Aggregate(<span class="keyword">new</span> List&lt;Student&gt;(), (acc, students) =&gt;  <span class="comment">// Manually flatten the list</span></span><br><span class="line">    &#123;</span><br><span class="line">        acc.AddRange(students);</span><br><span class="line">        <span class="keyword">return</span> acc;</span><br><span class="line">    &#125;).Dump();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>喔…好累 ﾟÅﾟ)</p>
+<br>
+<br>
+
+<h2 id="🐛-SelectMany"><a href="#🐛-SelectMany" class="headerlink" title="🐛 SelectMany"></a>🐛 SelectMany</h2><p>操作資料時，我們總有一堆集合，每個集合裡還有一堆7788 的東西，我想把所有東西攤開來處理<br>本質上：SelectMany &#x3D; 「先選出多個東西」+「自動攤平成一個集合」</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">teachers.SelectMany(t =&gt; t.Students).Where(s =&gt; s.Score &lt; <span class="number">60</span>).ToList();</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="方法簽章"><a href="#方法簽章" class="headerlink" title="方法簽章"></a>方法簽章</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="title">IEnumerable</span>&lt;<span class="title">TResult</span>&gt; <span class="title">SelectMany</span>&lt;<span class="title">TSource</span>, <span class="title">TCollection</span>, <span class="title">TResult</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="keyword">this</span> IEnumerable&lt;TSource&gt; source, </span></span></span><br><span class="line"><span class="params"><span class="function">    Func&lt;TSource, IEnumerable&lt;TCollection&gt;&gt; collectionSelector, </span></span></span><br><span class="line"><span class="params"><span class="function">    Func&lt;TSource, TCollection, TResult&gt; resultSelector</span>)</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>參數中，若傳入 resultSelector，讓我們同時處理 TSource(原本集合的每一個元素) 及 TCollection(子集合中的每一個元素)</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">teachers.SelectMany(t =&gt; t.Students</span><br><span class="line">                    , (t, s) =&gt; <span class="keyword">new</span> &#123;t.Name, s.Score&#125;)</span><br><span class="line">        .Where(pair =&gt; pair.Score &lt; <span class="number">60</span>).Dump();</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123; Name = &quot;張老師&quot;, Score = 55 &#125;,</span><br><span class="line">  &#123; Name = &quot;陳老師&quot;, Score = 40 &#125;,</span><br><span class="line">  &#123; Name = &quot;李老師&quot;, Score = 59 &#125;,</span><br><span class="line">  ...</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="SourceCode"><a href="#SourceCode" class="headerlink" title="SourceCode"></a>SourceCode</h3><p>其實 SelectMany 的本質還是：幫你把這「雙層迴圈」內建起來，我們看 sourcecode 便知</p>
+<p>SelectMany 有 4 種 overload，為了因應軟體設計的本質之一 : 彈性</p>
+<p>從一個集合的每一項取出「一組子集合」，然後攤平成一條清單（扁平化 flat），但我們在寫程式的時候，有時：</p>
+<ul>
+<li>只需要子集合</li>
+<li>有時候需要 原本那一項的 index</li>
+<li>有時候還需要 原本那一項 + 子集合元素同時用來產生結果</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Overload 編號</th>
+<th>方法簽章</th>
+<th>支援 index？</th>
+<th>支援原始項目 + 子項目同時投影？</th>
+<th>常見用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>#1</strong></td>
+<td><code>SelectMany(Func&lt;TSource, int, IEnumerable&lt;TResult&gt;&gt; selector)</code></td>
+<td>✅ 是</td>
+<td>❌ 否</td>
+<td>需要知道元素位置（index）時</td>
+</tr>
+<tr>
+<td><strong>#4</strong></td>
+<td><code>SelectMany(Func&lt;TSource, IEnumerable&lt;TResult&gt;&gt; selector)</code></td>
+<td>❌ 否</td>
+<td>❌ 否</td>
+<td>最常見情況，純攤平子集合</td>
+</tr>
+<tr>
+<td><strong>#2</strong></td>
+<td><code>SelectMany(Func&lt;TSource, IEnumerable&lt;TCollection&gt;&gt; collectionSelector, Func&lt;TSource, TCollection, TResult&gt; resultSelector)</code></td>
+<td>❌ 否</td>
+<td>✅ 是</td>
+<td>想要保留父子關係進行投影</td>
+</tr>
+<tr>
+<td><strong>#3</strong></td>
+<td><code>SelectMany(Func&lt;TSource, int, IEnumerable&lt;TCollection&gt;&gt; collectionSelector, Func&lt;TSource, TCollection, TResult&gt; resultSelector)</code></td>
+<td>✅ 是</td>
+<td>✅ 是</td>
+<td>想要保留 index 與父子關係進行複雜處理</td>
+</tr>
+</tbody></table>
+<br>
+
+<h3 id="最基本版（最常見）"><a href="#最基本版（最常見）" class="headerlink" title="最基本版（最常見）"></a>最基本版（最常見）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="title">IEnumerable</span>&lt;<span class="title">TResult</span>&gt; <span class="title">SelectMany</span>&lt;<span class="title">TSource</span>, <span class="title">TResult</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="keyword">this</span> IEnumerable&lt;TSource&gt; source, Func&lt;TSource, <span class="built_in">int</span>, IEnumerable&lt;TResult&gt;&gt; selector</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (source == <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">throw</span> Error.ArgumentNull(<span class="keyword">nameof</span>(source));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (selector == <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">throw</span> Error.ArgumentNull(<span class="keyword">nameof</span>(selector));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> SelectManyIterator(source, selector);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>判斷 source 及 selector 是否為空，為空的話丟 ArgumentNull 例外</li>
+<li>傳回 SelectManyIterator</li>
+<li>真正的處理邏輯，被包在一個「私有的 iterator 方法」裡面。</li>
+</ol>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="title">IEnumerable</span>&lt;<span class="title">TResult</span>&gt; <span class="title">SelectManyIterator</span>&lt;<span class="title">TSource</span>, <span class="title">TResult</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">    IEnumerable&lt;TSource&gt; source, Func&lt;TSource, <span class="built_in">int</span>, IEnumerable&lt;TResult&gt;&gt; selector</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">int</span> index = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">foreach</span> (TSource element <span class="keyword">in</span> source)</span><br><span class="line">    &#123;</span><br><span class="line">        checked</span><br><span class="line">        &#123;</span><br><span class="line">            index++;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="function">TResult subElement <span class="keyword">in</span> <span class="title">selector</span>(<span class="params">element, index</span>))</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">yield</span> <span class="keyword">return</span> subElement;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>這是一個 「iterator」方法，會用 yield return 把資料一筆一筆生出來。</p>
+<ul>
+<li>初始化 index（因為第一次加一後才是 0）</li>
+<li>外層迴圈：把 source 中的每個項目（例如老師）一筆一筆拿出來。</li>
+<li>安全地幫 index 加 1，確保不會超出整數範圍（溢位會拋出例外）</li>
+<li>這就是關鍵的「第二層迴圈」：<ul>
+<li>selector 是你自己提供的轉換邏輯</li>
+<li>它回傳的是一組子集合（例如學生清單）</li>
+<li>所以你還要再迴圈一次，把子集合攤平</li>
+<li>每一筆學生（子集合元素）都用 yield return 一筆一筆回傳。</li>
+</ul>
+</li>
+</ul>
+<br>
+<br>
+
+<h2 id="🐛-使用-SelectMany-來處理關聯式資料比手動使用-JOIN-語法更好"><a href="#🐛-使用-SelectMany-來處理關聯式資料比手動使用-JOIN-語法更好" class="headerlink" title="🐛 使用 SelectMany 來處理關聯式資料比手動使用 JOIN 語法更好"></a>🐛 使用 SelectMany 來處理關聯式資料比手動使用 JOIN 語法更好</h2><p>在使用 Entity Framework（EF）操作資料庫時，當我們需要查詢「一對多」或「多對一」的關聯資料時，有兩種常見寫法：</p>
+<p>🅰 傳統 SQL 思維 — 使用 join</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> queryB = <span class="keyword">from</span> s <span class="keyword">in</span> context.Schools</span><br><span class="line">             <span class="keyword">join</span> t <span class="keyword">in</span> context.Teachers <span class="keyword">on</span> s.Id <span class="keyword">equals</span> t.IdSchool</span><br><span class="line">             <span class="keyword">select</span> t;</span><br></pre></td></tr></table></figure>
+
+<p>🅱 更現代 LINQ 思維 — 使用 SelectMany 搭配導覽屬性</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> queryA = context.Schools.SelectMany(s =&gt; s.Teachers);</span><br></pre></td></tr></table></figure>
+
+<p>哪一種方式比較好？在大資料量的情況下，效能會差很多嗎？使用 SelectMany 是不是只是寫法漂亮，但實務上沒效率？</p>
+<p>先說結論，在 Entity Framework 中，優先使用 SelectMany 搭配「導覽屬性（Navigation Properties）」的方式通常是更好、更乾淨、更推薦的寫法。</p>
+<h3 id="語意更貼近物件導向"><a href="#語意更貼近物件導向" class="headerlink" title="語意更貼近物件導向"></a>語意更貼近物件導向</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">school.Teachers</span><br></pre></td></tr></table></figure>
+<p>這樣的寫法表達的是：「我從每個學校中，拿出它的老師們」<br>這種語意清楚又直觀，不需要你去關心「外鍵欄位叫什麼」，你只需要透過模型之間的導覽屬性操作即可。</p>
+<h3 id="EF-會自動產生-JOIN，效能不會比較差"><a href="#EF-會自動產生-JOIN，效能不會比較差" class="headerlink" title="EF 會自動產生 JOIN，效能不會比較差"></a>EF 會自動產生 JOIN，效能不會比較差</h3><p>SelectMany</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> teachers = context.Schools</span><br><span class="line">                      .Where(s =&gt; s.Name == <span class="string">&quot;XX中學&quot;</span>)</span><br><span class="line">                      .SelectMany(s =&gt; s.Teachers)</span><br><span class="line">                      .Where(t =&gt; t.Department == <span class="string">&quot;資訊科&quot;</span>)</span><br><span class="line">                      .ToList();</span><br></pre></td></tr></table></figure>
+<p>EF 背後會根據導覽屬性與關聯的中繼資料，自動產生SQL</p>
+<p>JOIN</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> teachers = <span class="keyword">from</span> s <span class="keyword">in</span> context.Schools</span><br><span class="line">               <span class="keyword">join</span> t <span class="keyword">in</span> context.Teachers <span class="keyword">on</span> s.Id <span class="keyword">equals</span> t.IdSchool</span><br><span class="line">               <span class="keyword">where</span> s.Name == <span class="string">&quot;XX中學&quot;</span> &amp;&amp; t.Department == <span class="string">&quot;資訊科&quot;</span></span><br><span class="line">               <span class="keyword">select</span> t;</span><br></pre></td></tr></table></figure>
+<p>功能一樣，但 SelectMany 讀起來更像是在查詢「物件的資料」，而不是「操作資料表」。</p>
+<p>雖然 SelectMany 通常是更好的選擇，但有些情況下 join 還是必要的，例如</p>
+<ul>
+<li>你要查詢兩個彼此沒有導覽屬性的資料表</li>
+<li>你要查詢左外連接（Left Join）</li>
+<li>你只想查出欄位（非物件）或匿名類型組合資料</li>
+</ul>
+<br>
+<br>
+
+<h2 id="🐛-參考文章"><a href="#🐛-參考文章" class="headerlink" title="🐛 參考文章"></a>🐛 參考文章</h2><a class="btn-beautify " target="_blank" rel="noopener" href="https://peterhpchen.github.io/DigDeeperLINQ/12_HowToUseSelectMany.html#%E5%8A%9F%E8%83%BD%E8%AA%AA%E6%98%8E" 
+  title="SelectMany的應用"><i class="far fa-hand-point-right"></i><span>SelectMany的應用</span></a>
+
+<br>
+
+<a class="btn-beautify " target="_blank" rel="noopener" href="https://stackoverflow.com/questions/38311230/chain-selectmany-instead-of-using-a-join-statement?newreg=43ff320edfd84529aa6ae9a8b5d8e28f" 
+  title="Chain SelectMany instead of using a JOIN statement"><i class="far fa-hand-point-right"></i><span>Chain SelectMany instead of using a JOIN statement</span></a></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/09/21/LINQ-SelectMany/">https://allenlin000.github.io.git/2025/09/21/LINQ-SelectMany/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LINQ/">LINQ</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/cBfeEDY.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/09/21/ExtensionMethod/" title="Extension Method"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Extension Method</div></div></a></div><div class="next-post pull-right"><a href="/2025/09/22/LINQ-Except/" title="Except"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Except</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/09/22/LINQ-Except/" title="Except"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-22</div><div class="title">Except</div></div></a></div><div><a href="/2024/03/17/LINQ-GroupBy/" title="Groupby - 在資料中探索歸屬"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-17</div><div class="title">Groupby - 在資料中探索歸屬</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">55</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-%E5%A6%82%E6%9E%9C%E4%B8%96%E7%95%8C%E4%B8%8A%E6%B2%92%E6%9C%89-SelectMany"><span class="toc-number">1.</span> <span class="toc-text">🐛 如果世界上沒有 SelectMany</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-SelectMany"><span class="toc-number">2.</span> <span class="toc-text">🐛 SelectMany</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E7%B0%BD%E7%AB%A0"><span class="toc-number">2.1.</span> <span class="toc-text">方法簽章</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SourceCode"><span class="toc-number">2.2.</span> <span class="toc-text">SourceCode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E5%9F%BA%E6%9C%AC%E7%89%88%EF%BC%88%E6%9C%80%E5%B8%B8%E8%A6%8B%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">最基本版（最常見）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-%E4%BD%BF%E7%94%A8-SelectMany-%E4%BE%86%E8%99%95%E7%90%86%E9%97%9C%E8%81%AF%E5%BC%8F%E8%B3%87%E6%96%99%E6%AF%94%E6%89%8B%E5%8B%95%E4%BD%BF%E7%94%A8-JOIN-%E8%AA%9E%E6%B3%95%E6%9B%B4%E5%A5%BD"><span class="toc-number">3.</span> <span class="toc-text">🐛 使用 SelectMany 來處理關聯式資料比手動使用 JOIN 語法更好</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AA%9E%E6%84%8F%E6%9B%B4%E8%B2%BC%E8%BF%91%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91"><span class="toc-number">3.1.</span> <span class="toc-text">語意更貼近物件導向</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EF-%E6%9C%83%E8%87%AA%E5%8B%95%E7%94%A2%E7%94%9F-JOIN%EF%BC%8C%E6%95%88%E8%83%BD%E4%B8%8D%E6%9C%83%E6%AF%94%E8%BC%83%E5%B7%AE"><span class="toc-number">3.2.</span> <span class="toc-text">EF 會自動產生 JOIN，效能不會比較差</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-%E5%8F%83%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">4.</span> <span class="toc-text">🐛 參考文章</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/09/22/LINQ-Except/" title="Except"><img src="https://i.imgur.com/cBfeEDY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Except"/></a><div class="content"><a class="title" href="/2025/09/22/LINQ-Except/" title="Except">Except</a><time datetime="2025-09-22T00:50:00.000Z" title="Created 2025-09-22 08:50:00">2025-09-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/LINQ-SelectMany/" title="LINQ - SelectMany"><img src="https://i.imgur.com/cBfeEDY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LINQ - SelectMany"/></a><div class="content"><a class="title" href="/2025/09/21/LINQ-SelectMany/" title="LINQ - SelectMany">LINQ - SelectMany</a><time datetime="2025-09-21T03:49:11.000Z" title="Created 2025-09-21 11:49:11">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/ExtensionMethod/" title="Extension Method"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Extension Method"/></a><div class="content"><a class="title" href="/2025/09/21/ExtensionMethod/" title="Extension Method">Extension Method</a><time datetime="2025-09-21T02:25:03.000Z" title="Created 2025-09-21 10:25:03">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/20/anonymousType/" title="Anonymous type"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Anonymous type"/></a><div class="content"><a class="title" href="/2025/09/20/anonymousType/" title="Anonymous type">Anonymous type</a><time datetime="2025-09-20T14:25:03.000Z" title="Created 2025-09-20 22:25:03">2025-09-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/17/Design-SRP/" title="Single Resposibility Principle"><img src="https://i.imgur.com/LF7L1Ws.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Single Resposibility Principle"/></a><div class="content"><a class="title" href="/2025/09/17/Design-SRP/" title="Single Resposibility Principle">Single Resposibility Principle</a><time datetime="2025-09-17T00:00:03.000Z" title="Created 2025-09-17 08:00:03">2025-09-17</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
