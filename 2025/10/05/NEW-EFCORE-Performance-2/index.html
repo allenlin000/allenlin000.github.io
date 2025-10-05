@@ -1,0 +1,353 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>EFCORE - 效能 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="🔹 DbContext Pool建立一個 DbContext → 用完 → Dispose 掉，一般效能影響不大。但是如果你在一個高併發服務（例如 Web API，每個 Request 都要建一個 DbContext），那麼  每次都要 new 一個 DbContext EF Core 需要做初始化動作 CPU 與 GC 負擔增加  👉 在大量 Request 下就會有「明顯效能影響」。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EFCORE - 效能">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/05/NEW-EFCORE-Performance-2/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="🔹 DbContext Pool建立一個 DbContext → 用完 → Dispose 掉，一般效能影響不大。但是如果你在一個高併發服務（例如 Web API，每個 Request 都要建一個 DbContext），那麼  每次都要 new 一個 DbContext EF Core 需要做初始化動作 CPU 與 GC 負擔增加  👉 在大量 Request 下就會有「明顯效能影響」。">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true">
+<meta property="article:published_time" content="2025-10-05T01:08:05.000Z">
+<meta property="article:modified_time" content="2025-10-05T02:32:00.179Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/05/NEW-EFCORE-Performance-2/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'EFCORE - 效能',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-10-05 10:32:00'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">61</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">13</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">EFCORE - 效能</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-05T01:08:05.000Z" title="Created 2025-10-05 09:08:05">2025-10-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-10-05T02:32:00.179Z" title="Updated 2025-10-05 10:32:00">2025-10-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Others/">Others</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="EFCORE - 效能"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" alt="ocean"></p>
+<br>
+
+<h2 id="🔹-DbContext-Pool"><a href="#🔹-DbContext-Pool" class="headerlink" title="🔹 DbContext Pool"></a>🔹 DbContext Pool</h2><p>建立一個 DbContext → 用完 → Dispose 掉，一般效能影響不大。但是如果你在一個高併發服務（例如 Web API，每個 Request 都要建一個 DbContext），那麼</p>
+<ul>
+<li>每次都要 new 一個 DbContext</li>
+<li>EF Core 需要做初始化動作</li>
+<li>CPU 與 GC 負擔增加</li>
+</ul>
+<p>👉 在大量 Request 下就會有「明顯效能影響」。</p>
+<br>
+
+<h3 id="🔹-DbContext-Pooling-快取池"><a href="#🔹-DbContext-Pooling-快取池" class="headerlink" title="🔹 DbContext Pooling (快取池)"></a>🔹 DbContext Pooling (快取池)</h3><p>EF Core 提供 DbContext Pooling 功能，可以「重複利用」DbContext 實例，而不是每次都重新 new<br>，當你 Dispose() 一個 DbContext 時，它並不會真的銷毀，而是放回 Pool (池子)，下次需要時，直接拿出來重用 → 減少建立成本，AddDbContextPool() 確實會 重複使用同一個 DbContext 實例，但 EF Core 在把它丟回池子前，會做 重置 (reset)</p>
+<ul>
+<li>Change Tracker → 清空 (不會保留任何追蹤的 Entity)</li>
+<li>交易 (Transaction) → 自動 Dispose</li>
+<li>Scoped Service Provider → 重設</li>
+<li>查詢狀態 → 全部清掉</li>
+</ul>
+<br>
+<br>
+
+<h2 id="🌊-直接執行SQL"><a href="#🌊-直接執行SQL" class="headerlink" title="🌊 直接執行SQL"></a>🌊 直接執行SQL</h2><br>
+
+<h3 id="🔹-LINQ-→-SQL-的轉換不一定最佳"><a href="#🔹-LINQ-→-SQL-的轉換不一定最佳" class="headerlink" title="🔹 LINQ → SQL 的轉換不一定最佳"></a>🔹 LINQ → SQL 的轉換不一定最佳</h3><p>EF Core 的 Query Provider 會把 LINQ 轉成 SQL，但它不一定能轉出最優化的 SQL，有時候會產生多餘的 JOIN、Subquery</p>
+<p>例如，抓出有大額訂單的活躍用戶</p>
+<p>EF</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> users = context.Users</span><br><span class="line">    .Include(u =&gt; u.Orders)</span><br><span class="line">    .Where(u =&gt; u.IsActive &amp;&amp; u.Orders.Any(o =&gt; o.Amount &gt; <span class="number">100</span>))</span><br><span class="line">    .ToList();</span><br></pre></td></tr></table></figure>
+
+<p>SQL轉譯</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> [u].[Id], [u].[Name], [u].[IsActive], [o].[Id], [o].[Amount]</span><br><span class="line"><span class="keyword">FROM</span> [Users] <span class="keyword">AS</span> [u]</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> [Orders] <span class="keyword">AS</span> [o] <span class="keyword">ON</span> [u].[Id] <span class="operator">=</span> [o].[UserId]</span><br><span class="line"><span class="keyword">WHERE</span> [u].[IsActive] <span class="operator">=</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> [u].[Id]</span><br></pre></td></tr></table></figure>
+
+<p>EF Core 為了支援 Include，把整個 Orders 都 JOIN 出來，即使你只想檢查 o.Amount &gt; 100，它還是把所有 Orders 都拉回來，再來記憶體中判斷</p>
+<p>如果手寫 SQL，可以直接用 EXISTS</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> Users u</span><br><span class="line"><span class="keyword">WHERE</span> u.IsActive <span class="operator">=</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">AND</span> <span class="keyword">EXISTS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> Orders o</span><br><span class="line">    <span class="keyword">WHERE</span> o.UserId <span class="operator">=</span> u.Id</span><br><span class="line">      <span class="keyword">AND</span> o.Amount <span class="operator">&gt;</span> <span class="number">100</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="🔹-查詢複雜時，SQL-Optimizer-難以最佳化"><a href="#🔹-查詢複雜時，SQL-Optimizer-難以最佳化" class="headerlink" title="🔹 查詢複雜時，SQL Optimizer 難以最佳化"></a>🔹 查詢複雜時，SQL Optimizer 難以最佳化</h3><p>例如多層 GroupBy、Window Function、CTE (Common Table Expression)，EF Core 難以精確轉譯，可能會生成巨大的 SQL</p>
+<h3 id="🔹-難以調校-Tuning"><a href="#🔹-難以調校-Tuning" class="headerlink" title="🔹 難以調校 (Tuning)"></a>🔹 難以調校 (Tuning)</h3><p>在 EF Core 中，要調整 SQL 結構不容易，但如果是自己寫 SQL 或 SP，就能手動加 Hint、Index、Rewrite</p>
+<br>
+
+<h3 id="🔹-大量-JOIN-多表關聯"><a href="#🔹-大量-JOIN-多表關聯" class="headerlink" title="🔹 大量 JOIN &#x2F; 多表關聯"></a>🔹 大量 JOIN &#x2F; 多表關聯</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> u.Id, u.Name, <span class="built_in">SUM</span>(o.Amount)</span><br><span class="line"><span class="keyword">FROM</span> Users u</span><br><span class="line"><span class="keyword">JOIN</span> Orders o <span class="keyword">ON</span> u.Id <span class="operator">=</span> o.UserId</span><br><span class="line"><span class="keyword">JOIN</span> OrderDetails od <span class="keyword">ON</span> o.Id <span class="operator">=</span> od.OrderId</span><br><span class="line"><span class="keyword">JOIN</span> Products p <span class="keyword">ON</span> od.ProductId <span class="operator">=</span> p.Id</span><br><span class="line"><span class="keyword">WHERE</span> p.CategoryId <span class="operator">=</span> <span class="number">10</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> u.Id, u.Name</span><br></pre></td></tr></table></figure>
+
+<p>這種多表聚合查詢，如果用 EF Core LINQ，可能會轉出非常複雜又沒效率的 SQL</p>
+<h3 id="🔹-統計-報表-Aggregation-GroupBy-Window-Function"><a href="#🔹-統計-報表-Aggregation-GroupBy-Window-Function" class="headerlink" title="🔹 統計 &#x2F; 報表 (Aggregation, GroupBy, Window Function)"></a>🔹 統計 &#x2F; 報表 (Aggregation, GroupBy, Window Function)</h3><p>排名、分頁、Top-N per group</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> u.Id, u.Name, </span><br><span class="line">       <span class="built_in">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> u.Region <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="built_in">SUM</span>(o.Amount) <span class="keyword">DESC</span>) <span class="keyword">AS</span> RankInRegion</span><br><span class="line"><span class="keyword">FROM</span> Users u</span><br><span class="line"><span class="keyword">JOIN</span> Orders o <span class="keyword">ON</span> u.Id <span class="operator">=</span> o.UserId</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> u.Id, u.Name, u.Region;</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="🌊-Table-Valued-Function-TVF"><a href="#🌊-Table-Valued-Function-TVF" class="headerlink" title="🌊 Table-Valued Function (TVF)"></a>🌊 Table-Valued Function (TVF)</h2><p>假設你要查 5000 個 ID</p>
+<h3 id="🔹-Optimizer-的困境"><a href="#🔹-Optimizer-的困境" class="headerlink" title="🔹　Optimizer　的困境"></a>🔹　Optimizer　的困境</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> </span><br><span class="line"><span class="keyword">FROM</span> CrmMember </span><br><span class="line"><span class="keyword">WHERE</span> CrmMemberId <span class="keyword">IN</span> (<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,...,<span class="number">5000</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>SQL Server 要先解析 (parse) 這段 SQL，字串很長，解析時間變久</li>
+<li>編譯 Execution Plan (執行計劃) 也會變慢，因為 Optimizer 要想辦法決定「怎麼處理 5000 個條件」。</li>
+<li>每次 IN 的值不同，SQL Server 會認為是「不同的 SQL」，計劃快取用不了，等於每次都要重新編譯。</li>
+</ul>
+<p>SQL Server 在執行查詢前，會先經過 Query Optimizer，決定「怎麼跑這個查詢最省」。</p>
+<ul>
+<li>用 Index Seek 還是 Table Scan？</li>
+<li>要不要用 Nested Loop &#x2F; Hash Join？</li>
+</ul>
+<p>👉 如果 SQL 太長（例如 5000 個 IN 值），Optimizer 可能會「想很久」或「做出笨決定」。</p>
+<h3 id="🔹-為什麼-JOIN-TVF-比較穩定"><a href="#🔹-為什麼-JOIN-TVF-比較穩定" class="headerlink" title="🔹 為什麼 JOIN TVF 比較穩定?"></a>🔹 為什麼 JOIN TVF 比較穩定?</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> cm.<span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> CrmMember cm</span><br><span class="line"><span class="keyword">JOIN</span> dbo.cfn_SplitToBigintTableV2(<span class="string">&#x27;1,2,3,...,5000&#x27;</span>, <span class="string">&#x27;,&#x27;</span>) ids</span><br><span class="line"><span class="keyword">ON</span> cm.CrmMemberId <span class="operator">=</span> ids.Id</span><br></pre></td></tr></table></figure>
+
+<p>Optimizer 視角來看，看到的就是「CrmMember JOIN 一個小 Table (ids)」，這樣 Optimizer 可以用 Hash Join 或 Merge Join（一次比對整個 Table），比起 5000 個 IN 條件更有效率，計劃還可以重複使用，不會因為值不同就重編譯</p>
+<h3 id="🔹-Nested-Loop-Join-Hash-Join-Merge-Join"><a href="#🔹-Nested-Loop-Join-Hash-Join-Merge-Join" class="headerlink" title="🔹 Nested Loop Join &#x2F; Hash Join &#x2F; Merge Join"></a>🔹 Nested Loop Join &#x2F; Hash Join &#x2F; Merge Join</h3><p>這些是 SQL Server 比對兩張表的方法</p>
+<p><strong>Nested Loop Join</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> </span><br><span class="line"><span class="keyword">FROM</span> Orders </span><br><span class="line"><span class="keyword">WHERE</span> CustomerId <span class="keyword">IN</span> (<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,..<span class="number">.5000</span>);</span><br></pre></td></tr></table></figure>
+<p>SQL Optimizer 的典型作法</p>
+<ul>
+<li>把 IN(…) 裡的值當成「小清單」</li>
+<li>每個值都去 Orders 裡 重新走一次索引 (Index Seek)</li>
+</ul>
+<p>這就是 Nested Loop Join 的思維，外圈迴圈：5000 個 Id，內圈：每次都去 Orders 找一次</p>
+<p>👉 結果：會做 5000 次索引查詢。這在 Id 很少時快，但 Id 多時就爆炸。</p>
+<p><strong>Hash Join</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> o.<span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> Orders o</span><br><span class="line"><span class="keyword">JOIN</span> dbo.cfn_SplitToBigintTableV2(<span class="string">&#x27;1,2,3,...5000&#x27;</span>, <span class="string">&#x27;,&#x27;</span>) ids</span><br><span class="line">  <span class="keyword">ON</span> o.CustomerId <span class="operator">=</span> ids.Id;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>先把 ids（5000 筆）讀出來</li>
+<li>建立一個 Hash Table (類似字典&#x2F;Set)，Key &#x3D; Id，Value &#x3D; 位置（方便比對）</li>
+<li>掃描 Orders (100 萬筆)，把 CustomerId 丟進 Hash Function 算 key，看 Hash Table 裡有沒有對應 → O(1) 查找</li>
+</ul>
+<p>所以只會掃一次 Orders，每筆比對用 Hash Table O(1) 判斷，整體只做 100 萬次比對 + 建 Hash Table，比 Nested Loop 快很多</p>
+<p>說明一下 Hash Table ≠ 一個普通清單，它是 Key → Slot (桶子) 的映射結構</p>
+<table>
+<thead>
+<tr>
+<th>Id</th>
+<th>Hash(Key)</th>
+<th>Slot (桶子)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>101</td>
+<td>101 % 128 &#x3D; 101</td>
+<td>桶 101</td>
+</tr>
+<tr>
+<td>205</td>
+<td>205 % 128 &#x3D; 77</td>
+<td>桶 77</td>
+</tr>
+<tr>
+<td>999</td>
+<td>999 % 128 &#x3D; 103</td>
+<td>桶 103</td>
+</tr>
+</tbody></table>
+<p>例如當 Orders.CustomerId &#x3D; 205 時<br>→ SQL Server 算 205 % 128 &#x3D; 77<br>→ 直接跳到「桶 77」<br>→ 在桶子裡找到 Id &#x3D; 205 → 比對成功</p>
+<p>👉 它不需要從 5000 個 Id 從頭比到尾。</p>
+<br>
+<br>
+
+<h2 id="🌊-查詢快取和參數化"><a href="#🌊-查詢快取和參數化" class="headerlink" title="🌊 查詢快取和參數化"></a>🌊 查詢快取和參數化</h2><br>
+
+<h3 id="🔹-EF-Core-查詢怎麼運作"><a href="#🔹-EF-Core-查詢怎麼運作" class="headerlink" title="🔹 EF Core 查詢怎麼運作"></a>🔹 EF Core 查詢怎麼運作</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> user1 = <span class="keyword">await</span> _db.Users.Where(c =&gt; c.Account == <span class="string">&quot;admin&quot;</span>).FirstOrDefaultAsync();</span><br></pre></td></tr></table></figure>
+
+<p>EF Core 會做這幾件事：</p>
+<ul>
+<li>建立「運算式樹狀結構 (Expression Tree)」</li>
+<li>把這個樹狀結構編譯成 SQL</li>
+<li>把 SQL 丟給 SQL Server 執行</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> TOP(<span class="number">1</span>) [u].[Id], [u].[Account], ...</span><br><span class="line"><span class="keyword">FROM</span> [Users] <span class="keyword">AS</span> [u]</span><br><span class="line"><span class="keyword">WHERE</span> [u].[Account] <span class="operator">=</span> N<span class="string">&#x27;admin&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="🔹-常數會讓查詢結構不一樣"><a href="#🔹-常數會讓查詢結構不一樣" class="headerlink" title="🔹 常數會讓查詢結構不一樣"></a>🔹 常數會讓查詢結構不一樣</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> user2 = <span class="keyword">await</span> _db.Users.Where(c =&gt; c.Account == <span class="string">&quot;allen&quot;</span>).FirstOrDefaultAsync();</span><br></pre></td></tr></table></figure>
+
+<p>雖然只是改了 “allen”，但 EF Core 看到的「樹狀結構」不一樣了，EF Core 認為這是 兩個不同查詢，所以會各自編譯一次 LINQ → SQL、建立兩個 SQL Execution Plan，這會浪費效能，因為這兩個查詢本質上一樣，只差參數</p>
+<br>
+
+<h3 id="🔹-參數化-Parameterization"><a href="#🔹-參數化-Parameterization" class="headerlink" title="🔹 參數化 (Parameterization)"></a>🔹 參數化 (Parameterization)</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> account1 = <span class="string">&quot;admin&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> user1 = <span class="keyword">await</span> _db.Users.Where(c =&gt; c.Account == account1).FirstOrDefaultAsync();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> account2 = <span class="string">&quot;rico&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> user2 = <span class="keyword">await</span> _db.Users.Where(c =&gt; c.Account == account2).FirstOrDefaultAsync();</span><br></pre></td></tr></table></figure>
+
+<p>EEF Core 會認定「這是同一個查詢結構」，所以不用重新編譯一次 LINQ Tree，省掉 EF Core 的編譯成本，SQL Server 計劃快取 (Execution Plan Cache)，SQL Server 看到「結構相同的 SQL + 不同參數」，就能重複使用同一個執行計劃 (Execution Plan)，避免 Plan Cache 變得很大 (因為每個不同常數都會生成新計劃)</p>
+<br>
+
+<h3 id="🔹-以直接帶上時間為例"><a href="#🔹-以直接帶上時間為例" class="headerlink" title="🔹 以直接帶上時間為例"></a>🔹 以直接帶上時間為例</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> result = _db.Users.Where(u =&gt; u.CreatedDate &lt; DateTime.Now).ToList();</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> now = DateTime.Now;</span><br><span class="line"><span class="keyword">var</span> result = _db.Users.Where(u =&gt; u.CreatedDate &lt; now).ToList();</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="🌊-foreach-SaveChanges-很慢"><a href="#🌊-foreach-SaveChanges-很慢" class="headerlink" title="🌊 foreach + SaveChanges() 很慢"></a>🌊 foreach + SaveChanges() 很慢</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span> (<span class="keyword">var</span> user <span class="keyword">in</span> users)</span><br><span class="line">&#123;</span><br><span class="line">    _db.Add(user);</span><br><span class="line">    _db.SaveChanges();  <span class="comment">// 每次迴圈都丟一次 SQL</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每新增一筆 User，EF Core 就會馬上呼叫一次 SaveChanges()。SaveChanges() → 會產生 SQL → 打一次網路請求給資料庫。10 筆資料 &#x3D; 打 10 次網路請求。每次 SaveChanges() &#x3D; 一次「網路往返 (Round Trip)」。網路往返比「執行 SQL」本身更耗時。所以這樣效率超差。</p>
+<br>
+
+<h3 id="🔹-一次性批次處理的做法"><a href="#🔹-一次性批次處理的做法" class="headerlink" title="🔹 一次性批次處理的做法"></a>🔹 一次性批次處理的做法</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_db.AddRange(users);   <span class="comment">// 一次性追蹤全部要新增的 User</span></span><br><span class="line">_db.SaveChanges();     <span class="comment">// 一次性產生 SQL，丟給資料庫</span></span><br></pre></td></tr></table></figure>
+
+<p>先把 10 筆資料都加進 DbContext。然後一次 SaveChanges()，EF Core 會產生一批 SQL，丟給資料庫一次處理。10 筆資料 &#x3D; 1 次網路往返。效能差異：少了 10 倍的網路延遲。</p>
+<br>
+<br>
+
+<h2 id="🌊-參考文章"><a href="#🌊-參考文章" class="headerlink" title="🌊 參考文章"></a>🌊 參考文章</h2><a class="btn-beautify " target="_blank" rel="noopener" href="https://medium.com/ricos-note/best-practices-in-ef-core-fe30da4cabed" 
+  title="Best Practices in EF Core"><i class="far fa-hand-point-right"></i><span>Best Practices in EF Core</span></a>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/05/NEW-EFCORE-Performance-2/">https://allenlin000.github.io.git/2025/10/05/NEW-EFCORE-Performance-2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2025/10/05/NEW-EFCORE-Performance-1/" title="EFCORE - 效能"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">EFCORE - 效能</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">61</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-DbContext-Pool"><span class="toc-number">1.</span> <span class="toc-text">🔹 DbContext Pool</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-DbContext-Pooling-%E5%BF%AB%E5%8F%96%E6%B1%A0"><span class="toc-number">1.1.</span> <span class="toc-text">🔹 DbContext Pooling (快取池)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-%E7%9B%B4%E6%8E%A5%E5%9F%B7%E8%A1%8CSQL"><span class="toc-number">2.</span> <span class="toc-text">🌊 直接執行SQL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-LINQ-%E2%86%92-SQL-%E7%9A%84%E8%BD%89%E6%8F%9B%E4%B8%8D%E4%B8%80%E5%AE%9A%E6%9C%80%E4%BD%B3"><span class="toc-number">2.1.</span> <span class="toc-text">🔹 LINQ → SQL 的轉換不一定最佳</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E6%9F%A5%E8%A9%A2%E8%A4%87%E9%9B%9C%E6%99%82%EF%BC%8CSQL-Optimizer-%E9%9B%A3%E4%BB%A5%E6%9C%80%E4%BD%B3%E5%8C%96"><span class="toc-number">2.2.</span> <span class="toc-text">🔹 查詢複雜時，SQL Optimizer 難以最佳化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E9%9B%A3%E4%BB%A5%E8%AA%BF%E6%A0%A1-Tuning"><span class="toc-number">2.3.</span> <span class="toc-text">🔹 難以調校 (Tuning)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%A4%A7%E9%87%8F-JOIN-%E5%A4%9A%E8%A1%A8%E9%97%9C%E8%81%AF"><span class="toc-number">2.4.</span> <span class="toc-text">🔹 大量 JOIN &#x2F; 多表關聯</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E7%B5%B1%E8%A8%88-%E5%A0%B1%E8%A1%A8-Aggregation-GroupBy-Window-Function"><span class="toc-number">2.5.</span> <span class="toc-text">🔹 統計 &#x2F; 報表 (Aggregation, GroupBy, Window Function)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-Table-Valued-Function-TVF"><span class="toc-number">3.</span> <span class="toc-text">🌊 Table-Valued Function (TVF)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-Optimizer-%E7%9A%84%E5%9B%B0%E5%A2%83"><span class="toc-number">3.1.</span> <span class="toc-text">🔹　Optimizer　的困境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E7%82%BA%E4%BB%80%E9%BA%BC-JOIN-TVF-%E6%AF%94%E8%BC%83%E7%A9%A9%E5%AE%9A"><span class="toc-number">3.2.</span> <span class="toc-text">🔹 為什麼 JOIN TVF 比較穩定?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-Nested-Loop-Join-Hash-Join-Merge-Join"><span class="toc-number">3.3.</span> <span class="toc-text">🔹 Nested Loop Join &#x2F; Hash Join &#x2F; Merge Join</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-%E6%9F%A5%E8%A9%A2%E5%BF%AB%E5%8F%96%E5%92%8C%E5%8F%83%E6%95%B8%E5%8C%96"><span class="toc-number">4.</span> <span class="toc-text">🌊 查詢快取和參數化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-EF-Core-%E6%9F%A5%E8%A9%A2%E6%80%8E%E9%BA%BC%E9%81%8B%E4%BD%9C"><span class="toc-number">4.1.</span> <span class="toc-text">🔹 EF Core 查詢怎麼運作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%B8%B8%E6%95%B8%E6%9C%83%E8%AE%93%E6%9F%A5%E8%A9%A2%E7%B5%90%E6%A7%8B%E4%B8%8D%E4%B8%80%E6%A8%A3"><span class="toc-number">4.2.</span> <span class="toc-text">🔹 常數會讓查詢結構不一樣</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%8F%83%E6%95%B8%E5%8C%96-Parameterization"><span class="toc-number">4.3.</span> <span class="toc-text">🔹 參數化 (Parameterization)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E4%BB%A5%E7%9B%B4%E6%8E%A5%E5%B8%B6%E4%B8%8A%E6%99%82%E9%96%93%E7%82%BA%E4%BE%8B"><span class="toc-number">4.4.</span> <span class="toc-text">🔹 以直接帶上時間為例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-foreach-SaveChanges-%E5%BE%88%E6%85%A2"><span class="toc-number">5.</span> <span class="toc-text">🌊 foreach + SaveChanges() 很慢</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E4%B8%80%E6%AC%A1%E6%80%A7%E6%89%B9%E6%AC%A1%E8%99%95%E7%90%86%E7%9A%84%E5%81%9A%E6%B3%95"><span class="toc-number">5.1.</span> <span class="toc-text">🔹 一次性批次處理的做法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-%E5%8F%83%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">6.</span> <span class="toc-text">🌊 參考文章</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/NEW-EFCORE-Performance-2/" title="EFCORE - 效能"><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EFCORE - 效能"/></a><div class="content"><a class="title" href="/2025/10/05/NEW-EFCORE-Performance-2/" title="EFCORE - 效能">EFCORE - 效能</a><time datetime="2025-10-05T01:08:05.000Z" title="Created 2025-10-05 09:08:05">2025-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/NEW-EFCORE-Performance-1/" title="EFCORE - 效能"><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EFCORE - 效能"/></a><div class="content"><a class="title" href="/2025/10/05/NEW-EFCORE-Performance-1/" title="EFCORE - 效能">EFCORE - 效能</a><time datetime="2025-10-05T01:08:05.000Z" title="Created 2025-10-05 09:08:05">2025-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/04/NEW-SQL-Performance-1/" title="SQL_Performance"><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQL_Performance"/></a><div class="content"><a class="title" href="/2025/10/04/NEW-SQL-Performance-1/" title="SQL_Performance">SQL_Performance</a><time datetime="2025-10-04T10:25:05.000Z" title="Created 2025-10-04 18:25:05">2025-10-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/26/EFCORE-EF-%E7%8B%80%E6%85%8B%E7%AE%A1%E7%90%86/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/09/26/EFCORE-EF-%E7%8B%80%E6%85%8B%E7%AE%A1%E7%90%86/" title="Untitled">Untitled</a><time datetime="2025-09-26T13:18:56.784Z" title="Created 2025-09-26 21:18:56">2025-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/26/WebAPI-MWeb%E8%A7%A3%E6%9E%90/" title="WebAPI - MWeb"><img src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="WebAPI - MWeb"/></a><div class="content"><a class="title" href="/2025/09/26/WebAPI-MWeb%E8%A7%A3%E6%9E%90/" title="WebAPI - MWeb">WebAPI - MWeb</a><time datetime="2025-09-26T09:07:34.000Z" title="Created 2025-09-26 17:07:34">2025-09-26</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
