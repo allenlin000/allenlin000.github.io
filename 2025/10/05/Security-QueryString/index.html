@@ -1,0 +1,371 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Security - QueryString | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Query String 是為了讓「請求能被識別與重現」，當伺服器接到一個網址時，能知道「使用者要查什麼、做什麼、要哪一份資料」它是 對伺服器的指令，不是傳輸內容的容器。   在 HTTP 的哲學裡，它屬於 資源定位的一部分（part of URI）」   URL（包含 Query String）代表「資源的位址」，是資源的所在位置，在上面帶上卡號等機密資訊相當於告訴郵差送到哪裡，順便分享你的秘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Security - QueryString">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/05/Security-QueryString/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="Query String 是為了讓「請求能被識別與重現」，當伺服器接到一個網址時，能知道「使用者要查什麼、做什麼、要哪一份資料」它是 對伺服器的指令，不是傳輸內容的容器。   在 HTTP 的哲學裡，它屬於 資源定位的一部分（part of URI）」   URL（包含 Query String）代表「資源的位址」，是資源的所在位置，在上面帶上卡號等機密資訊相當於告訴郵差送到哪裡，順便分享你的秘">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true">
+<meta property="article:published_time" content="2025-10-05T14:38:11.000Z">
+<meta property="article:modified_time" content="2025-10-06T03:51:42.355Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="蒼き盾">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/05/Security-QueryString/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Security - QueryString',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-10-06 11:51:42'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">63</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">14</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Security - QueryString</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-10-06T03:51:42.355Z" title="Updated 2025-10-06 11:51:42">2025-10-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%92%BC%E3%81%8D%E7%9B%BE/">蒼き盾</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Security - QueryString"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" alt="Image"></p>
+<p>Query String 是為了讓「請求能被識別與重現」，當伺服器接到一個網址時，能知道「使用者要查什麼、做什麼、要哪一份資料」它是 對伺服器的<strong>指令</strong>，不是傳輸內容的容器。</p>
+<br>
+
+<p>在 HTTP 的哲學裡，它屬於 <strong>資源定位的一部分（part of URI）」</strong></p>
+<br>
+
+<p>URL（包含 Query String）代表「資源的位址」，是資源的所在位置，在上面帶上卡號等機密資訊相當於告訴郵差送到哪裡，順便分享你的秘密!</p>
+<br>
+
+<h2 id="🛡️-凡走過必留下痕跡"><a href="#🛡️-凡走過必留下痕跡" class="headerlink" title="🛡️ 凡走過必留下痕跡"></a>🛡️ 凡走過必留下痕跡</h2><p>因為 Query String 是 URL 的一部分，而 URL 是網路世界的地址。只要一個系統要「找得到你、記得你、能重播請求」，<br>它就必須完整記錄整條 URL。所以留下痕跡不是 bug，而是 feature</p>
+<br>
+
+<h3 id="🔹-瀏覽器的歷程記錄"><a href="#🔹-瀏覽器的歷程記錄" class="headerlink" title="🔹 瀏覽器的歷程記錄"></a>🔹 瀏覽器的歷程記錄</h3><p>讓使用者能回到曾經拜訪的同一頁，瀏覽器把完整 URL 存起來，是為了能「重現你的行為」。因為網址不同就代表不同內容</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/querystring01.png?raw=true" alt="QueryStringHistoy01"></p>
+<br>
+
+<h3 id="🔹-書籤（Bookmark）"><a href="#🔹-書籤（Bookmark）" class="headerlink" title="🔹 書籤（Bookmark）"></a>🔹 書籤（Bookmark）</h3><p>讓頁面能被完整重訪，瀏覽器不知道哪些參數重要、哪些不重要，它只能誠實地保存整條 URL</p>
+<br>
+
+<h3 id="🔹-開發者工具（Network-tab）"><a href="#🔹-開發者工具（Network-tab）" class="headerlink" title="🔹 開發者工具（Network tab）"></a>🔹 開發者工具（Network tab）</h3><p>讓開發者能觀察完整的 HTTP 請求，對開發者工具來說，URL 是診斷的依據，所以必須顯示最原始的請求內容，包含 Query String。</p>
+<br>
+
+<h3 id="🔹-Referer-Header（引用頁面）"><a href="#🔹-Referer-Header（引用頁面）" class="headerlink" title="🔹 Referer Header（引用頁面）"></a>🔹 Referer Header（引用頁面）</h3><p>目的是讓伺服器知道「流量從哪來」，HTTP 設計 Referer，是為了幫網站分析使用者行為、做流量追蹤。所以瀏覽器在發新請求時，會把上一個 URL（含 Query）放進 Header</p>
+<p>如果在上面帶上敏感資訊，就像拜訪別人家，順手送上了你的個資當伴手禮 🎁</p>
+<br>
+
+<h3 id="🔹-Web-Server-Access-Log"><a href="#🔹-Web-Server-Access-Log" class="headerlink" title="🔹 Web Server Access Log"></a>🔹 Web Server Access Log</h3><p>目的是紀錄所有請求，方便除錯、追蹤與統計。伺服器 Log 是維運的「黑盒子」<br>它要能回答：</p>
+<ul>
+<li>哪個 URL 被訪問最多？</li>
+<li>哪裡 404？</li>
+<li>哪個 API 出錯？</li>
+</ul>
+<p>因此它必須把完整請求（包含 Query）記下來，確保「請求可追蹤」</p>
+<p>例如 IIS、Nginx、Apache 預設都會記錄完整 URL</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IIS：%SystemDrive%\inetpub\logs\LogFiles\W3SVC...</span><br><span class="line">Nginx：/var/log/nginx/access.log</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="🔹-Reverse-Proxy-與-CDN-Log"><a href="#🔹-Reverse-Proxy-與-CDN-Log" class="headerlink" title="🔹 Reverse Proxy 與 CDN Log"></a>🔹 Reverse Proxy 與 CDN Log</h3><p>目的是快取與負載分流。CDN 需要用 URL（包含 Query）來判斷「這是不是相同的請求」。</p>
+<p>例如 Cloudflare、Azure Front Door、NGINX Proxy 都會記錄完整 URL</p>
+<br>
+
+<h3 id="🔹-分析工具（Analytics）"><a href="#🔹-分析工具（Analytics）" class="headerlink" title="🔹 分析工具（Analytics）"></a>🔹 分析工具（Analytics）</h3><p>目的是追蹤使用者行為與流量來源。Google Analytics、Application Insights 等工具要知道</p>
+<ul>
+<li>使用者在哪個頁面進來</li>
+<li>哪些 Query 組合最多人使用</li>
+<li>本質是 Query String 是「行為分析的線索」。</li>
+</ul>
+<p>只是這些工具不知道哪些是「查詢條件」，哪些是「個資」</p>
+<br/>
+
+<p><font color=#D3D3D3 style="font-size: 20px;">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;一旦你在 Query String 加上姓名、Email、電話等隱私，甚至身分證號或信用卡資料，等同一次把個資灑得到處都是!<br> </font></p>
+<br/>
+
+<h2 id="🛡️-反射型-XSS（Reflected-XSS）"><a href="#🛡️-反射型-XSS（Reflected-XSS）" class="headerlink" title="🛡️ 反射型 XSS（Reflected XSS）"></a>🛡️ 反射型 XSS（Reflected XSS）</h2><p>當網站直接把 URL 參數（Query String）原樣插進網頁內容（例如直接 innerHTML、或在 server side 用 Html.Raw 輸出），就會產生 反射型 XSS（Reflected XSS） 或內容被竄改的風險。攻擊者只要誘導使用者點擊特製 URL，就能在被害者的瀏覽器上執行惡意 JavaScript、顯示詐騙訊息或盜用 session。</p>
+<br>
+
+<p>把不受信任的輸入當作 HTML 或 JavaScript 輸出，瀏覽器會解析並執行它。就是把使用者的字串交給瀏覽器當成「程式碼」而非「單純文字」</p>
+<p>innerHTML 會把字串解析成 DOM，若字串內含 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt; 、 onclick 、 &lt;img src=x onerror=...&gt;</span><br></pre></td></tr></table></figure>
+<p>就會被執行或觸發</p>
+<p>HTML 如下</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 不安全：直接把 query string 放到 innerHTML --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;msg&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">const</span> params = <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(location.<span class="property">search</span>);</span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">const</span> raw = params.<span class="title function_">get</span>(<span class="string">&#x27;msg&#x27;</span>) || <span class="string">&#x27;&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">  <span class="comment">// 危險做法：把外來字串交給 innerHTML，會被當成 HTML/JS 解析</span></span></span><br><span class="line"><span class="language-javascript">  <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;msg&#x27;</span>).<span class="property">innerHTML</span> = raw;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="🔹-localStorage"><a href="#🔹-localStorage" class="headerlink" title="🔹 localStorage"></a>🔹 localStorage</h3><p>當攻擊者能在你頁面執行任意 JavaScript（反射型&#x2F;儲存型&#x2F;DOM-based XSS），也就能直接讀 localStorage&#x2F;sessionStorage &#x2F; IndexedDB 中的任何資料，然後用 fetch &#x2F; Image &#x2F; navigator.sendBeacon 等方式把資料傳到攻擊者服務器。 JS 在同一 origin 可以自由存取這些儲存，攻擊者插入的 JS 也是同源腳本，於是可讀可寫，真是可喜克賀呢! 另外某些 extension 有權限讀取頁面內容或注入腳本，它們可以擷取儲存在前端的敏感資料，又或者第三方 script 被劫持都可能造成這些資料被竊取</p>
+<br>
+<br>
+
+<h2 id="🛡️-執行任意-JavaScript（竊取-cookie、token、或做-CSRF-之類的操作）"><a href="#🛡️-執行任意-JavaScript（竊取-cookie、token、或做-CSRF-之類的操作）" class="headerlink" title="🛡️ 執行任意 JavaScript（竊取 cookie、token、或做 CSRF 之類的操作）"></a>🛡️ 執行任意 JavaScript（竊取 cookie、token、或做 CSRF 之類的操作）</h2><ul>
+<li>網頁把未處理的參數直接輸出成可被執行的內容</li>
+<li>攻擊者發現可插入位置後，設計一段能在受害者瀏覽器上執行的腳本（例如用來取得某些頁面可見的資料或發送某些請求到攻擊者可控的端點）</li>
+<li>受害者點擊誘導連結後，腳本在他&#x2F;她的瀏覽器上執行，將敏感資訊送出（exfiltrate）</li>
+</ul>
+<br>
+<br>
+
+<h2 id="🛡️-設-HttpOnly-cookie"><a href="#🛡️-設-HttpOnly-cookie" class="headerlink" title="🛡️ 設 HttpOnly cookie"></a>🛡️ 設 HttpOnly cookie</h2><p>HttpOnly cookie 是設了 HttpOnly flag 的 cookie。瀏覽器會在每次對該 cookie 對應的 domain&#x2F;path 發出 HTTP 請求時，自動把 cookie 放入 Cookie header，但 JavaScript（document.cookie）無法讀取或寫入這個 cookie。</p>
+<p>目的是阻止前端腳本（包括被注入的 XSS 腳本）直接讀取或竄改敏感 cookie（例如 session id），降低 XSS 導致 cookie 被竊取（steal）的風險。</p>
+<ul>
+<li>CSP 限制 script-src 並禁止 unsafe-inline</li>
+<li>輸出編碼與 sanitize 確保攻擊腳本無法注入</li>
+<li>若偵測到可疑請求（大量參數包含可疑符號），透過 WAF&#x2F;封鎖</li>
+</ul>
+<br>
+<br>
+
+<h2 id="🛡️-將誘導性-UI（假登入、假付款提示）注入頁面以詐騙使用者"><a href="#🛡️-將誘導性-UI（假登入、假付款提示）注入頁面以詐騙使用者" class="headerlink" title="🛡️ 將誘導性 UI（假登入、假付款提示）注入頁面以詐騙使用者"></a>🛡️ 將誘導性 UI（假登入、假付款提示）注入頁面以詐騙使用者</h2><ul>
+<li>攻擊者把 HTML 或可視內容插入頁面，讓頁面顯示假的登入框或付款對話框</li>
+<li>使用者看到看似正常的界面輸入敏感資料（帳號&#x2F;密碼、卡訊息）</li>
+<li>攻擊者取得輸入的資料或引導到釣魚站</li>
+</ul>
+<p>✅ 作法</p>
+<ul>
+<li>頁面不要把外來字串解析成 HTML（除非經白名單 sanitize）</li>
+<li>對敏感操作使用二次驗證（OTP &#x2F; reAuth）而非僅靠 UI 表單</li>
+<li>UI 的關鍵流程（例如付款）使用 server 端生成的不可偽造 token 與後端驗證</li>
+</ul>
+<br>
+<br>
+
+<h3 id="🔹-將連結導到釣魚或惡意站點"><a href="#🔹-將連結導到釣魚或惡意站點" class="headerlink" title="🔹 將連結導到釣魚或惡意站點"></a>🔹 將連結導到釣魚或惡意站點</h3><ul>
+<li>攻擊者把目標 URL 或連結插入頁面內容或生成跳轉</li>
+<li>使用者在頁面上點選或被自動導向到惡意站點</li>
+<li>使用者被釣魚或下載惡意程式</li>
+</ul>
+<p>✅ 作法</p>
+<ul>
+<li>防止回傳未經驗證的 redirect URL（使用白名單或比對 domain）</li>
+<li>對任何會導向外部站點的參數做驗證或用跳轉頁提示（「你將離開本站，前往 example.com」）</li>
+</ul>
+<br/>
+
+<p><font color=#D3D3D3 style="font-size: 20px;">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;「不當的輸入處理 + 可被使用者見到的輸出位置」是關鍵風險點!!!!<br> </font></p>
+<br/>
+<br>
+
+<h2 id="🛡️-消毒或編碼要怎麼做"><a href="#🛡️-消毒或編碼要怎麼做" class="headerlink" title="🛡️ 消毒或編碼要怎麼做 ?"></a>🛡️ 消毒或編碼要怎麼做 ?</h2><h3 id="🔹-前端"><a href="#🔹-前端" class="headerlink" title="🔹 前端"></a>🔹 前端</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;msg&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">const</span> params = <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(location.<span class="property">search</span>);</span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">const</span> raw = params.<span class="title function_">get</span>(<span class="string">&#x27;msg&#x27;</span>) || <span class="string">&#x27;&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">  <span class="comment">// 安全：textContent 會把字串視為純文字，自動 escape</span></span></span><br><span class="line"><span class="language-javascript">  <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;msg&#x27;</span>).<span class="property">textContent</span> = raw;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="🔹-允許部份-HTML（例如使用者可放粗體），先-sanitize"><a href="#🔹-允許部份-HTML（例如使用者可放粗體），先-sanitize" class="headerlink" title="🔹 允許部份 HTML（例如使用者可放粗體），先 sanitize"></a>🔹 允許部份 HTML（例如使用者可放粗體），先 sanitize</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 使用受信賴的 sanitize lib (DOMPurify) --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;https://unpkg.com/dompurify@latest/dist/purify.min.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">const</span> raw = <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(location.<span class="property">search</span>).<span class="title function_">get</span>(<span class="string">&#x27;msg&#x27;</span>) || <span class="string">&#x27;&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">const</span> clean = <span class="title class_">DOMPurify</span>.<span class="title function_">sanitize</span>(raw, &#123;<span class="attr">ALLOWED_TAGS</span>: [<span class="string">&#x27;b&#x27;</span>,<span class="string">&#x27;i&#x27;</span>,<span class="string">&#x27;strong&#x27;</span>,<span class="string">&#x27;em&#x27;</span>]&#125;);</span></span><br><span class="line"><span class="language-javascript">  <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;content&#x27;</span>).<span class="property">innerHTML</span> = clean; <span class="comment">// innerHTML 接受的是已清理過的內容</span></span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="🔹-Razor"><a href="#🔹-Razor" class="headerlink" title="🔹 Razor"></a>🔹 Razor</h3><p>預設會 encode，直接用 @Model.Field，不要用 Html.Raw</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System.Text.Encodings.Web;</span><br><span class="line"><span class="keyword">var</span> safe = HtmlEncoder.Default.Encode(untrustedInput);</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="🛡️-Query-String-傳送-Token"><a href="#🛡️-Query-String-傳送-Token" class="headerlink" title="🛡️ Query String 傳送 Token"></a>🛡️ Query String 傳送 Token</h2><p>把敏感資訊存在伺服器（Memory &#x2F; Redis &#x2F; DB），產生一個隨機 Token（例如 GUID 或更安全的隨機字串）對應到該資料，將 Token 放在 Query String，前端新頁面再用這個 Token 向伺服器請求資料並顯示。Token 不含敏感內容，且應有短時效、綁定與可撤銷性，降低被竊用的風險</p>
+<p>Token 只是指標，不是資料本身：即使 Token 被記錄，攻擊的損害也受限，因為伺服器可以</p>
+<ul>
+<li>設短期過期（TTL）</li>
+<li>設單次使用或綁定使用者（session &#x2F; user id &#x2F; IP &#x2F; UA）</li>
+<li>隨時撤銷或清掉對應資料</li>
+</ul>
+<br>
+
+<h3 id="🔹-Token-設計"><a href="#🔹-Token-設計" class="headerlink" title="🔹 Token 設計"></a>🔹 Token 設計</h3><ul>
+<li>Token 必須 不可猜測（GUID 可用，但最好使用加密強隨機字串）。</li>
+<li>Token 要有 TTL（過期時間）。</li>
+<li>資料儲存位置：Memory Cache（單機）、Redis（分散式）、DB（持久）。選哪個看需求<ul>
+<li>臨時、短期、單機測試 → IMemoryCache（ASP.NET Core）</li>
+<li>分散式或多實例 → Redis（推薦）</li>
+<li>要長期保存或審計 → 資料庫（搭配 TTL 欄位）</li>
+</ul>
+</li>
+<li>綁定（Binding）：若資料與 user 有關，將 token 與 userId &#x2F; sessionId 綁定。</li>
+<li>支援 單次使用（one-time use） 或限制讀取次數。</li>
+<li>日誌遮罩：不要把資料本體寫入 logs；只記 token、userId、操作事件。</li>
+<li>刪除&#x2F;過期回收：定期清理過期 token（Redis 自帶 TTL）。</li>
+<li>速率限制與 WAF：避免 token 暴力猜測或濫用。</li>
+<li>CSP &#x2F; HttpOnly &#x2F; SameSite：配合其他安全控制</li>
+</ul>
+<br>
+
+<h3 id="🔹-SameSite"><a href="#🔹-SameSite" class="headerlink" title="🔹 SameSite"></a>🔹 SameSite</h3><p>SameSite 是伺服器端在「Set-Cookie」回應裡設定的屬性，瀏覽器根據這個屬性在後續請求時自行判斷「要不要送出 cookie」。前端（JavaScript）不能直接設定或修改 SameSite 屬性。</p>
+<p>當使用者在網站 A 的頁面上點了一個連到網站 B 的連結、或在網站 A 的 iframe 裡載了網站 B，或由其他網站發起對 B 的請求——這些情境就是跨站。瀏覽器會在某些情況送出或不送 cookie，取決於 cookie 的 SameSite 屬性。</p>
+<p>SameSite&#x3D;Strict 最嚴格，只有在「同站（same-site）導航」時才會送出 cookie; SameSite&#x3D;Lax（瀏覽器預設，適中）<br>在大多數「安全的頂層導覽」會帶 cookie（例如 GET 導航點擊），但在跨站 POST 或子資源請求（iframe、AJAX）不帶 cookie; SameSite&#x3D;None; Secure，表示允許跨站情境下也送 cookie（例如第三方嵌入需要 cookie），但必須同時設 Secure（HTTPS），只有在你确实需要跨站 cookie（例如第三方登入、跨域 SSO）時使用。</p>
+<br>
+
+<h3 id="🔹-以金流為例"><a href="#🔹-以金流為例" class="headerlink" title="🔹 以金流為例"></a>🔹 以金流為例</h3><p>最好的作法是，讓 Payment Provider 做 Client-side Tokenization（Hosted Fields &#x2F; Elements &#x2F; Iframe），卡號&#x2F;CVV 永不經過後端；前端 Hosted iframe 直接送到支付商，回傳不可逆 token（paymentMethodId），後端只是帶著這個 token 去扣款，這樣可以降低 PCI 範圍、讓支付廠商負責安全細節</p>
+<p><strong>PCI 範圍 PCI Scope</strong></p>
+<p>這包含</p>
+<ul>
+<li>主卡號（PAN, Primary Account Number）</li>
+<li>卡片有效期（Expiry Date）</li>
+<li>持卡人姓名（Cardholder Name）</li>
+<li>CVV &#x2F; CVC 安全碼（Card Verification Value）</li>
+</ul>
+<p>👉 只要系統的任何一環 「看過這些資料」，那個環節就要遵守 PCI 的安全要求，而這個範圍就叫做 PCI Scope，讓越少的系統「碰到卡資料」越好!</p>
+<br>
+<br>
+
+<h2 id="🛡️-參考文章"><a href="#🛡️-參考文章" class="headerlink" title="🛡️ 參考文章"></a>🛡️ 參考文章</h2><a class="btn-beautify " target="_blank" rel="noopener" href="https://blog.darkthread.net/blog/dont-pass-data-in-querystring/" 
+  title="資安小常識 - 為什麼不建議在網址用 QueryString (?a=...) 傳資料？"><i class="far fa-hand-point-right"></i><span>資安小常識 - 為什麼不建議在網址用 QueryString (?a=...) 傳資料？</span></a></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/05/Security-QueryString/">https://allenlin000.github.io.git/2025/10/05/Security-QueryString/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%92%BC%E3%81%8D%E7%9B%BE/">蒼き盾</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/04/NEW-SQL-Performance-1/" title="SQL_Performance"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">SQL_Performance</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/05/Security-XSS/" title="Security - QueryString"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Security - QueryString</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/10/05/Security-OWASP/" title="Security - QueryString"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-05</div><div class="title">Security - QueryString</div></div></a></div><div><a href="/2025/10/05/Security-XSS/" title="Security - QueryString"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-05</div><div class="title">Security - QueryString</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">63</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">14</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1%EF%B8%8F-%E5%87%A1%E8%B5%B0%E9%81%8E%E5%BF%85%E7%95%99%E4%B8%8B%E7%97%95%E8%B7%A1"><span class="toc-number">1.</span> <span class="toc-text">🛡️ 凡走過必留下痕跡</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E7%80%8F%E8%A6%BD%E5%99%A8%E7%9A%84%E6%AD%B7%E7%A8%8B%E8%A8%98%E9%8C%84"><span class="toc-number">1.1.</span> <span class="toc-text">🔹 瀏覽器的歷程記錄</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E6%9B%B8%E7%B1%A4%EF%BC%88Bookmark%EF%BC%89"><span class="toc-number">1.2.</span> <span class="toc-text">🔹 書籤（Bookmark）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E9%96%8B%E7%99%BC%E8%80%85%E5%B7%A5%E5%85%B7%EF%BC%88Network-tab%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">🔹 開發者工具（Network tab）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-Referer-Header%EF%BC%88%E5%BC%95%E7%94%A8%E9%A0%81%E9%9D%A2%EF%BC%89"><span class="toc-number">1.4.</span> <span class="toc-text">🔹 Referer Header（引用頁面）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-Web-Server-Access-Log"><span class="toc-number">1.5.</span> <span class="toc-text">🔹 Web Server Access Log</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-Reverse-Proxy-%E8%88%87-CDN-Log"><span class="toc-number">1.6.</span> <span class="toc-text">🔹 Reverse Proxy 與 CDN Log</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%EF%BC%88Analytics%EF%BC%89"><span class="toc-number">1.7.</span> <span class="toc-text">🔹 分析工具（Analytics）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1%EF%B8%8F-%E5%8F%8D%E5%B0%84%E5%9E%8B-XSS%EF%BC%88Reflected-XSS%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">🛡️ 反射型 XSS（Reflected XSS）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-localStorage"><span class="toc-number">2.1.</span> <span class="toc-text">🔹 localStorage</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1%EF%B8%8F-%E5%9F%B7%E8%A1%8C%E4%BB%BB%E6%84%8F-JavaScript%EF%BC%88%E7%AB%8A%E5%8F%96-cookie%E3%80%81token%E3%80%81%E6%88%96%E5%81%9A-CSRF-%E4%B9%8B%E9%A1%9E%E7%9A%84%E6%93%8D%E4%BD%9C%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">🛡️ 執行任意 JavaScript（竊取 cookie、token、或做 CSRF 之類的操作）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1%EF%B8%8F-%E8%A8%AD-HttpOnly-cookie"><span class="toc-number">4.</span> <span class="toc-text">🛡️ 設 HttpOnly cookie</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1%EF%B8%8F-%E5%B0%87%E8%AA%98%E5%B0%8E%E6%80%A7-UI%EF%BC%88%E5%81%87%E7%99%BB%E5%85%A5%E3%80%81%E5%81%87%E4%BB%98%E6%AC%BE%E6%8F%90%E7%A4%BA%EF%BC%89%E6%B3%A8%E5%85%A5%E9%A0%81%E9%9D%A2%E4%BB%A5%E8%A9%90%E9%A8%99%E4%BD%BF%E7%94%A8%E8%80%85"><span class="toc-number">5.</span> <span class="toc-text">🛡️ 將誘導性 UI（假登入、假付款提示）注入頁面以詐騙使用者</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%B0%87%E9%80%A3%E7%B5%90%E5%B0%8E%E5%88%B0%E9%87%A3%E9%AD%9A%E6%88%96%E6%83%A1%E6%84%8F%E7%AB%99%E9%BB%9E"><span class="toc-number">5.1.</span> <span class="toc-text">🔹 將連結導到釣魚或惡意站點</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1%EF%B8%8F-%E6%B6%88%E6%AF%92%E6%88%96%E7%B7%A8%E7%A2%BC%E8%A6%81%E6%80%8E%E9%BA%BC%E5%81%9A"><span class="toc-number">6.</span> <span class="toc-text">🛡️ 消毒或編碼要怎麼做 ?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%89%8D%E7%AB%AF"><span class="toc-number">6.1.</span> <span class="toc-text">🔹 前端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%85%81%E8%A8%B1%E9%83%A8%E4%BB%BD-HTML%EF%BC%88%E4%BE%8B%E5%A6%82%E4%BD%BF%E7%94%A8%E8%80%85%E5%8F%AF%E6%94%BE%E7%B2%97%E9%AB%94%EF%BC%89%EF%BC%8C%E5%85%88-sanitize"><span class="toc-number">6.2.</span> <span class="toc-text">🔹 允許部份 HTML（例如使用者可放粗體），先 sanitize</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-Razor"><span class="toc-number">6.3.</span> <span class="toc-text">🔹 Razor</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1%EF%B8%8F-Query-String-%E5%82%B3%E9%80%81-Token"><span class="toc-number">7.</span> <span class="toc-text">🛡️ Query String 傳送 Token</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-Token-%E8%A8%AD%E8%A8%88"><span class="toc-number">7.1.</span> <span class="toc-text">🔹 Token 設計</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-SameSite"><span class="toc-number">7.2.</span> <span class="toc-text">🔹 SameSite</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E4%BB%A5%E9%87%91%E6%B5%81%E7%82%BA%E4%BE%8B"><span class="toc-number">7.3.</span> <span class="toc-text">🔹 以金流為例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1%EF%B8%8F-%E5%8F%83%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">8.</span> <span class="toc-text">🛡️ 參考文章</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/Security-OWASP/" title="Security - QueryString"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Security - QueryString"/></a><div class="content"><a class="title" href="/2025/10/05/Security-OWASP/" title="Security - QueryString">Security - QueryString</a><time datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/Security-XSS/" title="Security - QueryString"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Security - QueryString"/></a><div class="content"><a class="title" href="/2025/10/05/Security-XSS/" title="Security - QueryString">Security - QueryString</a><time datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/Security-QueryString/" title="Security - QueryString"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Security - QueryString"/></a><div class="content"><a class="title" href="/2025/10/05/Security-QueryString/" title="Security - QueryString">Security - QueryString</a><time datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/04/NEW-SQL-Performance-1/" title="SQL_Performance"><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQL_Performance"/></a><div class="content"><a class="title" href="/2025/10/04/NEW-SQL-Performance-1/" title="SQL_Performance">SQL_Performance</a><time datetime="2025-10-04T10:25:05.000Z" title="Created 2025-10-04 18:25:05">2025-10-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/26/EFCORE-EF-%E7%8B%80%E6%85%8B%E7%AE%A1%E7%90%86/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/09/26/EFCORE-EF-%E7%8B%80%E6%85%8B%E7%AE%A1%E7%90%86/" title="Untitled">Untitled</a><time datetime="2025-09-26T13:18:56.784Z" title="Created 2025-09-26 21:18:56">2025-09-26</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
