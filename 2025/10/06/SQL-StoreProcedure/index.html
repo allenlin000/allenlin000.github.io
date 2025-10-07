@@ -1,0 +1,301 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>SQL - Store Procedure | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Stored Procedure 想成是「寫在資料庫裡的一段可重複執行的小程式」。這段程式不是寫在應用程式（例如 C#、.NET）裡，而是直接存放在資料庫伺服器上（像是 SQL Server、MySQL、PostgreSQL）。 當外部程式呼叫它時，不是把整批資料拉出來再運算，而是讓資料庫自己先「在內部」完成邏輯、篩選、彙整等運算，然後只把結果回傳。 JOIN拿到左邊有右邊沒有的 1234">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL - Store Procedure">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/06/SQL-StoreProcedure/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="Stored Procedure 想成是「寫在資料庫裡的一段可重複執行的小程式」。這段程式不是寫在應用程式（例如 C#、.NET）裡，而是直接存放在資料庫伺服器上（像是 SQL Server、MySQL、PostgreSQL）。 當外部程式呼叫它時，不是把整批資料拉出來再運算，而是讓資料庫自己先「在內部」完成邏輯、篩選、彙整等運算，然後只把結果回傳。 JOIN拿到左邊有右邊沒有的 1234">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/NfCnwwU.png">
+<meta property="article:published_time" content="2025-10-06T14:52:05.000Z">
+<meta property="article:modified_time" content="2025-10-07T01:04:51.931Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/NfCnwwU.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/06/SQL-StoreProcedure/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'SQL - Store Procedure',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-10-07 09:04:51'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">64</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">15</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/NfCnwwU.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">SQL - Store Procedure</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-06T14:52:05.000Z" title="Created 2025-10-06 22:52:05">2025-10-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-10-07T01:04:51.931Z" title="Updated 2025-10-07 09:04:51">2025-10-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/SQL-%E8%81%B7%E5%A0%B4%E6%AD%B7%E9%9A%AA%E8%A8%98/">SQL 職場歷險記</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="SQL - Store Procedure"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://i.imgur.com/NfCnwwU.png" alt="ocean"></p>
+<br>
+
+
+<p>Stored Procedure 想成是「寫在資料庫裡的一段可重複執行的小程式」。<br>這段程式不是寫在應用程式（例如 C#、.NET）裡，而是直接存放在資料庫伺服器上（像是 SQL Server、MySQL、PostgreSQL）。</p>
+<p>當外部程式呼叫它時，不是把整批資料拉出來再運算，<br>而是讓資料庫自己先「在內部」完成邏輯、篩選、彙整等運算，然後只把結果回傳。</p>
+<h2 id="JOIN"><a href="#JOIN" class="headerlink" title="JOIN"></a>JOIN</h2><p>拿到左邊有右邊沒有的</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> [ID],[Name]</span><br><span class="line"><span class="keyword">INTO</span> #temptable</span><br><span class="line"><span class="keyword">FROM</span> [MyTable1]</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> [MyTable1] <span class="keyword">ON</span> [MyTable1].[ID] <span class="operator">=</span> [MyTable2].[ID]</span><br><span class="line"><span class="keyword">WHERE</span> [MyTable2].[ID] <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="TempTable"><a href="#TempTable" class="headerlink" title="TempTable"></a>TempTable</h2><p>有個方法可以快速複製下資料的表格<br>SELECT TOP 0 * INTO #temp FROM TestTable  ß複製Table的結構至#temp</p>
+<p>三者底層都會用到 tempdb；實際是在記憶體與磁碟間由 SQL Server 自動管理（Buffer Pool，溢出才寫盤）。</p>
+<h2 id="temp（Local-Temporary-Table）"><a href="#temp（Local-Temporary-Table）" class="headerlink" title="#temp（Local Temporary Table）"></a>#temp（Local Temporary Table）</h2><p>只在「當前連線 Session」裡看得到；存在於 tempdb；Session 結束會自動刪除，也可手動 DROP TABLE。可被同一連線下游呼叫的 Stored Procedure 使用</p>
+<p>可建立索引(index)，當SQL Server關閉時，#Table會自動DROP，但最好自己手動DROP。</p>
+<p>#Table只有建立者可以使用，其他人不可使用(其他資料庫)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> #TEMP(</span><br><span class="line">  NAME <span class="type">CHAR</span>(<span class="number">20</span>),</span><br><span class="line">  ID   <span class="type">CHAR</span>(<span class="number">10</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>單一請求內多步驟計算（報表&#x2F;彙整最佳）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Step 1: 篩出候選訂單</span></span><br><span class="line"><span class="keyword">SELECT</span> o.OrderId, o.CustomerId, o.TotalAmount</span><br><span class="line"><span class="keyword">INTO</span> #OrdersToBill</span><br><span class="line"><span class="keyword">FROM</span> dbo.Orders o</span><br><span class="line"><span class="keyword">WHERE</span> o.Status <span class="operator">=</span> <span class="string">&#x27;ReadyToBill&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- Step 2: 跟促銷規則做 Join 後彙整</span></span><br><span class="line"><span class="keyword">SELECT</span> ob.CustomerId, <span class="built_in">SUM</span>(ob.TotalAmount <span class="operator">*</span> p.DiscountRate) <span class="keyword">AS</span> DiscountTotal</span><br><span class="line"><span class="keyword">INTO</span> #CustomerDiscount</span><br><span class="line"><span class="keyword">FROM</span> #OrdersToBill ob</span><br><span class="line"><span class="keyword">JOIN</span> dbo.Promotions p <span class="keyword">ON</span> p.RuleId <span class="operator">=</span> ob.PromoRuleId</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> ob.CustomerId;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- Step 3: 輸出結果</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> #CustomerDiscount;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 用完可手動清理（選擇性）</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> #CustomerDiscount, #OrdersToBill;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可能有上萬筆資料，需要 Join&#x2F;Group By；#temp 有 Statistics，優化器比較會選對 Index&#x2F;Join 策略。</li>
+<li>整個流程只在單一 Session內完成，結束就清掉。</li>
+</ul>
+<h2 id="temp（Global-Temporary-Table）"><a href="#temp（Global-Temporary-Table）" class="headerlink" title="##temp（Global Temporary Table）"></a>##temp（Global Temporary Table）</h2><p>在「同一個 SQL Server 實例」中所有連線都可見（跨資料庫可用，但不能跨伺服器）；存在 tempdb；當建立它的那個 Session 結束且沒有其他 Session 使用時，才會被刪除</p>
+<p>##Table則是全域的資料表，所有人均可取用(其他資料庫也可使用)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ##TEMP(</span><br><span class="line">  NAME <span class="type">CHAR</span>(<span class="number">20</span>),</span><br><span class="line">  ID   <span class="type">CHAR</span>(<span class="number">10</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>跨工作階段共享（慎用）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Session A：產出結果，給其他工作讀</span></span><br><span class="line"><span class="keyword">SELECT</span> OrderId, ShipDate</span><br><span class="line"><span class="keyword">INTO</span> ##ShippingToday_20251006_0D6F</span><br><span class="line"><span class="keyword">FROM</span> dbo.Shipments</span><br><span class="line"><span class="keyword">WHERE</span> <span class="built_in">CAST</span>(ShipDate <span class="keyword">AS</span> <span class="type">date</span>) <span class="operator">=</span> <span class="string">&#x27;2025-10-06&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- Session B（甚至是批次排程、另一個 DBA 的 SSMS）：可讀取</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> ##ShippingToday_20251006_0D6F;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 當 A 結束且 B 不再使用，這張表就會被清掉</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>名稱務必唯一（加日期與隨機碼），避免彼此覆蓋</li>
+<li>要有清理機制（或控制生命週期），不然容易造成資料錯讀或安全風險</li>
+</ul>
+<h2 id="t（Table-Variable）"><a href="#t（Table-Variable）" class="headerlink" title="@t（Table Variable）"></a>@t（Table Variable）</h2><p>是變數，用 DECLARE @t TABLE(…) 宣告；作用域只限於目前的 Batch&#x2F;Stored Procedure&#x2F;Function；生命週期到該作用域結束即自動回收；底層也會用到 tempdb（不是純記憶體），小量資料多半在記憶體中，量大一樣可能寫到磁碟。</p>
+<p>小型清單、快速過濾、參數化傳遞</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DECLARE</span> <span class="variable">@TEMP</span> <span class="keyword">TABLE</span> (</span><br><span class="line">  NAME <span class="type">CHAR</span>(<span class="number">20</span>),</span><br><span class="line">  ID   <span class="type">CHAR</span>(<span class="number">10</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DECLARE</span> <span class="variable">@SkuIds</span> <span class="keyword">TABLE</span> (SkuId <span class="type">INT</span> <span class="keyword">PRIMARY</span> KEY);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="variable">@SkuIds</span> <span class="keyword">VALUES</span> (<span class="number">101</span>),(<span class="number">102</span>),(<span class="number">103</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> s.SkuId, s.StockQty</span><br><span class="line"><span class="keyword">FROM</span> dbo.Stock s</span><br><span class="line"><span class="keyword">JOIN</span> <span class="variable">@SkuIds</span> i <span class="keyword">ON</span> i.SkuId <span class="operator">=</span> s.SkuId;</span><br></pre></td></tr></table></figure>
+
+
+<p>只是幾十到幾百筆的小清單，語意像參數；作用域自然結束就回收，不用 DROP<br>若變大且邏輯複雜，建議改 #temp 讓優化器有更好的統計<br>進階：從 .NET 傳大清單可用 Table-Valued Parameter (TVP)，在 SQL 端再配合 #temp 做複雜處理，是電商常見高效組合</p>
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><p>INSERT INTO #TEMP VALUES(‘TOM’,’A123456789’)<br>INSERT INTO ##TEMP VALUES(‘ARIC’,’G123212343’)<br>INSERT INTO @TEMP  VALUES (‘BILL’,’M123465324’)</p>
+<h3 id="-1"><a href="#-1" class="headerlink" title=""></a></h3><p>秒殺&#x2F;限時搶購（Flash Sale）名單過濾</p>
+<p>從應用程式傳入少量候選 SkuId（@table 或 TVP）；</p>
+<p>用 @table 快速 Join 庫存、價格做即時校驗。</p>
+<p>若後續要做多步驟彙整（如店別&#x2F;倉別拆解），將資料轉到 #temp 再分步處理。</p>
+<p>訂單批次結帳（Batch Billing）</p>
+<p>先把待結帳訂單挑到 #temp，按會員等級&#x2F;促銷規則 Join &amp; Group；</p>
+<p>有統計支援的 #temp 能讓彙整與 Join 更穩、避免錯誤估算。</p>
+<p>跨系統資料對帳（差集比對）</p>
+<p>把 ERP 導出的發貨清單載入 #temp，跟自家 Shipments 比對，<br>用 LEFT JOIN + IS NULL 找「平台有但 ERP 沒有」或反向找「ERP 有但平台沒有」。</p>
+<p>若要讓其他排程或人工查詢共享結果，短時間內可以用 ##temp（務必加唯一名稱與時間窗）。</p>
+<p>黑名單&#x2F;白名單過濾（小清單高頻查）</p>
+<p>例如一批可用的 CouponCode 或風控黑名單使用者 ID（數十～數百筆），</p>
+<p>用 @table 傳入當次要檢核的清單，作用域結束自動回收，簡單乾淨。</p>
+<p>商品搜尋暫存排序（複雜 Ranking）</p>
+<p>根據瀏覽、成交、庫存周轉等指標計分，多步驟打分與排序，</p>
+<p>全流程用 #temp 分階段存放中間結果（可建立索引&#x2F;統計），最後回傳前 N 筆。</p>
+<p>作用域、生命週期、可見性與可被最佳化的程度。</p>
+<p>選擇原則：</p>
+<p>小清單、一次性過濾 → @table。</p>
+<p>大資料、多步驟、需要好計畫 → #temp。</p>
+<p>必要且短暫的跨 Session 共用 → ##temp（設計好命名與清理機制）。</p>
+<h2 id="呼叫-sp"><a href="#呼叫-sp" class="headerlink" title="呼叫 sp"></a>呼叫 sp</h2><p>exec dbo.SearchHtml @SearchString &#x3D;’%關鍵字%’,@Category &#x3D; 2</p>
+<h2 id="建立-sp"><a href="#建立-sp" class="headerlink" title="建立 sp"></a>建立 sp</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> 預存程序名稱</span><br><span class="line">	<span class="comment">-- 可以傳入的變數定義寫在這裡</span></span><br><span class="line">	<span class="variable">@SearchString</span> nvarchar(MAX)</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">	<span class="comment">-- SET NOCOUNT ON added to prevent extra result sets from</span></span><br><span class="line">	<span class="comment">-- interfering with SELECT statements.</span></span><br><span class="line">	<span class="keyword">SET</span> NOCOUNT <span class="keyword">ON</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="keyword">table</span></span><br><span class="line"><span class="keyword">END</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="DECLARE"><a href="#DECLARE" class="headerlink" title="DECLARE"></a>DECLARE</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DECLARE</span> <span class="variable">@UserName</span> <span class="type">VARCHAR</span>(<span class="number">30</span>); <span class="comment">--宣告變數名稱UserName，型態為字串，長度30</span></span><br><span class="line"><span class="keyword">DECLARE</span> <span class="variable">@SqlVariable</span> <span class="type">decimal</span>(<span class="number">5</span>,<span class="number">2</span>); <span class="comment">--總長度5位數，小數點以後佔2位，如123.45</span></span><br><span class="line"><span class="keyword">DECLARE</span> <span class="variable">@SqlVariable</span> UNIQUEIDENTIFIER; </span><br></pre></td></tr></table></figure>
+
+<p>UNIQUEIDENTIFIER 就是C#的 GUID，格式會是這樣 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx ，其中每一個 x 是範圍 0-9 或 a-f 的十六進位數字。 例如，6F9619FF-8B86-D011-B42D-00C04FC964FF。</p>
+<h2 id="if-else-動態組成-SQL-查詢指令"><a href="#if-else-動態組成-SQL-查詢指令" class="headerlink" title="if else 動態組成 SQL 查詢指令"></a>if else 動態組成 SQL 查詢指令</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> dbo.QueryProduct</span><br><span class="line"> (</span><br><span class="line">  <span class="variable">@ProductID</span> <span class="type">smallint</span></span><br><span class="line"> )</span><br><span class="line"> <span class="keyword">AS</span></span><br><span class="line"> <span class="comment">--設定三組sql變數</span></span><br><span class="line"> <span class="keyword">DECLARE</span> <span class="variable">@statement</span> nvarchar(<span class="number">256</span>)</span><br><span class="line"> <span class="keyword">DECLARE</span> <span class="variable">@orderby</span> nvarchar(<span class="number">40</span>)</span><br><span class="line"> <span class="keyword">DECLARE</span> <span class="variable">@where</span> nvarchar(<span class="number">256</span>)</span><br><span class="line"> </span><br><span class="line"> <span class="comment">--給予變數初始值</span></span><br><span class="line"> <span class="keyword">SET</span> <span class="variable">@statement</span> <span class="operator">=</span> <span class="string">&#x27;SELECT [ProductID] FROM Table&#x27;</span></span><br><span class="line"> <span class="keyword">SET</span> <span class="variable">@orderby</span> <span class="operator">=</span> <span class="string">&#x27; ORDER BY [ProductID] &#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*------- WHERE 的 if 範例 -------------- */</span></span><br><span class="line">IF (<span class="variable">@ProductID</span> <span class="keyword">IS</span> <span class="keyword">NULL</span>)</span><br><span class="line">  <span class="keyword">BEGIN</span></span><br><span class="line">   <span class="keyword">SET</span> <span class="variable">@where</span> <span class="operator">=</span> <span class="string">&#x27; WHERE 1 = 1 &#x27;</span></span><br><span class="line">  <span class="keyword">END</span></span><br><span class="line"> <span class="keyword">ELSE</span></span><br><span class="line">  <span class="keyword">BEGIN</span></span><br><span class="line">   <span class="comment">--如果資料庫的ProductID是int的話就不用在這邊使用CAST轉型了</span></span><br><span class="line">   <span class="keyword">SET</span> <span class="variable">@where</span> <span class="operator">=</span> <span class="string">&#x27; WHERE [ProductID] = &#x27;</span> <span class="operator">+</span> <span class="built_in">CAST</span>(<span class="variable">@ProductID</span> <span class="keyword">AS</span> <span class="type">varchar</span>) </span><br><span class="line">  </span><br><span class="line">  <span class="keyword">END</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 組合字串</span></span><br><span class="line"><span class="keyword">SET</span> <span class="variable">@statement</span> <span class="operator">=</span> <span class="variable">@statement</span> <span class="operator">+</span> <span class="variable">@where</span> <span class="operator">+</span> <span class="variable">@orderby</span></span><br><span class="line"> </span><br><span class="line"> PRINT <span class="string">&#x27;STATEMENT: &#x27;</span> <span class="operator">+</span> <span class="variable">@statement</span></span><br><span class="line"> <span class="keyword">EXEC</span> sp_executesql <span class="variable">@statement</span></span><br><span class="line"></span><br><span class="line"> <span class="keyword">RETURN</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="char-varchar-nchar-nvarchar"><a href="#char-varchar-nchar-nvarchar" class="headerlink" title="char varchar nchar nvarchar"></a>char varchar nchar nvarchar</h2><p>定長(沒有var):文字的長度固定，當輸入的數據長度沒有達到指定的長度時將自動以英文空格在其後面填充，讓長度達到相對應的長度。</p>
+<p>變長(有var):表示是實際存儲空間是變長的，也就是說當輸入的數據長度沒有達到指定的長度時不會在後面填充空格。(不過text所存儲的也是可變長的)。</p>
+<p>舉個例子來說，現在資料表有兩個欄位:</p>
+<p>rocket1 char(10)<br>rocket2 varchar(10)<br>存入相同的資料「HiIU」</p>
+<p>rocket1 會自動在「HiIU」後面補空白，存滿10 Bytes。<br>rocket2 會根據資料長度變更儲存空間，「HiIU」共四個英文字符，所以則存了4 Bytes。</p>
+<p>使用varchar相對節省空間。</p>
+<p>Unicode或非Unicode<br>在資料庫中，每個英文字符的儲存空間只需要一個 1 Byte，但若是非英文字及符號，如中文、泰文、日文、韓文等非英文字符，則需要 2 Byte來儲存。<br>如果英文與中文同時存在，由於占用空間數不同，容易造成混亂，導致讀取出來的字符串是亂碼。所以就要使用Unicode字符集(N)。</p>
+<p>Unicode(有n):所有的文字都用2 Byte來儲存，即使是英文字也是使用2 Byte來儲存，就可以解決中英文字符集不兼容的問題。</p>
+<p>非Unicode(沒有n):文字是英文字符就是1 Byte;非英文字符就是使用2 Byte來儲存。</p>
+<p>舉例來說，一樣有兩個欄位:<br>rocket1 varchar(50)<br>rocket2 nvarchar(50)<br>存入相同的資料「我愛TsungHua」</p>
+<p>rocket1: 我愛 &#x3D; 22&#x3D; 4 Byte ; TsungHua &#x3D;81&#x3D; 8 Byte ，所以總共4+8&#x3D;12 Byte的儲存空間。</p>
+<p>rocket2:「我愛TsungHua」共10個字，所以儲存空間為10*2&#x3D;20 Byte。</p>
+<p>雖然rocket2較佔儲存空間，但若儲存的資料不限於英文，建議都以n開頭的欄位型態為主，避免亂碼。</p>
+<p>有var的:在存不固定長度的資料時，較省空間。<br>有n的:支援Unicode，不過儲存的資料會大兩倍(全部都英文字的話啦)。</p>
+<p>然後建議開資料表欄位時，要以儲存的資料為考量，<br>建議:</p>
+<p>char 存資料有固定長度，並且都為英文數字。<br>nchar 存資料有固定長度，但不確定是否都是英文數字。<br>varchar 存資料沒有固定長度，並且都為英文數字。<br>nvarchar 存資料沒有固定長度，且不確定是否皆為英文數字。</p>
+<p>char(n) 定長，n 必須是一個介於 1 和 8000 之間的數值，最多8000個英文字，4000個非英文字，儲存大小為 n 個位元組。</p>
+<p>nchar(n) 定長，n 的值必須介於 1 與 4000 之間。儲存大小為 n 位元組的兩倍。</p>
+<p>varchar(n) 變長，n 必須是一個介於 1 和 8000 之間的數值，可存儲4000個字，無論英文還是非英文，儲存大小為輸入資料的位元組的實際長度。</p>
+<p>nvarchar(n) 變長，n 的值必須介於 1 與 4000 之間，位元組的儲存大小是所輸入字元個數的兩倍。</p>
+<p>text(n) 變長，非Unicode數據，最大長度為2^31-1(2,147,483,647)個字符。</p>
+<p>ntext(n) 變長，最大字串長度為 2^30 - 1 (1,073,741,823) 位元組的可變長度 Unicode 資料。 儲存體大小 (以位元組為單位) 是輸入字串長度的兩倍。</p>
+<p>char的索引速度較快</p>
+<h2 id="CTE"><a href="#CTE" class="headerlink" title="CTE"></a>CTE</h2><p>使用CTE查詢完的當下就會從記憶體中消失，可以減少重覆計算所耗的I&#x2F;O、CPU和執行時間，如果同樣的查詢需使用很多次時，非常適合使用CTE，例如分頁。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WITH</span> [CTE名稱] ([CTE的欄位名稱A],[CTE的欄位名稱B],... ) <span class="keyword">as</span> (<span class="keyword">SELECT</span> [欄位<span class="number">1</span>],[欄位<span class="number">2</span>],...  <span class="keyword">FROM</span> [資料表名稱])</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> CTE <span class="operator">/</span><span class="operator">/</span>一定要直接顯示,不直接的話就會立馬消失了,因為CTE查詢完的當下就會從記憶體中消失。</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> cte_name (品牌,國家) <span class="keyword">as</span> (<span class="keyword">select</span> name,address <span class="keyword">from</span> Customers)</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> cte_name</span><br></pre></td></tr></table></figure>
+
+<h2 id="FK"><a href="#FK" class="headerlink" title="FK"></a>FK</h2><p>外部索引鍵並不一定要唯一</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/06/SQL-StoreProcedure/">https://allenlin000.github.io.git/2025/10/06/SQL-StoreProcedure/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/NfCnwwU.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/05/Security-OWASP/" title="Security - QueryString"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Security - QueryString</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/07/SQL-Join/" title="SQL - JOIN"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">SQL - JOIN</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">64</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">19</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JOIN"><span class="toc-number">1.</span> <span class="toc-text">JOIN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TempTable"><span class="toc-number">2.</span> <span class="toc-text">TempTable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#temp%EF%BC%88Local-Temporary-Table%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">#temp（Local Temporary Table）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#temp%EF%BC%88Global-Temporary-Table%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">##temp（Global Temporary Table）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#t%EF%BC%88Table-Variable%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">@t（Table Variable）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">5.1.</span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-1"><span class="toc-number">5.2.</span> <span class="toc-text"></span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BC%E5%8F%AB-sp"><span class="toc-number">6.</span> <span class="toc-text">呼叫 sp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B-sp"><span class="toc-number">7.</span> <span class="toc-text">建立 sp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DECLARE"><span class="toc-number">8.</span> <span class="toc-text">DECLARE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#if-else-%E5%8B%95%E6%85%8B%E7%B5%84%E6%88%90-SQL-%E6%9F%A5%E8%A9%A2%E6%8C%87%E4%BB%A4"><span class="toc-number">9.</span> <span class="toc-text">if else 動態組成 SQL 查詢指令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#char-varchar-nchar-nvarchar"><span class="toc-number">10.</span> <span class="toc-text">char varchar nchar nvarchar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CTE"><span class="toc-number">11.</span> <span class="toc-text">CTE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FK"><span class="toc-number">12.</span> <span class="toc-text">FK</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/10/07/Anti-Join-Scenerio/" title="ANTI-JOIN Scenerio"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ANTI-JOIN Scenerio"/></a><div class="content"><a class="title" href="/2025/10/07/Anti-Join-Scenerio/" title="ANTI-JOIN Scenerio">ANTI-JOIN Scenerio</a><time datetime="2025-10-07T00:27:05.000Z" title="Created 2025-10-07 08:27:05">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/07/SQL-Join/" title="SQL - JOIN"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQL - JOIN"/></a><div class="content"><a class="title" href="/2025/10/07/SQL-Join/" title="SQL - JOIN">SQL - JOIN</a><time datetime="2025-10-07T00:27:05.000Z" title="Created 2025-10-07 08:27:05">2025-10-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/06/SQL-StoreProcedure/" title="SQL - Store Procedure"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQL - Store Procedure"/></a><div class="content"><a class="title" href="/2025/10/06/SQL-StoreProcedure/" title="SQL - Store Procedure">SQL - Store Procedure</a><time datetime="2025-10-06T14:52:05.000Z" title="Created 2025-10-06 22:52:05">2025-10-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/Security-OWASP/" title="Security - QueryString"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Security - QueryString"/></a><div class="content"><a class="title" href="/2025/10/05/Security-OWASP/" title="Security - QueryString">Security - QueryString</a><time datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/Security-XSS/" title="Security - QueryString"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Security - QueryString"/></a><div class="content"><a class="title" href="/2025/10/05/Security-XSS/" title="Security - QueryString">Security - QueryString</a><time datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
