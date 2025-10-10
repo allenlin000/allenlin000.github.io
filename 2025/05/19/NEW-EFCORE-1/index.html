@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>EF Core - 1 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Scaffolding (Reverse Engineering) Getting Started with EF Core Connection Strings Overview of Logging and Interception Connection Resiliency">
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>EF Core - 1 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Scaffolding (Reverse Engineering) Getting Started with EF Core Connection Strings Overview of Logging and Interception Connection Resiliency View Generation🧩 一、檢視產生效能取決於什麼？ 簡單來說，產生檢視的速度（也就是 EF 建立">
 <meta property="og:type" content="article">
 <meta property="og:title" content="EF Core - 1">
 <meta property="og:url" content="https://allenlin000.github.io.git/2025/05/19/NEW-EFCORE-1/">
 <meta property="og:site_name" content="平屋慢生活">
-<meta property="og:description" content="Scaffolding (Reverse Engineering) Getting Started with EF Core Connection Strings Overview of Logging and Interception Connection Resiliency">
+<meta property="og:description" content="Scaffolding (Reverse Engineering) Getting Started with EF Core Connection Strings Overview of Logging and Interception Connection Resiliency View Generation🧩 一、檢視產生效能取決於什麼？ 簡單來說，產生檢視的速度（也就是 EF 建立">
 <meta property="og:locale">
 <meta property="og:image" content="https://allenlin000.github.io.git/images/ocean.png">
 <meta property="article:published_time" content="2025-05-19T14:07:05.000Z">
-<meta property="article:modified_time" content="2025-05-20T01:15:33.327Z">
+<meta property="article:modified_time" content="2025-10-10T14:01:00.940Z">
 <meta property="article:author" content="Allen">
 <meta property="article:tag" content="EF CORE">
 <meta name="twitter:card" content="summary">
@@ -55,8 +55,8 @@
   isPost: true,
   isHome: false,
   isHighlightShrink: false,
-  isToc: false,
-  postUpdate: '2025-05-20 09:15:33'
+  isToc: true,
+  postUpdate: '2025-10-10 22:01:00'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -153,7 +153,7 @@
         }
       }
       detectApple()
-    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">15</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/ocean.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">EF Core - 1</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-05-19T14:07:05.000Z" title="Created 2025-05-19 22:07:05">2025-05-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-05-20T01:15:33.327Z" title="Updated 2025-05-20 09:15:33">2025-05-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%B3%87%E6%96%99%E7%96%86%E7%95%8C%E7%9A%84%E8%88%AA%E5%9C%96/">資料疆界的航圖</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="EF Core - 1"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="/images/ocean.png" alt="ocean"></p>
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">15</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/ocean.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">EF Core - 1</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-05-19T14:07:05.000Z" title="Created 2025-05-19 22:07:05">2025-05-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-10-10T14:01:00.940Z" title="Updated 2025-10-10 22:01:00">2025-10-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%B3%87%E6%96%99%E7%96%86%E7%95%8C%E7%9A%84%E8%88%AA%E5%9C%96/">資料疆界的航圖</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="EF Core - 1"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="/images/ocean.png" alt="ocean"></p>
 <br>
 <br>
 
@@ -162,7 +162,246 @@
 <p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-strings?WT.mc_id=DOP-MVP-37580&tabs=dotnet-core-cli#aspnet-core">Connection Strings</a></p>
 <p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/ef/core/logging-events-diagnostics/?WT.mc_id=DOP-MVP-37580">Overview of Logging and Interception</a></p>
 <p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency?WT.mc_id=DOP-MVP-37580">Connection Resiliency</a></p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/05/19/NEW-EFCORE-1/">https://allenlin000.github.io.git/2025/05/19/NEW-EFCORE-1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/EF-CORE/">EF CORE</a></div><div class="post_share"><div class="social-share" data-image="/images/ocean.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/05/18/NEW-DependencyInjection-5/" title="Dependency Injection - EF Core DbContext"><img class="cover" src="https://i.imgur.com/xAbpKgd.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Dependency Injection - EF Core DbContext</div></div></a></div><div class="next-post pull-right"><a href="/2025/05/28/%E5%BA%AB%E5%AD%98-%E8%B6%85%E8%B2%B7%E5%95%8F%E9%A1%8C/" title="EF Core - TimeoutException"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">EF Core - TimeoutException</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/05/28/NEW-EFCORE-NotSupportedException/" title="EF Core - NotSupportedException"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - NotSupportedException</div></div></a></div><div><a href="/2025/05/28/NEW-EFCORE-Update/" title="EF Core - Update"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - Update</div></div></a></div><div><a href="/2025/05/28/%E5%BA%AB%E5%AD%98-%E8%B6%85%E8%B2%B7%E5%95%8F%E9%A1%8C/" title="EF Core - TimeoutException"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - TimeoutException</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/10/09/SQL-datetime/" title="SQL - 時間序列の鏡"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQL - 時間序列の鏡"/></a><div class="content"><a class="title" href="/2025/10/09/SQL-datetime/" title="SQL - 時間序列の鏡">SQL - 時間序列の鏡</a><time datetime="2025-10-09T03:00:34.000Z" title="Created 2025-10-09 11:00:34">2025-10-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/06/SQL-StoreProcedure/" title="SQL - Store Procedure"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQL - Store Procedure"/></a><div class="content"><a class="title" href="/2025/10/06/SQL-StoreProcedure/" title="SQL - Store Procedure">SQL - Store Procedure</a><time datetime="2025-10-06T14:52:05.000Z" title="Created 2025-10-06 22:52:05">2025-10-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/Security-OWASP/" title="Security - QueryString"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Security - QueryString"/></a><div class="content"><a class="title" href="/2025/10/05/Security-OWASP/" title="Security - QueryString">Security - QueryString</a><time datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/Security-XSS/" title="Security - QueryString"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Security - QueryString"/></a><div class="content"><a class="title" href="/2025/10/05/Security-XSS/" title="Security - QueryString">Security - QueryString</a><time datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/04/NEW-SQL-Performance-1/" title="SQL_Performance"><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQL_Performance"/></a><div class="content"><a class="title" href="/2025/10/04/NEW-SQL-Performance-1/" title="SQL_Performance">SQL_Performance</a><time datetime="2025-10-04T10:25:05.000Z" title="Created 2025-10-04 18:25:05">2025-10-04</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+<h2 id="View-Generation"><a href="#View-Generation" class="headerlink" title="View Generation"></a>View Generation</h2><p>🧩 一、檢視產生效能取決於什麼？</p>
+<p>簡單來說，產生檢視的速度（也就是 EF 建立查詢&#x2F;更新規則的速度），<br>主要取決於兩件事：</p>
+<p>模型有多大（多少個實體）</p>
+<p>模型之間的關聯有多複雜（關聯、繼承、外鍵等）</p>
+<p>在概念模型中：</p>
+<p>Customer 和 Order 有一對多的關聯 → 它們是連線的。</p>
+<p>Employee 繼承自 Person → 它們也是連線的。</p>
+<p>在資料庫模型中：</p>
+<p>Orders 表有一個外鍵指向 Customers 表 → 它們是連線的。</p>
+<p>👉 當這些連線越多，系統在產生檢視時，就得考慮更多「彼此之間的關係」，<br>這會讓整體計算變得更複雜。</p>
+<p>檢視產生會建立並驗證一個「查詢樹（Query Tree）」來描述對應邏輯。<br>在最糟的情況下，它的計算量是「指數級（Exponential）」。</p>
+<p>也就是說：</p>
+<p>如果模型有 5 個實體，效能可能還好；</p>
+<p>但當實體變成 20 個、彼此又有很多關聯時，<br>系統必須同時檢查許多可能的對應路徑，<br>導致時間會「爆炸性地增加」。</p>
+<p>💡 不過別擔心：Entity Framework 內部有一些優化機制（例如快取與依存分析），</p>
+<p>當 EF 啟動一個模型時，會產生對應檢視（Mapping Views）。<br>這個過程會花時間，尤其在大型模型中。</p>
+<p>👉 所謂「降低檢視產生成本」，就是讓這個過程不要在「程式執行時」才做，<br>而是在「建置或設計階段」先做好。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>發生時間</th>
+<th>優點</th>
+<th>缺點</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>動態產生檢視</strong></td>
+<td>執行時第一次載入模型時</td>
+<td>不需手動設定</td>
+<td>第一次執行會變慢</td>
+</tr>
+<tr>
+<td><strong>預先產生檢視（Pre-generated Views）</strong></td>
+<td>在建置階段完成</td>
+<td>加快啟動速度</td>
+<td>開發時仍需重建檢視</td>
+</tr>
+</tbody></table>
+<p>所以預先產生只是把工作時間往前挪，並不是真正消除成本。<br>因此，還需要從「根本上」讓檢視更容易產生 ——</p>
+<p>使用「外鍵關聯（Foreign Key Association, FK）」而非「獨立關聯（Independent Association, IA）」</p>
+<p>什麼是外鍵關聯（FK Association）？</p>
+<p>簡單來說，外鍵關聯是指在實體類別裡，<br>直接存在一個外鍵欄位（CustomerId 這樣的屬性）。</p>
+<p>🧩 什麼是獨立關聯（Independent Association）？</p>
+<p>這是早期 EF 的做法，關聯資訊不透過外鍵欄位表達，<br>而是靠「隱藏的關聯描述（Association Mapping）」記錄。</p>
+<p>EF 內部必須額外追蹤「哪個 Customer 對應哪個 Order」，<br>這就讓 檢視產生要處理更多隱含的關聯邏輯。</p>
+<h2 id="EF-中的三種內建快取"><a href="#EF-中的三種內建快取" class="headerlink" title="EF 中的三種內建快取"></a>EF 中的三種內建快取</h2><table>
+<thead>
+<tr>
+<th>快取類型</th>
+<th>範圍</th>
+<th>作用</th>
+<th>別名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>🧩 物件快取（Object Cache）</td>
+<td>在同一個 <code>DbContext</code> 內</td>
+<td>快速重用同一筆資料，不重複建立實體</td>
+<td>第一層快取（First-Level Cache）</td>
+</tr>
+<tr>
+<td>⚙️ 查詢計畫快取（Query Plan Cache）</td>
+<td>應用程式層</td>
+<td>重用相同查詢所產生的 SQL 語句</td>
+<td>Query Compilation Cache</td>
+</tr>
+<tr>
+<td>📚 中繼資料快取（Metadata Cache）</td>
+<td>跨連線共用</td>
+<td>快速載入模型結構資訊（實體、關聯等）</td>
+<td>Metadata Workspace Cache</td>
+</tr>
+</tbody></table>
+<p>什麼是「物件快取」（Object Cache）<br>✨ 本質理解：</p>
+<p>每當你用 DbContext 查出一筆資料時，EF 會在背景的 ObjectStateManager 中「記住」這個實體。<br>如果你下一次又查出同一筆主鍵資料，EF 不會再建立新的物件，而是直接拿快取中的那個。</p>
+<p>可以避免重複具體化（materialization）的開銷</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> context = <span class="keyword">new</span> ShopContext())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 第一次查詢</span></span><br><span class="line">    <span class="keyword">var</span> p1 = context.Products.First(p =&gt; p.Id == <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第二次查詢同一筆資料</span></span><br><span class="line">    <span class="keyword">var</span> p2 = context.Products.First(p =&gt; p.Id == <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 比較兩個物件</span></span><br><span class="line">    Console.WriteLine(<span class="built_in">object</span>.ReferenceEquals(p1, p2)); <span class="comment">// 輸出 True</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>結果是 True，代表 EF 直接從快取拿出同一個物件，<br>而不是重新去資料庫再建立一個新的 Product。</p>
+<p>即使使用快取，EF 還是會發出查詢到資料庫，<br>只是它會跳過「重新建立物件」的步驟。</p>
+<p>如果你只想直接從快取拿資料，可以用 Find() 方法。</p>
+<p>Find() 方法 — 直接從快取撈資料（若沒有再查資料庫）</p>
+<p>Find() 是 EF 4.1 新增的 API，用來「依主鍵查找實體」。<br>它的行為可以想成：</p>
+<p>先看記憶體中（Object Cache）有沒有那個主鍵；</p>
+<p>如果有 → 直接回傳；</p>
+<p>如果沒有 → 去資料庫查一次；</p>
+<p>查到的資料會放進快取中。</p>
+<table>
+<thead>
+<tr>
+<th>行為</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>會使用主鍵查找</td>
+<td>只能用主鍵找，不支援其他條件</td>
+</tr>
+<tr>
+<td>會回傳暫存（未 Save）實體</td>
+<td>如果你用 <code>Add()</code> 新增了實體但還沒 <code>SaveChanges()</code>，Find 也能找到它</td>
+</tr>
+<tr>
+<td>不會自動載入關聯實體</td>
+<td>只回傳主實體，要載入關聯資料需用 <code>.Include()</code> 或 Lazy Loading</td>
+</tr>
+<tr>
+<td>效能受 <code>AutoDetectChanges</code> 影響</td>
+<td>若自動偵測開啟，快取很大時會變慢</td>
+</tr>
+</tbody></table>
+<p>AutoDetectChanges 對效能的影響</p>
+<p>EF 會在某些操作（如 Find()、Add()、SaveChanges()）前，執行一個叫做 DetectChanges() 的動作，來檢查物件有沒有被修改。當快取裡的實體很多時，這步驟就會非常耗時。</p>
+<p>暫時關閉自動偵測<br>context.Configuration.AutoDetectChangesEnabled &#x3D; false;</p>
+<p>var product &#x3D; context.Products.Find(productId);</p>
+<p>context.Configuration.AutoDetectChangesEnabled &#x3D; true;</p>
+<p>關掉可以顯著提升大量操作效能，但記得用完要打開。因為關閉後 EF 不會自動同步物件狀態，若忘了開啟可能導致資料更新錯誤。</p>
+<p>因為 DetectChanges() 要檢查整個物件圖（Object Graph）裡的每一個實體，<br>確認它們的狀態（新增、修改、刪除），這是 O(n) 的成本</p>
+<p>✅ 改善方式：使用 AddRange() &#x2F; RemoveRange()<br>這是 EF 6 新增的 API，用來一次新增或刪除一整批資料。<br>優點是：DetectChanges() 只執行一次，而不是每筆都執行。</p>
+<h2 id="查詢計劃快取"><a href="#查詢計劃快取" class="headerlink" title="查詢計劃快取"></a>查詢計劃快取</h2><p>每次你在 EF 執行查詢（無論是 LINQ 或 Entity SQL），<br>EF 都要經過一個「查詢編譯（Query Compilation）」的步驟，把高階查詢轉成資料庫能懂的命令（例如 T-SQL）。</p>
+<p>這個過程包括：</p>
+<p>分析查詢（Parsing）</p>
+<p>驗證模型（Mapping）</p>
+<p>轉換成查詢樹（Query Tree）</p>
+<p>生成 SQL 命令（Store Command）</p>
+<p>👉 這整個過程會花不少時間。<br>如果每次都重做，效能就會浪費在「重複編譯」上。</p>
+<p>查詢計劃快取的作用就是：</p>
+<p>把第一次產生好的「查詢計畫」記下來，以後相同的查詢就能直接拿來用，不用重新編譯。</p>
+<p>⚙️ 二、查詢計劃快取的運作流程</p>
+<p>以下是 EF 處理查詢的流程：</p>
+<p>第一次執行：<br>LINQ&#x2F;Entity SQL → Query Compiler → SQL Command → 資料庫執行<br>                           ↓<br>                     存入查詢計劃快取</p>
+<p>第二次執行：<br>LINQ&#x2F;Entity SQL → 直接從快取取出 SQL Command → 資料庫執行</p>
+<p>🧩 三、查詢計劃快取的特點與適用範圍<br>✅ 共用範圍</p>
+<p>查詢計劃快取在同一個 AppDomain 內共用。<br>→ 不需要保留相同的 DbContext 實例。<br>→ 換句話說，不同的 DbContext 也可以共用這個快取！</p>
+<h2 id="使用-CompiledQuery-來提升-LINQ-查詢效能"><a href="#使用-CompiledQuery-來提升-LINQ-查詢效能" class="headerlink" title="使用 CompiledQuery 來提升 LINQ 查詢效能"></a>使用 CompiledQuery 來提升 LINQ 查詢效能</h2><p>當你在 EF 裡執行 LINQ 查詢時，系統會經過一個「查詢編譯（Query Compilation）」的過程：</p>
+<p>分析你的 LINQ 運算式（Expression Tree）</p>
+<p>驗證模型對應</p>
+<p>產生對應的 SQL 語句</p>
+<p>傳給資料庫執行</p>
+<p>這個「編譯過程」會花時間。<br>如果相同的 LINQ 查詢會被重複執行上千次（例如 Web API 查詢清單），<br>那麼每次都重新編譯就會浪費效能。</p>
+<p>👉 CompiledQuery 就是讓你「先編譯一次 LINQ 查詢、重複使用」的功能。</p>
+<p>EF 中 批次操作 (Batch Update&#x2F;Insert) 如何最佳化？</p>
+<p>為什麼 大量資料查詢 建議不要直接用 EF？</p>
+<p>Compiled Queries 在 EF 中的作用是什麼？什麼時候該用？</p>
+<p>使用 Projection (Select new) 與直接拉整個 Entity 出來，有什麼效能差異？</p>
+<p>為什麼在 EF 查詢中要避免使用 函數 (例如 .ToList().Where())？</p>
+<p>EF 查詢時，Client Evaluation 和 Server Evaluation 有什麼差異？效能影響？</p>
+<p>Tracking Graph 為什麼會造成記憶體壓力？</p>
+<p>在 EF Core 中，什麼情況適合用 Split Query 而不是 Single Query？</p>
+<p>在 EF Core 中，為什麼 Global Query Filter 可能影響效能？</p>
+<p>EF 為什麼不建議直接拿來做 大數據報表？</p>
+<p>EF 在 交易 (Transaction) 上的效能議題是什麼？</p>
+<p>EF 的 Migrations 對效能有影響嗎？如果有，在哪些情況？</p>
+<p>在 EF 中如何降低 資料庫連線數過多的問題？</p>
+<p>EF Core 中 Compiled Models 如何改善效能？</p>
+<p>EF 中 多對多關聯 的查詢效能該如何最佳化？</p>
+<p>索引碎片化 (Fragmentation) 如何影響效能？怎麼解決？</p>
+<p>在 SQL 查詢中，JOIN 和 Subquery 哪一個效能比較好？</p>
+<p>為什麼 OR 條件 常常會拖慢 SQL 查詢？怎麼改寫比較好？</p>
+<p>Parameter Sniffing 是什麼？會如何影響效能？</p>
+<p>Stored Procedure 在效能上有什麼優勢？</p>
+<p>Temp Table 和 Table Variable 在效能上有什麼差異？</p>
+<p>Deadlock 與效能的關係是什麼？</p>
+<p>Lock escalation 如何影響效能？</p>
+<p>SQL 中 批次插入 (Bulk Insert) 有什麼效能優勢？</p>
+<p>Statistics 在 SQL Query Optimizer 中扮演什麼角色？</p>
+<p>CTE (Common Table Expression) 在效能上有什麼需要注意的？</p>
+<p>View 在 SQL 中對效能有什麼幫助或壞處？</p>
+<p>SQL 中 聚合函數 (COUNT, SUM, AVG) 如何影響效能？</p>
+<p>🔹 CSP &#x2F; Concurrency &#x2F; 資料一致性效能 (共 10 題)</p>
+<p>Optimistic Concurrency 與 Pessimistic Concurrency 在效能上的差異？</p>
+<p>為什麼 樂觀鎖 (Optimistic Lock) 在高流量系統比較常用？</p>
+<p>悲觀鎖 (Pessimistic Lock) 會造成效能瓶頸嗎？為什麼？</p>
+<p>如果多個交易同時修改同一筆資料，怎麼降低效能衝擊？</p>
+<p>在 EF Core 使用 RowVersion &#x2F; Timestamp 有什麼效能影響？</p>
+<p>Transaction Isolation Level 的設定如何影響效能？</p>
+<p>Dirty Read、Non-Repeatable Read 與 Phantom Read 對效能有什麼關聯？</p>
+<p>Lock Timeout 與效能的關係？</p>
+<p>為什麼 分散式交易 (Distributed Transaction) 效能通常比較差？</p>
+<p>在高併發系統中，如何用 Cache 減少資料庫壓力？</p>
+<pre><code>  |
+</code></pre>
+<h2 id="執行階段、Proxy（代理類別）、POCO"><a href="#執行階段、Proxy（代理類別）、POCO" class="headerlink" title="執行階段、Proxy（代理類別）、POCO"></a>執行階段、Proxy（代理類別）、POCO</h2><p>執行階段（Runtime）就是「程式實際運行的時候」，<br>跟「設計階段」或「編譯階段」相對。</p>
+<p>var p &#x3D; new Product();<br>p.Name &#x3D; “Coffee”;<br>Console.WriteLine(p.Name);</p>
+<table>
+<thead>
+<tr>
+<th>階段</th>
+<th>發生什麼事</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>設計階段（Design time）</strong></td>
+<td>你在 VS 裡寫程式碼</td>
+</tr>
+<tr>
+<td><strong>編譯階段（Compile time）</strong></td>
+<td>C# 編譯器把程式轉成 .NET IL 指令（電腦能懂）</td>
+</tr>
+<tr>
+<td><strong>執行階段（Runtime）</strong></td>
+<td>程式真的跑起來，在記憶體裡建立 <code>Product</code> 物件</td>
+</tr>
+</tbody></table>
+<p>EF 會在「執行階段」去動態產生一些輔助類別（例如 Proxy），<br>來幫助它完成延遲載入與追蹤變更。</p>
+<p>Proxy 就是「替你原本的類別做代理工作的類別」。</p>
+<p>在 EF 裡，Proxy 類別會繼承你的 POCO 類別，<br>並「加上 EF 需要的功能」，例如：</p>
+<p>偵測屬性何時被修改（變更追蹤）</p>
+<p>當你第一次存取導航屬性時，自動幫你載入（延遲載入）</p>
+<p>假設你有一個類別：</p>
+<p>public class Product<br>{<br>    public int Id { get; set; }<br>    public string Name { get; set; }</p>
+<pre><code>public virtual Category Category &#123; get; set; &#125; // 導覽屬性
+</code></pre>
+<p>}</p>
+<p>當 EF 執行時（Runtime），它不會真的建立 Product，<br>而是建立一個「繼承 Product 的動態類別」：</p>
+<p>public class ProductProxy : Product<br>{<br>    &#x2F;&#x2F; EF 會覆寫屬性，加入額外邏輯<br>    public override Category Category<br>    {<br>        get<br>        {<br>            &#x2F;&#x2F; 延遲載入邏輯：第一次取用才去資料庫查<br>            if (base.Category &#x3D;&#x3D; null)<br>                LoadCategoryFromDatabase();</p>
+<pre><code>        return base.Category;
+    &#125;
+    set
+    &#123;
+        base.Category = value;
+        // 通知 EF：這個屬性被改了
+        NotifyChange(&quot;Category&quot;);
+    &#125;
+&#125;
+</code></pre>
+<p>}</p>
+<p>這樣 EF 就能在「你不知不覺中」：</p>
+<p>自動載入資料；</p>
+<p>自動追蹤變更；</p>
+<p>自動知道哪些屬性被改動。</p>
+<p>POCO 全名：</p>
+<p>Plain Old CLR Object</p>
+<p>意思是「純粹的 C# 類別」，不繼承任何 EF 的特殊基底類別，也不需要標記特別屬性</p>
+<p>ublic class Product<br>{<br>    public int Id { get; set; }<br>    public string Name { get; set; }<br>}<br>這就是一個 POCO。<br>它就是你最普通的 C# 類別，沒有繼承 EF 的 EntityObject、沒有用 [Table] 或 [Column]。</p>
+<p>EF 可以用「設定（Fluent API）」或「Attribute」的方式把它對應到資料庫。</p>
+<p>┌──────────────────────────────┐<br>│ 你寫的程式                   │<br>│  public class Product {…}   │ ←── POCO<br>└──────────────────────────────┘<br>              ↓ （執行階段，Runtime）<br>┌──────────────────────────────┐<br>│  EF 動態建立的 Proxy 類別     │ ←── Proxy<br>│  class ProductProxy : Product │<br>│     + Lazy Loading            │<br>│     + Change Tracking         │<br>└──────────────────────────────┘</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/05/19/NEW-EFCORE-1/">https://allenlin000.github.io.git/2025/05/19/NEW-EFCORE-1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/EF-CORE/">EF CORE</a></div><div class="post_share"><div class="social-share" data-image="/images/ocean.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/05/18/NEW-DependencyInjection-5/" title="Dependency Injection - EF Core DbContext"><img class="cover" src="https://i.imgur.com/xAbpKgd.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Dependency Injection - EF Core DbContext</div></div></a></div><div class="next-post pull-right"><a href="/2025/05/28/%E5%BA%AB%E5%AD%98-%E8%B6%85%E8%B2%B7%E5%95%8F%E9%A1%8C/" title="EF Core - TimeoutException"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">EF Core - TimeoutException</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/05/28/NEW-EFCORE-NotSupportedException/" title="EF Core - NotSupportedException"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - NotSupportedException</div></div></a></div><div><a href="/2025/05/28/NEW-EFCORE-Update/" title="EF Core - Update"><img class="cover" src="/images/ocean.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - Update</div></div></a></div><div><a href="/2025/05/28/%E5%BA%AB%E5%AD%98-%E8%B6%85%E8%B2%B7%E5%95%8F%E9%A1%8C/" title="EF Core - TimeoutException"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - TimeoutException</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#View-Generation"><span class="toc-number">1.</span> <span class="toc-text">View Generation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EF-%E4%B8%AD%E7%9A%84%E4%B8%89%E7%A8%AE%E5%85%A7%E5%BB%BA%E5%BF%AB%E5%8F%96"><span class="toc-number">2.</span> <span class="toc-text">EF 中的三種內建快取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%A9%A2%E8%A8%88%E5%8A%83%E5%BF%AB%E5%8F%96"><span class="toc-number">3.</span> <span class="toc-text">查詢計劃快取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-CompiledQuery-%E4%BE%86%E6%8F%90%E5%8D%87-LINQ-%E6%9F%A5%E8%A9%A2%E6%95%88%E8%83%BD"><span class="toc-number">4.</span> <span class="toc-text">使用 CompiledQuery 來提升 LINQ 查詢效能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%B7%E8%A1%8C%E9%9A%8E%E6%AE%B5%E3%80%81Proxy%EF%BC%88%E4%BB%A3%E7%90%86%E9%A1%9E%E5%88%A5%EF%BC%89%E3%80%81POCO"><span class="toc-number">5.</span> <span class="toc-text">執行階段、Proxy（代理類別）、POCO</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/10/10/NEW-EFCORE-Performance/" title="EFCORE - 關聯載入的海流"><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EFCORE - 關聯載入的海流"/></a><div class="content"><a class="title" href="/2025/10/10/NEW-EFCORE-Performance/" title="EFCORE - 關聯載入的海流">EFCORE - 關聯載入的海流</a><time datetime="2025-10-10T15:25:05.000Z" title="Created 2025-10-10 23:25:05">2025-10-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/06/SQL-StoreProcedure/" title="SQL - Store Procedure"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQL - Store Procedure"/></a><div class="content"><a class="title" href="/2025/10/06/SQL-StoreProcedure/" title="SQL - Store Procedure">SQL - Store Procedure</a><time datetime="2025-10-06T14:52:05.000Z" title="Created 2025-10-06 22:52:05">2025-10-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/06/%E7%B5%B1%E8%A8%88/" title="SQL - Store Procedure"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SQL - Store Procedure"/></a><div class="content"><a class="title" href="/2025/10/06/%E7%B5%B1%E8%A8%88/" title="SQL - Store Procedure">SQL - Store Procedure</a><time datetime="2025-10-06T14:52:05.000Z" title="Created 2025-10-06 22:52:05">2025-10-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/Security-OWASP/" title="Security - QueryString"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Security - QueryString"/></a><div class="content"><a class="title" href="/2025/10/05/Security-OWASP/" title="Security - QueryString">Security - QueryString</a><time datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/05/Security-XSS/" title="Security - QueryString"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Security - QueryString"/></a><div class="content"><a class="title" href="/2025/10/05/Security-XSS/" title="Security - QueryString">Security - QueryString</a><time datetime="2025-10-05T14:38:11.000Z" title="Created 2025-10-05 22:38:11">2025-10-05</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
   const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
   if ($mermaid.length === 0) return
   const runMermaid = () => {
