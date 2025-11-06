@@ -1,0 +1,320 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>SQL - Store Procedure | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="OFFSET 與 FETCH：分頁查詢（Paging）1234567891011-- 第 1 頁：顯示第 1~10 筆SELECT * FROM EmployeesORDER BY EmployeeIDOFFSET 0 ROWSFETCH NEXT 10 ROWS ONLY;-- 第 2 頁：顯示第 11~20 筆SELECT * FROM EmployeesORDER BY Employe">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL - Store Procedure">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/06/SQL-CHAOS/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="OFFSET 與 FETCH：分頁查詢（Paging）1234567891011-- 第 1 頁：顯示第 1~10 筆SELECT * FROM EmployeesORDER BY EmployeeIDOFFSET 0 ROWSFETCH NEXT 10 ROWS ONLY;-- 第 2 頁：顯示第 11~20 筆SELECT * FROM EmployeesORDER BY Employe">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/NfCnwwU.png">
+<meta property="article:published_time" content="2025-10-06T14:52:05.000Z">
+<meta property="article:modified_time" content="2025-11-05T03:00:17.432Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/NfCnwwU.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/06/SQL-CHAOS/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'SQL - Store Procedure',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-05 11:00:17'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">14</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/NfCnwwU.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">SQL - Store Procedure</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-06T14:52:05.000Z" title="Created 2025-10-06 22:52:05">2025-10-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-05T03:00:17.432Z" title="Updated 2025-11-05 11:00:17">2025-11-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/SQL-%E8%81%B7%E5%A0%B4%E6%AD%B7%E9%9A%AA%E8%A8%98/">SQL 職場歷險記</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="SQL - Store Procedure"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://i.imgur.com/NfCnwwU.png" alt="ocean"></p>
+<br>
+
+<h2 id="OFFSET-與-FETCH：分頁查詢（Paging）"><a href="#OFFSET-與-FETCH：分頁查詢（Paging）" class="headerlink" title="OFFSET 與 FETCH：分頁查詢（Paging）"></a>OFFSET 與 FETCH：分頁查詢（Paging）</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 第 1 頁：顯示第 1~10 筆</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Employees</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> EmployeeID</span><br><span class="line"><span class="keyword">OFFSET</span> <span class="number">0</span> <span class="keyword">ROWS</span></span><br><span class="line"><span class="keyword">FETCH</span> NEXT <span class="number">10</span> <span class="keyword">ROWS</span> <span class="keyword">ONLY</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 第 2 頁：顯示第 11~20 筆</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Employees</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> EmployeeID</span><br><span class="line"><span class="keyword">OFFSET</span> <span class="number">10</span> <span class="keyword">ROWS</span></span><br><span class="line"><span class="keyword">FETCH</span> NEXT <span class="number">10</span> <span class="keyword">ROWS</span> <span class="keyword">ONLY</span>;</span><br></pre></td></tr></table></figure>
+
+<p>👉 可以想成像 Netflix：「往右滑 10 部影片，再顯示接下來的 10 部。」</p>
+<h2 id="在交易中進行分頁-Paging-with-Transaction"><a href="#在交易中進行分頁-Paging-with-Transaction" class="headerlink" title="在交易中進行分頁 (Paging with Transaction)"></a>在交易中進行分頁 (Paging with Transaction)</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> TRANSACTION ISOLATION LEVEL SNAPSHOT;</span><br><span class="line"><span class="keyword">BEGIN</span> TRANSACTION;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DECLARE</span></span><br><span class="line">    <span class="variable">@StartingRowNumber</span> <span class="type">INT</span> <span class="operator">=</span> <span class="number">1</span>,</span><br><span class="line">    <span class="variable">@RowCountPerPage</span> <span class="type">INT</span> <span class="operator">=</span> <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">WHILE (<span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> HumanResources.Department) <span class="operator">&gt;=</span> <span class="variable">@StartingRowNumber</span></span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    <span class="keyword">SELECT</span> DepartmentID, Name, GroupName</span><br><span class="line">    <span class="keyword">FROM</span> HumanResources.Department</span><br><span class="line">    <span class="keyword">ORDER</span> <span class="keyword">BY</span> DepartmentID <span class="keyword">ASC</span></span><br><span class="line">    <span class="keyword">OFFSET</span> <span class="variable">@StartingRowNumber</span> <span class="operator">-</span> <span class="number">1</span> <span class="keyword">ROWS</span></span><br><span class="line">    <span class="keyword">FETCH</span> NEXT <span class="variable">@RowCountPerPage</span> <span class="keyword">ROWS</span> <span class="keyword">ONLY</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">SET</span> <span class="variable">@StartingRowNumber</span> <span class="operator">=</span> <span class="variable">@StartingRowNumber</span> <span class="operator">+</span> <span class="variable">@RowCountPerPage</span>;</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> TRANSACTION;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用運算式-Expressions"><a href="#使用運算式-Expressions" class="headerlink" title="使用運算式 (Expressions)"></a>使用運算式 (Expressions)</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DECLARE</span></span><br><span class="line">    <span class="variable">@StartingRowNumber</span> TINYINT <span class="operator">=</span> <span class="number">1</span>,</span><br><span class="line">    <span class="variable">@EndingRowNumber</span> TINYINT <span class="operator">=</span> <span class="number">8</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> DepartmentID, Name, GroupName</span><br><span class="line"><span class="keyword">FROM</span> HumanResources.Department</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> DepartmentID <span class="keyword">ASC</span></span><br><span class="line"><span class="keyword">OFFSET</span> <span class="variable">@StartingRowNumber</span> <span class="operator">-</span> <span class="number">1</span> <span class="keyword">ROWS</span></span><br><span class="line"><span class="keyword">FETCH</span> NEXT <span class="variable">@EndingRowNumber</span> <span class="operator">-</span> <span class="variable">@StartingRowNumber</span> <span class="operator">+</span> <span class="number">1</span> <span class="keyword">ROWS</span> <span class="keyword">ONLY</span></span><br><span class="line">OPTION (OPTIMIZE <span class="keyword">FOR</span> (<span class="variable">@StartingRowNumber</span> <span class="operator">=</span> <span class="number">1</span>, <span class="variable">@EndingRowNumber</span> <span class="operator">=</span> <span class="number">20</span>));</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="💼-FK"><a href="#💼-FK" class="headerlink" title="💼 FK"></a>💼 FK</h2><p>外部索引鍵並不一定要唯一</p>
+<br>
+<br>
+
+<h2 id="💼-OLAP-OLTP"><a href="#💼-OLAP-OLTP" class="headerlink" title="💼 OLAP &#x2F; OLTP"></a>💼 OLAP &#x2F; OLTP</h2><p>OLTP 是為了「快速記錄真實世界的每一筆變動」<br>OLAP 是為了「快速分析這些變動的長期趨勢」</p>
+<p>換句話說：</p>
+<p>OLTP 重在「準確、即時、細節完整」<br>OLAP 重在「彙總、分析、決策支援」</p>
+<table>
+<thead>
+<tr>
+<th>類別</th>
+<th>比喻</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>OLTP 系統</strong></td>
+<td>就像你的「收銀系統」：每筆交易（客人買什麼、多少錢）都要即時登錄。</td>
+</tr>
+<tr>
+<td><strong>OLAP 系統</strong></td>
+<td>就像「財務報表或經營儀表板」：你要看出哪個月賣最多、哪個產品成長趨勢好。</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>面向</th>
+<th>OLTP（Online Transaction Processing）</th>
+<th>OLAP（Online Analytical Processing）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>主要用途</strong></td>
+<td>處理日常交易（新增、修改、刪除）</td>
+<td>分析歷史資料（彙總、比較、統計）</td>
+</tr>
+<tr>
+<td><strong>資料設計目標</strong></td>
+<td>資料一致性、避免重複、確保交易完整</td>
+<td>查詢速度、聚合效能高</td>
+</tr>
+<tr>
+<td><strong>資料模型</strong></td>
+<td>正規化 (Normalized)</td>
+<td>維度模型 (Star Schema &#x2F; Snowflake)</td>
+</tr>
+<tr>
+<td><strong>資料範例</strong></td>
+<td>客戶訂單、庫存變化、付款紀錄</td>
+<td>每月銷售報表、年度趨勢分析</td>
+</tr>
+<tr>
+<td><strong>查詢型態</strong></td>
+<td>單筆交易、短查詢</td>
+<td>大量彙總、複雜計算</td>
+</tr>
+<tr>
+<td><strong>典型 SQL</strong></td>
+<td><code>INSERT / UPDATE / DELETE / SELECT TOP 1</code></td>
+<td><code>SELECT SUM(), AVG(), GROUP BY, CUBE</code></td>
+</tr>
+<tr>
+<td><strong>交易數量</strong></td>
+<td>高頻率、筆數多、單筆小</td>
+<td>低頻率、批次處理、資料量大</td>
+</tr>
+<tr>
+<td><strong>使用者角色</strong></td>
+<td>一線系統（前台、客服、ERP）</td>
+<td>管理層、分析師、BI 系統</td>
+</tr>
+<tr>
+<td><strong>設計考量</strong></td>
+<td>ACID、鎖定策略、索引查詢</td>
+<td>ETL、資料倉儲、快取彙總</td>
+</tr>
+</tbody></table>
+<h2 id="連接鏈條"><a href="#連接鏈條" class="headerlink" title="連接鏈條"></a>連接鏈條</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> </span><br><span class="line">    SalesOrderData_SalesOrderSlaveId</span><br><span class="line"><span class="keyword">FROM</span> #tmpSalesOrderDataResponse </span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> dbo.SalesOrderSlavePayProfileType <span class="keyword">WITH</span> (NOLOCK) </span><br><span class="line">    <span class="keyword">ON</span> SalesOrderSlavePayProfileType_SalesOrderSlaveId <span class="operator">=</span> SalesOrderData_SalesOrderSlaveId</span><br><span class="line">    <span class="keyword">AND</span> SalesOrderSlavePayProfileType_ValidFlag <span class="operator">=</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> dbo.PayProfile <span class="keyword">WITH</span> (NOLOCK) </span><br><span class="line">    <span class="keyword">ON</span> PayProfile_TypeDef <span class="operator">=</span> SalesOrderSlavePayProfileType_PayProfileTypeDef </span><br><span class="line">    <span class="keyword">AND</span> PayProfile_ValidFlag <span class="operator">=</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">WHERE</span> PayProfile_StatisticsTypeDef <span class="operator">=</span> <span class="variable">@PayProfileStatisticsTypeDef</span>;</span><br></pre></td></tr></table></figure>
+
+
+<p>PayProfile 能不能連上去，完全取決於 SalesOrderSlavePayProfileType 那層有沒有東西。<br>若該訂單沒有對應的 SalesOrderSlavePayProfileType，那 ppt.* 欄位全是 NULL，<br>進而 PayProfile_TypeDef &#x3D; NULL → 這條 JOIN 對不到任何 PayProfile → p.* 全部 NULL。</p>
+<table>
+<thead>
+<tr>
+<th>情況</th>
+<th>SalesOrderSlavePayProfileType</th>
+<th>PayProfile</th>
+<th>最終結果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>✅ 有資料，且對應 PayProfile 符合條件</td>
+<td>有</td>
+<td>有且符合</td>
+<td>✅ 出現在結果</td>
+</tr>
+<tr>
+<td>⚠️ 有資料，但對應 PayProfile 不符合條件</td>
+<td>有</td>
+<td>有但不符</td>
+<td>❌ 被 WHERE 過濾</td>
+</tr>
+<tr>
+<td>❌ 完全沒有 SalesOrderSlavePayProfileType</td>
+<td>無</td>
+<td>不會被 JOIN</td>
+<td>❌ 被 WHERE 過濾</td>
+</tr>
+</tbody></table>
+<p>把這三張表想成三段電路：</p>
+<p>#tmpSalesOrderDataResponse –(線A)–&gt; SalesOrderSlavePayProfileType –(線B)–&gt; PayProfile</p>
+<ul>
+<li>線A（第一個 JOIN）壞掉 → 第二段（PayProfile）永遠接不上</li>
+<li>所以哪怕 PayProfile 本身有電（有資料）</li>
+<li>只要中間 SalesOrderSlavePayProfileType 那條線沒通，整個電路就不亮</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/06/SQL-CHAOS/">https://allenlin000.github.io.git/2025/10/06/SQL-CHAOS/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/NfCnwwU.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/06/%E7%B5%B1%E8%A8%88/" title="SQL - Store Procedure"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">SQL - Store Procedure</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/29/wrapper-adapter/" title=""><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info"></div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">14</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#OFFSET-%E8%88%87-FETCH%EF%BC%9A%E5%88%86%E9%A0%81%E6%9F%A5%E8%A9%A2%EF%BC%88Paging%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">OFFSET 與 FETCH：分頁查詢（Paging）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%A8%E4%BA%A4%E6%98%93%E4%B8%AD%E9%80%B2%E8%A1%8C%E5%88%86%E9%A0%81-Paging-with-Transaction"><span class="toc-number">2.</span> <span class="toc-text">在交易中進行分頁 (Paging with Transaction)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E9%81%8B%E7%AE%97%E5%BC%8F-Expressions"><span class="toc-number">3.</span> <span class="toc-text">使用運算式 (Expressions)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%BC-FK"><span class="toc-number">4.</span> <span class="toc-text">💼 FK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%BC-OLAP-OLTP"><span class="toc-number">5.</span> <span class="toc-text">💼 OLAP &#x2F; OLTP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%A3%E6%8E%A5%E9%8F%88%E6%A2%9D"><span class="toc-number">6.</span> <span class="toc-text">連接鏈條</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/06/middlewareeee/" title="Middleware"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Middleware"/></a><div class="content"><a class="title" href="/2025/11/06/middlewareeee/" title="Middleware">Middleware</a><time datetime="2025-11-06T06:07:05.000Z" title="Created 2025-11-06 14:07:05">2025-11-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/06/Dependency-Injection-Stateless-Stateful/" title="Dependency Injection - Stateless / Stateful"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Dependency Injection - Stateless / Stateful"/></a><div class="content"><a class="title" href="/2025/11/06/Dependency-Injection-Stateless-Stateful/" title="Dependency Injection - Stateless / Stateful">Dependency Injection - Stateless / Stateful</a><time datetime="2025-11-06T02:43:05.000Z" title="Created 2025-11-06 10:43:05">2025-11-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/03/%E9%80%B1%E6%9C%9F%E6%80%A7%E8%A7%B8%E7%99%BC/" title="Modulo — 記憶の螺旋"><img src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Modulo — 記憶の螺旋"/></a><div class="content"><a class="title" href="/2025/11/03/%E9%80%B1%E6%9C%9F%E6%80%A7%E8%A7%B8%E7%99%BC/" title="Modulo — 記憶の螺旋">Modulo — 記憶の螺旋</a><time datetime="2025-11-03T00:32:03.000Z" title="Created 2025-11-03 08:32:03">2025-11-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/31/Generic-3/" title="Generic -"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Generic -"/></a><div class="content"><a class="title" href="/2025/10/31/Generic-3/" title="Generic -">Generic -</a><time datetime="2025-10-31T01:01:05.000Z" title="Created 2025-10-31 09:01:05">2025-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/29/wrapper-adapter/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/10/29/wrapper-adapter/" title="Untitled">Untitled</a><time datetime="2025-10-29T01:06:05.548Z" title="Created 2025-10-29 09:06:05">2025-10-29</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

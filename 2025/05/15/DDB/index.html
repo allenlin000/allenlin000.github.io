@@ -1,0 +1,437 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>DDB | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="🧩 一、促購中心的需求特性 促購中心的「回饋活動任務表」其實是一種 Event-driven 狀態快取表，具備以下特性：    特性 說明 資料特徵    高併發寫入 訂單成立事件頻繁，可能每秒上百筆 寫多、查少   非同步處理 主流程不等待給點，後續批次發放 一致性需求低   短生命週期 任務處理完、回饋完、TTL 後可刪除 適合 NoSQL 自動過期   Key 查詢明確 用 (Activi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DDB">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/05/15/DDB/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="🧩 一、促購中心的需求特性 促購中心的「回饋活動任務表」其實是一種 Event-driven 狀態快取表，具備以下特性：    特性 說明 資料特徵    高併發寫入 訂單成立事件頻繁，可能每秒上百筆 寫多、查少   非同步處理 主流程不等待給點，後續批次發放 一致性需求低   短生命週期 任務處理完、回饋完、TTL 後可刪除 適合 NoSQL 自動過期   Key 查詢明確 用 (Activi">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/xAbpKgd.png">
+<meta property="article:published_time" content="2025-05-15T00:07:05.000Z">
+<meta property="article:modified_time" content="2025-11-05T14:22:25.637Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/xAbpKgd.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/05/15/DDB/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'DDB',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-11-05 22:22:25'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">14</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/xAbpKgd.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">DDB</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-05-15T00:07:05.000Z" title="Created 2025-05-15 08:07:05">2025-05-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-05T14:22:25.637Z" title="Updated 2025-11-05 22:22:25">2025-11-05</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="DDB"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>🧩 一、促購中心的需求特性</p>
+<p>促購中心的「回饋活動任務表」其實是一種 Event-driven 狀態快取表，具備以下特性：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>說明</th>
+<th>資料特徵</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>高併發寫入</strong></td>
+<td>訂單成立事件頻繁，可能每秒上百筆</td>
+<td>寫多、查少</td>
+</tr>
+<tr>
+<td><strong>非同步處理</strong></td>
+<td>主流程不等待給點，後續批次發放</td>
+<td>一致性需求低</td>
+</tr>
+<tr>
+<td><strong>短生命週期</strong></td>
+<td>任務處理完、回饋完、TTL 後可刪除</td>
+<td>適合 NoSQL 自動過期</td>
+</tr>
+<tr>
+<td><strong>Key 查詢明確</strong></td>
+<td>用 (ActivityId, OrderId) 查</td>
+<td>無需複雜查詢 &#x2F; Join</td>
+</tr>
+<tr>
+<td><strong>結構不固定</strong></td>
+<td>不同活動可能多欄位（Coupon vs Point）</td>
+<td>Schema flexible</td>
+</tr>
+<tr>
+<td><strong>高可用 + 多 Region</strong></td>
+<td>回饋邏輯在 TW &#x2F; HK &#x2F; MY 多區部署</td>
+<td>Global Table 適合同步</td>
+</tr>
+</tbody></table>
+<p>→ 這些特徵綜合起來，正好是 DynamoDB 的強項區間。<br>SQL Server 或 RDS 雖能做，但在高頻寫入 + 動態欄位 + 可擴展性上會出現瓶頸。</p>
+<p>⚙️ 二、使用 DynamoDB 的技術優勢與缺點分析</p>
+<p>✅ 優點（選用理由）</p>
+<table>
+<thead>
+<tr>
+<th>面向</th>
+<th>優點</th>
+<th>實際在促購中心的效益</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1. 高可擴展、高併發</strong></td>
+<td>支援每秒數萬次寫入，水平擴展自動分區</td>
+<td>回饋任務（活動 × 訂單）數量龐大仍穩定</td>
+</tr>
+<tr>
+<td><strong>2. 單鍵查詢極快</strong></td>
+<td>Key-Value 模型，毫秒級查詢延遲</td>
+<td>查詢「活動ID + 訂單ID」超快</td>
+</tr>
+<tr>
+<td><strong>3. 可設定 TTL</strong></td>
+<td>自動清除過期資料</td>
+<td>適合任務過期或發放完後自動回收</td>
+</tr>
+<tr>
+<td><strong>4. 高可用、免維運</strong></td>
+<td>AWS Fully managed, Multi-AZ</td>
+<td>不用擔心磁碟、索引、備份維護</td>
+</tr>
+<tr>
+<td><strong>5. 結構彈性</strong></td>
+<td>無 Schema 限制，可隨活動變化擴充欄位</td>
+<td>不同活動可放不同屬性（點數&#x2F;券皆可）</td>
+</tr>
+<tr>
+<td><strong>6. 原子操作 &#x2F; Counter</strong></td>
+<td>支援 UpdateExpression 累加</td>
+<td>可安全累加 reward 次數或點數</td>
+</tr>
+<tr>
+<td><strong>7. 成本彈性</strong></td>
+<td>On-Demand 模式，低流量成本低</td>
+<td>適合事件型資料（高峰期才有流量）</td>
+</tr>
+<tr>
+<td><strong>8. 與 AWS 生態整合</strong></td>
+<td>CloudWatch、Lambda、Kinesis、Glue</td>
+<td>排程、監控、ETL 都可無縫接上</td>
+</tr>
+</tbody></table>
+<p>⚠️ 缺點（需考慮或補強）</p>
+<table>
+<thead>
+<tr>
+<th>面向</th>
+<th>缺點</th>
+<th>在促購中心的解法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1. 無法複雜查詢</strong></td>
+<td>不支援 JOIN &#x2F; GROUP BY &#x2F; 聚合</td>
+<td>只存「任務狀態」，統計用 Redshift &#x2F; Athena</td>
+</tr>
+<tr>
+<td><strong>2. Query 綁定 Key</strong></td>
+<td>只能依 PK + SK 或 GSI 查</td>
+<td>預先設計好存取模式（ActivityId + OrderId）</td>
+</tr>
+<tr>
+<td><strong>3. 成本模型特殊</strong></td>
+<td>高頻 Scan 會貴（以 RCU&#x2F;WCU 計價）</td>
+<td>改用 Key 查或分批掃描（分區化排程）</td>
+</tr>
+<tr>
+<td><strong>4. 最終一致性</strong></td>
+<td>非強一致（預設 eventual）</td>
+<td>重要查詢可加 <code>ConsistentRead=true</code></td>
+</tr>
+<tr>
+<td><strong>5. 沒有 transaction join</strong></td>
+<td>無法跨表同時更新</td>
+<td>以事件流方式補償（eventual consistency）</td>
+</tr>
+<tr>
+<td><strong>6. 學習曲線較高</strong></td>
+<td>Query&#x2F;Scan 思維不同於 SQL</td>
+<td>需明確定義 Access Pattern</td>
+</tr>
+</tbody></table>
+<p>🧱 三、與其他資料庫選項的比較</p>
+<table>
+<thead>
+<tr>
+<th>技術</th>
+<th>優點</th>
+<th>缺點</th>
+<th>適用情境</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>SQL Server &#x2F; Aurora</strong></td>
+<td>關聯強、交易一致性高</td>
+<td>寫入延遲高、維運重、擴展成本高</td>
+<td>PromotionEngine 主表、商店設定等</td>
+</tr>
+<tr>
+<td><strong>Redis</strong></td>
+<td>快取速度快</td>
+<td>不適合持久化、難查詢狀態</td>
+<td>暫存 token、快取規則</td>
+</tr>
+<tr>
+<td><strong>S3</strong></td>
+<td>成本低</td>
+<td>無法查詢</td>
+<td>歷史歸檔、備份</td>
+</tr>
+<tr>
+<td><strong>Elasticsearch &#x2F; OpenSearch</strong></td>
+<td>搜尋強大</td>
+<td>寫入成本高</td>
+<td>分析報表或搜尋活動紀錄</td>
+</tr>
+<tr>
+<td><strong>DynamoDB</strong> ✅</td>
+<td>高併發、低延遲、結構彈性</td>
+<td>無 Join、Query 限制</td>
+<td>訂單回饋任務、Occupy 狀態、快照紀錄</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>限制</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>❌ 不能 JOIN</td>
+<td>無法跨表查，例如 Promotion 與 Shop 的關聯</td>
+</tr>
+<tr>
+<td>⚠️ 只能查有索引的欄位</td>
+<td>如果不是 PartitionKey &#x2F; SortKey &#x2F; GSI，就會是 <strong>全表掃描</strong></td>
+</tr>
+<tr>
+<td>⚠️ 沒有 GROUP BY &#x2F; 聚合</td>
+<td>不能直接做 SUM、COUNT、AVG</td>
+</tr>
+<tr>
+<td>⚠️ 範圍查詢有限</td>
+<td>僅支援 Sort Key 的 BETWEEN、&gt;、&lt;</td>
+</tr>
+<tr>
+<td>⚠️ 大量查詢昂貴</td>
+<td>PartiQL 底層仍會消耗 RCU（Read Capacity Units）</td>
+</tr>
+</tbody></table>
+<p>。</p>
+<p>🧱 一、跨條件查詢的限制情境<br>🔹 情境 1：要查「同一活動下，所有尚未給點的訂單」<br>SELECT *<br>FROM PromotionReward_Task<br>WHERE PromotionId &#x3D; ‘P202511’<br>  AND RewardStatus &#x3D; ‘WaitingToReward’</p>
+<p>為什麼不方便：</p>
+<p>DDB 只能用 Partition Key + Sort Key 查（或 GSI）。</p>
+<p>若 PK&#x3D;PromotionId、SK&#x3D;OrderId，就只能指定單筆 OrderId。</p>
+<p>你要掃整個活動的所有訂單，只能用 Query(PromotionId) → 全量掃描數萬筆，再自己過濾 RewardStatus。</p>
+<p>👉 缺點：</p>
+<p>成本高（RCU 消耗大）</p>
+<p>無法用索引聚合</p>
+<p>無法即時查「有幾筆還沒給」</p>
+<p>🔹 情境 2：要查「會員 A 在最近 30 天有哪些活動回饋紀錄」<br>SELECT *<br>FROM PromotionReward_Task<br>WHERE MemberId &#x3D; 12345<br>  AND OrderTimeUTC &gt;&#x3D; ‘2025-10-01’</p>
+<p>為什麼不方便：</p>
+<p>MemberId 不是 Partition Key。</p>
+<p>要查某個會員，只能做 全表 Scan。</p>
+<p>若資料量大（數百萬筆），會爆炸慢。</p>
+<p>✅ 解法是建立 GSI（Global Secondary Index）：</p>
+<p>GSI1 PK &#x3D; MemberId, SK &#x3D; OrderTimeUTC<br>但這會：</p>
+<p>增加寫入成本（每次寫入也更新 GSI）</p>
+<p>難以維護多維查詢（活動 + 會員 + 狀態）</p>
+<p>🔹 情境 3：要查「今天所有要發點的任務」<br>SELECT *<br>FROM PromotionReward_Task<br>WHERE BookingTimeUTC &#x3D; ‘2025-11-05’<br>  AND RewardStatus &#x3D; ‘WaitingToReward’</p>
+<p>為什麼不方便：</p>
+<p>DDB 沒有日期索引，也不支援 BETWEEN 或 RANGE 過濾在非 Sort Key 上。</p>
+<p>除非你提前把 BookingTimeUTC 當成 Sort Key 或放在 GSI。</p>
+<p>但實務上會卡在：</p>
+<p>你還想依 PromotionId、ShopId 分類；</p>
+<p>而一張表只能有有限個 GSI（最多 20 個）；</p>
+<p>所以你不能為每種時間維度都建索引。</p>
+<p>🧩 實際上這種情境通常改成：</p>
+<p>「透過排程掃時間區間」，不是用查詢條件查。<br>但那樣「效率低、即時性差」。</p>
+<p>🔹 情境 4：要查「某商店下，所有活動的回饋狀態統計」<br>SELECT PromotionId, COUNT(*)<br>FROM PromotionReward_Task<br>WHERE ShopId &#x3D; 41051<br>GROUP BY PromotionId, RewardStatus</p>
+<p>為什麼不方便：</p>
+<p>DDB 沒有 GROUP BY、沒有 Aggregate function。</p>
+<p>你必須：</p>
+<p>先 Query 或 Scan 出所有資料；</p>
+<p>再由應用層自行 group &amp; count；</p>
+<p>或在 Lambda ETL 後存回 S3 → Athena&#x2F;Redshift 查。</p>
+<p>👉 缺點：</p>
+<p>效率差；</p>
+<p>需多一層資料管線；</p>
+<p>無法即時查統計。</p>
+<p>🔹 情境 5：要查「活動 P202511 有哪些訂單被回收點數」<br>SELECT *<br>FROM PromotionReward_Task<br>WHERE PromotionId &#x3D; ‘P202511’<br>  AND RewardStatus &#x3D; ‘Recycled’</p>
+<p>問題：</p>
+<p>跟情境 1 類似，若你的 Sort Key 是 OrderId，就只能全 Query + Filter。</p>
+<p>而 DDB 的 Filter 是「取出資料後再篩選」，仍會被計費！</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/05/15/DDB/">https://allenlin000.github.io.git/2025/05/15/DDB/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/xAbpKgd.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/05/13/NEW-DependencyInjection-7/" title="Dependency Injection - 測試"><img class="cover" src="https://i.imgur.com/xAbpKgd.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Dependency Injection - 測試</div></div></a></div><div class="next-post pull-right"><a href="/2025/05/18/NEW-DependencyInjection-5/" title="Dependency Injection - EF Core DbContext"><img class="cover" src="https://i.imgur.com/xAbpKgd.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Dependency Injection - EF Core DbContext</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">14</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/06/middlewareeee/" title="Middleware"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Middleware"/></a><div class="content"><a class="title" href="/2025/11/06/middlewareeee/" title="Middleware">Middleware</a><time datetime="2025-11-06T06:07:05.000Z" title="Created 2025-11-06 14:07:05">2025-11-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/06/Dependency-Injection-Stateless-Stateful/" title="Dependency Injection - Stateless / Stateful"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Dependency Injection - Stateless / Stateful"/></a><div class="content"><a class="title" href="/2025/11/06/Dependency-Injection-Stateless-Stateful/" title="Dependency Injection - Stateless / Stateful">Dependency Injection - Stateless / Stateful</a><time datetime="2025-11-06T02:43:05.000Z" title="Created 2025-11-06 10:43:05">2025-11-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/03/%E9%80%B1%E6%9C%9F%E6%80%A7%E8%A7%B8%E7%99%BC/" title="Modulo — 記憶の螺旋"><img src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Modulo — 記憶の螺旋"/></a><div class="content"><a class="title" href="/2025/11/03/%E9%80%B1%E6%9C%9F%E6%80%A7%E8%A7%B8%E7%99%BC/" title="Modulo — 記憶の螺旋">Modulo — 記憶の螺旋</a><time datetime="2025-11-03T00:32:03.000Z" title="Created 2025-11-03 08:32:03">2025-11-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/31/Generic-3/" title="Generic -"><img src="https://i.imgur.com/Zly1UDM.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Generic -"/></a><div class="content"><a class="title" href="/2025/10/31/Generic-3/" title="Generic -">Generic -</a><time datetime="2025-10-31T01:01:05.000Z" title="Created 2025-10-31 09:01:05">2025-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/29/wrapper-adapter/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/10/29/wrapper-adapter/" title="Untitled">Untitled</a><time datetime="2025-10-29T01:06:05.548Z" title="Created 2025-10-29 09:06:05">2025-10-29</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
