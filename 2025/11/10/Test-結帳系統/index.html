@@ -1,0 +1,294 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>結帳系統 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="加入購物車限流器單位時間內，限制可以加入購物車的數量 兩層票匣（Token Bucket）+ 秒級時間窗可以把每個方塊視為「某個時間窗內允許的票（tokens）」：  By SkuId 的票匣：每個 SKU 每秒最多 100 次加入（圖的 100 只是示意）。同一秒內，第 101 個想加的，因為他拿不到票，就被「請稍後再試」。  By ShopId 的票匣：同一商店合計每秒最多 1000 次加入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="結帳系統">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/11/10/Test-%E7%B5%90%E5%B8%B3%E7%B3%BB%E7%B5%B1/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="加入購物車限流器單位時間內，限制可以加入購物車的數量 兩層票匣（Token Bucket）+ 秒級時間窗可以把每個方塊視為「某個時間窗內允許的票（tokens）」：  By SkuId 的票匣：每個 SKU 每秒最多 100 次加入（圖的 100 只是示意）。同一秒內，第 101 個想加的，因為他拿不到票，就被「請稍後再試」。  By ShopId 的票匣：同一商店合計每秒最多 1000 次加入">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/System-Design/security.png?raw=true">
+<meta property="article:published_time" content="2025-11-10T04:10:11.000Z">
+<meta property="article:modified_time" content="2025-11-10T03:50:23.969Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="架構の海に灯る星ㄋ">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/System-Design/security.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/11/10/Test-%E7%B5%90%E5%B8%B3%E7%B3%BB%E7%B5%B1/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '結帳系統',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-10 11:50:23'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">61</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/System-Design/security.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">結帳系統</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-10T04:10:11.000Z" title="Created 2025-11-10 12:10:11">2025-11-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-10T03:50:23.969Z" title="Updated 2025-11-10 11:50:23">2025-11-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9E%B6%E6%A7%8B%E3%81%AE%E6%B5%B7%E3%81%AB%E7%81%AF%E3%82%8B%E6%98%9F/">架構の海に灯る星</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="結帳系統"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://github.com/CHI-KEKE/pics/blob/main/System-Design/security.png?raw=true" alt="Disgn"></p>
+<h2 id="加入購物車限流器"><a href="#加入購物車限流器" class="headerlink" title="加入購物車限流器"></a>加入購物車限流器</h2><p>單位時間內，限制可以加入購物車的數量</p>
+<h3 id="兩層票匣（Token-Bucket）-秒級時間窗"><a href="#兩層票匣（Token-Bucket）-秒級時間窗" class="headerlink" title="兩層票匣（Token Bucket）+ 秒級時間窗"></a>兩層票匣（Token Bucket）+ 秒級時間窗</h3><p>可以把每個方塊視為「某個時間窗內允許的票（tokens）」：</p>
+<ul>
+<li><p>By SkuId 的票匣：每個 SKU 每秒最多 100 次加入（圖的 100 只是示意）。同一秒內，第 101 個想加的，因為他拿不到票，就被「請稍後再試」。</p>
+</li>
+<li><p>By ShopId 的票匣：同一商店合計每秒最多 1000 次加入。即使很多 SKU 分散加，也不能超過商店總上限，避免把該商店的後端資源用光。</p>
+</li>
+<li><p>時間軸（1s、2s、3s、…、ns）：代表「固定秒級視窗」或「每秒補票」。每過一秒，票匣重新裝滿（或按速率補票），下一秒再算。</p>
+</li>
+</ul>
+<p>🌳 「要通過，得同時有 Sku 的票 + Shop 的票」。任一票用完就被擋</p>
+<h3 id="〈每家店獨立設定〉—配額可調、資源隔離"><a href="#〈每家店獨立設定〉—配額可調、資源隔離" class="headerlink" title="〈每家店獨立設定〉—配額可調、資源隔離"></a>〈每家店獨立設定〉—配額可調、資源隔離</h3><p>Shop A、Shop B 各自一套配額</p>
+<ul>
+<li>A 店的白&#x2F;藍&#x2F;黃（SKU）可以是每秒 100。</li>
+<li>B 店的大小中 SKU 也各有每秒 100。</li>
+</ul>
+<p>營運面可調。大店、熱門品給高一點；新店、長尾品給保守值。</p>
+<h3 id="把限流放在「加入購物車」前段，Fail-fast"><a href="#把限流放在「加入購物車」前段，Fail-fast" class="headerlink" title="把限流放在「加入購物車」前段，Fail-fast"></a>把限流放在「加入購物車」前段，Fail-fast</h3><ul>
+<li>按下加入</li>
+<li>檢查庫存（若庫存 0，直接顯示缺貨）</li>
+<li>檢查商店總票匣（超額就彈「流量太熱」）</li>
+<li>檢查單 SKU 票匣（超額同樣彈窗）</li>
+<li>加入購物車檢查（各種商務&#x2F;資料校驗）</li>
+<li>執行加入購物車（真的落 DB &#x2F; 寫快取）</li>
+<li>成功進購物車 P1；若任一步失敗，回原失敗情境彈窗</li>
+</ul>
+<p>🌳 限流檢查在昂貴操作之前，把「貴的那段」流量打薄。</p>
+<h2 id="只控「量」，不保證「公平」"><a href="#只控「量」，不保證「公平」" class="headerlink" title="只控「量」，不保證「公平」"></a>只控「量」，不保證「公平」</h2><p>問題 : 現設計針對 Shop&#x2F;SKU 配額，不分人。腳本&#x2F;機器人能搶先把票用完，真人一直被彈<br>改進：加入 per-user &#x2F; per-IP &#x2F; per-device 子限額 或 優先級（登入會員 &gt; 未登入），甚至提供虛擬排隊（Queue with ticket + ETA），提高體感公平性</p>
+<h2 id="固定秒級視窗問題"><a href="#固定秒級視窗問題" class="headerlink" title="固定秒級視窗問題"></a>固定秒級視窗問題</h2><p>規則：每個視窗（整秒）最多 100 次加入。<br>兩個視窗：[0.000<del>0.999…] 與 [1.000</del>1.999…]，各自獨立計數、到整秒就歸零。</p>
+<p>事件時間線（真實尖峰常發生在邊界）</p>
+<p>0.980s ~ 0.999s：使用者&#x2F;機器人猛戳，來了 100 次</p>
+<p>視窗 [0,1)：計數 &#x3D; 100 → ✅ 合法（剛好到上限）</p>
+<p>1.000s ~ 1.010s：一到下一秒，又再來 100 次</p>
+<p>視窗 [1,2)：計數 &#x3D; 100 → ✅ 合法（新的秒又可用 100）</p>
+<p>固定視窗只看「各秒內」有沒有超過 100。<br>結果：30 毫秒內（0.980~1.010）實際放行了 200 次。</p>
+<p>把 200 次塞進 0.03 秒，等效瞬時吞吐量 &#x3D; 200 &#x2F; 0.03 ≈ 6,666 次&#x2F;秒。<br>後端其實只有「平均 100&#x2F;s 的胃口」，卻被「秒交界」放大成超高瞬時尖峰，DB&#x2F;促銷&#x2F;購物車那一刻就可能被壓壞；體感上也會變成有人秒通、有人被擋的隨機性。</p>
+<h3 id="滑動視窗（rolling-window）"><a href="#滑動視窗（rolling-window）" class="headerlink" title="滑動視窗（rolling window）"></a>滑動視窗（rolling window）</h3><p>固定視窗只在固定邊界判斷；滑動視窗則「隨時」往回看過去一段時間，因此能精準限制「任意時刻的平均速率」，消除跨邊界爆衝問題</p>
+<h2 id="個人化資料限流器-機器人阻擋限流器"><a href="#個人化資料限流器-機器人阻擋限流器" class="headerlink" title="個人化資料限流器 &#x2F; 機器人阻擋限流器"></a>個人化資料限流器 &#x2F; 機器人阻擋限流器</h2><p>一種防禦性限流模式（defensive rate-limiting）</p>
+<h3 id="秒級固定視窗（或滑動視窗）"><a href="#秒級固定視窗（或滑動視窗）" class="headerlink" title="秒級固定視窗（或滑動視窗）"></a>秒級固定視窗（或滑動視窗）</h3><p>每 1 秒（CacheSeconds&#x3D;1）允許 100 次。超過 100 次，就擋掉本秒多餘請求，但下一秒又可以重新計算。</p>
+<ul>
+<li>對象通常是「公共資源」或「整體流量」，如加入購物車、查庫存</li>
+<li>每秒重置，沒有懲罰期</li>
+<li>屬於「速率控制（rate limiting）</li>
+</ul>
+<h3 id="鎖定型限流（Lock-based）"><a href="#鎖定型限流（Lock-based）" class="headerlink" title="鎖定型限流（Lock-based）"></a>鎖定型限流（Lock-based）</h3><p>若在 1 秒內（CacheSeconds&#x3D;1）連續打 3 次，之後 30 秒內直接鎖帳號／IP／裝置，不讓再打</p>
+<ul>
+<li>用於「個人化／風控防禦」，例如防暴力登入、機器人點擊</li>
+<li>屬於「懲罰式限流（lockout）」，不是單純速率限制</li>
+<li>有暫時封鎖期（LockedSeconds）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>面向</th>
+<th>模式 A（滑動&#x2F;固定視窗）</th>
+<th>模式 B（鎖定型）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>目的</td>
+<td>控制系統總流量，防止尖峰打掛</td>
+<td>阻擋異常或惡意重複請求</td>
+</tr>
+<tr>
+<td>判斷對象</td>
+<td>一般是全域 (By ShopId &#x2F; SKU)</td>
+<td>個人或裝置 (By MemberId &#x2F; IP)</td>
+</tr>
+<tr>
+<td>視窗設計</td>
+<td>每 1 秒（可滑動），達上限就拒絕但下一秒恢復</td>
+<td>若短時間內超標，進入封鎖期</td>
+</tr>
+<tr>
+<td>行為反應</td>
+<td>達上限 → 暫時拒絕或排隊</td>
+<td>達上限 → 直接鎖 N 秒，不再判斷</td>
+</tr>
+<tr>
+<td>效果</td>
+<td>平滑流量、減少尖峰</td>
+<td>防暴力攻擊、阻止刷請求</td>
+</tr>
+<tr>
+<td>對使用者影響</td>
+<td>一秒後可重試</td>
+<td>被鎖後必須等整個封鎖期結束</td>
+</tr>
+<tr>
+<td>範例場景</td>
+<td>加入購物車、秒殺活動</td>
+<td>登入驗證、發送簡訊驗證碼、防爬蟲</td>
+</tr>
+</tbody></table>
+<h2 id="熔斷-Circuit-Breaker"><a href="#熔斷-Circuit-Breaker" class="headerlink" title="熔斷 Circuit Breaker"></a>熔斷 Circuit Breaker</h2><p>當某個外部服務或第三方 API 不穩定、連線變慢或頻繁出錯時，熔斷機制會「主動暫停呼叫那個服務」，避免整個系統被拖垮<br>電流太大 → 保險絲會燒掉 → 阻止更多電流流過 → 避免整棟房子跳電。系統裡的「熔斷」就是在保護主系統不要被拖垮</p>
+<h3 id="點數中心熔斷"><a href="#點數中心熔斷" class="headerlink" title="點數中心熔斷"></a>點數中心熔斷</h3><p>→ 當點數中心（例如：積分計算、優惠折抵）出現異常時，<br>熔斷機制會讓主流程（購物→結帳）繼續運作，<br>暫時不去呼叫點數中心 API。<br>✅ 好處：用戶還能繼續結帳，不會卡在點數錯誤。</p>
+<h3 id="第三方會員中心熔斷"><a href="#第三方會員中心熔斷" class="headerlink" title="第三方會員中心熔斷"></a>第三方會員中心熔斷</h3><p>→ 當連接第三方會員（例如康是美、美會員中心）出錯時，<br>系統暫時停用該功能，<br>✅ 以免每次請求都 timeout 造成整個網站卡住。</p>
+<h3 id="熔斷過於敏感"><a href="#熔斷過於敏感" class="headerlink" title="熔斷過於敏感"></a>熔斷過於敏感</h3><p>30 秒內錯 5 次就熔斷，對流量高的 API（如積分查詢）來說太容易觸發。<br>改成「基於錯誤比例」的判斷（例如錯誤率 &gt; 50% 才熔斷）。</p>
+<h3 id="恢復間隔時間過長"><a href="#恢復間隔時間過長" class="headerlink" title="恢復間隔時間過長"></a>恢復間隔時間過長</h3><p>熔斷後要等 60~120 秒才恢復，可能導致暫時性錯誤被放大。建議採「指數回退（Exponential Backoff）」或「半開模式（Half-Open Test）」機制，<br>讓系統能更智慧地嘗試恢復。</p>
+<h3 id="Timeout-差異大導致體驗不一致"><a href="#Timeout-差異大導致體驗不一致" class="headerlink" title="Timeout 差異大導致體驗不一致"></a>Timeout 差異大導致體驗不一致</h3><p>MWeb 30 秒、App 5 秒，造成「App 顯示錯誤但網頁成功」的情況。<br>建議統一用戶端 Timeout 邏輯，或在 API 層統一 Timeout 控制。</p>
+<h3 id="系統間依賴關係複雜時難以掌控"><a href="#系統間依賴關係複雜時難以掌控" class="headerlink" title="系統間依賴關係複雜時難以掌控"></a>系統間依賴關係複雜時難以掌控</h3><p>多個熔斷點（例如點數中心、會員中心）若同時啟動，整體流程會變得不可預期（例如結帳流程可能失去折扣、積分）。整體流程一致性下降，商業邏輯容易出錯</p>
+<h2 id="排隊機制"><a href="#排隊機制" class="headerlink" title="排隊機制"></a>排隊機制</h2></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/11/10/Test-%E7%B5%90%E5%B8%B3%E7%B3%BB%E7%B5%B1/">https://allenlin000.github.io.git/2025/11/10/Test-%E7%B5%90%E5%B8%B3%E7%B3%BB%E7%B5%B1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9E%B6%E6%A7%8B%E3%81%AE%E6%B5%B7%E3%81%AB%E7%81%AF%E3%82%8B%E6%98%9F%E3%84%8B/">架構の海に灯る星ㄋ</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/System-Design/security.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/11/09/Test-CPU-API/" title="Worker CPU"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Server/cat.jpg?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Worker CPU</div></div></a></div><div class="next-post pull-right"><a href="/2025/11/10/Test-%E6%96%B7%E8%B7%AF%E5%99%A8/" title="Circuit Breaker"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/System-Design/security.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Circuit Breaker</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">61</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E5%85%A5%E8%B3%BC%E7%89%A9%E8%BB%8A%E9%99%90%E6%B5%81%E5%99%A8"><span class="toc-number">1.</span> <span class="toc-text">加入購物車限流器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A9%E5%B1%A4%E7%A5%A8%E5%8C%A3%EF%BC%88Token-Bucket%EF%BC%89-%E7%A7%92%E7%B4%9A%E6%99%82%E9%96%93%E7%AA%97"><span class="toc-number">1.1.</span> <span class="toc-text">兩層票匣（Token Bucket）+ 秒級時間窗</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E3%80%88%E6%AF%8F%E5%AE%B6%E5%BA%97%E7%8D%A8%E7%AB%8B%E8%A8%AD%E5%AE%9A%E3%80%89%E2%80%94%E9%85%8D%E9%A1%8D%E5%8F%AF%E8%AA%BF%E3%80%81%E8%B3%87%E6%BA%90%E9%9A%94%E9%9B%A2"><span class="toc-number">1.2.</span> <span class="toc-text">〈每家店獨立設定〉—配額可調、資源隔離</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%8A%E9%99%90%E6%B5%81%E6%94%BE%E5%9C%A8%E3%80%8C%E5%8A%A0%E5%85%A5%E8%B3%BC%E7%89%A9%E8%BB%8A%E3%80%8D%E5%89%8D%E6%AE%B5%EF%BC%8CFail-fast"><span class="toc-number">1.3.</span> <span class="toc-text">把限流放在「加入購物車」前段，Fail-fast</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AA%E6%8E%A7%E3%80%8C%E9%87%8F%E3%80%8D%EF%BC%8C%E4%B8%8D%E4%BF%9D%E8%AD%89%E3%80%8C%E5%85%AC%E5%B9%B3%E3%80%8D"><span class="toc-number">2.</span> <span class="toc-text">只控「量」，不保證「公平」</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BA%E5%AE%9A%E7%A7%92%E7%B4%9A%E8%A6%96%E7%AA%97%E5%95%8F%E9%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">固定秒級視窗問題</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BB%91%E5%8B%95%E8%A6%96%E7%AA%97%EF%BC%88rolling-window%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">滑動視窗（rolling window）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%80%8B%E4%BA%BA%E5%8C%96%E8%B3%87%E6%96%99%E9%99%90%E6%B5%81%E5%99%A8-%E6%A9%9F%E5%99%A8%E4%BA%BA%E9%98%BB%E6%93%8B%E9%99%90%E6%B5%81%E5%99%A8"><span class="toc-number">4.</span> <span class="toc-text">個人化資料限流器 &#x2F; 機器人阻擋限流器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A7%92%E7%B4%9A%E5%9B%BA%E5%AE%9A%E8%A6%96%E7%AA%97%EF%BC%88%E6%88%96%E6%BB%91%E5%8B%95%E8%A6%96%E7%AA%97%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">秒級固定視窗（或滑動視窗）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%8E%96%E5%AE%9A%E5%9E%8B%E9%99%90%E6%B5%81%EF%BC%88Lock-based%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">鎖定型限流（Lock-based）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%86%94%E6%96%B7-Circuit-Breaker"><span class="toc-number">5.</span> <span class="toc-text">熔斷 Circuit Breaker</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%9E%E6%95%B8%E4%B8%AD%E5%BF%83%E7%86%94%E6%96%B7"><span class="toc-number">5.1.</span> <span class="toc-text">點數中心熔斷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%83%E5%93%A1%E4%B8%AD%E5%BF%83%E7%86%94%E6%96%B7"><span class="toc-number">5.2.</span> <span class="toc-text">第三方會員中心熔斷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%86%94%E6%96%B7%E9%81%8E%E6%96%BC%E6%95%8F%E6%84%9F"><span class="toc-number">5.3.</span> <span class="toc-text">熔斷過於敏感</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%81%A2%E5%BE%A9%E9%96%93%E9%9A%94%E6%99%82%E9%96%93%E9%81%8E%E9%95%B7"><span class="toc-number">5.4.</span> <span class="toc-text">恢復間隔時間過長</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Timeout-%E5%B7%AE%E7%95%B0%E5%A4%A7%E5%B0%8E%E8%87%B4%E9%AB%94%E9%A9%97%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="toc-number">5.5.</span> <span class="toc-text">Timeout 差異大導致體驗不一致</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B3%BB%E7%B5%B1%E9%96%93%E4%BE%9D%E8%B3%B4%E9%97%9C%E4%BF%82%E8%A4%87%E9%9B%9C%E6%99%82%E9%9B%A3%E4%BB%A5%E6%8E%8C%E6%8E%A7"><span class="toc-number">5.6.</span> <span class="toc-text">系統間依賴關係複雜時難以掌控</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%92%E9%9A%8A%E6%A9%9F%E5%88%B6"><span class="toc-number">6.</span> <span class="toc-text">排隊機制</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/Test-%E6%96%B7%E8%B7%AF%E5%99%A8/" title="Circuit Breaker"><img src="https://github.com/CHI-KEKE/pics/blob/main/System-Design/security.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Circuit Breaker"/></a><div class="content"><a class="title" href="/2025/11/10/Test-%E6%96%B7%E8%B7%AF%E5%99%A8/" title="Circuit Breaker">Circuit Breaker</a><time datetime="2025-11-10T04:10:11.000Z" title="Created 2025-11-10 12:10:11">2025-11-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/Test-%E7%B5%90%E5%B8%B3%E7%B3%BB%E7%B5%B1/" title="結帳系統"><img src="https://github.com/CHI-KEKE/pics/blob/main/System-Design/security.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="結帳系統"/></a><div class="content"><a class="title" href="/2025/11/10/Test-%E7%B5%90%E5%B8%B3%E7%B3%BB%E7%B5%B1/" title="結帳系統">結帳系統</a><time datetime="2025-11-10T04:10:11.000Z" title="Created 2025-11-10 12:10:11">2025-11-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/09/Test-CPU-API/" title="Worker CPU"><img src="https://github.com/CHI-KEKE/pics/blob/main/Server/cat.jpg?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Worker CPU"/></a><div class="content"><a class="title" href="/2025/11/09/Test-CPU-API/" title="Worker CPU">Worker CPU</a><time datetime="2025-11-09T08:41:00.000Z" title="Created 2025-11-09 16:41:00">2025-11-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/09/Test-CPU-Worker/" title="Worker CPU"><img src="https://github.com/CHI-KEKE/pics/blob/main/Server/cat.jpg?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Worker CPU"/></a><div class="content"><a class="title" href="/2025/11/09/Test-CPU-Worker/" title="Worker CPU">Worker CPU</a><time datetime="2025-11-09T08:41:00.000Z" title="Created 2025-11-09 16:41:00">2025-11-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/08/Test-CPU-DB/" title="CPU"><img src="https://github.com/CHI-KEKE/pics/blob/main/Server/cat.jpg?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CPU"/></a><div class="content"><a class="title" href="/2025/11/08/Test-CPU-DB/" title="CPU">CPU</a><time datetime="2025-11-08T15:00:00.000Z" title="Created 2025-11-08 23:00:00">2025-11-08</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
