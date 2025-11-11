@@ -1,0 +1,333 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Anti Join - Performance | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="你是否曾經辦了健身房會員卡，結果只去了第一天，之後再也沒踏進去？你是否曾經鼓起勇氣傳訊息給喜歡的人，卻總是已讀不回？你是否曾經揪朋友出來玩，群組裡萬人響應，最後現場只來了一個？   如果以上情境你都心有戚戚焉，那麼…你可能是魯蛇 🤐   咳咳，我的意思是：這些看似悲傷的故事，其實背後都有個共同的規律：隱藏的多數。  健身房的角度，他們想知道哪些會員繳了錢卻不來，就是所謂的「三分鐘熱度凱子」。 感">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Anti Join - Performance">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/06/08/Test-Anti-Join-Performance/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="你是否曾經辦了健身房會員卡，結果只去了第一天，之後再也沒踏進去？你是否曾經鼓起勇氣傳訊息給喜歡的人，卻總是已讀不回？你是否曾經揪朋友出來玩，群組裡萬人響應，最後現場只來了一個？   如果以上情境你都心有戚戚焉，那麼…你可能是魯蛇 🤐   咳咳，我的意思是：這些看似悲傷的故事，其實背後都有個共同的規律：隱藏的多數。  健身房的角度，他們想知道哪些會員繳了錢卻不來，就是所謂的「三分鐘熱度凱子」。 感">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/NfCnwwU.png">
+<meta property="article:published_time" content="2024-06-08T15:50:34.000Z">
+<meta property="article:modified_time" content="2025-11-11T02:09:58.263Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="SQL 職場歷險記">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/NfCnwwU.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/06/08/Test-Anti-Join-Performance/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Anti Join - Performance',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-11 10:09:58'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">83</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/NfCnwwU.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Anti Join - Performance</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-06-08T15:50:34.000Z" title="Created 2024-06-08 23:50:34">2024-06-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-11T02:09:58.263Z" title="Updated 2025-11-11 10:09:58">2025-11-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/SQL-%E8%81%B7%E5%A0%B4%E6%AD%B7%E9%9A%AA%E8%A8%98/">SQL 職場歷險記</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Anti Join - Performance"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>你是否曾經辦了健身房會員卡，結果只去了第一天，之後再也沒踏進去？<br>你是否曾經鼓起勇氣傳訊息給喜歡的人，卻總是已讀不回？<br>你是否曾經揪朋友出來玩，群組裡萬人響應，最後現場只來了一個？</p>
+<br>
+
+<p>如果以上情境你都心有戚戚焉，那麼…<del>你可能是魯蛇 🤐</del></p>
+<br>
+
+<p>咳咳，我的意思是：這些看似悲傷的故事，其實背後都有個共同的規律：隱藏的多數。</p>
+<ul>
+<li>健身房的角度，他們想知道哪些會員繳了錢卻不來，就是所謂的「三分鐘熱度凱子」。</li>
+<li>感情的角度，你會想知道群發訊息後，哪些人始終沒有回應，好讓你直接封鎖省事。</li>
+<li>友情的角度，你會想知道哪些朋友總是「嘴巴答應，身體卻很誠實地缺席」。</li>
+</ul>
+<p>這些情境背後，其實就是一個簡單的數學邏輯：<br><br></p>
+<p><strong>👉 全部的人 - 出現的人 &#x3D; 那些看不見卻存在的名單</strong></p>
+<br>
+
+<p>在資料庫的世界裡，這個概念就叫做 —— <strong>Anti Join</strong>!</p>
+<p>現在有兩張表：</p>
+<ul>
+<li>Friends（朋友名單）</li>
+<li>Attendance（實際到場名單，代表「真的出現的人」）</li>
+</ul>
+<p>你要知道哪些朋友總是「嘴巴說要來，結果缺席」</p>
+<br>
+
+<h2 id="💩-NOT-IN"><a href="#💩-NOT-IN" class="headerlink" title="💩 NOT IN"></a>💩 NOT IN</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> FriendID, FriendName</span><br><span class="line"><span class="keyword">FROM</span> Friends</span><br><span class="line"><span class="keyword">WHERE</span> FriendID <span class="keyword">NOT</span> <span class="keyword">IN</span> (<span class="keyword">SELECT</span> FriendID <span class="keyword">FROM</span> Attendance);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>計算子查詢結果集：把 Attendance.FriendID 撈出來，形成一個清單（可能包含 NULL）。</li>
+<li>左表 Friends 掃描一次：逐筆取出 FriendID。</li>
+<li>對於每一筆 Friends.FriendID → 檢查是否存在於右表清單裡。</li>
+<li>如果右表清單有 NULL → 整個條件可能變成「UNKNOWN」，導致結果不正確。</li>
+</ul>
+<p>子查詢通常會先計算一次，存成暫存集合。每筆 Friends 都要跟這個清單比對。如果清單大，效能可能下降。<br>NULL 會是邏輯陷阱。</p>
+<br>
+
+<h3 id="🔹-NULL-問題"><a href="#🔹-NULL-問題" class="headerlink" title="🔹 NULL 問題"></a>🔹 NULL 問題</h3><p>⚠️ 注意：如果 Attendance.FriendID 裡出現了 NULL，整個查詢結果可能會變「空集合」！因為 NOT IN 碰到 白名單 的 KEY 有 NULL，結果會變成「不確定」，最後導致 所有朋友都不會被選出來。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> Attendance <span class="keyword">VALUES</span> (<span class="number">103</span>, <span class="keyword">NULL</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 再跑剛剛的查詢</span></span><br><span class="line"><span class="keyword">SELECT</span> FriendID, FriendName</span><br><span class="line"><span class="keyword">FROM</span> Friends</span><br><span class="line"><span class="keyword">WHERE</span> FriendID <span class="keyword">NOT</span> <span class="keyword">IN</span> (<span class="keyword">SELECT</span> FriendID <span class="keyword">FROM</span> Attendance);</span><br></pre></td></tr></table></figure>
+
+<p>實務上，若用 NOT IN，一定要加上條件</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WHERE</span> FriendID <span class="keyword">NOT</span> <span class="keyword">IN</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> FriendID <span class="keyword">FROM</span> Attendance <span class="keyword">WHERE</span> FriendID <span class="keyword">IS</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="🔹-效能分析"><a href="#🔹-效能分析" class="headerlink" title="🔹 效能分析"></a>🔹 效能分析</h3><p>會被轉換成 Anti Semi Join，也就是一種「只取左表有、右表沒有」的最佳化操作。當右表（Attendance）有 索引 (Index) 時，效能很好。</p>
+<br>
+<br>
+
+<h2 id="💩-NOT-EXISTS"><a href="#💩-NOT-EXISTS" class="headerlink" title="💩 NOT EXISTS"></a>💩 NOT EXISTS</h2><p>簡單說：對於每個朋友，問一次「你有出現在 Attendance 嗎？」如果沒有，就被挑出來。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> f.FriendID, f.FriendName</span><br><span class="line"><span class="keyword">FROM</span> Friends f</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">NOT</span> <span class="keyword">EXISTS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">FROM</span> Attendance a</span><br><span class="line">    <span class="keyword">WHERE</span> a.FriendID <span class="operator">=</span> f.FriendID</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>掃描左表 Friends：逐筆讀取 FriendID。</li>
+<li>利用索引（如果有的話），快速查 Attendance 是否存在相同 FriendID。</li>
+<li>找到第一筆匹配就停止檢查（效率比 NOT IN 高）。</li>
+<li>決策：<ul>
+<li>如果右表存在 → EXISTS &#x3D; TRUE → 這筆不選。</li>
+<li>如果右表不存在 → NOT EXISTS &#x3D; TRUE → 這筆選出來。</li>
+</ul>
+</li>
+</ul>
+<p>不需要完整掃描右表，只檢查「是否存在」。有索引時效能最佳。不會受 NULL 影響，結果永遠正確。</p>
+<br>
+
+<h3 id="🔹-不受-NULL-影響"><a href="#🔹-不受-NULL-影響" class="headerlink" title="🔹 不受 NULL 影響"></a>🔹 不受 NULL 影響</h3><p>NOT IN 可能因為右表有 NULL 而導致整個查詢「不回任何資料」。但 NOT EXISTS 完全不在乎 NULL，因為它只是檢查「有沒有匹配行」。</p>
+<p>在 SQL Server、Oracle、PostgreSQL 等主流 DB，NOT EXISTS 通常會被轉換成 Anti Semi Join。<br>當右表有索引（例如 Attendance.FriendID 上有 Index），效能幾乎跟 NOT IN 一樣，甚至更穩定。</p>
+<br>
+
+<h3 id="🔹-效能"><a href="#🔹-效能" class="headerlink" title="🔹 效能"></a>🔹 效能</h3><p>在有 Index 的情況下，與 NOT IN 幾乎相同；在無 Index 的情況下，兩者都可能慢</p>
+<br>
+<br>
+
+<h2 id="💩-LEFTJOIN…-IS-NULL"><a href="#💩-LEFTJOIN…-IS-NULL" class="headerlink" title="💩 LEFTJOIN… IS NULL"></a>💩 LEFTJOIN… IS NULL</h2><p>就是找「左表有，但右表沒有」的資料</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> f.FriendID, f.FriendName</span><br><span class="line"><span class="keyword">FROM</span> Friends f</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> Attendance a</span><br><span class="line">    <span class="keyword">ON</span> f.FriendID <span class="operator">=</span> a.FriendID</span><br><span class="line"><span class="keyword">WHERE</span> a.FriendID <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>把 Friends 全部取出，跟 Attendance 嘗試做匹配。<ul>
+<li>如果有匹配 → 把 Attendance 的欄位帶出來。</li>
+<li>如果沒有 → Attendance 欄位設成 NULL。</li>
+</ul>
+</li>
+</ul>
+<p>（這裡可能產生很大的「中間結果集」）。</p>
+<ul>
+<li>過濾條件，保留那些 a.FriendID IS NULL 的紀錄。也就是「左表有但右表沒有對應」。</li>
+</ul>
+<p>語意直觀，但中間結果集可能龐大。如果右表很大且沒有索引 → 效能可能比 NOT EXISTS 差。在現代 DBMS，最佳化器有時會把它重寫成 Anti Semi Join，效能差異不大。</p>
+<br>
+
+<h3 id="🔹-重複值的處理"><a href="#🔹-重複值的處理" class="headerlink" title="🔹 重複值的處理"></a>🔹 重複值的處理</h3><p>如果右表 (Attendance) 有重複紀錄，LEFT JOIN 會把左表的資料「複製」多次<br>雖然最後 IS NULL 可以過濾掉，但中間結果可能會比 NOT EXISTS 更大，導致效能下降</p>
+<p>LEFT JOIN … IS NULL 通常會被最佳化器轉換成 Anti Semi Join，效能跟 NOT EXISTS 幾乎一樣。<br>但當 右表很大、且無索引 時，LEFT JOIN 在中間產生的資料量會比 NOT EXISTS 多，效能可能會差一點</p>
+<br>
+
+<h3 id="🔹-中間結果集問題"><a href="#🔹-中間結果集問題" class="headerlink" title="🔹 中間結果集問題"></a>🔹 中間結果集問題</h3><p>LEFT JOIN 的本質：先把 左表 (Friends) 和 右表 (Attendance) 做一次 Join。即使最後要的是「右表沒對上的資料」，但在 執行計畫 裡，資料庫還是會產生「合併後的結果集 (Intermediate Result Set)」</p>
+<p>如果右表資料很大，這個中間結果集可能會非常龐大，再加上 IS NULL 過濾，效能就會下降。</p>
+<p>LEFT JOIN 是「先全都比對，再篩掉不要的」</p>
+<br>
+
+<h3 id="🔹-想要帶出「右表的一些欄位」"><a href="#🔹-想要帶出「右表的一些欄位」" class="headerlink" title="🔹 想要帶出「右表的一些欄位」"></a>🔹 想要帶出「右表的一些欄位」</h3><p>當你不只是要排除，而是想找出所有朋友，以及他們的出席紀錄（有來顯示，沒來就 NULL）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> f.FriendID, f.FriendName, a.AttendID</span><br><span class="line"><span class="keyword">FROM</span> Friends f</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> Attendance a</span><br><span class="line">    <span class="keyword">ON</span> f.FriendID <span class="operator">=</span> a.FriendID;</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="💩-EXCEPT"><a href="#💩-EXCEPT" class="headerlink" title="💩 EXCEPT"></a>💩 EXCEPT</h2><p>EXCEPT 在 SQL 裡表示「集合差集」：取左邊查詢的結果集合減去右邊查詢的結果集合</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> FriendID, FriendName</span><br><span class="line"><span class="keyword">FROM</span> Friends</span><br><span class="line"></span><br><span class="line"><span class="keyword">EXCEPT</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> f.FriendID, f.FriendName</span><br><span class="line"><span class="keyword">FROM</span> Friends f</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> Attendance a</span><br><span class="line">    <span class="keyword">ON</span> f.FriendID <span class="operator">=</span> a.FriendID;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 或你只需要 Id</span></span><br><span class="line"><span class="keyword">SELECT</span> FriendID <span class="keyword">FROM</span> Friends</span><br><span class="line"><span class="keyword">EXCEPT</span></span><br><span class="line"><span class="keyword">SELECT</span> FriendID <span class="keyword">FROM</span> Attendance;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>左邊結果集算出來（Friends）。</li>
+<li>右邊結果集算出來（Attendance）。</li>
+<li>做一次「去重 (DISTINCT) + 排序 (Sort)」。</li>
+<li>算出「差集」。</li>
+</ul>
+<p>👉 所以兩張表都會被完整掃描一次。</p>
+<br>
+
+<h3 id="🔹-天生去重"><a href="#🔹-天生去重" class="headerlink" title="🔹 天生去重"></a>🔹 天生去重</h3><p>EXCEPT 天生會幫你做去重 (DISTINCT)。如果 Friends 或 Attendance 有重複值，EXCEPT 會自動去掉<br>預設去重可能造成效能問題，EXCEPT 在內部會做 DISTINCT，等於要排序 + 去重。<br>如果你不需要去重，這個動作就是多餘的。在資料量大的時候，這會比 NOT EXISTS &#x2F; LEFT JOIN … IS NULL 多一些效能開銷</p>
+<br>
+
+<h3 id="🔹-處理-NULL"><a href="#🔹-處理-NULL" class="headerlink" title="🔹 處理 NULL"></a>🔹 處理 NULL</h3><p>在 SQL 標準裡，EXCEPT 會正確處理 NULL，不像 NOT IN 那樣踩陷阱</p>
+<br>
+<br>
+
+<h2 id="💩-測試方法"><a href="#💩-測試方法" class="headerlink" title="💩 測試方法"></a>💩 測試方法</h2><p>在比較這些 Anti Join 的效能時，我們可以開啟 SQL Server 的統計資訊來觀察查詢效能。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> STATISTICS <span class="type">TIME</span> <span class="keyword">ON</span>;  <span class="comment">-- 顯示 CPU Time 與 Elapsed Time</span></span><br><span class="line"><span class="keyword">SET</span> STATISTICS IO <span class="keyword">ON</span>;    <span class="comment">-- 顯示 IO 使用情況（邏輯讀取次數）</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接著在不同的查詢之間用 GO 區隔，這樣每個查詢的統計結果會分開顯示，方便觀察：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- NOT EXISTS</span></span><br><span class="line"><span class="keyword">SELECT</span> ...</span><br><span class="line">GO</span><br><span class="line"></span><br><span class="line"><span class="comment">-- NOT IN</span></span><br><span class="line"><span class="keyword">SELECT</span> ...</span><br><span class="line">GO</span><br><span class="line"></span><br><span class="line"><span class="comment">-- LEFT JOIN ... IS NULL</span></span><br><span class="line"><span class="keyword">SELECT</span> ...</span><br><span class="line">GO</span><br><span class="line"></span><br><span class="line"><span class="comment">-- EXCEPT</span></span><br><span class="line"><span class="keyword">SELECT</span> ...</span><br><span class="line">GO</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="🔹-CPU-Time"><a href="#🔹-CPU-Time" class="headerlink" title="🔹 CPU Time"></a>🔹 CPU Time</h3><p>代表 SQL Server 在這次查詢中，真正花費在 CPU 運算 的時間。通常越小越好，表示 CPU 負擔較低。</p>
+<br>
+
+<h3 id="🔹-Elapsed-Time"><a href="#🔹-Elapsed-Time" class="headerlink" title="🔹 Elapsed Time"></a>🔹 Elapsed Time</h3><p>代表查詢從開始到結束，實際花費的總時間。這個值會受到 CPU、IO、網路、記憶體等多種因素影響。</p>
+<br>
+
+<h3 id="🔹-Logical-Reads"><a href="#🔹-Logical-Reads" class="headerlink" title="🔹 Logical Reads"></a>🔹 Logical Reads</h3><p>代表 SQL Server 讀取了多少資料頁 (Page)，也就是 查詢需要存取多少次資料。越少越好，因為表示這個查詢需要讀取的資料較少，IO 負擔較輕。</p>
+<br>
+
+<h3 id="🔹-執行計畫-Execution-Plan"><a href="#🔹-執行計畫-Execution-Plan" class="headerlink" title="🔹 執行計畫 (Execution Plan)"></a>🔹 執行計畫 (Execution Plan)</h3><p>在 SSMS (SQL Server Management Studio) 中，可以點選「Include Actual Execution Plan」(快捷鍵：Ctrl+M)，或是執行前按下工具列的執行計畫按鈕。執行計畫會顯示 SQL Server 實際使用了哪種演算法（例如 Nested Loop Anti Semi Join、Hash Match Anti Semi Join、Merge Join…），這能幫助我們理解資料庫在不同語法下的最佳化差異。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/06/08/Test-Anti-Join-Performance/">https://allenlin000.github.io.git/2024/06/08/Test-Anti-Join-Performance/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/SQL-%E8%81%B7%E5%A0%B4%E6%AD%B7%E9%9A%AA%E8%A8%98/">SQL 職場歷險記</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/NfCnwwU.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/06/08/Test-String-Agg/" title="STRING_AGG"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">STRING_AGG</div></div></a></div><div class="next-post pull-right"><a href="/2024/06/24/Vlidation-1/" title="Data Validation"><img class="cover" src="https://i.imgur.com/K4IWF9k.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Data Validation</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/10/04/SQL-Index/" title="Index"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-04</div><div class="title">Index</div></div></a></div><div><a href="/2025/10/26/Test-SQL-%E6%99%82%E9%96%932/" title="SQL - 時の雫"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-26</div><div class="title">SQL - 時の雫</div></div></a></div><div><a href="/2025/10/15/Test-Performance-1/" title="Performance"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-15</div><div class="title">Performance</div></div></a></div><div><a href="/2025/10/09/Test-string/" title="SQL - 文字列の森"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-09</div><div class="title">SQL - 文字列の森</div></div></a></div><div><a href="/2025/10/09/Test-datetime/" title="SQL - 時間序列の鏡"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-09</div><div class="title">SQL - 時間序列の鏡</div></div></a></div><div><a href="/2025/10/15/Test-%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F/" title="執行順序"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-15</div><div class="title">執行順序</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">83</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%A9-NOT-IN"><span class="toc-number">1.</span> <span class="toc-text">💩 NOT IN</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-NULL-%E5%95%8F%E9%A1%8C"><span class="toc-number">1.1.</span> <span class="toc-text">🔹 NULL 問題</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E6%95%88%E8%83%BD%E5%88%86%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">🔹 效能分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%A9-NOT-EXISTS"><span class="toc-number">2.</span> <span class="toc-text">💩 NOT EXISTS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E4%B8%8D%E5%8F%97-NULL-%E5%BD%B1%E9%9F%BF"><span class="toc-number">2.1.</span> <span class="toc-text">🔹 不受 NULL 影響</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E6%95%88%E8%83%BD"><span class="toc-number">2.2.</span> <span class="toc-text">🔹 效能</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%A9-LEFTJOIN%E2%80%A6-IS-NULL"><span class="toc-number">3.</span> <span class="toc-text">💩 LEFTJOIN… IS NULL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E9%87%8D%E8%A4%87%E5%80%BC%E7%9A%84%E8%99%95%E7%90%86"><span class="toc-number">3.1.</span> <span class="toc-text">🔹 重複值的處理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E4%B8%AD%E9%96%93%E7%B5%90%E6%9E%9C%E9%9B%86%E5%95%8F%E9%A1%8C"><span class="toc-number">3.2.</span> <span class="toc-text">🔹 中間結果集問題</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E6%83%B3%E8%A6%81%E5%B8%B6%E5%87%BA%E3%80%8C%E5%8F%B3%E8%A1%A8%E7%9A%84%E4%B8%80%E4%BA%9B%E6%AC%84%E4%BD%8D%E3%80%8D"><span class="toc-number">3.3.</span> <span class="toc-text">🔹 想要帶出「右表的一些欄位」</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%A9-EXCEPT"><span class="toc-number">4.</span> <span class="toc-text">💩 EXCEPT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%A4%A9%E7%94%9F%E5%8E%BB%E9%87%8D"><span class="toc-number">4.1.</span> <span class="toc-text">🔹 天生去重</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E8%99%95%E7%90%86-NULL"><span class="toc-number">4.2.</span> <span class="toc-text">🔹 處理 NULL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%A9-%E6%B8%AC%E8%A9%A6%E6%96%B9%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">💩 測試方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-CPU-Time"><span class="toc-number">5.1.</span> <span class="toc-text">🔹 CPU Time</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-Elapsed-Time"><span class="toc-number">5.2.</span> <span class="toc-text">🔹 Elapsed Time</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-Logical-Reads"><span class="toc-number">5.3.</span> <span class="toc-text">🔹 Logical Reads</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%9F%B7%E8%A1%8C%E8%A8%88%E7%95%AB-Execution-Plan"><span class="toc-number">5.4.</span> <span class="toc-text">🔹 執行計畫 (Execution Plan)</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/Test-Deaklock-Lock-Conversion/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/11/Test-Deaklock-Lock-Conversion/" title="Untitled">Untitled</a><time datetime="2025-11-11T02:11:43.326Z" title="Created 2025-11-11 10:11:43">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/Test-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/10/Test-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="Untitled">Untitled</a><time datetime="2025-11-10T15:59:49.397Z" title="Created 2025-11-10 23:59:49">2025-11-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/Test-%E8%BD%89%E5%B0%8E/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/10/Test-%E8%BD%89%E5%B0%8E/" title="Untitled">Untitled</a><time datetime="2025-11-10T15:52:39.270Z" title="Created 2025-11-10 23:52:39">2025-11-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/Test-%E6%A9%9F%E5%99%A8%E4%BA%BA/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/10/Test-%E6%A9%9F%E5%99%A8%E4%BA%BA/" title="Untitled">Untitled</a><time datetime="2025-11-10T15:39:03.404Z" title="Created 2025-11-10 23:39:03">2025-11-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/Test-RPS/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/10/Test-RPS/" title="Untitled">Untitled</a><time datetime="2025-11-10T09:51:23.952Z" title="Created 2025-11-10 17:51:23">2025-11-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
