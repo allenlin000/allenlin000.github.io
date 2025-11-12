@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>DynamoDB | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="🍊 w&#x2F;rcu WCU (Write Capacity Unit)：寫入容量單位 RCU (Read Capacity Unit)：讀取容量單位  在 Amazon DynamoDB 裡，每一次「讀寫」資料都會消耗一定的「容量單位 (capacity units)」，可以這樣理解    類型 代表什麼 簡單例子    RCU 每秒能處理多少次「讀取」 1 RCU ≈ 每秒可以讀一筆 4">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DynamoDB">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/11/06/DDB-DDB/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="🍊 w&#x2F;rcu WCU (Write Capacity Unit)：寫入容量單位 RCU (Read Capacity Unit)：讀取容量單位  在 Amazon DynamoDB 裡，每一次「讀寫」資料都會消耗一定的「容量單位 (capacity units)」，可以這樣理解    類型 代表什麼 簡單例子    RCU 每秒能處理多少次「讀取」 1 RCU ≈ 每秒可以讀一筆 4">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true">
+<meta property="article:published_time" content="2025-11-06T09:54:05.000Z">
+<meta property="article:modified_time" content="2025-11-06T15:25:01.774Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="noSQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/11/06/DDB-DDB/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'DynamoDB',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-06 23:25:01'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">DynamoDB</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-06T09:54:05.000Z" title="Created 2025-11-06 17:54:05">2025-11-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-06T15:25:01.774Z" title="Updated 2025-11-06 23:25:01">2025-11-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/noSQL/">noSQL</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="DynamoDB"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="🍊-w-rcu"><a href="#🍊-w-rcu" class="headerlink" title="🍊 w&#x2F;rcu"></a>🍊 w&#x2F;rcu</h2><ul>
+<li>WCU (Write Capacity Unit)：寫入容量單位</li>
+<li>RCU (Read Capacity Unit)：讀取容量單位</li>
+</ul>
+<p>在 Amazon DynamoDB 裡，每一次「讀寫」資料都會消耗一定的「容量單位 (capacity units)」，可以這樣理解</p>
+<table>
+<thead>
+<tr>
+<th>類型</th>
+<th>代表什麼</th>
+<th>簡單例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>RCU</strong></td>
+<td>每秒能處理多少次「讀取」</td>
+<td>1 RCU ≈ 每秒可以讀一筆 4KB 的資料</td>
+</tr>
+<tr>
+<td><strong>WCU</strong></td>
+<td>每秒能處理多少次「寫入」</td>
+<td>1 WCU ≈ 每秒可以寫一筆 1KB 的資料</td>
+</tr>
+</tbody></table>
+<p>所以「monitor w&#x2F;rcu」的意思是：監控 DynamoDB 的讀寫容量使用情況，如果太高，就代表你的應用在短時間內讀寫太多資料</p>
+<br>
+<br>
+
+<h2 id="🍊-DynamoDB-是-Serverless"><a href="#🍊-DynamoDB-是-Serverless" class="headerlink" title="🍊 DynamoDB 是 Serverless"></a>🍊 DynamoDB 是 Serverless</h2><p>「Serverless」意思是：你不需要自己管理伺服器（例如開機、CPU、RAM、網路、磁碟空間、升級、安全修補… 等），AWS 幫你全包辦<br>以 DynamoDB 為例：</p>
+<ul>
+<li>你不需要建 EC2 或 Redis Cluster</li>
+<li>不用管 CPU、記憶體爆掉</li>
+<li>不需要設定自動擴展</li>
+<li>DynamoDB 會根據流量自動擴展容量</li>
+</ul>
+<p>你只要「設定表格」跟「定價模式（On-Demand 或 Provisioned）」就可以用了，也就是說，它會根據你的使用量自動調整效能，這就是 Serverless 的精神</p>
+<br>
+<br>
+
+<h2 id="🍊-Throttling（節流）"><a href="#🍊-Throttling（節流）" class="headerlink" title="🍊 Throttling（節流）"></a>🍊 Throttling（節流）</h2><p>Throttling 指的是「被限流」，也就是當你對 DynamoDB 發出太多讀寫請求，超過它的容量（RCU&#x2F;WCU），DynamoDB 會暫時拒絕或延遲某些請求</p>
+<p>✅ 它不會讓資料「壞掉」或「消失」<br>❌ 只是讓你有些請求「被延遲」或「被拒絕」，你需要重試（retry）</p>
+<br>
+<br>
+
+<h2 id="🍊-Partition-Key"><a href="#🍊-Partition-Key" class="headerlink" title="🍊 Partition Key"></a>🍊 Partition Key</h2><p>Partition Key 是 DynamoDB 資料表（Table）的主要索引欄位之一，用來決定<strong>這筆資料會被存在哪一個分區（partition）</strong>裡，DynamoDB 把你的資料表切成很多「資料櫃」（partition），每筆資料會根據 Partition Key 的值，被平均分配到不同櫃子裡</p>
+<br>
+<br>
+
+<h2 id="🍊-為什麼要有-Partition-Key"><a href="#🍊-為什麼要有-Partition-Key" class="headerlink" title="🍊 為什麼要有 Partition Key"></a>🍊 為什麼要有 Partition Key</h2><p>因為 DynamoDB 是為了高併發、分散式存取設計的資料庫，不同的 partition 可以同時處理請求，互不影響，Partition Key 的分佈越平均，DynamoDB 的效能越穩定，Partition Key 如果設計不好（例如大家都用同一個值），DynamoDB 會集中讀寫到單一 partition → 效能變差甚至 throttling</p>
+<br>
+<br>
+
+<h2 id="🍊-什麼叫「設計好的-Partition-Key」"><a href="#🍊-什麼叫「設計好的-Partition-Key」" class="headerlink" title="🍊 什麼叫「設計好的 Partition Key」"></a>🍊 什麼叫「設計好的 Partition Key」</h2><table>
+<thead>
+<tr>
+<th>原則</th>
+<th>說明</th>
+<th>範例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>分佈平均</strong></td>
+<td>不同資料的 Key 值應該平均分散，避免集中在同一個 partition</td>
+<td>❌ 用「固定字串」當 key<br>✅ 用「使用者ID」、「訂單編號」、「裝置ID」等</td>
+</tr>
+<tr>
+<td><strong>查詢方便</strong></td>
+<td>你最常查的條件，應該就是 Partition Key</td>
+<td>例如常查「依使用者ID 查訂單」，那 Partition Key 就應該是 <code>UserId</code></td>
+</tr>
+<tr>
+<td><strong>避免熱點（hot partition）</strong></td>
+<td>不要讓太多請求打在同一個 key 上</td>
+<td>❌ 用「today」當 key，所有人都寫入今天的資料會變成瓶頸</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/11/06/DDB-DDB/">https://allenlin000.github.io.git/2025/11/06/DDB-DDB/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/noSQL/">noSQL</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/11/06/webapi-middlewareeee/" title="Middleware"><img class="cover" src="https://i.imgur.com/xAbpKgd.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Middleware</div></div></a></div><div class="next-post pull-right"><a href="/2025/11/06/DDB-DDB2/" title="DynamoDB"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">DynamoDB</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/11/06/DDB-DDB2/" title="DynamoDB"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-06</div><div class="title">DynamoDB</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-w-rcu"><span class="toc-number">1.</span> <span class="toc-text">🍊 w&#x2F;rcu</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-DynamoDB-%E6%98%AF-Serverless"><span class="toc-number">2.</span> <span class="toc-text">🍊 DynamoDB 是 Serverless</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-Throttling%EF%BC%88%E7%AF%80%E6%B5%81%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">🍊 Throttling（節流）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-Partition-Key"><span class="toc-number">4.</span> <span class="toc-text">🍊 Partition Key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-%E7%82%BA%E4%BB%80%E9%BA%BC%E8%A6%81%E6%9C%89-Partition-Key"><span class="toc-number">5.</span> <span class="toc-text">🍊 為什麼要有 Partition Key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-%E4%BB%80%E9%BA%BC%E5%8F%AB%E3%80%8C%E8%A8%AD%E8%A8%88%E5%A5%BD%E7%9A%84-Partition-Key%E3%80%8D"><span class="toc-number">6.</span> <span class="toc-text">🍊 什麼叫「設計好的 Partition Key」</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/12/Cache-cache-91/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/12/Cache-cache-91/" title="Untitled">Untitled</a><time datetime="2025-11-12T00:43:48.794Z" title="Created 2025-11-12 08:43:48">2025-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/SQL-ReadUncommitted/" title="ReadUncommitted - 應用"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ReadUncommitted - 應用"/></a><div class="content"><a class="title" href="/2025/11/11/SQL-ReadUncommitted/" title="ReadUncommitted - 應用">ReadUncommitted - 應用</a><time datetime="2025-11-11T02:31:05.000Z" title="Created 2025-11-11 10:31:05">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/SQL-%E6%89%A3%E5%BA%AB%E5%AD%98/" title="扣庫存"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="扣庫存"/></a><div class="content"><a class="title" href="/2025/11/11/SQL-%E6%89%A3%E5%BA%AB%E5%AD%98/" title="扣庫存">扣庫存</a><time datetime="2025-11-11T02:31:05.000Z" title="Created 2025-11-11 10:31:05">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/SQL-Deaklock-Lock-Conversion/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/11/SQL-Deaklock-Lock-Conversion/" title="Untitled">Untitled</a><time datetime="2025-11-11T02:11:43.326Z" title="Created 2025-11-11 10:11:43">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/10/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="Untitled">Untitled</a><time datetime="2025-11-10T15:59:49.397Z" title="Created 2025-11-10 23:59:49">2025-11-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

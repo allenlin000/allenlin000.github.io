@@ -1,0 +1,373 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>IsolationLevel | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="交易隔離層級是用來控制「當多個交易同時讀寫資料時，要不要讓他們互相看到對方的變更。要資料「越準確」，就得「越鎖」，要系統「越快」，就得「越鬆」，是在討論競爭條件(Race condition)的議題   💼 READ UNCOMMITTED允許交易去「偷看別人還沒寫完的資料」，這樣雖然速度快，但有風險，因為你讀到的資料可能會「被改回去」或「消失」  不會加共用鎖 (Shared Lock)，所">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IsolationLevel">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/11/SQL-IsoloationLevel/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="交易隔離層級是用來控制「當多個交易同時讀寫資料時，要不要讓他們互相看到對方的變更。要資料「越準確」，就得「越鎖」，要系統「越快」，就得「越鬆」，是在討論競爭條件(Race condition)的議題   💼 READ UNCOMMITTED允許交易去「偷看別人還沒寫完的資料」，這樣雖然速度快，但有風險，因為你讀到的資料可能會「被改回去」或「消失」  不會加共用鎖 (Shared Lock)，所">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/NfCnwwU.png">
+<meta property="article:published_time" content="2025-10-11T00:50:05.000Z">
+<meta property="article:modified_time" content="2025-11-11T02:02:19.817Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/NfCnwwU.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/11/SQL-IsoloationLevel/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'IsolationLevel',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-11 10:02:19'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/NfCnwwU.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">IsolationLevel</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-11T00:50:05.000Z" title="Created 2025-10-11 08:50:05">2025-10-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-11T02:02:19.817Z" title="Updated 2025-11-11 10:02:19">2025-11-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/SQL-%E8%81%B7%E5%A0%B4%E6%AD%B7%E9%9A%AA%E8%A8%98/">SQL 職場歷險記</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="IsolationLevel"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://i.imgur.com/NfCnwwU.png" alt="ocean"></p>
+<p>交易隔離層級是用來控制「當多個交易同時讀寫資料時，要不要讓他們互相看到對方的變更。要資料「越準確」，就得「越鎖」，要系統「越快」，就得「越鬆」，是在討論競爭條件(Race condition)的議題</p>
+<br>
+
+<h2 id="💼-READ-UNCOMMITTED"><a href="#💼-READ-UNCOMMITTED" class="headerlink" title="💼 READ UNCOMMITTED"></a>💼 READ UNCOMMITTED</h2><p>允許交易去「偷看別人還沒寫完的資料」，這樣雖然速度快，但有風險，因為你讀到的資料可能會「被改回去」或「消失」</p>
+<ul>
+<li>不會加共用鎖 (Shared Lock)，所以別人正在改資料時，你一樣能讀它。</li>
+<li>不會被排他鎖 (Exclusive Lock) 阻擋，所以就算別人正在修改資料、還沒提交，你也能去讀它。</li>
+</ul>
+<br>
+
+<h3 id="🟢-Shared-Lock（共用鎖）"><a href="#🟢-Shared-Lock（共用鎖）" class="headerlink" title="🟢 Shared Lock（共用鎖）"></a>🟢 Shared Lock（共用鎖）</h3><p>是 SQL Server 在「讀資料」時加上的一種鎖，它的作用是我正在看資料，別人在我看完之前不能改它<br>觸發時機：SELECT 查詢（讀資料），可以多個共存 Shared Lock 但會阻擋 Exclusive Lock（別人不能改）</p>
+<p>用途：確保你讀的資料在讀取過程中不會被修改</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span> TRAN;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Products <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="number">1</span>;  <span class="comment">-- Shared Lock</span></span><br><span class="line"><span class="comment">-- 不結束交易，鎖會持續存在</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> Products <span class="keyword">SET</span> Price <span class="operator">=</span> <span class="number">200</span> <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="number">1</span>; <span class="comment">-- 會被卡住</span></span><br></pre></td></tr></table></figure>
+
+<p>預設情況下，EF 查詢會有 Shared Lock。因為 SQL Server 的預設隔離層級就是 READ COMMITTED。而 READ COMMITTED 的行為 &#x3D; 查資料時會加 Shared Lock（直到讀完那筆資料）</p>
+<br>
+
+<h3 id="🔴-Exclusive-Lock（排他鎖）"><a href="#🔴-Exclusive-Lock（排他鎖）" class="headerlink" title="🔴 Exclusive Lock（排他鎖）"></a>🔴 Exclusive Lock（排他鎖）</h3><p>用在「改資料」。別人不能看、也不能改，觸發時機是 INSERT、UPDATE、DELETE，完全不能共存（別人連讀都不行），會阻擋任何 Shared 或 Exclusive Lock，用途是確保修改時不會被別人讀或改，避免資料不一致</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span> TRAN;</span><br><span class="line"><span class="keyword">UPDATE</span> Products <span class="keyword">SET</span> Price <span class="operator">=</span> <span class="number">300</span> <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="number">1</span>;  <span class="comment">-- Exclusive Lock</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Products <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="number">1</span>; <span class="comment">-- 就會被卡住，因為資料正在被修改中。</span></span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="💼-READ-COMMITTED（已提交讀取）—SQL-Server-預設"><a href="#💼-READ-COMMITTED（已提交讀取）—SQL-Server-預設" class="headerlink" title="💼 READ COMMITTED（已提交讀取）—SQL Server 預設"></a>💼 READ COMMITTED（已提交讀取）—SQL Server 預設</h2><p>我只能讀「已經被提交」的資料。每次讀資料時會加 Shared Lock，讀完該筆資料就釋放（不是等整個交易結束），不會讀到未提交資料（避免髒讀），但因為釋放太快，可能再次查同筆資料會變了（不可重複讀）。<br>你只能看「圖書館正式版的書」，別人還沒交稿的不能看。但別人可能過 1 秒就更新再交稿 → 你再看一次內容就變了。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span> TRAN;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> Price <span class="keyword">FROM</span> Products <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="number">1</span>;  </span><br><span class="line"><span class="comment">-- ✅ 查到資料</span></span><br><span class="line"><span class="comment">-- 🔒 加 Shared Lock → 查完就立刻釋放</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 🕒 此時別人可以更新這筆資料</span></span><br><span class="line"><span class="comment">-- (例如另個交易 UPDATE Products SET Price = 200)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 你這時再更新：</span></span><br><span class="line"><span class="keyword">UPDATE</span> Products <span class="keyword">SET</span> Price <span class="operator">=</span> Price <span class="operator">+</span> <span class="number">10</span> <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="comment">-- ⚠️ 可能成功（若別人先提交）</span></span><br><span class="line"><span class="comment">-- ⚠️ 或失敗（若別人鎖著還沒放）</span></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>一般瀏覽商品清單</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Products <span class="keyword">WHERE</span> Category <span class="operator">=</span> <span class="string">&#x27;Laptop&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>使用者只是想看有哪些筆電、有多少庫存。資料就算在查詢過程中稍微變動（例如庫存少一台），也沒關係。<br>適合用 READ COMMITTED 因為不需要強一致性；查完就釋放 Shared Lock；效能高，並行性好。<br>像在電商網站上看商品頁面時，有人剛好下單一台筆電 → 你的畫面數字可能延遲幾秒更新，但不影響你購物體驗。</p>
+<br>
+<br>
+
+<h2 id="💼-REPEATABLE-READ（可重複讀取）"><a href="#💼-REPEATABLE-READ（可重複讀取）" class="headerlink" title="💼 REPEATABLE READ（可重複讀取）"></a>💼 REPEATABLE READ（可重複讀取）</h2><p>希望整個交易期間，再次查相同條件的資料，內容都一樣</p>
+<p>每次讀的資料都加 Shared Lock；鎖會一直保留到交易結束；別人不能修改這些資料；但別人可以插入新的資料（造成幻讀 Phantom Read）。</p>
+<p>你在圖書館查資料時，書被你暫時「借出」，別人不能改內容。但圖書館可以新增新書（你再查一次時看到新資料）<br>在「查詢的當下」會加上 Shared Lock，查完就釋放，所以只會暫時卡住別人。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span> TRAN;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> Price <span class="keyword">FROM</span> Products <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="comment">-- 🔒 加 Shared Lock，並且直到 COMMIT 都不釋放！</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 🕒 此時其他交易想改這筆資料：</span></span><br><span class="line"><span class="keyword">UPDATE</span> Products <span class="keyword">SET</span> Price <span class="operator">=</span> <span class="number">200</span> <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="comment">-- ❌ 被卡住 (blocked)，因為你還沒 COMMIT</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 你後續再查：</span></span><br><span class="line"><span class="keyword">SELECT</span> Price <span class="keyword">FROM</span> Products <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="comment">-- ✅ 絕對會看到一樣的值（可重複讀）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="comment">-- Shared Lock 釋放</span></span><br></pre></td></tr></table></figure>
+
+<p>在「整個交易期間」都保留 Shared Lock，直到 COMMIT 或 ROLLBACK 才釋放，所以會卡住別人整段時間</p>
+<br>
+
+<h3 id="🛒-顧客結帳下單（扣庫存）"><a href="#🛒-顧客結帳下單（扣庫存）" class="headerlink" title="🛒 顧客結帳下單（扣庫存）"></a>🛒 顧客結帳下單（扣庫存）</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span> TRANSACTION;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> Quantity <span class="keyword">FROM</span> Products <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="variable">@ProductId</span>;</span><br><span class="line"><span class="comment">-- 顯示目前庫存</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> Products <span class="keyword">SET</span> Quantity <span class="operator">=</span> Quantity <span class="operator">-</span> <span class="number">1</span> <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="variable">@ProductId</span>;</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>這裡如果用 READ COMMITTED，查庫存的那一瞬間加 Shared Lock，查完立刻放，結果在你 UPDATE 之前，另一個交易可能也剛好扣庫存，就可能發生「超賣」情況（overselling）。</p>
+<p>👉 為了避免這種情況，會選擇 REPEATABLE READ 或 SERIALIZABLE，在整個交易中鎖住那筆資料，其他人不能修改庫存，直到你這邊 COMMIT，保證你查到的庫存值，不會被別人改。</p>
+<br>
+
+<h3 id="🛒-錢包轉帳或支付交易"><a href="#🛒-錢包轉帳或支付交易" class="headerlink" title="🛒 錢包轉帳或支付交易"></a>🛒 錢包轉帳或支付交易</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span> TRANSACTION;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> Balance <span class="keyword">FROM</span> Accounts <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="variable">@UserA</span>;</span><br><span class="line"><span class="comment">-- 假設餘額 100</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> Accounts <span class="keyword">SET</span> Balance <span class="operator">=</span> Balance <span class="operator">-</span> <span class="number">50</span> <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="variable">@UserA</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> Accounts <span class="keyword">SET</span> Balance <span class="operator">=</span> Balance <span class="operator">+</span> <span class="number">50</span> <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="variable">@UserB</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>這時候千萬不能讓別人同時修改 UserA 的餘額，否則就會有「重複扣款」、「餘額錯亂」的風險。必須使用 REPEATABLE READ 或 SERIALIZABLE，保證這整個交易期間，查過的餘額不會被改；整個交易視為「一個原子操作」。就像銀行轉帳時會鎖定帳戶，確保你在扣款和入帳中間不會被別的交易干擾</p>
+<br>
+<br>
+
+<h2 id="💼-SERIALIZABLE（可序列化）"><a href="#💼-SERIALIZABLE（可序列化）" class="headerlink" title="💼 SERIALIZABLE（可序列化）"></a>💼 SERIALIZABLE（可序列化）</h2><p>我要最嚴格的一致性。我讀到的資料範圍，別人不能改，也不能插入新的在這範圍內<br>REPEATABLE READ 會為你查過的每一筆資料加上 Shared Lock，且這些鎖會一直保留到交易結束</p>
+<p>❌ 但不會鎖住整個查詢範圍 → 所以別人還是可以插入新的資料讓你下一次查多出結果（幻讀）。</p>
+<p>鎖整個查詢範圍 (Range Lock)；直到交易結束才釋放；沒有髒讀、沒有不可重複讀、沒有幻讀；但效能最低、最容易造成 blocking，因為他除了保留 Shared Lock 外，還會加上 Range Lock（範圍鎖）</p>
+<br>
+
+<h3 id="🔹-檢查優惠券是否重複編號"><a href="#🔹-檢查優惠券是否重複編號" class="headerlink" title="🔹 檢查優惠券是否重複編號"></a>🔹 檢查優惠券是否重複編號</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span> TRAN;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Coupons <span class="keyword">WHERE</span> Code <span class="operator">=</span> <span class="string">&#x27;ABC123&#x27;</span>;</span><br><span class="line"><span class="comment">-- 查目前是否已存在</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> Coupons (Code) <span class="keyword">VALUES</span> (<span class="string">&#x27;ABC123&#x27;</span>);</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>如果用 REPEATABLE READ，查詢沒鎖範圍，另一個交易在你插入前也查一次 → 看不到你的那筆；<br>結果兩人同時 INSERT 成功 → ❌ 重複代碼。</p>
+<p>如果用 SERIALIZABLE，鎖住「Code &#x3D; ‘ABC123’」這個索引範圍，第二個交易在你 COMMIT 前會被卡住；</p>
+<p>✅ 保證不會有重複編號。</p>
+<p>適合用於「要保證查詢條件的範圍不變」的場景，例如</p>
+<ul>
+<li>檢查唯一條件（會員代碼、優惠券代碼、帳號註冊重複性）</li>
+<li>統計或產生編號時避免重複</li>
+<li>批次處理需要確保範圍不變（例如 select + insert）</li>
+</ul>
+<br>
+<br>
+
+<h2 id="💼-Lost-Update（遺失更新）"><a href="#💼-Lost-Update（遺失更新）" class="headerlink" title="💼 Lost Update（遺失更新）"></a>💼 Lost Update（遺失更新）</h2><p>Lost Update（遺失更新） 指的是兩個交易同時去修改同一筆資料，最後一個 Commit 的人，把前一個人的修改結果覆蓋掉，導致第一個人的更新「被吃掉」，沒有被保留!</p>
+<p>想像 Ben 的帳戶餘額是 200 元。此時同時發生兩件事</p>
+<ul>
+<li>A：要扣 100 元（買東西）</li>
+<li>B：也要扣 100 元（轉帳）</li>
+</ul>
+<p>A 的更新結果被 B 覆蓋，最終只保留了最後一個 Commit 的資料，這就是「遺失更新」</p>
+<br>
+
+<h3 id="🔹-用「鎖」防止同時修改"><a href="#🔹-用「鎖」防止同時修改" class="headerlink" title="🔹 用「鎖」防止同時修改"></a>🔹 用「鎖」防止同時修改</h3><p>設定隔離層級讓「讀取資料的人鎖住它」：方法 A：使用 REPEATABLE READ 或 SERIALIZABLE<br>讓當前交易查過的那筆資料，在交易結束前不能被別人修改</p>
+<ul>
+<li>A 查了 Ben 的資料 → Shared Lock 掛上</li>
+<li>B 想改 Ben 的資料 → 🚫 被卡住，要等 A COMMIT 才能動</li>
+</ul>
+<p>→ 所以兩人不可能同時改，Lost Update 就不會發生。</p>
+<p>「庫存扣減」或「帳戶扣款」都常這樣做</p>
+<br>
+
+<h3 id="🔹-用「悲觀鎖-Pessimistic-Lock-」手動鎖資料"><a href="#🔹-用「悲觀鎖-Pessimistic-Lock-」手動鎖資料" class="headerlink" title="🔹 用「悲觀鎖 (Pessimistic Lock)」手動鎖資料"></a>🔹 用「悲觀鎖 (Pessimistic Lock)」手動鎖資料</h3><p>在程式層明確說：「我這筆要先鎖起來，別人別動。」<br>我要查這筆資料，順便先拿更新鎖（UPDLOCK），其他交易想改這筆要等我做完</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> <span class="keyword">var</span> tran = <span class="keyword">await</span> context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> account = <span class="keyword">await</span> context.Accounts</span><br><span class="line">    .FromSqlRaw(<span class="string">&quot;SELECT * FROM Accounts WITH (UPDLOCK) WHERE Id = &#123;0&#125;&quot;</span>, <span class="string">&quot;Ben&quot;</span>)</span><br><span class="line">    .SingleAsync();</span><br><span class="line"></span><br><span class="line">account.Balance -= <span class="number">100</span>;</span><br><span class="line"><span class="keyword">await</span> context.SaveChangesAsync();</span><br><span class="line"></span><br><span class="line"><span class="keyword">await</span> tran.CommitAsync();</span><br></pre></td></tr></table></figure>
+<p>這樣可以確保同時只有一個交易能改這筆資料</p>
+<br>
+
+<h3 id="🔹-用「樂觀鎖-Optimistic-Concurrency-」"><a href="#🔹-用「樂觀鎖-Optimistic-Concurrency-」" class="headerlink" title="🔹 用「樂觀鎖 (Optimistic Concurrency)」"></a>🔹 用「樂觀鎖 (Optimistic Concurrency)」</h3><p>這是 EF Core 推薦 的方式，它不鎖資料，而是透過「版本號 (RowVersion &#x2F; Timestamp)」檢查資料有沒有被別人改過</p>
+<p>在資料表加一個 RowVersion 欄位：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> Accounts <span class="keyword">ADD</span> RowVersion rowversion;</span><br></pre></td></tr></table></figure>
+<p>在 EF 模型裡</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Account</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Id &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">decimal</span> Balance &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    [<span class="meta">Timestamp</span>]</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">byte</span>[] RowVersion &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>當兩個交易同時修改時</p>
+<ul>
+<li>A 先查 → RowVersion &#x3D; 0x0001</li>
+<li>B 也查 → RowVersion &#x3D; 0x0001</li>
+<li>A 存檔 → 成功，RowVersion 更新為 0x0002</li>
+<li>B 存檔 → EF 比對時發現 RowVersion 不同 → 丟出 DbUpdateConcurrencyException</li>
+</ul>
+<p>你就能攔下這種情況，提示使用者「資料已被修改，請重新嘗試」。這就是「樂觀並行控制 (Optimistic Concurrency Control)」的典型作法</p>
+<br>
+<br>
+
+<h2 id="💼-Phantom"><a href="#💼-Phantom" class="headerlink" title="💼 Phantom"></a>💼 Phantom</h2><p>在同一個交易中，你用「同樣的查詢條件」查兩次，第二次結果多了或少了幾筆資料（通常是別人插入或刪除的），<br>感覺像資料「憑空多了一筆」或「少了一筆」——像幻覺一樣</p>
+<br>
+
+<h3 id="🔹-使用-SERIALIZABLE-隔離層級"><a href="#🔹-使用-SERIALIZABLE-隔離層級" class="headerlink" title="🔹 使用 SERIALIZABLE 隔離層級"></a>🔹 使用 SERIALIZABLE 隔離層級</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> TRANSACTION ISOLATION LEVEL SERIALIZABLE;</span><br><span class="line"><span class="keyword">BEGIN</span> TRAN;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Orders <span class="keyword">WHERE</span> Status <span class="operator">=</span> <span class="string">&#x27;Pending&#x27;</span>;</span><br><span class="line"><span class="comment">-- 🔒 SQL Server 會鎖整個 &quot;Status = &#x27;Pending&#x27;&quot; 範圍</span></span><br><span class="line"><span class="comment">-- 別人不能插入符合這條件的新資料</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>SQL Server 在這裡會使用 Range Lock（範圍鎖），把「Status &#x3D; ‘Pending’」這個索引範圍整個鎖住。<br>其他交易若想新增符合這條件的資料，會被卡住直到你 COMMIT。效能最差（鎖的範圍大，並行性低）</p>
+<br>
+
+<h3 id="🔹-使用-SNAPSHOT-隔離層級"><a href="#🔹-使用-SNAPSHOT-隔離層級" class="headerlink" title="🔹 使用 SNAPSHOT 隔離層級"></a>🔹 使用 SNAPSHOT 隔離層級</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> DATABASE MyDB <span class="keyword">SET</span> ALLOW_SNAPSHOT_ISOLATION <span class="keyword">ON</span>;</span><br><span class="line">GO</span><br><span class="line"></span><br><span class="line"><span class="keyword">SET</span> TRANSACTION ISOLATION LEVEL SNAPSHOT;</span><br><span class="line"><span class="keyword">BEGIN</span> TRAN;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Orders <span class="keyword">WHERE</span> Status <span class="operator">=</span> <span class="string">&#x27;Pending&#x27;</span>;</span><br><span class="line"><span class="comment">-- 🧊 讀的是「交易開始時」的資料快照</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 其他人插入新資料不影響這次快照</span></span><br><span class="line"><span class="comment">-- 所以不會看到幻讀</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>我不鎖範圍，而是讀我當下開始交易那一刻的「資料快照」</p>
+<p>✅ 不會被幻讀影響<br>✅ 不會鎖別人<br>⚙️ 效能高、並行性好</p>
+<p>⚠️ 但需要資料庫開啟 ALLOW_SNAPSHOT_ISOLATION</p>
+<table>
+<thead>
+<tr>
+<th>情境</th>
+<th>現象</th>
+<th>影響</th>
+<th>適用解法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查詢「待出貨」訂單清單</td>
+<td>同時有人新增了新訂單</td>
+<td>查第二次多一筆（幻讀）</td>
+<td>SERIALIZABLE &#x2F; SNAPSHOT</td>
+</tr>
+<tr>
+<td>查詢「庫存 &lt; 10」商品</td>
+<td>同時有商品新補貨或新上架</td>
+<td>清單筆數變</td>
+<td>SERIALIZABLE &#x2F; SNAPSHOT</td>
+</tr>
+<tr>
+<td>查詢「今日下單數量」</td>
+<td>有人剛下單</td>
+<td>統計數字變</td>
+<td>SNAPSHOT（用快照確保一致）</td>
+</tr>
+</tbody></table>
+<br>
+<br>
+
+<h2 id="💼-Write-Skew"><a href="#💼-Write-Skew" class="headerlink" title="💼 Write Skew"></a>💼 Write Skew</h2><p>兩個交易同時「讀取相同條件下不同資料」，都判斷「目前狀況合法」，於是各自修改不同資料，結果整體狀態卻不再符合業務規則。</p>
+<p>假設有一個規則：每個時段至少要有兩位醫生 on call</p>
+<p>🧍‍♂️ Transaction A（Leo 請假）</p>
+<p>1️⃣ 查目前 on_call 的醫生數量 → 2<br>2️⃣ 覺得符合規範（&gt;&#x3D; 2）→ 可以請假<br>3️⃣ UPDATE Leo 的狀態為 off_call</p>
+<p>🧍‍♀️ Transaction B（Mark 請假）</p>
+<p>1️⃣ 同時間查 on_call 的醫生數量 → 2<br>2️⃣ 覺得符合規範（&gt;&#x3D; 2）→ 也可以請假<br>3️⃣ UPDATE Mark 的狀態為 off_call</p>
+<br>
+
+<h3 id="🔹-使用-SERIALIZABLE-隔離層級-1"><a href="#🔹-使用-SERIALIZABLE-隔離層級-1" class="headerlink" title="🔹 使用 SERIALIZABLE 隔離層級"></a>🔹 使用 SERIALIZABLE 隔離層級</h3><p>這是最直接（也是最保守）的做法。在 SERIALIZABLE 模式下，SQL Server 會對查詢條件加「範圍鎖 (Range Lock)」</p>
+<br>
+
+<h3 id="🔹-用「明確鎖」-Pessimistic-Lock"><a href="#🔹-用「明確鎖」-Pessimistic-Lock" class="headerlink" title="🔹 用「明確鎖」(Pessimistic Lock)"></a>🔹 用「明確鎖」(Pessimistic Lock)</h3><p>如果你不想用整個 SERIALIZABLE 隔離層級，也可以手動鎖定資料。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Doctors <span class="keyword">WITH</span> (XLOCK, HOLDLOCK) <span class="keyword">WHERE</span> OnCall <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>XLOCK：強制加排他鎖</li>
+<li>HOLDLOCK：等效於 SERIALIZABLE 的鎖持續時間</li>
+</ul>
+<p>這樣就確保在交易結束前，其他人不能同時查詢或修改這一批資料，本質上就是「悲觀鎖」策略</p>
+<br>
+
+<h3 id="🔹-加入「業務層檢查」與「唯一條件」"><a href="#🔹-加入「業務層檢查」與「唯一條件」" class="headerlink" title="🔹 加入「業務層檢查」與「唯一條件」"></a>🔹 加入「業務層檢查」與「唯一條件」</h3><p>在應用程式層，也可以加上「防守性邏輯」</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span> TRAN;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> Doctors <span class="keyword">WHERE</span> OnCall <span class="operator">=</span> <span class="number">1</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"></span><br><span class="line">IF (count <span class="operator">&lt;</span> <span class="number">2</span>)</span><br><span class="line">   <span class="keyword">ROLLBACK</span>;</span><br><span class="line"><span class="keyword">ELSE</span></span><br><span class="line">   <span class="keyword">UPDATE</span> Doctors <span class="keyword">SET</span> OnCall <span class="operator">=</span> <span class="number">0</span> <span class="keyword">WHERE</span> Id <span class="operator">=</span> <span class="variable">@DoctorId</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在同一交易裡「查 + 判斷 + 更新」一次完成。即使有其他人同時請假，也會被鎖機制擋住</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/11/SQL-IsoloationLevel/">https://allenlin000.github.io.git/2025/10/11/SQL-IsoloationLevel/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/NfCnwwU.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/09/SQL-datetime/" title="SQL - 時間序列の鏡"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">SQL - 時間序列の鏡</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/12/SQL-Index-2/" title="Index - 發揮作用...了嗎"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Index - 發揮作用...了嗎</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%BC-READ-UNCOMMITTED"><span class="toc-number">1.</span> <span class="toc-text">💼 READ UNCOMMITTED</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9F%A2-Shared-Lock%EF%BC%88%E5%85%B1%E7%94%A8%E9%8E%96%EF%BC%89"><span class="toc-number">1.1.</span> <span class="toc-text">🟢 Shared Lock（共用鎖）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B4-Exclusive-Lock%EF%BC%88%E6%8E%92%E4%BB%96%E9%8E%96%EF%BC%89"><span class="toc-number">1.2.</span> <span class="toc-text">🔴 Exclusive Lock（排他鎖）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%BC-READ-COMMITTED%EF%BC%88%E5%B7%B2%E6%8F%90%E4%BA%A4%E8%AE%80%E5%8F%96%EF%BC%89%E2%80%94SQL-Server-%E9%A0%90%E8%A8%AD"><span class="toc-number">2.</span> <span class="toc-text">💼 READ COMMITTED（已提交讀取）—SQL Server 預設</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%BC-REPEATABLE-READ%EF%BC%88%E5%8F%AF%E9%87%8D%E8%A4%87%E8%AE%80%E5%8F%96%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">💼 REPEATABLE READ（可重複讀取）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9B%92-%E9%A1%A7%E5%AE%A2%E7%B5%90%E5%B8%B3%E4%B8%8B%E5%96%AE%EF%BC%88%E6%89%A3%E5%BA%AB%E5%AD%98%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">🛒 顧客結帳下單（扣庫存）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9B%92-%E9%8C%A2%E5%8C%85%E8%BD%89%E5%B8%B3%E6%88%96%E6%94%AF%E4%BB%98%E4%BA%A4%E6%98%93"><span class="toc-number">3.2.</span> <span class="toc-text">🛒 錢包轉帳或支付交易</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%BC-SERIALIZABLE%EF%BC%88%E5%8F%AF%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">💼 SERIALIZABLE（可序列化）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E6%AA%A2%E6%9F%A5%E5%84%AA%E6%83%A0%E5%88%B8%E6%98%AF%E5%90%A6%E9%87%8D%E8%A4%87%E7%B7%A8%E8%99%9F"><span class="toc-number">4.1.</span> <span class="toc-text">🔹 檢查優惠券是否重複編號</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%BC-Lost-Update%EF%BC%88%E9%81%BA%E5%A4%B1%E6%9B%B4%E6%96%B0%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">💼 Lost Update（遺失更新）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E7%94%A8%E3%80%8C%E9%8E%96%E3%80%8D%E9%98%B2%E6%AD%A2%E5%90%8C%E6%99%82%E4%BF%AE%E6%94%B9"><span class="toc-number">5.1.</span> <span class="toc-text">🔹 用「鎖」防止同時修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E7%94%A8%E3%80%8C%E6%82%B2%E8%A7%80%E9%8E%96-Pessimistic-Lock-%E3%80%8D%E6%89%8B%E5%8B%95%E9%8E%96%E8%B3%87%E6%96%99"><span class="toc-number">5.2.</span> <span class="toc-text">🔹 用「悲觀鎖 (Pessimistic Lock)」手動鎖資料</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E7%94%A8%E3%80%8C%E6%A8%82%E8%A7%80%E9%8E%96-Optimistic-Concurrency-%E3%80%8D"><span class="toc-number">5.3.</span> <span class="toc-text">🔹 用「樂觀鎖 (Optimistic Concurrency)」</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%BC-Phantom"><span class="toc-number">6.</span> <span class="toc-text">💼 Phantom</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E4%BD%BF%E7%94%A8-SERIALIZABLE-%E9%9A%94%E9%9B%A2%E5%B1%A4%E7%B4%9A"><span class="toc-number">6.1.</span> <span class="toc-text">🔹 使用 SERIALIZABLE 隔離層級</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E4%BD%BF%E7%94%A8-SNAPSHOT-%E9%9A%94%E9%9B%A2%E5%B1%A4%E7%B4%9A"><span class="toc-number">6.2.</span> <span class="toc-text">🔹 使用 SNAPSHOT 隔離層級</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%BC-Write-Skew"><span class="toc-number">7.</span> <span class="toc-text">💼 Write Skew</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E4%BD%BF%E7%94%A8-SERIALIZABLE-%E9%9A%94%E9%9B%A2%E5%B1%A4%E7%B4%9A-1"><span class="toc-number">7.1.</span> <span class="toc-text">🔹 使用 SERIALIZABLE 隔離層級</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E7%94%A8%E3%80%8C%E6%98%8E%E7%A2%BA%E9%8E%96%E3%80%8D-Pessimistic-Lock"><span class="toc-number">7.2.</span> <span class="toc-text">🔹 用「明確鎖」(Pessimistic Lock)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E5%8A%A0%E5%85%A5%E3%80%8C%E6%A5%AD%E5%8B%99%E5%B1%A4%E6%AA%A2%E6%9F%A5%E3%80%8D%E8%88%87%E3%80%8C%E5%94%AF%E4%B8%80%E6%A2%9D%E4%BB%B6%E3%80%8D"><span class="toc-number">7.3.</span> <span class="toc-text">🔹 加入「業務層檢查」與「唯一條件」</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/12/Cache-cache-91/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/12/Cache-cache-91/" title="Untitled">Untitled</a><time datetime="2025-11-12T00:43:48.794Z" title="Created 2025-11-12 08:43:48">2025-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/SQL-ReadUncommitted/" title="ReadUncommitted - 應用"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ReadUncommitted - 應用"/></a><div class="content"><a class="title" href="/2025/11/11/SQL-ReadUncommitted/" title="ReadUncommitted - 應用">ReadUncommitted - 應用</a><time datetime="2025-11-11T02:31:05.000Z" title="Created 2025-11-11 10:31:05">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/SQL-%E6%89%A3%E5%BA%AB%E5%AD%98/" title="扣庫存"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="扣庫存"/></a><div class="content"><a class="title" href="/2025/11/11/SQL-%E6%89%A3%E5%BA%AB%E5%AD%98/" title="扣庫存">扣庫存</a><time datetime="2025-11-11T02:31:05.000Z" title="Created 2025-11-11 10:31:05">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/SQL-Deaklock-Lock-Conversion/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/11/SQL-Deaklock-Lock-Conversion/" title="Untitled">Untitled</a><time datetime="2025-11-11T02:11:43.326Z" title="Created 2025-11-11 10:11:43">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/10/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="Untitled">Untitled</a><time datetime="2025-11-10T15:59:49.397Z" title="Created 2025-11-10 23:59:49">2025-11-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

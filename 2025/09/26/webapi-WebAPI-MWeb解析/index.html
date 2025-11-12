@@ -1,0 +1,258 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>WebAPI - MWeb | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="啟動點流程 IIS 啟動網站應用程式池 (Application Pool)  當有請求進來時，IIS 會把 Request 交給 ASP.NET Runtime (w3wp.exe)。  ASP.NET Runtime 建立 AppDomain  這個時候，它會去讀 web.config 的設定，載入模組與處理程序。  載入 Global.asax  如果你的專案裡有 Global.asax，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebAPI - MWeb">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/09/26/webapi-WebAPI-MWeb%E8%A7%A3%E6%9E%90/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="啟動點流程 IIS 啟動網站應用程式池 (Application Pool)  當有請求進來時，IIS 會把 Request 交給 ASP.NET Runtime (w3wp.exe)。  ASP.NET Runtime 建立 AppDomain  這個時候，它會去讀 web.config 的設定，載入模組與處理程序。  載入 Global.asax  如果你的專案裡有 Global.asax，">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true">
+<meta property="article:published_time" content="2025-09-26T09:07:34.000Z">
+<meta property="article:modified_time" content="2025-09-27T02:27:52.042Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="WebAPI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/09/26/webapi-WebAPI-MWeb%E8%A7%A3%E6%9E%90/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'WebAPI - MWeb',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-09-27 10:27:52'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">WebAPI - MWeb</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-09-26T09:07:34.000Z" title="Created 2025-09-26 17:07:34">2025-09-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-09-27T02:27:52.042Z" title="Updated 2025-09-27 10:27:52">2025-09-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/WebAPI/">WebAPI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="WebAPI - MWeb"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" alt="Image"></p>
+<h2 id="啟動點流程"><a href="#啟動點流程" class="headerlink" title="啟動點流程"></a>啟動點流程</h2><ul>
+<li>IIS 啟動網站應用程式池 (Application Pool)</li>
+</ul>
+<p>當有請求進來時，IIS 會把 Request 交給 ASP.NET Runtime (w3wp.exe)。</p>
+<ul>
+<li>ASP.NET Runtime 建立 AppDomain</li>
+</ul>
+<p>這個時候，它會去讀 web.config 的設定，載入模組與處理程序。</p>
+<ul>
+<li>載入 Global.asax</li>
+</ul>
+<p>如果你的專案裡有 Global.asax，ASP.NET Runtime 會在啟動時執行它裡面的 Application_Start()。</p>
+<p>所以 Global.asax.cs 是開發者能控制的「起始點」。</p>
+<ul>
+<li>進入 HTTP Request 處理流程</li>
+</ul>
+<p>請求會經過 HTTP Pipeline（HttpModules → HttpHandlers）。最後才進到 Web Forms Page、MVC Controller、或 Web API Controller。</p>
+<p>真正的程式啟動點，在 IIS &#x2F; ASP.NET Runtime 裡面（你專案裡看不到 Main()）。<br>開發者能寫邏輯的啟動點：</p>
+<p>Global.asax.cs → Application_Start()（應用程式初始化）<br>App_Start 資料夾裡的檔案（MVC&#x2F;Web API 常見）<br>    RouteConfig.cs（註冊路由）<br>    FilterConfig.cs（註冊全域 Filter）<br>    BundleConfig.cs（註冊 Script&#x2F;CSS Bundling）<br>    WebApiConfig.cs（Web API 路由設定）</p>
+<h2 id="沒有管線"><a href="#沒有管線" class="headerlink" title="沒有管線"></a>沒有管線</h2><p>在 ASP.NET Framework (舊版) 裡：</p>
+<p>沒有 Middleware 概念。</p>
+<p>請求管線是由 IIS + ASP.NET Runtime 定義好的固定流程，主要靠 HttpModules 和 HttpHandlers 來處理。</p>
+<p>你可以在 Global.asax 或 web.config 裡設定哪些模組要參與，順序幾乎是固定的。</p>
+<p>👉 所以在舊版 ASP.NET 專案裡，你看不到 UseXxx，因為那是 Core 的 Middleware 概念。</p>
+<p>ASP.NET Framework 的 Request Pipeline</p>
+<p>IIS 接收請求，交給 ASP.NET Runtime。<br>依據 web.config，請求會先經過一系列 HttpModules（像攔截器）。例如：驗證、Session、UrlRoutingModule。<br>請求會被分派到對應的 HttpHandler（像 Controller&#x2F; WebForm Page）。</p>
+<p>Web API → HttpControllerHandler<br>MVC → MvcHandler<br>WebForm → PageHandler</p>
+<p>最後產生 Response 回傳給瀏覽器。</p>
+<p>HttpModule &#x3D; ASP.NET Framework 的 Middleware</p>
+<p>在 BeginRequest、AuthenticateRequest、EndRequest 等階段注入邏輯。</p>
+<p>但順序主要由 ASP.NET Pipeline 決定，沒有像 Core 那樣自由。</p>
+<p>HttpHandler &#x3D; 負責真正處理請求的人</p>
+<p>在 Web API 裡，會把請求交給 Controller。</p>
+<p>在 MVC 裡，會交給 ActionResult。</p>
+<p>在 WebForm 裡，會交給 .aspx Page。</p>
+<h2 id="ASP-NET-Framework-HttpModules-HttpHandlers-的缺點"><a href="#ASP-NET-Framework-HttpModules-HttpHandlers-的缺點" class="headerlink" title="ASP.NET Framework (HttpModules + HttpHandlers) 的缺點"></a>ASP.NET Framework (HttpModules + HttpHandlers) 的缺點</h2><p>管線順序固定、難以客製化</p>
+<p>HttpModules 的執行順序是由 ASP.NET Runtime 決定（Authenticate → Authorize → ResolveHandler → AcquireRequestState…）。</p>
+<p>你能做的只是「插入」某些事件，不容易控制整個流程。</p>
+<p>想要改順序（例如先壓縮再驗證）幾乎不可能。</p>
+<p>高度耦合 IIS &#x2F; System.Web</p>
+<p>ASP.NET Framework 跑在 IIS 上，強烈依賴 System.Web.dll。</p>
+<p>專案要部署到非 Windows 環境（Linux、Docker、雲端）非常困難。</p>
+<p>效能與資源消耗大</p>
+<p>System.Web 很龐大，哪怕只是回傳一個簡單的 JSON，也會載入整個 ASP.NET Runtime。</p>
+<p>記憶體開銷大、啟動慢。</p>
+<p>可測試性差</p>
+<p>HttpModules&#x2F;Handlers 與 Runtime 綁死，單元測試很難模擬，通常只能在 IIS Express 下測。</p>
+<p>多技術並存難整合</p>
+<p>WebForms、MVC、Web API 各自有自己的處理方式（不同 Handler）。</p>
+<p>導致開發者要學不同模型，維護困難。</p>
+<h2 id="ASP-NET-Core-Middleware-Pipeline-的優勢"><a href="#ASP-NET-Core-Middleware-Pipeline-的優勢" class="headerlink" title="ASP.NET Core (Middleware Pipeline) 的優勢"></a>ASP.NET Core (Middleware Pipeline) 的優勢</h2><p>完全可組合、順序自由</p>
+<p>你可以決定 UseRouting → UseCors → UseAuthentication → UseAuthorization → UseEndpoints 的順序。</p>
+<p>自己寫 Middleware 也只是一個 RequestDelegate，比 Module&#x2F;Handler 輕量很多。</p>
+<p>跨平台、跨伺服器</p>
+<p>ASP.NET Core 不再依賴 IIS，可以跑在 Kestrel、Nginx、Docker、Linux。</p>
+<p>系統核心精簡，不需要 System.Web。</p>
+<p>效能極大提升</p>
+<p>Pipeline 是單純的委派串接，沒有一大堆「事件模型」開銷。</p>
+<p>官方數據顯示 ASP.NET Core 比 ASP.NET Framework 快好幾倍。</p>
+<p>統一的請求處理模型</p>
+<p>MVC、Web API、Razor Pages 全部整合成「Endpoint Routing」。</p>
+<p>不再需要分 MvcHandler、HttpControllerHandler。</p>
+<p>可測試性高</p>
+<p>Middleware 只是 C# 方法，完全可以在單元測試裡模擬 Request&#x2F;Response。</p>
+<p>開發流程更符合現代 DevOps &#x2F; TDD。</p>
+<h2 id="cookie"><a href="#cookie" class="headerlink" title="cookie"></a>cookie</h2></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/09/26/webapi-WebAPI-MWeb%E8%A7%A3%E6%9E%90/">https://allenlin000.github.io.git/2025/09/26/webapi-WebAPI-MWeb%E8%A7%A3%E6%9E%90/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/WebAPI/">WebAPI</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/09/25/WebApi-Cert/" title="WebApi - Cert"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">WebApi - Cert</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/04/SQL-Index/" title="Index"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Index</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/09/25/WebApi-Cert/" title="WebApi - Cert"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-25</div><div class="title">WebApi - Cert</div></div></a></div><div><a href="/2025/09/25/WebApi-%E6%B8%AC%E8%A9%A6%E5%B7%A5%E5%85%B7/" title="WebApi - Cert"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-25</div><div class="title">WebApi - Cert</div></div></a></div><div><a href="/2025/11/06/webapi-middlewareeee/" title="Middleware"><img class="cover" src="https://i.imgur.com/xAbpKgd.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-06</div><div class="title">Middleware</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%95%9F%E5%8B%95%E9%BB%9E%E6%B5%81%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">啟動點流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B2%92%E6%9C%89%E7%AE%A1%E7%B7%9A"><span class="toc-number">2.</span> <span class="toc-text">沒有管線</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ASP-NET-Framework-HttpModules-HttpHandlers-%E7%9A%84%E7%BC%BA%E9%BB%9E"><span class="toc-number">3.</span> <span class="toc-text">ASP.NET Framework (HttpModules + HttpHandlers) 的缺點</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ASP-NET-Core-Middleware-Pipeline-%E7%9A%84%E5%84%AA%E5%8B%A2"><span class="toc-number">4.</span> <span class="toc-text">ASP.NET Core (Middleware Pipeline) 的優勢</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cookie"><span class="toc-number">5.</span> <span class="toc-text">cookie</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/12/Cache-cache-91/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/12/Cache-cache-91/" title="Untitled">Untitled</a><time datetime="2025-11-12T00:43:48.794Z" title="Created 2025-11-12 08:43:48">2025-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/SQL-ReadUncommitted/" title="ReadUncommitted - 應用"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ReadUncommitted - 應用"/></a><div class="content"><a class="title" href="/2025/11/11/SQL-ReadUncommitted/" title="ReadUncommitted - 應用">ReadUncommitted - 應用</a><time datetime="2025-11-11T02:31:05.000Z" title="Created 2025-11-11 10:31:05">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/SQL-%E6%89%A3%E5%BA%AB%E5%AD%98/" title="扣庫存"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="扣庫存"/></a><div class="content"><a class="title" href="/2025/11/11/SQL-%E6%89%A3%E5%BA%AB%E5%AD%98/" title="扣庫存">扣庫存</a><time datetime="2025-11-11T02:31:05.000Z" title="Created 2025-11-11 10:31:05">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/11/SQL-Deaklock-Lock-Conversion/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/11/SQL-Deaklock-Lock-Conversion/" title="Untitled">Untitled</a><time datetime="2025-11-11T02:11:43.326Z" title="Created 2025-11-11 10:11:43">2025-11-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/10/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="Untitled">Untitled</a><time datetime="2025-11-10T15:59:49.397Z" title="Created 2025-11-10 23:59:49">2025-11-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
