@@ -1,0 +1,258 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>HttpClient - Header 都亂了，我還怎麼好好當人 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="我們人生中最尷尬的某些時刻，不是沉默，而是訊息傳錯像是你在聊天室打了一句「我覺得主管頭好禿」，下一秒才發現你傳的是公司群組聊天室。你懊悔、你重開手機假裝這一切會 Reset、數秒鐘後你開始思考辭職信該不該寫得文藝一點。 又或者你做為一個老師，把生活中的小抱怨傳到學生群組中 來自 Thread 一篇貼文的情境支援 這種「錯頻溝通」其實不只在人生會發生，連程式也會。我們寫程式時，也會很天真地以為，訊息">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HttpClient - Header 都亂了，我還怎麼好好當人">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/05/21/HttpClient-Header/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="我們人生中最尷尬的某些時刻，不是沉默，而是訊息傳錯像是你在聊天室打了一句「我覺得主管頭好禿」，下一秒才發現你傳的是公司群組聊天室。你懊悔、你重開手機假裝這一切會 Reset、數秒鐘後你開始思考辭職信該不該寫得文藝一點。 又或者你做為一個老師，把生活中的小抱怨傳到學生群組中 來自 Thread 一篇貼文的情境支援 這種「錯頻溝通」其實不只在人生會發生，連程式也會。我們寫程式時，也會很天真地以為，訊息">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/hZWviQz.png">
+<meta property="article:published_time" content="2024-05-21T15:28:05.000Z">
+<meta property="article:modified_time" content="2025-11-15T02:04:05.268Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Http">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/hZWviQz.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/05/21/HttpClient-Header/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'HttpClient - Header 都亂了，我還怎麼好好當人',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-15 10:04:05'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">133</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">29</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/hZWviQz.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">HttpClient - Header 都亂了，我還怎麼好好當人</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-05-21T15:28:05.000Z" title="Created 2024-05-21 23:28:05">2024-05-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-15T02:04:05.268Z" title="Updated 2025-11-15 10:04:05">2025-11-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%A9%BF%E8%B6%8A%E9%9B%B2%E5%B1%A4%E7%9A%84%E4%BF%A1%E4%BD%BF/">穿越雲層的信使</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="HttpClient - Header 都亂了，我還怎麼好好當人"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>我們人生中最尷尬的某些時刻，不是沉默，而是訊息傳錯<br>像是你在聊天室打了一句「我覺得主管頭好禿」，下一秒才發現你傳的是公司群組聊天室。<br>你懊悔、你重開手機假裝這一切會 Reset、數秒鐘後你開始思考辭職信該不該寫得文藝一點。</p>
+<p>又或者你做為一個老師，把生活中的小抱怨傳到學生群組中</p>
+<p><a target="_blank" rel="noopener" href="https://www.threads.net/@__ahshoe__/post/DBiIdLxSuca/media?xmt=AQGzNZ7Urqd1V-B3oDzxy3yBKSrr2QCOVEbkmVYSruG0VQ">來自 Thread 一篇貼文的情境支援</a></p>
+<p>這種「錯頻溝通」其實不只在人生會發生，連程式也會。<br>我們寫程式時，也會很天真地以為，訊息只會送到我們想送的人那裡。<br>但如果發送 Request 時，將秘密資訊設定在 HttpClient.DefaultRequestHeaders 上，相當於把「寫給 A 的情書，貼在公共佈告欄」。</p>
+<h2 id="📲-為什麼會這樣？"><a href="#📲-為什麼會這樣？" class="headerlink" title="📲 為什麼會這樣？"></a>📲 為什麼會這樣？</h2><p>HttpClient 是一個設計上建議共用的元件，也就是說，我們應該用一個 HttpClient instance 去處理多個 request，以節省資源、避免連線耗盡（像是 socket exhausted）。</p>
+<p>但問題也就來了：既然大家都用同一支手機在傳訊息，那麼貼在手機上的「身份識別貼紙」（也就是 DefaultRequestHeaders 裡的 token）是不是有可能搞混？</p>
+<p>是的。這正是為什麼我們不應該把 headers，特別是敏感資訊，設定在 HttpClient.DefaultRequestHeaders 上的原因。</p>
+<p>在程式裡，我們常說 race condition 是多個執行緒「搶著做事」，結果誰也沒做好。<br>HttpClient.DefaultRequestHeaders 正是這樣的情況——它是一個共用資源，但我們卻常在多個 request 裡同時動它。</p>
+<p>你想設定 A 的 token，B 那邊卻早一步把自己的 token 貼上去。<br>結果？A 的 request 被誤認成是 B，身分錯亂、驗證失敗、資安告急。<br>這時候你會希望你人生裡的錯頻訊息，只是發到錯聊天室那麼單純。</p>
+<h2 id="📲-用-HttpRequestMessage，讓每則訊息「對頻」"><a href="#📲-用-HttpRequestMessage，讓每則訊息「對頻」" class="headerlink" title="📲 用 HttpRequestMessage，讓每則訊息「對頻」"></a>📲 用 HttpRequestMessage，讓每則訊息「對頻」</h2><p>更好的做法，是為每個 request 建立自己的 HttpRequestMessage，在上面設定專屬的 headers。<br>這就像是每個人都用自己的手機發訊息，帶著自己的身份、語氣與內容，自然不會錯頻，也不會讓 B 收到原本寫給 A 的悄悄話。</p>
+<p>使用 SendAsync 方法，可以讓我們完整控制每一個 request 的細節，包括：</p>
+<ul>
+<li><p>指定 HTTP method（像是 PATCH、OPTIONS 等少見但必要的動詞）</p>
+</li>
+<li><p>自訂 request body 與 headers</p>
+</li>
+<li><p>設定 HTTP version、timeout、proxy 等進階屬性</p>
+</li>
+</ul>
+<p>這不只是技術上的自由度，更是讓系統溝通更「準確」的關鍵。</p>
+<h2 id="關於-DefaultHeader"><a href="#關於-DefaultHeader" class="headerlink" title="關於 DefaultHeader"></a>關於 DefaultHeader</h2><p>DefaultRequestHeaders 是一個共用的集合，這個集合會應用到之後所有的 request 上。你改了這個集合，會影響 之後的所有 request<br>所以，如果你這樣寫：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 執行緒 A</span></span><br><span class="line">client.DefaultRequestHeaders.Add(<span class="string">&quot;X-User&quot;</span>, <span class="string">&quot;Alice&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 執行緒 B（在幾毫秒後執行）</span></span><br><span class="line">client.DefaultRequestHeaders.Remove(<span class="string">&quot;X-User&quot;</span>);</span><br><span class="line">client.DefaultRequestHeaders.Add(<span class="string">&quot;X-User&quot;</span>, <span class="string">&quot;Bob&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接著兩個執行緒各自發出 request</span></span><br><span class="line">client.GetAsync(<span class="string">&quot;https://example.com/api&quot;</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>結果很可能是：</p>
+<p>兩個 request 都帶 Bob，或是某個 request 一下帶 Alice、一下帶 Bob，或更糟：Header 被重複加入或變成錯誤的格式（取決於 timing），這就是所謂的 Data Race（資料競爭）：資料本身 thread-safe，但邏輯上你改錯了時間點，造成結果錯亂。</p>
+<p>因此設計應用發送請求時可以設定成這樣</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> httpRequestMessage = <span class="keyword">new</span> HttpRequestMessage(HttpMethod.Get, <span class="string">&quot;http://path/to/wherever&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">    httpRequestMessage.Headers.Authorization = <span class="keyword">new</span> AuthenticationHeaderValue(<span class="string">&quot;Bearer&quot;</span>, <span class="string">&quot;TheToken&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> httpResponseMessage = httpClient.SendAsync(httpRequestMessage))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="關於身分驗證-Bearer-Basic-Token-based-authentication"><a href="#關於身分驗證-Bearer-Basic-Token-based-authentication" class="headerlink" title="關於身分驗證 : Bearer ? Basic ? Token-based authentication ?"></a>關於身分驗證 : Bearer ? Basic ? Token-based authentication ?</h2><p>接著，這邊也想提一點，關於放置在 Header 的驗證機制，常把 Token 帶到 Authorization Header 上</p>
+<h3 id="🪙-Token-的意義是甚麼呢"><a href="#🪙-Token-的意義是甚麼呢" class="headerlink" title="🪙 Token 的意義是甚麼呢 ?"></a>🪙 Token 的意義是甚麼呢 ?</h3><p>Wiki 說</p>
+<div class="note info flat"><p>Tokenization, when applied to data security, is the process of substituting a sensitive data element with a non-sensitive equivalent</p>
+</div>
+
+<p>也就是 用一個「替代物」來保護敏感資料的過程</p>
+<p><img src="https://i.imgur.com/sq34zzN.png" alt="Image"></p>
+<p>又或者更容易理解的例子</p>
+<p>病歷記錄：</p>
+<ul>
+<li>真實資料：Allen, A123456789, 中二病重度患者</li>
+<li>系統顯示：病患 T12345, TOK987654321, Chuunibyou</li>
+</ul>
+<p>你拿著病歷一般人是看不懂得，只有院方可以知道</p>
+<p><img src="https://i.imgur.com/bHi3w1b.png" alt="Image"></p>
+<h3 id="🪙-Tokenize-的方式"><a href="#🪙-Tokenize-的方式" class="headerlink" title="🪙 Tokenize 的方式"></a>🪙 Tokenize 的方式</h3><p>而這個保護的方式就有很多種，由於現在許多 API 驗證機制不想存大量的狀態資訊在 Server 端 (可能偏好 stateless)，例如 : Microsoft Graph API、Google Cloud API…<br><br></p>
+<p>在串接時常會看到 Bearer Token 或偶爾看到 Basic Token，他們其實就是把敏感資訊，打成看起來像亂碼的東西做傳輸，再從接收方解碼識別</p>
+<h3 id="🪙-Beaer-Token-與-Basic-Token-的差異是什麼"><a href="#🪙-Beaer-Token-與-Basic-Token-的差異是什麼" class="headerlink" title="🪙 Beaer Token 與 Basic Token 的差異是什麼?"></a>🪙 Beaer Token 與 Basic Token 的差異是什麼?</h3><p>Basic  Token 是透過 base64 做編碼，其實他是不嚴謹的，因為我們任何人，只要在網路上找一個 Base 64 解碼器(屬於公開資訊) 就可以知道真實內容，攻擊者可以輕易的解碼這段資訊，就像語言翻譯機一樣</p>
+<p>而 Bearer Token 呢?</p>
+<p>它是經過 OAuth 2.0 的流程產出的 Token，流程較複雜且更安全，而且他是會經過 Hash 的!</p>
+<h3 id="🪙-經過-Hash-是甚麼意思"><a href="#🪙-經過-Hash-是甚麼意思" class="headerlink" title="🪙 經過 Hash 是甚麼意思 ?"></a>🪙 經過 Hash 是甚麼意思 ?</h3><p>雜湊函數 ( Hash ) 可以將一組隨機長度的字串轉換成一組固定長度的雜湊值，雜湊函數有兩個重要的特性:</p>
+<ul>
+<li>不同的字串不會產生相同的雜湊值 (唯一性)</li>
+<li>雜湊值不可逆向回推原始資料 (不可逆)</li>
+</ul>
+<p>所以，假設有心人士取得這段雜湊過後的內容他也不能幹嘛，但自己人只要將相同得機密作一樣的函數處理就可以藉由比對雜湊值來確認資料正確性</p>
+<p><a target="_blank" rel="noopener" href="https://vicxu.medium.com/%E6%B7%BA%E8%AB%87-authentication-%E4%B8%AD%E9%9B%86-token-based-authentication-90139fbcb897">淺談 Authentication 中集：Token-based authentication</a></p>
+<h3 id="🪙-實作練習"><a href="#🪙-實作練習" class="headerlink" title="🪙 實作練習"></a>🪙 實作練習</h3><p>Basic Token 製作</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> byteArray = Encoding.ASCII.GetBytes(<span class="string">&quot;allen:username&quot;</span>);</span><br><span class="line"><span class="keyword">var</span> auth = <span class="keyword">new</span> AuthenticationHeaderValue(<span class="string">&quot;Basic&quot;</span>, Convert.ToBase64String(byteArray));</span><br><span class="line">auth.Dump();</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Parameter YWxsZW46dXNlcm5hbWU=</span></span><br><span class="line">   <span class="comment">// Scheme Basic</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Bearer Token</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> signingKey = <span class="keyword">new</span> SymmetricSecurityKey(Encoding.UTF8.GetBytes(<span class="string">&quot;allen_is_a_very_long_secret_key_for_hmac_sha256&quot;</span>));</span><br><span class="line"><span class="keyword">var</span> tokenHandler = <span class="keyword">new</span> JwtSecurityTokenHandler();</span><br><span class="line"><span class="keyword">var</span> claims = <span class="keyword">new</span>[]</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">new</span> Claim(ClaimTypes.NameIdentifier, <span class="string">&quot;user_id&quot;</span>),</span><br><span class="line">    <span class="keyword">new</span> Claim(ClaimTypes.Name, <span class="string">&quot;username&quot;</span>)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tokenDescriptor = <span class="keyword">new</span> SecurityTokenDescriptor</span><br><span class="line">&#123;</span><br><span class="line">    Subject = <span class="keyword">new</span> ClaimsIdentity(claims),</span><br><span class="line">    Expires = DateTime.UtcNow.AddHours(<span class="number">1</span>),</span><br><span class="line">    SigningCredentials = <span class="keyword">new</span> SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> token = tokenHandler.CreateToken(tokenDescriptor);</span><br><span class="line"><span class="keyword">var</span> bearerToken = tokenHandler.WriteToken(token);</span><br><span class="line"><span class="keyword">var</span> auth = <span class="keyword">new</span> AuthenticationHeaderValue(<span class="string">&quot;Bearer&quot;</span>, bearerToken);</span><br><span class="line">auth.Dump();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Parameter : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJ1c2VyX2lkIiwidW5pcXVlX25hbWUiOiJ1c2VybmFtZSIsIm5iZiI6MTcxNjYxMDY5MCwiZXhwIjoxNzE2NjE0MjkwLCJpYXQiOjE3MTY2MTA2OTB9.FhLuXQ82HuzoK2gAuoS6JQZNzt8FEr41a__RkTEyqU8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Scheme : Bearer</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h1 id="☘️-結語"><a href="#☘️-結語" class="headerlink" title="☘️ 結語"></a>☘️ 結語</h1><p>有些 bug，不是寫錯程式，而是你太相信世界會照你預期的方式運作。<br>你以為加在 HttpClient 共用 Header 也都可以共用? 這出發點是好的 但建議是最好不要出發<br>這就像你以為自己講悄悄話，結果喇叭根本開全場，還連到藍芽音響。</p>
+<p>所以記住一句話：<br>共用的東西，就不要放私人資訊。<br>DefaultRequestHeaders 是開放空間，不是你專屬的小信箱。</p>
+<p>要講機密的話，就自己開一封 HttpRequestMessage，<br>愛誰就寫給誰，不要寄錯、不留誤會。</p>
+<p>寫程式像生活，不是你不夠認真，而是你沒看清楚訊息是往哪裡飛。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/05/21/HttpClient-Header/">https://allenlin000.github.io.git/2024/05/21/HttpClient-Header/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Http/">Http</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/hZWviQz.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/05/20/HttpClient-BaseAddress/" title="BaseAddress - 那一撇，決定了命運的方向"><img class="cover" src="https://i.imgur.com/hZWviQz.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">BaseAddress - 那一撇，決定了命運的方向</div></div></a></div><div class="next-post pull-right"><a href="/2024/06/04/OOM/" title="OOM (一. Managed Heap &amp; Generational Management)"><img class="cover" src="https://i.imgur.com/AUBV7mo.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">OOM (一. Managed Heap &amp; Generational Management)</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/05/20/HttpClient-BaseAddress/" title="BaseAddress - 那一撇，決定了命運的方向"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-20</div><div class="title">BaseAddress - 那一撇，決定了命運的方向</div></div></a></div><div><a href="/2025/08/30/HttpClient-HttpRequestMessage/" title="HttpRequestMessage"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-30</div><div class="title">HttpRequestMessage</div></div></a></div><div><a href="/2024/06/27/HttpClient-Context/" title="HttpContext 失效時，我們還能說什麼"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-06-27</div><div class="title">HttpContext 失效時，我們還能說什麼</div></div></a></div><div><a href="/2025/08/25/HttpClient-Socket/" title="Socket"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-25</div><div class="title">Socket</div></div></a></div><div><a href="/2025/08/28/HttpClient-HttpclientFactory/" title="HttpClientFactory"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-28</div><div class="title">HttpClientFactory</div></div></a></div><div><a href="/2025/08/26/HttpClient-Socket-Exhustion/" title="Socket Exhaustion - 當臨時的港口被耗盡"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-26</div><div class="title">Socket Exhaustion - 當臨時的港口被耗盡</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">133</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">29</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%B2-%E7%82%BA%E4%BB%80%E9%BA%BC%E6%9C%83%E9%80%99%E6%A8%A3%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">📲 為什麼會這樣？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%B2-%E7%94%A8-HttpRequestMessage%EF%BC%8C%E8%AE%93%E6%AF%8F%E5%89%87%E8%A8%8A%E6%81%AF%E3%80%8C%E5%B0%8D%E9%A0%BB%E3%80%8D"><span class="toc-number">2.</span> <span class="toc-text">📲 用 HttpRequestMessage，讓每則訊息「對頻」</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%9C%E6%96%BC-DefaultHeader"><span class="toc-number">3.</span> <span class="toc-text">關於 DefaultHeader</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%9C%E6%96%BC%E8%BA%AB%E5%88%86%E9%A9%97%E8%AD%89-Bearer-Basic-Token-based-authentication"><span class="toc-number">4.</span> <span class="toc-text">關於身分驗證 : Bearer ? Basic ? Token-based authentication ?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%AA%99-Token-%E7%9A%84%E6%84%8F%E7%BE%A9%E6%98%AF%E7%94%9A%E9%BA%BC%E5%91%A2"><span class="toc-number">4.1.</span> <span class="toc-text">🪙 Token 的意義是甚麼呢 ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%AA%99-Tokenize-%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">4.2.</span> <span class="toc-text">🪙 Tokenize 的方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%AA%99-Beaer-Token-%E8%88%87-Basic-Token-%E7%9A%84%E5%B7%AE%E7%95%B0%E6%98%AF%E4%BB%80%E9%BA%BC"><span class="toc-number">4.3.</span> <span class="toc-text">🪙 Beaer Token 與 Basic Token 的差異是什麼?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%AA%99-%E7%B6%93%E9%81%8E-Hash-%E6%98%AF%E7%94%9A%E9%BA%BC%E6%84%8F%E6%80%9D"><span class="toc-number">4.4.</span> <span class="toc-text">🪙 經過 Hash 是甚麼意思 ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%AA%99-%E5%AF%A6%E4%BD%9C%E7%B7%B4%E7%BF%92"><span class="toc-number">4.5.</span> <span class="toc-text">🪙 實作練習</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E2%98%98%EF%B8%8F-%E7%B5%90%E8%AA%9E"><span class="toc-number"></span> <span class="toc-text">☘️ 結語</span></a></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/14/webapi-header/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/14/webapi-header/" title="Untitled">Untitled</a><time datetime="2025-11-14T15:48:41.433Z" title="Created 2025-11-14 23:48:41">2025-11-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/IQIEEEEEEEEEE/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/IQIEEEEEEEEEE/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:44:48.445Z" title="Created 2025-11-13 23:44:48">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:34:23.075Z" title="Created 2025-11-13 23:34:23">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:04:10.629Z" title="Created 2025-11-13 23:04:10">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:02:21.085Z" title="Created 2025-11-13 23:02:21">2025-11-13</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

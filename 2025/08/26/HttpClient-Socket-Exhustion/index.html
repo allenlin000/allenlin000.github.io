@@ -1,0 +1,429 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Socket Exhaustion - 當臨時的港口被耗盡 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="在浩瀚的網路之海，每一次 API 呼叫，就像放出一位無聲的信使。他揹著我們的訊息，穿越纜線、翻越路由器，終於抵達遠方的伺服器。然而，這段旅程並非沒有代價。 當信使啟程時，作業系統會替他分配一個「臨時的港口」（ephemeral port），讓他能安全啟航。但若我們過於頻繁地呼喚、過於急切地派遣信使，這些港口就會一個接一個被佔滿。直到最後，新信使無處登船——這就是 Socket Exhaustion">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Socket Exhaustion - 當臨時的港口被耗盡">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/08/26/HttpClient-Socket-Exhustion/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="在浩瀚的網路之海，每一次 API 呼叫，就像放出一位無聲的信使。他揹著我們的訊息，穿越纜線、翻越路由器，終於抵達遠方的伺服器。然而，這段旅程並非沒有代價。 當信使啟程時，作業系統會替他分配一個「臨時的港口」（ephemeral port），讓他能安全啟航。但若我們過於頻繁地呼喚、過於急切地派遣信使，這些港口就會一個接一個被佔滿。直到最後，新信使無處登船——這就是 Socket Exhaustion">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/hZWviQz.png">
+<meta property="article:published_time" content="2025-08-26T00:35:01.000Z">
+<meta property="article:modified_time" content="2025-11-15T02:04:35.747Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Http">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/hZWviQz.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/08/26/HttpClient-Socket-Exhustion/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Socket Exhaustion - 當臨時的港口被耗盡',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-15 10:04:35'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">133</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">29</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/hZWviQz.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Socket Exhaustion - 當臨時的港口被耗盡</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-08-26T00:35:01.000Z" title="Created 2025-08-26 08:35:01">2025-08-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-15T02:04:35.747Z" title="Updated 2025-11-15 10:04:35">2025-11-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%A9%BF%E8%B6%8A%E9%9B%B2%E5%B1%A4%E7%9A%84%E4%BF%A1%E4%BD%BF/">穿越雲層的信使</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Socket Exhaustion - 當臨時的港口被耗盡"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>在浩瀚的網路之海，每一次 API 呼叫，就像放出一位無聲的信使。<br>他揹著我們的訊息，穿越纜線、翻越路由器，終於抵達遠方的伺服器。<br>然而，這段旅程並非沒有代價。</p>
+<p>當信使啟程時，作業系統會替他分配一個「臨時的港口」（ephemeral port），讓他能安全啟航。<br>但若我們過於頻繁地呼喚、過於急切地派遣信使，這些港口就會一個接一個被佔滿。<br>直到最後，新信使無處登船——這就是 Socket Exhaustion 的隱憂。</p>
+<p><img src="https://i.imgur.com/hZWviQz.png" alt="message"></p>
+<br>
+
+<h2 id="📨-TCP-4-tuple"><a href="#📨-TCP-4-tuple" class="headerlink" title="📨 TCP 4-tuple"></a>📨 TCP 4-tuple</h2><p>要出海，信使需要四件通關憑證：</p>
+<p>假設我們今天上 Google 首頁，其實就是建立一條 TCP 連線，這條連線會用到這「四件東西」來唯一識別這條通道：</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>你的 IP（來源 IP）</td>
+<td>例如：192.168.1.100</td>
+</tr>
+<tr>
+<td>你的 Port（來源 Port）</td>
+<td>⚠️ 是作業系統隨機分配的，例如 51234</td>
+</tr>
+<tr>
+<td>伺服器的 IP（目的 IP）</td>
+<td>例如：142.250.190.46</td>
+</tr>
+<tr>
+<td>伺服器的 Port（目的 Port）</td>
+<td>✅ 這通常是 80（HTTP）或 443（HTTPS）</td>
+</tr>
+</tbody></table>
+<p>這四個合起來叫做：TCP 4-tuple<br>就像護照、簽證、船票與碼頭位置，缺一不可。</p>
+<br>
+<br>
+
+<h2 id="📨-港口的數量：Ephemeral-Port-Range"><a href="#📨-港口的數量：Ephemeral-Port-Range" class="headerlink" title="📨 港口的數量：Ephemeral Port Range"></a>📨 港口的數量：Ephemeral Port Range</h2><p>你本機的 port 怎麼來的？</p>
+<p>作業系統會在一段叫做「ephemeral port range」的範圍內選一個沒人用的。</p>
+<table>
+<thead>
+<tr>
+<th>系統</th>
+<th>暫時 port 範圍（預設）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Windows</td>
+<td>49152 到 65535</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td>32768 到 60999</td>
+</tr>
+</tbody></table>
+<p>也這意味著——<br>你同時最多只能有「幾萬名信使」同時出海。<br>雖然看似壯觀，卻遠比無限遼闊的網路要侷促得多。</p>
+<br>
+<br>
+
+<h2 id="📨-所以實際情況怎樣用光-port？"><a href="#📨-所以實際情況怎樣用光-port？" class="headerlink" title="📨 所以實際情況怎樣用光 port？"></a>📨 所以實際情況怎樣用光 port？</h2><ol>
+<li>每一個 HttpClient 預設會新建一個 TCP socket</li>
+<li>每個 socket 都要分配一個新的臨時 port</li>
+<li>這些連線即使 Dispose()，也會暫時留在 TIME_WAIT 狀態（2~4 分鐘）</li>
+</ol>
+<p>👉 幾萬次下來，你的臨時 port 全部被用掉<br>👉 下一次你就無法開新連線了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SocketException: Address already in use</span><br></pre></td></tr></table></figure>
+
+<p>一個擁擠不堪的港口——船隻停滿碼頭，舊船尚未離開，新船卻急著進港，終於造成了癱瘓。</p>
+<br>
+<br>
+
+<h2 id="📨-一個-HttpClient-船隊，需要多少資源？"><a href="#📨-一個-HttpClient-船隊，需要多少資源？" class="headerlink" title="📨 一個 HttpClient 船隊，需要多少資源？"></a>📨 一個 HttpClient 船隊，需要多少資源？</h2><p>每次 new HttpClient()（預設）會建立新的 HttpMessageHandler，而 HttpMessageHandler 會新建 TCP 連線（Socket），每個 Socket 都會佔用作業系統層級的 TCP 連線資源，TCP Socket 會佔用一組 (你的IP, 本地Port, 對方IP, 對方Port)，而連線還會消耗：</p>
+<ul>
+<li>作業系統的 Port 號（通常 client port）</li>
+<li>記憶體（socket 結構本身 + buffer）</li>
+<li>網路資源（TCP connection table）</li>
+<li>網路卡處理能力（NIC queue）</li>
+</ul>
+<p>更具體來說是這樣</p>
+<table>
+<thead>
+<tr>
+<th>資源類型</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>🧠 記憶體</td>
+<td>每個 Socket 會佔用一塊記憶體儲存狀態（如 send&#x2F;receive buffer）</td>
+</tr>
+<tr>
+<td>🔢 本地 Port 號</td>
+<td>每個 TCP 連線都需要一個本地 Port（通常從 49152 到 65535）<br>最多只有幾萬個</td>
+</tr>
+<tr>
+<td>📊 OS 資源</td>
+<td>作業系統內部的「連線表」會變大，效率下降</td>
+</tr>
+<tr>
+<td>⏳ 時間資源</td>
+<td>即使你關掉連線，系統還要等 <code>TIME_WAIT</code> 清理（預設 240 秒）</td>
+</tr>
+<tr>
+<td>🔄 網路開銷</td>
+<td>TCP handshake（建立時）跟 teardown（關閉時）都要消耗網路效能</td>
+</tr>
+</tbody></table>
+<br>
+<br>
+
+<h2 id="📨-TIME-WAIT"><a href="#📨-TIME-WAIT" class="headerlink" title="📨 TIME_WAIT"></a>📨 TIME_WAIT</h2><p>當你關閉一個 TCP 連線時，系統會把這個連線「保留」在 TIME_WAIT 狀態一段時間（通常是 2-4 分鐘），避免封包延遲導致誤判。 </p>
+<p>當一艘船返航，系統並不會立刻拆除港口的繫船柱。它會保留一段時間，避免遲來的舊訊息誤闖新船，造成混亂。<br>這段保留時間，便是 TIME_WAIT。</p>
+<br>
+<br>
+
+<h2 id="📨-HttpClient-和-HttpMessageHandler-是什麼關係"><a href="#📨-HttpClient-和-HttpMessageHandler-是什麼關係" class="headerlink" title="📨 HttpClient 和 HttpMessageHandler 是什麼關係"></a>📨 HttpClient 和 HttpMessageHandler 是什麼關係</h2><p>HttpClient：就像是「航運公司」的門面，方便下單出航。<br>HttpMessageHandler：則是港口總管，真正安排航道、連線與驗證細節。</p>
+<p>每當你 new HttpClient()，背後就會新生一位 HttpClientHandler，管理這趟航程。</p>
+<p>HttpClient 是「高層」的 API，讓你可以簡單地送出 HTTP 請求。HttpMessageHandler 是「低層」的實作，真正處理 HTTP 請求&#x2F;回應的邏輯和連線細節。當你 new HttpClient() 時，背後會自動 new 一個叫做 HttpClientHandler 的預設 handler（繼承自 HttpMessageHandler）</p>
+<br>
+<br>
+
+<h2 id="📨-HttpClientHandler-存了什麼"><a href="#📨-HttpClientHandler-存了什麼" class="headerlink" title="📨 HttpClientHandler 存了什麼"></a>📨 HttpClientHandler 存了什麼</h2><p>它會管理一些「狀態性」的東西，例如：</p>
+<table>
+<thead>
+<tr>
+<th>資料</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CookieContainer</strong></td>
+<td>如果你沒關掉自動 Cookie，就會記住伺服器送來的 cookies</td>
+</tr>
+<tr>
+<td><strong>Proxy 設定</strong></td>
+<td>是否透過某個 Proxy 傳送</td>
+</tr>
+<tr>
+<td><strong>ServerCertificateCustomValidationCallback</strong></td>
+<td>憑證驗證邏輯</td>
+</tr>
+<tr>
+<td><strong>Credentials</strong>（帳密）</td>
+<td>基本驗證或 NTLM 的憑證資料</td>
+</tr>
+<tr>
+<td><strong>Connection Pool</strong></td>
+<td>TCP 連線池（這是重點）</td>
+</tr>
+</tbody></table>
+<p>預設的 CookieContainer 行為，HttpClientHandler 預設 UseCookies &#x3D; true，它內部會建立一個 新的 CookieContainer 實例，所以如果每次 new handler，就會有自己的 cookie 存儲空間，但是若重複使用 handler，它的 CookieContainer 就是共用的!</p>
+<br>
+<br>
+
+<h2 id="📨-HttpClientFactory"><a href="#📨-HttpClientFactory" class="headerlink" title="📨 HttpClientFactory"></a>📨 HttpClientFactory</h2><p>如何避免港口被佔滿？如何避免信使混用身份？</p>
+<p>也就是</p>
+<ul>
+<li>避免耗盡 socket（連線爆掉）</li>
+<li>避免狀態混用（如 cookie、憑證被共用）</li>
+</ul>
+<p>微軟給出的答案就是 IHttpClientFactory。</p>
+<p>IHttpClientFactory 背後會幫忙共用 HttpMessageHandler，但會加上一層壽命控制機制（handler lifetime），預設是 TimeSpan.FromMinutes(2) 每 2 分鐘回收一次 handler</p>
+<p>這代表每一組相同設定的 HttpClient，共用同一個 HttpClientHandler，那個 handler 就可以共用 TCP 連線池，不會每次都建立新的 TCP Socket，連線會被重複使用，不會爆掉！</p>
+<p>IHttpClientFactory 把「設定」跟「Handler Pool」綁起來分開管理，每一組不同設定（BaseAddress、Header、自定義 Handler）都會建立獨立的 handler pool，也就是：只要你給不同的設定，它就會建立不同的 handler，狀態不會互相干擾，所以不會出現 A 使用者的 cookie 被 B 用走的情況！</p>
+<table>
+<thead>
+<tr>
+<th>功能 &#x2F; 行為</th>
+<th>new HttpClient</th>
+<th>重用 handler</th>
+<th>IHttpClientFactory ✅</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>連線重用</td>
+<td>❌ 每次都新連線</td>
+<td>✅ 共用</td>
+<td>✅ 共用</td>
+</tr>
+<tr>
+<td>狀態分離（cookie, credential）</td>
+<td>✅ 分離</td>
+<td>❌ 會混用</td>
+<td>✅ 自動隔離</td>
+</tr>
+<tr>
+<td>資源回收</td>
+<td>❌ handler 不會自動釋放</td>
+<td>❌ 要自己釋放</td>
+<td>✅ 自動控制 handler 壽命</td>
+</tr>
+<tr>
+<td>適合實務環境</td>
+<td>❌ 容易踩雷</td>
+<td>⚠️ 要很小心</td>
+<td>✅ 安全且彈性</td>
+</tr>
+</tbody></table>
+<p>若「單純改 header（如 Authorization）」不會產生新的 handler，也不會建立新的連線池，因為 IHttpClientFactory 的 handler 是根據「Client 註冊設定」來分配的，而不是 runtime 代入的 header 內容</p>
+<p>換句話說</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> client = _httpClientFactory.CreateClient(<span class="string">&quot;MyApi&quot;</span>);</span><br><span class="line"></span><br><span class="line">client.DefaultRequestHeaders.Authorization =</span><br><span class="line">    <span class="keyword">new</span> AuthenticationHeaderValue(<span class="string">&quot;Bearer&quot;</span>, <span class="string">&quot;token-123&quot;</span>); <span class="comment">// 設定 API 密鑰</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">await</span> client.GetAsync(<span class="string">&quot;/data&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>然後下一次：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> client = _httpClientFactory.CreateClient(<span class="string">&quot;MyApi&quot;</span>);</span><br><span class="line"></span><br><span class="line">client.DefaultRequestHeaders.Authorization =</span><br><span class="line">    <span class="keyword">new</span> AuthenticationHeaderValue(<span class="string">&quot;Bearer&quot;</span>, <span class="string">&quot;token-XYZ&quot;</span>); <span class="comment">// 換另一組密鑰</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">await</span> client.GetAsync(<span class="string">&quot;/data&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>這兩次都使用相同的 handler pool 與 socket pool，因為 IHttpClientFactory 在這兩次呼叫中使用的是同一個 “Named Client”（”MyApi”），設定 handler 的時候已經完，header 是後來才加的（屬於 request 層級的設定，不影響 handler 池）</p>
+<p>如果我真的要不同密鑰分開 handler 就必須要「註冊多個 named clients 或 typed clients」，分開設定</p>
+<br>
+<br>
+
+<h2 id="📨-為什麼不能「每個-Service-new-一個-HttpClient-然後重複使用」就好？"><a href="#📨-為什麼不能「每個-Service-new-一個-HttpClient-然後重複使用」就好？" class="headerlink" title="📨 為什麼不能「每個 Service new 一個 HttpClient 然後重複使用」就好？"></a>📨 為什麼不能「每個 Service new 一個 HttpClient 然後重複使用」就好？</h2><ul>
+<li>這個 HttpClient 背後的 Handler 永遠活著（沒人幫你清理）</li>
+<li>你還是無法共享連線池給其他 API 或服務</li>
+<li>你必須自己確保這個 Handler 不會持有不該共用的狀態（例如 Cookie）</li>
+</ul>
+<p>🔥 手動管理 HttpClient 雖然可行，但風險與複雜度很高 &#x3D;&gt; 而 HttpClientFactory 就是幫你 自動做這些事，還不會踩雷</p>
+<h2 id="簡單的實驗"><a href="#簡單的實驗" class="headerlink" title="簡單的實驗"></a>簡單的實驗</h2><p>建立 HttpClient , 發送 Reqeust</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">async</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="built_in">int</span> i = <span class="number">0</span>;i &lt; <span class="number">10</span>;i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">using</span> (<span class="keyword">var</span> httpClient = <span class="keyword">new</span> HttpClient())</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">var</span> response = <span class="keyword">await</span> httpClient.GetAsync(<span class="string">&quot;https://httpbin.org/get&quot;</span>);</span><br><span class="line">			<span class="keyword">var</span> responseContent = <span class="keyword">await</span> response.Content.ReadAsStringAsync();</span><br><span class="line">			Console.WriteLine(responseContent);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>查看港口狀態</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat <span class="literal">-ano</span> | findstr TIME_WAIT</span><br></pre></td></tr></table></figure>
+
+<p>netstat 是 Windows 提供的網路狀態檢查工具，用來查看電腦目前的網路連線、開啟的埠口與對應的行程 (process)。</p>
+<p>常見參數：</p>
+<ul>
+<li>-a：顯示所有連線與監聽中的埠口 (Listening、Established、Time_Wait…)</li>
+<li>-n：以數字方式顯示 IP 與 Port（避免把 443 轉成 “https” 這種文字）</li>
+<li>-o：顯示對應的行程 PID (Process ID)</li>
+</ul>
+<p>所以 netstat -ano 會列出 所有 TCP&#x2F;UDP 連線狀態，包含本機 IP&#x2F;Port、遠端 IP&#x2F;Port、狀態 (如 ESTABLISHED、TIME_WAIT)、以及是哪個程式的 PID。</p>
+<ul>
+<li>| 是管線 (pipe)，把前一個 netstat -ano 的結果再丟給 findstr 去做文字搜尋。</li>
+<li>findstr 就像 Windows 的 grep，可以篩選出符合關鍵字的行。</li>
+<li>TIME_WAIT 是 TCP 連線的一種狀態，表示該連線已經關閉，但系統還保留一段時間（通常 1~4 分鐘）以確保延遲封包不會影響後續新的連線。</li>
+</ul>
+<br>
+<br>
+
+<h2 id="📨-結語"><a href="#📨-結語" class="headerlink" title="📨 結語"></a>📨 結語</h2><p>最終，我們發現，問題從來不在於信使太多，而在於我們是否懂得為他們安排合理的歸途。<br>HttpClientFactory 就像是港口的調度員，讓信使們能共用航道，又不至於混亂。<br>當我們不再讓每一位信使孤軍奮戰，而是讓他們在秩序中流動，才會真正體會：在雲端之間，持續的交流，並不是靠無窮的資源堆疊，而是依靠一套優雅的秩序。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/08/26/HttpClient-Socket-Exhustion/">https://allenlin000.github.io.git/2025/08/26/HttpClient-Socket-Exhustion/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Http/">Http</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/hZWviQz.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/08/25/HttpClient-Socket/" title="Socket"><img class="cover" src="https://i.imgur.com/hZWviQz.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Socket</div></div></a></div><div class="next-post pull-right"><a href="/2025/08/28/HttpClient-HttpclientFactory/" title="HttpClientFactory"><img class="cover" src="https://i.imgur.com/hZWviQz.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">HttpClientFactory</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/05/20/HttpClient-BaseAddress/" title="BaseAddress - 那一撇，決定了命運的方向"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-20</div><div class="title">BaseAddress - 那一撇，決定了命運的方向</div></div></a></div><div><a href="/2024/05/21/HttpClient-Header/" title="HttpClient - Header 都亂了，我還怎麼好好當人"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-21</div><div class="title">HttpClient - Header 都亂了，我還怎麼好好當人</div></div></a></div><div><a href="/2025/08/30/HttpClient-HttpRequestMessage/" title="HttpRequestMessage"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-30</div><div class="title">HttpRequestMessage</div></div></a></div><div><a href="/2024/06/27/HttpClient-Context/" title="HttpContext 失效時，我們還能說什麼"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-06-27</div><div class="title">HttpContext 失效時，我們還能說什麼</div></div></a></div><div><a href="/2025/08/25/HttpClient-Socket/" title="Socket"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-25</div><div class="title">Socket</div></div></a></div><div><a href="/2025/08/28/HttpClient-HttpclientFactory/" title="HttpClientFactory"><img class="cover" src="https://i.imgur.com/hZWviQz.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-28</div><div class="title">HttpClientFactory</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">133</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">29</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-TCP-4-tuple"><span class="toc-number">1.</span> <span class="toc-text">📨 TCP 4-tuple</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-%E6%B8%AF%E5%8F%A3%E7%9A%84%E6%95%B8%E9%87%8F%EF%BC%9AEphemeral-Port-Range"><span class="toc-number">2.</span> <span class="toc-text">📨 港口的數量：Ephemeral Port Range</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-%E6%89%80%E4%BB%A5%E5%AF%A6%E9%9A%9B%E6%83%85%E6%B3%81%E6%80%8E%E6%A8%A3%E7%94%A8%E5%85%89-port%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">📨 所以實際情況怎樣用光 port？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-%E4%B8%80%E5%80%8B-HttpClient-%E8%88%B9%E9%9A%8A%EF%BC%8C%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E8%B3%87%E6%BA%90%EF%BC%9F"><span class="toc-number">4.</span> <span class="toc-text">📨 一個 HttpClient 船隊，需要多少資源？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-TIME-WAIT"><span class="toc-number">5.</span> <span class="toc-text">📨 TIME_WAIT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-HttpClient-%E5%92%8C-HttpMessageHandler-%E6%98%AF%E4%BB%80%E9%BA%BC%E9%97%9C%E4%BF%82"><span class="toc-number">6.</span> <span class="toc-text">📨 HttpClient 和 HttpMessageHandler 是什麼關係</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-HttpClientHandler-%E5%AD%98%E4%BA%86%E4%BB%80%E9%BA%BC"><span class="toc-number">7.</span> <span class="toc-text">📨 HttpClientHandler 存了什麼</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-HttpClientFactory"><span class="toc-number">8.</span> <span class="toc-text">📨 HttpClientFactory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-%E7%82%BA%E4%BB%80%E9%BA%BC%E4%B8%8D%E8%83%BD%E3%80%8C%E6%AF%8F%E5%80%8B-Service-new-%E4%B8%80%E5%80%8B-HttpClient-%E7%84%B6%E5%BE%8C%E9%87%8D%E8%A4%87%E4%BD%BF%E7%94%A8%E3%80%8D%E5%B0%B1%E5%A5%BD%EF%BC%9F"><span class="toc-number">9.</span> <span class="toc-text">📨 為什麼不能「每個 Service new 一個 HttpClient 然後重複使用」就好？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B0%A1%E5%96%AE%E7%9A%84%E5%AF%A6%E9%A9%97"><span class="toc-number">10.</span> <span class="toc-text">簡單的實驗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%A8-%E7%B5%90%E8%AA%9E"><span class="toc-number">11.</span> <span class="toc-text">📨 結語</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/14/webapi-header/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/14/webapi-header/" title="Untitled">Untitled</a><time datetime="2025-11-14T15:48:41.433Z" title="Created 2025-11-14 23:48:41">2025-11-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/IQIEEEEEEEEEE/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/IQIEEEEEEEEEE/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:44:48.445Z" title="Created 2025-11-13 23:44:48">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:34:23.075Z" title="Created 2025-11-13 23:34:23">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:04:10.629Z" title="Created 2025-11-13 23:04:10">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:02:21.085Z" title="Created 2025-11-13 23:02:21">2025-11-13</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

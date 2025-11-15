@@ -1,0 +1,301 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Query Expression Syntax vs Method Chaining Syntax | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="當我們在 C# 中使用 LINQ 查詢語法（Query Syntax）時，這種查詢語法看起來簡潔且易於理解，但實際上，.NET 的 Common Language Runtime（CLR）並不直接支援這種語法。CLR 主要還是處理方法呼叫 (method calls) 和其他基本的程式碼結構。 簡單的例子 12345678910111213int[] numbers &#x3D; [ 5, 10, 8, 3">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Query Expression Syntax vs Method Chaining Syntax">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/06/06/LINQ-Query-Expression-Syntax-vs-Method-Chaining-Syntax/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="當我們在 C# 中使用 LINQ 查詢語法（Query Syntax）時，這種查詢語法看起來簡潔且易於理解，但實際上，.NET 的 Common Language Runtime（CLR）並不直接支援這種語法。CLR 主要還是處理方法呼叫 (method calls) 和其他基本的程式碼結構。 簡單的例子 12345678910111213int[] numbers &#x3D; [ 5, 10, 8, 3">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/cBfeEDY.png">
+<meta property="article:published_time" content="2024-06-06T15:59:34.000Z">
+<meta property="article:modified_time" content="2025-11-14T00:28:52.483Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="LINQ">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/cBfeEDY.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/06/06/LINQ-Query-Expression-Syntax-vs-Method-Chaining-Syntax/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Query Expression Syntax vs Method Chaining Syntax',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-14 08:28:52'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">133</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">29</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Query Expression Syntax vs Method Chaining Syntax</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-06-06T15:59:34.000Z" title="Created 2024-06-06 23:59:34">2024-06-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-14T00:28:52.483Z" title="Updated 2025-11-14 08:28:52">2025-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/LINQ/">LINQ</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Query Expression Syntax vs Method Chaining Syntax"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>當我們在 C# 中使用 LINQ 查詢語法（Query Syntax）時，這種查詢語法看起來簡潔且易於理解，但實際上，.NET 的 Common Language Runtime（CLR）並不直接支援這種語法。CLR 主要還是處理方法呼叫 (method calls) 和其他基本的程式碼結構。</p>
+<p>簡單的例子</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="built_in">int</span>[] numbers = [ <span class="number">5</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">12</span> ];</span><br><span class="line"></span><br><span class="line"><span class="comment">//Query syntax:（查詢語法）</span></span><br><span class="line">IEnumerable&lt;<span class="built_in">int</span>&gt; numQuery1 =</span><br><span class="line">    <span class="keyword">from</span> num <span class="keyword">in</span> numbers</span><br><span class="line">    <span class="keyword">where</span> num % <span class="number">2</span> == <span class="number">0</span></span><br><span class="line">    <span class="keyword">orderby</span> num</span><br><span class="line">    <span class="keyword">select</span> num;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Method syntax:（方法語法）</span></span><br><span class="line">IEnumerable&lt;<span class="built_in">int</span>&gt; numQuery2 = numbers.Where(num =&gt; num % <span class="number">2</span> == <span class="number">0</span>).OrderBy(n =&gt; n);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>看起來是兩種完全不同的寫法，但 本質上查詢語法只是語法糖 (syntactic sugar)。C# 編譯器會把查詢語法轉換成方法語法呼叫 → 最終都變成 Enumerable.Where、Enumerable.OrderBy 的呼叫。CLR 並不懂查詢語法，只懂方法呼叫。所以 Query Syntax 只是寫法比較貼近 SQL，適合閱讀；Method Syntax 才是底層真正執行的方式。</p>
+<br>
+<br>
+
+<h2 id="🐛-LINQPad-Lambda-translations"><a href="#🐛-LINQPad-Lambda-translations" class="headerlink" title="🐛 LINQPad Lambda translations"></a>🐛 LINQPad Lambda translations</h2><p>像 LINQPad 會幫我們做「即時翻譯」查詢語法，顯示對應的 Lambda &#x2F; Method Syntax：</p>
+<p><img src="https://i.imgur.com/RFfvHEt.png" alt="Image"></p>
+<br>
+<br>
+
+<h2 id="🐛-支援範圍的不同"><a href="#🐛-支援範圍的不同" class="headerlink" title="🐛 支援範圍的不同"></a>🐛 支援範圍的不同</h2><p>查詢語法其實只能對應「常見的 SQL 風格子句」：from、where、select、join、orderby、group。但有些 LINQ 運算子並沒有對應的查詢語法：</p>
+<p>✅ 查詢語法可用：where、select、orderby、join、group by<br>❌ 查詢語法沒有：Distinct、Skip、Take、Zip、Aggregate… 這些就只能用方法語法</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">List&lt;StudentGrade&gt; grades = GetStudentGrades();</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> topStudents = grades.OrderByDescending(g =&gt; g.Grade)</span><br><span class="line">                         .Select(g =&gt; g.StudentName)</span><br><span class="line">                         .Distinct()</span><br><span class="line">                         .Take(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Query Syntax 是為了貼近 SQL，適合表達「篩選 + 投影 + 分組」，而 Method Syntax 更完整，能用到所有 LINQ 擴充方法。</p>
+<br>
+<br>
+
+<h2 id="🐛-查詢分解成多個步驟、可重用"><a href="#🐛-查詢分解成多個步驟、可重用" class="headerlink" title="🐛 查詢分解成多個步驟、可重用"></a>🐛 查詢分解成多個步驟、可重用</h2><p>方法語法比查詢語法更容易拆解成多個步驟，方便組合與重用</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> items = orders.SelectMany(o =&gt; o.Items);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> grouped = items.GroupBy(i =&gt; i.ItemName)</span><br><span class="line">                   .Select(g =&gt; <span class="keyword">new</span> &#123; ItemName = g.Key, TotalPrice = g.Sum(i =&gt; i.Price) &#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> topItems = grouped.OrderByDescending(i =&gt; i.TotalPrice)</span><br><span class="line">                      .Take(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查詢分段更清晰</li>
+<li>中間結果（grouped）可以重複使用或 debug</li>
+<li>更符合「方法鏈式」的思維</li>
+</ul>
+<br>
+<br>
+
+<h2 id="🐛-查詢的執行時機"><a href="#🐛-查詢的執行時機" class="headerlink" title="🐛 查詢的執行時機"></a>🐛 查詢的執行時機</h2><p>LINQ 有「延遲執行」的特性：查詢只是組裝好，真正取資料要等到「實體化 (materialize)」時才會執行（例如 ToList()、First()、Count()）。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">IQueryable&lt;Customer&gt; customers = GetCustomers();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 還沒去 DB</span></span><br><span class="line"><span class="keyword">var</span> query = <span class="keyword">from</span> c <span class="keyword">in</span> customers</span><br><span class="line">            <span class="keyword">where</span> c.Country == <span class="string">&quot;USA&quot;</span></span><br><span class="line">            <span class="keyword">select</span> <span class="keyword">new</span> &#123; c.Name, c.Email &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 這裡才真正發 SQL 到資料庫</span></span><br><span class="line"><span class="keyword">var</span> result = query.Take(<span class="number">10</span>).ToList();</span><br></pre></td></tr></table></figure>
+
+<p>Query Syntax 和 Method Syntax 在執行時機上沒有本質差別，但 Method Syntax 因為能明確插入 .ToList()、.ToArray()，更能控制「查詢在何時執行」。</p>
+<br>
+<br>
+
+<h2 id="🐛-Join"><a href="#🐛-Join" class="headerlink" title="🐛 Join"></a>🐛 Join</h2><h3 id="單表-Inner-Join"><a href="#單表-Inner-Join" class="headerlink" title="單表 Inner Join"></a>單表 Inner Join</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Query Syntax</span></span><br><span class="line"><span class="keyword">var</span> result = <span class="keyword">from</span> c <span class="keyword">in</span> customers</span><br><span class="line">             <span class="keyword">join</span> o <span class="keyword">in</span> orders <span class="keyword">on</span> c.CustomerID <span class="keyword">equals</span> o.CustomerID</span><br><span class="line">             <span class="keyword">select</span> <span class="keyword">new</span> &#123; CustomerName = c.Name, OrderID = o.OrderID, OrderDate = o.Date &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Method Syntax</span></span><br><span class="line"><span class="keyword">var</span> result = customers.Join(</span><br><span class="line">    orders,</span><br><span class="line">    c =&gt; c.CustomerID,</span><br><span class="line">    o =&gt; o.CustomerID,</span><br><span class="line">    (c, o) =&gt; <span class="keyword">new</span> &#123; CustomerName = c.Name, OrderID = o.OrderID, OrderDate = o.Date &#125;</span><br><span class="line">);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>join 關鍵字在 Query Syntax 就像 SQL 的 JOIN 子句，結構清晰；而 Method Syntax 必須顯式指定：</p>
+<p>outerKeySelector (c &#x3D;&gt; c.CustomerID)<br>innerKeySelector (o &#x3D;&gt; o.CustomerID)<br>resultSelector ((c, o) &#x3D;&gt; …)</p>
+<p>在 CRM 系統中，客戶與訂單的關聯是一對多，用 JOIN 很常見。Query Syntax 一看就懂，Method Syntax 顯得繁瑣。</p>
+<h3 id="多表-Join"><a href="#多表-Join" class="headerlink" title="多表 Join"></a>多表 Join</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Query Syntax</span></span><br><span class="line"><span class="keyword">var</span> result = <span class="keyword">from</span> c <span class="keyword">in</span> Customers</span><br><span class="line">             <span class="keyword">join</span> o <span class="keyword">in</span> Orders <span class="keyword">on</span> c.CustomerID <span class="keyword">equals</span> o.CustomerID</span><br><span class="line">             <span class="keyword">join</span> p <span class="keyword">in</span> Products <span class="keyword">on</span> o.ProductID <span class="keyword">equals</span> p.ProductID</span><br><span class="line">             <span class="keyword">select</span> <span class="keyword">new</span> &#123; c.Name, o.OrderID, p.ProductName &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Method Syntax</span></span><br><span class="line"><span class="keyword">var</span> result = Customers.Join(</span><br><span class="line">                 Orders,</span><br><span class="line">                 c =&gt; c.CustomerID,</span><br><span class="line">                 o =&gt; o.CustomerID,</span><br><span class="line">                 (c, o) =&gt; <span class="keyword">new</span> &#123; c, o &#125;</span><br><span class="line">             ).Join(</span><br><span class="line">                 Products,</span><br><span class="line">                 co =&gt; co.o.ProductID,</span><br><span class="line">                 p =&gt; p.ProductID,</span><br><span class="line">                 (co, p) =&gt; <span class="keyword">new</span> &#123; co.c.Name, co.o.OrderID, p.ProductName &#125;</span><br><span class="line">             );</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Method Syntax 在多表連接時會出現「匿名型別套匿名型別」的情況 (co.c、co.o)，可讀性急速下降；Query Syntax 卻仍然貼近 SQL 的直覺。<br>例如在電商網站裡，要查詢「客戶 → 訂單 → 商品」，Query Syntax 看起來就像一段熟悉的 SQL，而 Method Syntax 會讓人迷路。</p>
+<h3 id="Left-Join-GroupJoin-DefaultIfEmpty"><a href="#Left-Join-GroupJoin-DefaultIfEmpty" class="headerlink" title="Left Join (GroupJoin + DefaultIfEmpty)"></a>Left Join (GroupJoin + DefaultIfEmpty)</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Query Syntax</span></span><br><span class="line"><span class="keyword">var</span> result = <span class="keyword">from</span> c <span class="keyword">in</span> Customers</span><br><span class="line">             <span class="keyword">join</span> o <span class="keyword">in</span> Orders <span class="keyword">on</span> c.CustomerID <span class="keyword">equals</span> o.CustomerID <span class="keyword">into</span> customerOrders</span><br><span class="line">             <span class="keyword">from</span> o <span class="keyword">in</span> customerOrders.DefaultIfEmpty()</span><br><span class="line">             <span class="keyword">select</span> <span class="keyword">new</span> &#123; c.Name, OrderID = o?.OrderID ?? <span class="number">0</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Method Syntax</span></span><br><span class="line"><span class="keyword">var</span> result = Customers.GroupJoin(</span><br><span class="line">                 Orders,</span><br><span class="line">                 c =&gt; c.CustomerID,</span><br><span class="line">                 o =&gt; o.CustomerID,</span><br><span class="line">                 (c, customerOrders) =&gt; <span class="keyword">new</span> &#123; c, customerOrders &#125;</span><br><span class="line">             ).SelectMany(</span><br><span class="line">                 co =&gt; co.customerOrders.DefaultIfEmpty(),</span><br><span class="line">                 (co, o) =&gt; <span class="keyword">new</span> &#123; co.c.Name, OrderID = o?.OrderID ?? <span class="number">0</span> &#125;</span><br><span class="line">             );</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Query Syntax 使用 join … into + DefaultIfEmpty，就能自然寫出 Left Join。<br>Method Syntax 必須用 GroupJoin 產生「客戶 + 訂單群組」，再展開 SelectMany，語法很重。<br>報表系統中要列出「所有客戶，即使沒有訂單也要顯示」。Query Syntax 可讀性好得多。</p>
+<br>
+<br>
+
+<h2 id="🐛-let（引入中間變數）"><a href="#🐛-let（引入中間變數）" class="headerlink" title="🐛 let（引入中間變數）"></a>🐛 let（引入中間變數）</h2><p>Query Syntax 提供 let，允許你在查詢中計算一次值，後續多次使用。</p>
+<p>假設我們有一個 Character 類別，表示遊戲中的角色，其中包含角色的名稱、等級和經驗值。我們想要查詢所有達到 5 級及以上的角色，並計算他們升到下一級所需的經驗值。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Query Syntax</span></span><br><span class="line"><span class="keyword">var</span> querySyntax = <span class="keyword">from</span> character <span class="keyword">in</span> characters</span><br><span class="line">                  <span class="keyword">let</span> experienceToNextLevel = GetExperienceToNextLevel(character.Level, character.Experience)</span><br><span class="line">                  <span class="keyword">where</span> character.Level &gt;= <span class="number">5</span></span><br><span class="line">                  <span class="keyword">orderby</span> experienceToNextLevel <span class="keyword">ascending</span></span><br><span class="line">                  <span class="keyword">select</span> <span class="keyword">new</span> &#123; character.Name, ExperienceToNextLevel = experienceToNextLevel &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Method Syntax</span></span><br><span class="line"><span class="keyword">var</span> methodSyntax = characters</span><br><span class="line">    .Select(character =&gt; <span class="keyword">new</span></span><br><span class="line">    &#123;</span><br><span class="line">        character.Name,</span><br><span class="line">        character.Level,</span><br><span class="line">        character.Experience,</span><br><span class="line">        ExperienceToNextLevel = GetExperienceToNextLevel(character.Level, character.Experience)</span><br><span class="line">    &#125;)</span><br><span class="line">    .Where(x =&gt; x.Level &gt;= <span class="number">5</span>)</span><br><span class="line">    .OrderBy(x =&gt; x.ExperienceToNextLevel)</span><br><span class="line">    .Select(x =&gt; <span class="keyword">new</span> &#123; x.Name, x.ExperienceToNextLevel &#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>let 可以「命名中間計算結果」，避免重複計算，也讓查詢更好讀。在 Method Syntax 裡，必須用匿名類型 Select 包裝變數，然後再投影出結果。<br>遊戲角色查詢、財務報表計算（例如 let 稅額 &#x3D; 金額 * 稅率），Query Syntax 會更直覺。s</p>
+<br>
+<br>
+
+<h2 id="🐛-Cross-Join（多來源組合）"><a href="#🐛-Cross-Join（多來源組合）" class="headerlink" title="🐛 Cross Join（多來源組合）"></a>🐛 Cross Join（多來源組合）</h2><p>這個與 JOIN 不同的是，我們可能不是要交集篩選他們的資料，而是單純從不同資料來源，列出不同的排列組合</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> levels = <span class="keyword">new</span>[] &#123; <span class="string">&quot;Level 1&quot;</span>, <span class="string">&quot;Level 2&quot;</span>, <span class="string">&quot;Level 3&quot;</span> &#125;;</span><br><span class="line"><span class="keyword">var</span> enemies = <span class="keyword">new</span>[] &#123; <span class="string">&quot;Enemy A&quot;</span>, <span class="string">&quot;Enemy B&quot;</span>, <span class="string">&quot;Enemy C&quot;</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Query Syntax</span></span><br><span class="line"><span class="keyword">var</span> querySyntax = <span class="keyword">from</span> level <span class="keyword">in</span> levels</span><br><span class="line">                  <span class="keyword">from</span> enemy <span class="keyword">in</span> enemies</span><br><span class="line">                  <span class="keyword">select</span> <span class="string">$&quot;<span class="subst">&#123;enemy&#125;</span> in <span class="subst">&#123;level&#125;</span>&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ Method Syntax</span></span><br><span class="line"><span class="keyword">var</span> methodSyntax = levels.SelectMany(level =&gt; enemies, (level, enemy) =&gt; <span class="string">$&quot;<span class="subst">&#123;enemy&#125;</span> in <span class="subst">&#123;level&#125;</span>&quot;</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Query Syntax 用兩個 from 就能直接表達「交叉組合」。<br>Method Syntax 必須用 SelectMany，語意上不如 Query Syntax 清楚。<br>RPG 遊戲中，關卡 × 敵人 → 所有可能組合<br>電商中，顏色 × 尺寸 → 所有商品規格組合</p>
+<table>
+<thead>
+<tr>
+<th>場景</th>
+<th>Query Syntax</th>
+<th>Method Syntax</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>簡單篩選&#x2F;投影</strong></td>
+<td>✅ 直覺（像 SQL）</td>
+<td>✅ 同樣好用</td>
+</tr>
+<tr>
+<td><strong>多表 Join</strong></td>
+<td>✅ 可讀性好</td>
+<td>❌ 容易變巢狀難讀</td>
+</tr>
+<tr>
+<td><strong>Left Join</strong></td>
+<td>✅ 語法糖清晰</td>
+<td>❌ 必須 GroupJoin + SelectMany</td>
+</tr>
+<tr>
+<td><strong>引入中間變數 (let)</strong></td>
+<td>✅ 可命名暫存變數</td>
+<td>❌ 需匿名型別包裝</td>
+</tr>
+<tr>
+<td><strong>Cross Join (排列組合)</strong></td>
+<td>✅ 多個 from 就搞定</td>
+<td>❌ 需要 SelectMany</td>
+</tr>
+<tr>
+<td><strong>複雜運算子 (Distinct&#x2F;Take&#x2F;Aggregate)</strong></td>
+<td>❌ 不支援</td>
+<td>✅ 完整支援</td>
+</tr>
+</tbody></table>
+<ul>
+<li>JOIN &#x2F; let &#x2F; Cross Join → Query Syntax（清晰度高，像 SQL）</li>
+<li>複雜運算、管線式操作 → Method Syntax（功能最完整）</li>
+<li>專案實務：多數團隊會混用，以「可讀性」為首要考量。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/06/06/LINQ-Query-Expression-Syntax-vs-Method-Chaining-Syntax/">https://allenlin000.github.io.git/2024/06/06/LINQ-Query-Expression-Syntax-vs-Method-Chaining-Syntax/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LINQ/">LINQ</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/cBfeEDY.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/06/04/OOM/" title="OOM (一. Managed Heap &amp; Generational Management)"><img class="cover" src="https://i.imgur.com/AUBV7mo.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">OOM (一. Managed Heap &amp; Generational Management)</div></div></a></div><div class="next-post pull-right"><a href="/2024/06/08/SQL-String-Agg/" title="STRING_AGG"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">STRING_AGG</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/10/23/LINQ-Defferred-Execution/" title="Deferred Execution - 延遲的智慧"><img class="cover" src="https://i.imgur.com/bUJj6Dn.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-23</div><div class="title">Deferred Execution - 延遲的智慧</div></div></a></div><div><a href="/2024/03/17/LINQ-Groupby-%E5%9C%A8%E8%B3%87%E6%96%99%E4%B8%AD%E6%8E%A2%E7%B4%A2%E6%AD%B8%E5%B1%AC/" title="Groupby - 在資料中探索歸屬"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-03-17</div><div class="title">Groupby - 在資料中探索歸屬</div></div></a></div><div><a href="/2024/06/20/LINQ-Enumerator/" title="Enumerator"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-06-20</div><div class="title">Enumerator</div></div></a></div><div><a href="/2024/10/24/LINQ-IE/" title="IEnumerable"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-24</div><div class="title">IEnumerable</div></div></a></div><div><a href="/2024/10/21/LINQ-IQIE/" title="IEnumerable&lt;T&gt; and IQueryable&lt;T&gt;"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-21</div><div class="title">IEnumerable&lt;T&gt; and IQueryable&lt;T&gt;</div></div></a></div><div><a href="/2025/09/22/LINQ-Except/" title="Except"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-22</div><div class="title">Except</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">133</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">29</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-LINQPad-Lambda-translations"><span class="toc-number">1.</span> <span class="toc-text">🐛 LINQPad Lambda translations</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-%E6%94%AF%E6%8F%B4%E7%AF%84%E5%9C%8D%E7%9A%84%E4%B8%8D%E5%90%8C"><span class="toc-number">2.</span> <span class="toc-text">🐛 支援範圍的不同</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-%E6%9F%A5%E8%A9%A2%E5%88%86%E8%A7%A3%E6%88%90%E5%A4%9A%E5%80%8B%E6%AD%A5%E9%A9%9F%E3%80%81%E5%8F%AF%E9%87%8D%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">🐛 查詢分解成多個步驟、可重用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-%E6%9F%A5%E8%A9%A2%E7%9A%84%E5%9F%B7%E8%A1%8C%E6%99%82%E6%A9%9F"><span class="toc-number">4.</span> <span class="toc-text">🐛 查詢的執行時機</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-Join"><span class="toc-number">5.</span> <span class="toc-text">🐛 Join</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%96%AE%E8%A1%A8-Inner-Join"><span class="toc-number">5.1.</span> <span class="toc-text">單表 Inner Join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E8%A1%A8-Join"><span class="toc-number">5.2.</span> <span class="toc-text">多表 Join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Left-Join-GroupJoin-DefaultIfEmpty"><span class="toc-number">5.3.</span> <span class="toc-text">Left Join (GroupJoin + DefaultIfEmpty)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-let%EF%BC%88%E5%BC%95%E5%85%A5%E4%B8%AD%E9%96%93%E8%AE%8A%E6%95%B8%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">🐛 let（引入中間變數）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%9B-Cross-Join%EF%BC%88%E5%A4%9A%E4%BE%86%E6%BA%90%E7%B5%84%E5%90%88%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">🐛 Cross Join（多來源組合）</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/14/webapi-header/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/14/webapi-header/" title="Untitled">Untitled</a><time datetime="2025-11-14T15:48:41.433Z" title="Created 2025-11-14 23:48:41">2025-11-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/IQIEEEEEEEEEE/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/IQIEEEEEEEEEE/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:44:48.445Z" title="Created 2025-11-13 23:44:48">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:34:23.075Z" title="Created 2025-11-13 23:34:23">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:04:10.629Z" title="Created 2025-11-13 23:04:10">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:02:21.085Z" title="Created 2025-11-13 23:02:21">2025-11-13</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
