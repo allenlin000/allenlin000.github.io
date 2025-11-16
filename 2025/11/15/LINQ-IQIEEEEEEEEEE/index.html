@@ -1,0 +1,459 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="在 Entity Framework Core 開發中，看似簡單的 LINQ 查詢可能隱藏著巨大的效能陷阱。今天我們來深入分析兩個經典的效能問題，以及它們背後的根本原因。   🚨 案例一：SearchProducts 的效能災難💥 問題程式碼1234567public IEnumerable&lt;Product&gt; SearchProducts(string[] keywords)&amp;#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/11/15/LINQ-IQIEEEEEEEEEE/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="在 Entity Framework Core 開發中，看似簡單的 LINQ 查詢可能隱藏著巨大的效能陷阱。今天我們來深入分析兩個經典的效能問題，以及它們背後的根本原因。   🚨 案例一：SearchProducts 的效能災難💥 問題程式碼1234567public IEnumerable&lt;Product&gt; SearchProducts(string[] keywords)&amp;#">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/cBfeEDY.png">
+<meta property="article:published_time" content="2025-11-15T00:06:05.000Z">
+<meta property="article:modified_time" content="2025-11-16T01:17:11.782Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="LINQ">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/cBfeEDY.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/11/15/LINQ-IQIEEEEEEEEEE/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-16 09:17:11'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">153</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">30</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/cBfeEDY.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-15T00:06:05.000Z" title="Created 2025-11-15 08:06:05">2025-11-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-16T01:17:11.782Z" title="Updated 2025-11-16 09:17:11">2025-11-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/LINQ/">LINQ</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://i.imgur.com/cBfeEDY.png" alt="EF Core Performance"></p>
+<p>在 Entity Framework Core 開發中，看似簡單的 LINQ 查詢可能隱藏著巨大的效能陷阱。今天我們來深入分析兩個經典的效能問題，以及它們背後的根本原因。</p>
+<br>
+
+<h2 id="🚨-案例一：SearchProducts-的效能災難"><a href="#🚨-案例一：SearchProducts-的效能災難" class="headerlink" title="🚨 案例一：SearchProducts 的效能災難"></a>🚨 案例一：SearchProducts 的效能災難</h2><h3 id="💥-問題程式碼"><a href="#💥-問題程式碼" class="headerlink" title="💥 問題程式碼"></a>💥 問題程式碼</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> IEnumerable&lt;Product&gt; <span class="title">SearchProducts</span>(<span class="params"><span class="built_in">string</span>[] keywords</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> _context.Products.Where(p =&gt; keywords.All(k =&gt; p.Name.Contains(k)));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 呼叫方式</span></span><br><span class="line"><span class="keyword">var</span> results = SearchProducts(<span class="keyword">new</span>[] &#123; <span class="string">&quot;red&quot;</span>, <span class="string">&quot;shoes&quot;</span> &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>乍看之下這段程式碼很合理：搜尋包含所有關鍵字的產品。但實際上，這是一個效能炸彈！</p>
+<h3 id="�-問題分析"><a href="#�-問題分析" class="headerlink" title="� 問題分析"></a>� 問題分析</h3><p><strong>核心問題：<code>keywords.All(...)</code> 無法轉換成 SQL</strong></p>
+<p>讓我們拆解這個表達式：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keywords.All(k =&gt; p.Name.Contains(k))</span><br></pre></td></tr></table></figure>
+
+<p>在這個表達式中：</p>
+<ul>
+<li><code>keywords</code> 是 C# 陣列（記憶體中的資料）</li>
+<li><code>.All()</code> 是 LINQ to Objects 的方法</li>
+<li><code>p.Name.Contains(k)</code> 雖然可以轉換成 SQL 的 <code>LIKE</code>，但外層的 <code>.All()</code> 根本無法轉成 SQL</li>
+</ul>
+<h3 id="⚠️-EF-Core-的處理方式"><a href="#⚠️-EF-Core-的處理方式" class="headerlink" title="⚠️ EF Core 的處理方式"></a>⚠️ EF Core 的處理方式</h3><p>當 EF Core 遇到無法轉換的表達式時，它會採取「最安全」的做法：</p>
+<table>
+<thead>
+<tr>
+<th>階段</th>
+<th>發生什麼事</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>資料庫端</strong></td>
+<td><code>SELECT * FROM Products</code> (撈取整張表，可能幾萬筆)</td>
+</tr>
+<tr>
+<td><strong>記憶體端</strong></td>
+<td>在 C# 中逐筆執行 <code>All()</code> 檢查</td>
+</tr>
+<tr>
+<td><strong>後果</strong></td>
+<td>🚨 效能爆炸、記憶體爆炸、回應時間線性成長</td>
+</tr>
+</tbody></table>
+<h3 id="🔧-解決方案"><a href="#🔧-解決方案" class="headerlink" title="🔧 解決方案"></a>🔧 解決方案</h3><h4 id="✅-方法一：使用-Expression-Tree-動態建構查詢"><a href="#✅-方法一：使用-Expression-Tree-動態建構查詢" class="headerlink" title="✅ 方法一：使用 Expression Tree 動態建構查詢"></a>✅ 方法一：使用 Expression Tree 動態建構查詢</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> IQueryable&lt;Product&gt; <span class="title">SearchProducts</span>(<span class="params">IEnumerable&lt;<span class="built_in">string</span>&gt; keywords</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    IQueryable&lt;Product&gt; query = _context.Products;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> keyword <span class="keyword">in</span> keywords)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">string</span> k = keyword; <span class="comment">// 重要：避免閉包問題</span></span><br><span class="line">        query = query.Where(p =&gt; p.Name.Contains(k));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> query;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>優點：</strong></p>
+<ul>
+<li>✅ 每個 <code>Contains</code> 都能轉換成 SQL <code>LIKE</code></li>
+<li>✅ 資料庫端直接篩選，不會拉整張表</li>
+<li>✅ 可以利用索引（如果有建立全文索引）</li>
+<li>✅ 支援多關鍵字查詢</li>
+</ul>
+<h4 id="✅-方法二：使用-EF-Functions-Like"><a href="#✅-方法二：使用-EF-Functions-Like" class="headerlink" title="✅ 方法二：使用 EF.Functions.Like"></a>✅ 方法二：使用 EF.Functions.Like</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> IQueryable&lt;Product&gt; <span class="title">SearchProducts</span>(<span class="params">IEnumerable&lt;<span class="built_in">string</span>&gt; keywords</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    IQueryable&lt;Product&gt; query = _context.Products;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> keyword <span class="keyword">in</span> keywords)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">string</span> pattern = <span class="string">$&quot;%<span class="subst">&#123;keyword&#125;</span>%&quot;</span>;</span><br><span class="line">        query = query.Where(p =&gt; EF.Functions.Like(p.Name, pattern));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> query;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="📊-效能對比"><a href="#📊-效能對比" class="headerlink" title="📊 效能對比"></a>📊 效能對比</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>資料庫查詢</th>
+<th>記憶體使用</th>
+<th>效能評級</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>原始程式碼</strong></td>
+<td><code>SELECT * FROM Products</code></td>
+<td>極高（載入全表）</td>
+<td>💀 災難級</td>
+</tr>
+<tr>
+<td><strong>修正後</strong></td>
+<td><code>SELECT * FROM Products WHERE Name LIKE &#39;%red%&#39; AND Name LIKE &#39;%shoes%&#39;</code></td>
+<td>低</td>
+<td>⚡ 優秀</td>
+</tr>
+</tbody></table>
+<br>
+
+<h2 id="🚨-案例二：GetAdultUsers-的型別陷阱"><a href="#🚨-案例二：GetAdultUsers-的型別陷阱" class="headerlink" title="🚨 案例二：GetAdultUsers 的型別陷阱"></a>🚨 案例二：GetAdultUsers 的型別陷阱</h2><h3 id="💥-問題程式碼-1"><a href="#💥-問題程式碼-1" class="headerlink" title="💥 問題程式碼"></a>💥 問題程式碼</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> IEnumerable&lt;User&gt; <span class="title">GetAdultUsers</span>(<span class="params">Func&lt;User, <span class="built_in">bool</span>&gt; predicate</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> _context.Users.Where(predicate);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 呼叫方式</span></span><br><span class="line"><span class="keyword">var</span> adultUsers = GetAdultUsers(u =&gt; u.Age &gt; <span class="number">18</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="�-問題分析-1"><a href="#�-問題分析-1" class="headerlink" title="� 問題分析"></a>� 問題分析</h3><p><strong>核心問題：<code>Func&lt;User, bool&gt;</code> 不是 Expression</strong></p>
+<p>EF Core 需要能夠解析 Lambda 表達式並轉換成 SQL，但：</p>
+<ul>
+<li><code>Func&lt;User, bool&gt;</code> 是已編譯的委派（delegate）</li>
+<li>EF Core 無法「逆向工程」出 SQL</li>
+<li>因此只能視為「本地函式」處理</li>
+</ul>
+<h3 id="⚠️-EF-Core-的處理方式-1"><a href="#⚠️-EF-Core-的處理方式-1" class="headerlink" title="⚠️ EF Core 的處理方式"></a>⚠️ EF Core 的處理方式</h3><table>
+<thead>
+<tr>
+<th>階段</th>
+<th>發生什麼事</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>資料庫端</strong></td>
+<td><code>SELECT * FROM Users</code> (撈取所有使用者)</td>
+</tr>
+<tr>
+<td><strong>記憶體端</strong></td>
+<td>逐筆執行 <code>predicate(u)</code></td>
+</tr>
+<tr>
+<td><strong>後果</strong></td>
+<td>使用者越多越慢，嚴重拖垮效能</td>
+</tr>
+</tbody></table>
+<h3 id="🔧-解決方案-1"><a href="#🔧-解決方案-1" class="headerlink" title="🔧 解決方案"></a>🔧 解決方案</h3><h4 id="✅-正確寫法：使用-Expression"><a href="#✅-正確寫法：使用-Expression" class="headerlink" title="✅ 正確寫法：使用 Expression&lt;Func&lt;User, bool&gt;&gt;"></a>✅ 正確寫法：使用 Expression&lt;Func&lt;User, bool&gt;&gt;</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> IQueryable&lt;User&gt; <span class="title">GetAdultUsers</span>(<span class="params">Expression&lt;Func&lt;User, <span class="built_in">bool</span>&gt;&gt; predicate</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> _context.Users.Where(predicate);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 呼叫方式（看起來一樣，但型別不同！）</span></span><br><span class="line"><span class="keyword">var</span> adultUsers = GetAdultUsers(u =&gt; u.Age &gt; <span class="number">18</span>).ToList();</span><br></pre></td></tr></table></figure>
+
+<h3 id="�-Func-vs-Expression-的差異"><a href="#�-Func-vs-Expression-的差異" class="headerlink" title="� Func vs Expression 的差異"></a>� Func vs Expression 的差異</h3><table>
+<thead>
+<tr>
+<th>類型</th>
+<th>特性</th>
+<th>EF Core 處理方式</th>
+<th>效能影響</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Func&lt;T, bool&gt;</code></td>
+<td>已編譯的委派</td>
+<td>無法轉 SQL，在記憶體執行</td>
+<td>💀 災難級</td>
+</tr>
+<tr>
+<td><code>Expression&lt;Func&lt;T, bool&gt;&gt;</code></td>
+<td>表達式樹</td>
+<td>可解析成 SQL</td>
+<td>⚡ 優秀</td>
+</tr>
+</tbody></table>
+<br>
+
+<h2 id="🎯-核心概念：IQueryable-vs-IEnumerable"><a href="#🎯-核心概念：IQueryable-vs-IEnumerable" class="headerlink" title="🎯 核心概念：IQueryable vs IEnumerable"></a>🎯 核心概念：IQueryable vs IEnumerable</h2><h3 id="🔍-根本差異"><a href="#🔍-根本差異" class="headerlink" title="🔍 根本差異"></a>🔍 根本差異</h3><p>這兩個案例都指向同一個核心問題：<strong>混淆了 IQueryable 和 IEnumerable 的執行模式</strong></p>
+<table>
+<thead>
+<tr>
+<th>介面</th>
+<th>執行位置</th>
+<th>LINQ 提供者</th>
+<th>適用場景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>IQueryable&lt;T&gt;</code></td>
+<td>資料庫端</td>
+<td>LINQ to Entities</td>
+<td>大量資料查詢</td>
+</tr>
+<tr>
+<td><code>IEnumerable&lt;T&gt;</code></td>
+<td>記憶體端</td>
+<td>LINQ to Objects</td>
+<td>小量資料處理</td>
+</tr>
+</tbody></table>
+<h3 id="⚡-效能影響"><a href="#⚡-效能影響" class="headerlink" title="⚡ 效能影響"></a>⚡ 效能影響</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ❌ 錯誤：強制轉換成 IEnumerable，後續操作在記憶體執行</span></span><br><span class="line"><span class="keyword">var</span> badQuery = _context.Users.AsEnumerable().Where(u =&gt; u.Age &gt; <span class="number">18</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ✅ 正確：保持 IQueryable，操作在資料庫執行  </span></span><br><span class="line"><span class="keyword">var</span> goodQuery = _context.Users.Where(u =&gt; u.Age &gt; <span class="number">18</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="🚨-常見的效能殺手"><a href="#🚨-常見的效能殺手" class="headerlink" title="🚨 常見的效能殺手"></a>🚨 常見的效能殺手</h3><p>以下操作會強制執行查詢，將 IQueryable 轉換成 IEnumerable：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 這些方法會立即執行查詢</span></span><br><span class="line">.ToList()</span><br><span class="line">.ToArray() </span><br><span class="line">.First()</span><br><span class="line">.FirstOrDefault()</span><br><span class="line">.Count()</span><br><span class="line">.Any()</span><br><span class="line">.All() <span class="comment">// ⚠️ 特別注意這個！</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 在查詢鏈中使用時要特別小心</span></span><br><span class="line"><span class="keyword">var</span> badExample = _context.Users</span><br><span class="line">    .ToList() <span class="comment">// 🚨 這裡就把所有用戶載入記憶體了</span></span><br><span class="line">    .Where(u =&gt; u.Age &gt; <span class="number">18</span>) <span class="comment">// 🚨 這個篩選在記憶體執行</span></span><br><span class="line">    .OrderBy(u =&gt; u.Name);</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h2 id="💡-最佳實踐"><a href="#💡-最佳實踐" class="headerlink" title="💡 最佳實踐"></a>💡 最佳實踐</h2><h3 id="✅-設計原則"><a href="#✅-設計原則" class="headerlink" title="✅ 設計原則"></a>✅ 設計原則</h3><ol>
+<li><strong>延遲執行到最後</strong>：盡可能保持 <code>IQueryable&lt;T&gt;</code> 直到真正需要資料</li>
+<li><strong>識別表達式型別</strong>：確保使用 <code>Expression&lt;Func&lt;T, bool&gt;&gt;</code> 而非 <code>Func&lt;T, bool&gt;</code></li>
+<li><strong>避免混合操作</strong>：不要在查詢鏈中混用資料庫操作和記憶體操作</li>
+</ol>
+<h3 id="�-實用技巧"><a href="#�-實用技巧" class="headerlink" title="� 實用技巧"></a>� 實用技巧</h3><h4 id="動態查詢建構"><a href="#動態查詢建構" class="headerlink" title="動態查詢建構"></a>動態查詢建構</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> IQueryable&lt;Product&gt; <span class="title">BuildProductQuery</span>(<span class="params">ProductSearchCriteria criteria</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> query = _context.Products.AsQueryable();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">string</span>.IsNullOrEmpty(criteria.Name))</span><br><span class="line">        query = query.Where(p =&gt; p.Name.Contains(criteria.Name));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (criteria.MinPrice.HasValue)</span><br><span class="line">        query = query.Where(p =&gt; p.Price &gt;= criteria.MinPrice.Value);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (criteria.CategoryIds?.Any() == <span class="literal">true</span>)</span><br><span class="line">        query = query.Where(p =&gt; criteria.CategoryIds.Contains(p.CategoryId));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> query; <span class="comment">// 仍然是 IQueryable，尚未執行</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="分頁查詢"><a href="#分頁查詢" class="headerlink" title="分頁查詢"></a>分頁查詢</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;PagedResult&lt;Product&gt;&gt; GetProductsAsync(<span class="built_in">int</span> page, <span class="built_in">int</span> pageSize)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> query = _context.Products.Where(p =&gt; p.IsActive);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> totalCount = <span class="keyword">await</span> query.CountAsync(); <span class="comment">// 第一次執行：取得總數</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> items = <span class="keyword">await</span> query</span><br><span class="line">        .Skip((page - <span class="number">1</span>) * pageSize)</span><br><span class="line">        .Take(pageSize)</span><br><span class="line">        .ToListAsync(); <span class="comment">// 第二次執行：取得分頁資料</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> PagedResult&lt;Product&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        Items = items,</span><br><span class="line">        TotalCount = totalCount,</span><br><span class="line">        Page = page,</span><br><span class="line">        PageSize = pageSize</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h2 id="�-總結"><a href="#�-總結" class="headerlink" title="� 總結"></a>� 總結</h2><h3 id="🔑-關鍵要點"><a href="#🔑-關鍵要點" class="headerlink" title="🔑 關鍵要點"></a>🔑 關鍵要點</h3><blockquote>
+<p><strong>凡是使用 C# 的 LINQ-to-Objects 操作（如 <code>Func</code>、<code>All</code>、<code>Any</code>、<code>ToList()</code>），都會讓 EF Core 無法轉換成 SQL，導致資料庫整張表被拉回記憶體處理 → 效能災難。</strong></p>
+</blockquote>
+<h3 id="📝-檢查清單"><a href="#📝-檢查清單" class="headerlink" title="📝 檢查清單"></a>📝 檢查清單</h3><p>在撰寫 EF Core 查詢時，請確認：</p>
+<ul>
+<li><input disabled="" type="checkbox"> 是否正確使用 <code>Expression&lt;Func&lt;T, bool&gt;&gt;</code> 而非 <code>Func&lt;T, bool&gt;</code></li>
+<li><input disabled="" type="checkbox"> 是否避免在查詢鏈中過早使用 <code>.ToList()</code> 等執行方法</li>
+<li><input disabled="" type="checkbox"> 是否確保複雜條件能夠轉換成 SQL</li>
+<li><input disabled="" type="checkbox"> 是否適當使用 <code>IQueryable&lt;T&gt;</code> 保持延遲執行</li>
+</ul>
+<h3 id="🚀-效能最佳化的黃金法則"><a href="#🚀-效能最佳化的黃金法則" class="headerlink" title="🚀 效能最佳化的黃金法則"></a>🚀 效能最佳化的黃金法則</h3><p><strong>「資料庫擅長篩選，記憶體擅長計算」</strong> —— 讓正確的組件處理適合的工作，才能發揮最佳效能。</p>
+<br>
+
+<h2 id="🚨-案例三：複雜查詢中的隱藏陷阱"><a href="#🚨-案例三：複雜查詢中的隱藏陷阱" class="headerlink" title="🚨 案例三：複雜查詢中的隱藏陷阱"></a>🚨 案例三：複雜查詢中的隱藏陷阱</h2><h3 id="💥-問題程式碼-2"><a href="#💥-問題程式碼-2" class="headerlink" title="💥 問題程式碼"></a>💥 問題程式碼</h3><p>在實際專案中，我們經常會遇到這樣的複雜查詢：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> transactionScope = <span class="keyword">new</span> TransactionScope(TransactionScopeOption.Required, transactionOptions))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> context = CRMDBEntities.CreateNew(isReadOnly: <span class="literal">true</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> orders = (<span class="keyword">from</span> order <span class="keyword">in</span> context.CrmSalesOrder.AsNoTracking().Valids()</span><br><span class="line">                <span class="keyword">join</span> location <span class="keyword">in</span> context.Location.AsNoTracking().Valids()</span><br><span class="line">                    <span class="keyword">on</span> order.CrmSalesOrder_LocationId <span class="keyword">equals</span> location.Location_Id <span class="keyword">into</span> locationGroup</span><br><span class="line">                <span class="keyword">from</span> location <span class="keyword">in</span> locationGroup.DefaultIfEmpty()</span><br><span class="line">                <span class="keyword">join</span> slave <span class="keyword">in</span> context.CrmSalesOrderSlave.AsNoTracking().Valids()</span><br><span class="line">                    <span class="keyword">on</span> <span class="keyword">new</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        a = order.CrmSalesOrder_Id,</span><br><span class="line">                        b = order.CrmSalesOrder_ShopId,</span><br><span class="line">                        c = order.CrmSalesOrder_CrmMemberId</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">equals</span> <span class="keyword">new</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        a = slave.CrmSalesOrderSlave_CrmSalesOrderId,</span><br><span class="line">                        b = slave.CrmSalesOrderSlave_ShopId,</span><br><span class="line">                        c = slave.CrmSalesOrderSlave_CrmMemberId</span><br><span class="line">                    &#125; <span class="keyword">into</span> slaveGroup</span><br><span class="line">                <span class="keyword">where</span> order.CrmSalesOrder_ShopId == shopId</span><br><span class="line">                      &amp;&amp; order.CrmSalesOrder_CrmMemberId == crmMemberId</span><br><span class="line">                      &amp;&amp; order.CrmSalesOrder_TradesOrderFinishDateTime &gt;= minDateTime</span><br><span class="line">                      &amp;&amp; order.CrmSalesOrder_TypeDef == <span class="string">&quot;Others&quot;</span></span><br><span class="line">                      &amp;&amp; slaveGroup.Any()</span><br><span class="line">                <span class="keyword">select</span> <span class="keyword">new</span> CrmSalesOrderDbResult</span><br><span class="line">                &#123;</span><br><span class="line">                    CrmSalesOrder_Id = order.CrmSalesOrder_Id,</span><br><span class="line">                    CrmSalesOrder_ShopId = order.CrmSalesOrder_ShopId,</span><br><span class="line">                    CrmSalesOrder_OuterOrderCode1 = order.CrmSalesOrder_OuterOrderCode1,</span><br><span class="line">                    <span class="comment">// ... 其他欄位</span></span><br><span class="line">                    Location_Name = (location == <span class="literal">null</span> ? <span class="built_in">string</span>.Empty : location.Location_Name),</span><br><span class="line">                    Location_IsOutlet = (location == <span class="literal">null</span> ? <span class="literal">false</span> : location.Location_IsOutlet),</span><br><span class="line">                    CrmSalesOrderSlaveCount = slaveGroup.Count(),</span><br><span class="line">                    CrmSalesOrderSlaves = slaveGroup.Select(x =&gt; <span class="keyword">new</span> CrmSalesOrderSlaveDbResult</span><br><span class="line">                    &#123;</span><br><span class="line">                        CrmSalesOrderSlave_Id = x.CrmSalesOrderSlave_Id,</span><br><span class="line">                        CrmSalesOrderSlave_ProductCode = x.CrmSalesOrderSlave_ProductCode,</span><br><span class="line">                        <span class="comment">// ... 其他欄位</span></span><br><span class="line">                    &#125;).ToList(), <span class="comment">// 🚨 問題在這裡！</span></span><br><span class="line">                &#125;)</span><br><span class="line">            .OrderByDescending(x =&gt; x.CrmSalesOrder_TradesOrderFinishDateTime)</span><br><span class="line">            .Skip(startIndex)</span><br><span class="line">            .Take(maxCount)</span><br><span class="line">            .ToList();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="🔍-問題分析"><a href="#🔍-問題分析" class="headerlink" title="🔍 問題分析"></a>🔍 問題分析</h3><p>這個查詢看似完整且合理，但隱藏著一個嚴重的效能陷阱：</p>
+<p><strong>核心問題：在 Select 投影中使用 <code>.ToList()</code></strong></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CrmSalesOrderSlaves = slaveGroup.Select(x =&gt; <span class="keyword">new</span> CrmSalesOrderSlaveDbResult</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;).ToList(), <span class="comment">// 🚨 這裡會導致 N+1 查詢問題</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="⚠️-實際執行情況"><a href="#⚠️-實際執行情況" class="headerlink" title="⚠️ 實際執行情況"></a>⚠️ 實際執行情況</h3><table>
+<thead>
+<tr>
+<th>階段</th>
+<th>發生什麼事</th>
+<th>SQL 查詢次數</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>主查詢</strong></td>
+<td>執行外層查詢，取得訂單列表</td>
+<td>1 次</td>
+</tr>
+<tr>
+<td><strong>子查詢執行</strong></td>
+<td>為每個訂單執行 <code>slaveGroup.Select().ToList()</code></td>
+<td>N 次（N &#x3D; 訂單數量）</td>
+</tr>
+<tr>
+<td><strong>總查詢數</strong></td>
+<td>1 + N 次查詢</td>
+<td>可能數百次！</td>
+</tr>
+</tbody></table>
+<h3 id="🔧-解決方案-2"><a href="#🔧-解決方案-2" class="headerlink" title="🔧 解決方案"></a>🔧 解決方案</h3><h4 id="✅-方法一：移除內部-ToList-，讓-EF-Core-自動處理"><a href="#✅-方法一：移除內部-ToList-，讓-EF-Core-自動處理" class="headerlink" title="✅ 方法一：移除內部 ToList()，讓 EF Core 自動處理"></a>✅ 方法一：移除內部 ToList()，讓 EF Core 自動處理</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">new</span> CrmSalesOrderDbResult</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ... 其他欄位</span></span><br><span class="line">    CrmSalesOrderSlaves = slaveGroup.Select(x =&gt; <span class="keyword">new</span> CrmSalesOrderSlaveDbResult</span><br><span class="line">    &#123;</span><br><span class="line">        CrmSalesOrderSlave_Id = x.CrmSalesOrderSlave_Id,</span><br><span class="line">        CrmSalesOrderSlave_ProductCode = x.CrmSalesOrderSlave_ProductCode,</span><br><span class="line">        <span class="comment">// ... 其他欄位</span></span><br><span class="line">    &#125;) <span class="comment">// ✅ 移除 .ToList()，讓 EF 在最後統一執行</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="✅-方法二：使用-Include-預載入關聯資料"><a href="#✅-方法二：使用-Include-預載入關聯資料" class="headerlink" title="✅ 方法二：使用 Include 預載入關聯資料"></a>✅ 方法二：使用 Include 預載入關聯資料</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> orders = context.CrmSalesOrder</span><br><span class="line">    .AsNoTracking()</span><br><span class="line">    .Include(o =&gt; o.CrmSalesOrderSlaves) <span class="comment">// 預載入關聯資料</span></span><br><span class="line">    .Include(o =&gt; o.Location)</span><br><span class="line">    .Where(order =&gt; order.CrmSalesOrder_ShopId == shopId</span><br><span class="line">                 &amp;&amp; order.CrmSalesOrder_CrmMemberId == crmMemberId</span><br><span class="line">                 &amp;&amp; order.CrmSalesOrder_TradesOrderFinishDateTime &gt;= minDateTime</span><br><span class="line">                 &amp;&amp; order.CrmSalesOrder_TypeDef == <span class="string">&quot;Others&quot;</span></span><br><span class="line">                 &amp;&amp; order.CrmSalesOrderSlaves.Any())</span><br><span class="line">    .OrderByDescending(x =&gt; x.CrmSalesOrder_TradesOrderFinishDateTime)</span><br><span class="line">    .Skip(startIndex)</span><br><span class="line">    .Take(maxCount)</span><br><span class="line">    .ToList();</span><br></pre></td></tr></table></figure>
+
+<h4 id="✅-方法三：分離查詢（適用於複雜場景）"><a href="#✅-方法三：分離查詢（適用於複雜場景）" class="headerlink" title="✅ 方法三：分離查詢（適用於複雜場景）"></a>✅ 方法三：分離查詢（適用於複雜場景）</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 先取得主要訂單資訊</span></span><br><span class="line"><span class="keyword">var</span> orderIds = context.CrmSalesOrder</span><br><span class="line">    .Where(<span class="comment">/* 主要條件 */</span>)</span><br><span class="line">    .OrderByDescending(x =&gt; x.CrmSalesOrder_TradesOrderFinishDateTime)</span><br><span class="line">    .Skip(startIndex)</span><br><span class="line">    .Take(maxCount)</span><br><span class="line">    .Select(o =&gt; o.CrmSalesOrder_Id)</span><br><span class="line">    .ToList();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 再批量取得關聯資料</span></span><br><span class="line"><span class="keyword">var</span> orderDetails = context.CrmSalesOrder</span><br><span class="line">    .Include(o =&gt; o.CrmSalesOrderSlaves)</span><br><span class="line">    .Include(o =&gt; o.Location)</span><br><span class="line">    .Where(o =&gt; orderIds.Contains(o.CrmSalesOrder_Id))</span><br><span class="line">    .ToList();</span><br></pre></td></tr></table></figure>
+
+<h3 id="📊-效能對比-1"><a href="#📊-效能對比-1" class="headerlink" title="📊 效能對比"></a>📊 效能對比</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>SQL 查詢次數</th>
+<th>記憶體使用</th>
+<th>網路往返</th>
+<th>效能評級</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>原始程式碼</strong></td>
+<td>1 + N 次</td>
+<td>中等</td>
+<td>極高</td>
+<td>💀 災難級</td>
+</tr>
+<tr>
+<td><strong>移除 ToList()</strong></td>
+<td>1-2 次</td>
+<td>低</td>
+<td>低</td>
+<td>⚡ 優秀</td>
+</tr>
+<tr>
+<td><strong>使用 Include</strong></td>
+<td>1 次</td>
+<td>中等</td>
+<td>極低</td>
+<td>🚀 最佳</td>
+</tr>
+<tr>
+<td><strong>分離查詢</strong></td>
+<td>2 次</td>
+<td>低</td>
+<td>低</td>
+<td>✅ 良好</td>
+</tr>
+</tbody></table>
+<h3 id="🎯-關鍵洞察"><a href="#🎯-關鍵洞察" class="headerlink" title="🎯 關鍵洞察"></a>🎯 關鍵洞察</h3><blockquote>
+<p><strong>在 LINQ 查詢的 Select 投影中使用 <code>.ToList()</code>、<code>.ToArray()</code> 等執行方法，會導致 EF Core 無法優化查詢，進而產生 N+1 查詢問題。</strong></p>
+</blockquote>
+<h3 id="🚨-其他常見的投影陷阱"><a href="#🚨-其他常見的投影陷阱" class="headerlink" title="🚨 其他常見的投影陷阱"></a>🚨 其他常見的投影陷阱</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ❌ 錯誤：在投影中使用執行方法</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">new</span> OrderDto</span><br><span class="line">&#123;</span><br><span class="line">    OrderId = o.OrderId,</span><br><span class="line">    Items = o.OrderItems.ToList(), <span class="comment">// 🚨 N+1 查詢</span></span><br><span class="line">    ItemCount = o.OrderItems.Count(), <span class="comment">// 🚨 額外查詢</span></span><br><span class="line">    TotalAmount = o.OrderItems.Sum(i =&gt; i.Price) <span class="comment">// 🚨 額外查詢</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ✅ 正確：讓 EF Core 統一處理</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">new</span> OrderDto</span><br><span class="line">&#123;</span><br><span class="line">    OrderId = o.OrderId,</span><br><span class="line">    Items = o.OrderItems, <span class="comment">// ✅ 由 EF 優化</span></span><br><span class="line">    ItemCount = o.OrderItems.Count(), <span class="comment">// ✅ 在主查詢中計算</span></span><br><span class="line">    TotalAmount = o.OrderItems.Sum(i =&gt; i.Price) <span class="comment">// ✅ 在主查詢中計算</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<hr>
+<p><strong>參考資料：</strong> <a target="_blank" rel="noopener" href="https://bitbucket.org/nineyi/nineyi.webstore.mobilewebmall/pull-requests/48759/diff">BitBucket PR #48759</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/11/15/LINQ-IQIEEEEEEEEEE/">https://allenlin000.github.io.git/2025/11/15/LINQ-IQIEEEEEEEEEE/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LINQ/">LINQ</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/cBfeEDY.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2025/11/14/webapi-header/" title=""><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info"></div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/10/23/LINQ-Defferred-Execution/" title="Deferred Execution - 延遲的智慧"><img class="cover" src="https://i.imgur.com/bUJj6Dn.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-23</div><div class="title">Deferred Execution - 延遲的智慧</div></div></a></div><div><a href="/2024/10/24/LINQ-IE/" title="IEnumerable"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-24</div><div class="title">IEnumerable</div></div></a></div><div><a href="/2024/06/20/LINQ-Enumerator/" title="Enumerator"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-06-20</div><div class="title">Enumerator</div></div></a></div><div><a href="/2025/09/22/LINQ-Except/" title="Except"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-22</div><div class="title">Except</div></div></a></div><div><a href="/2024/10/21/LINQ-IQIE/" title="IEnumerable&lt;T&gt; and IQueryable&lt;T&gt;"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-21</div><div class="title">IEnumerable&lt;T&gt; and IQueryable&lt;T&gt;</div></div></a></div><div><a href="/2024/10/22/LINQ-IEICIL/" title="IEnumerable, ICollection, IList and List – Which One To Use?"><img class="cover" src="https://i.imgur.com/cBfeEDY.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-22</div><div class="title">IEnumerable, ICollection, IList and List – Which One To Use?</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">153</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">30</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9A%A8-%E6%A1%88%E4%BE%8B%E4%B8%80%EF%BC%9ASearchProducts-%E7%9A%84%E6%95%88%E8%83%BD%E7%81%BD%E9%9B%A3"><span class="toc-number">1.</span> <span class="toc-text">🚨 案例一：SearchProducts 的效能災難</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%92%A5-%E5%95%8F%E9%A1%8C%E7%A8%8B%E5%BC%8F%E7%A2%BC"><span class="toc-number">1.1.</span> <span class="toc-text">💥 問題程式碼</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BF%BD-%E5%95%8F%E9%A1%8C%E5%88%86%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">� 問題分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9A%A0%EF%B8%8F-EF-Core-%E7%9A%84%E8%99%95%E7%90%86%E6%96%B9%E5%BC%8F"><span class="toc-number">1.3.</span> <span class="toc-text">⚠️ EF Core 的處理方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%A7-%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%88"><span class="toc-number">1.4.</span> <span class="toc-text">🔧 解決方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8-Expression-Tree-%E5%8B%95%E6%85%8B%E5%BB%BA%E6%A7%8B%E6%9F%A5%E8%A9%A2"><span class="toc-number">1.4.1.</span> <span class="toc-text">✅ 方法一：使用 Expression Tree 動態建構查詢</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8-EF-Functions-Like"><span class="toc-number">1.4.2.</span> <span class="toc-text">✅ 方法二：使用 EF.Functions.Like</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%8A-%E6%95%88%E8%83%BD%E5%B0%8D%E6%AF%94"><span class="toc-number">1.5.</span> <span class="toc-text">📊 效能對比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9A%A8-%E6%A1%88%E4%BE%8B%E4%BA%8C%EF%BC%9AGetAdultUsers-%E7%9A%84%E5%9E%8B%E5%88%A5%E9%99%B7%E9%98%B1"><span class="toc-number">2.</span> <span class="toc-text">🚨 案例二：GetAdultUsers 的型別陷阱</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%92%A5-%E5%95%8F%E9%A1%8C%E7%A8%8B%E5%BC%8F%E7%A2%BC-1"><span class="toc-number">2.1.</span> <span class="toc-text">💥 問題程式碼</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BF%BD-%E5%95%8F%E9%A1%8C%E5%88%86%E6%9E%90-1"><span class="toc-number">2.2.</span> <span class="toc-text">� 問題分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9A%A0%EF%B8%8F-EF-Core-%E7%9A%84%E8%99%95%E7%90%86%E6%96%B9%E5%BC%8F-1"><span class="toc-number">2.3.</span> <span class="toc-text">⚠️ EF Core 的處理方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%A7-%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%88-1"><span class="toc-number">2.4.</span> <span class="toc-text">🔧 解決方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E6%AD%A3%E7%A2%BA%E5%AF%AB%E6%B3%95%EF%BC%9A%E4%BD%BF%E7%94%A8-Expression"><span class="toc-number">2.4.1.</span> <span class="toc-text">✅ 正確寫法：使用 Expression&lt;Func&lt;User, bool&gt;&gt;</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BF%BD-Func-vs-Expression-%E7%9A%84%E5%B7%AE%E7%95%B0"><span class="toc-number">2.5.</span> <span class="toc-text">� Func vs Expression 的差異</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8E%AF-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%EF%BC%9AIQueryable-vs-IEnumerable"><span class="toc-number">3.</span> <span class="toc-text">🎯 核心概念：IQueryable vs IEnumerable</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%8D-%E6%A0%B9%E6%9C%AC%E5%B7%AE%E7%95%B0"><span class="toc-number">3.1.</span> <span class="toc-text">🔍 根本差異</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9A%A1-%E6%95%88%E8%83%BD%E5%BD%B1%E9%9F%BF"><span class="toc-number">3.2.</span> <span class="toc-text">⚡ 效能影響</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9A%A8-%E5%B8%B8%E8%A6%8B%E7%9A%84%E6%95%88%E8%83%BD%E6%AE%BA%E6%89%8B"><span class="toc-number">3.3.</span> <span class="toc-text">🚨 常見的效能殺手</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%A1-%E6%9C%80%E4%BD%B3%E5%AF%A6%E8%B8%90"><span class="toc-number">4.</span> <span class="toc-text">💡 最佳實踐</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9C%85-%E8%A8%AD%E8%A8%88%E5%8E%9F%E5%89%87"><span class="toc-number">4.1.</span> <span class="toc-text">✅ 設計原則</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BF%BD-%E5%AF%A6%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="toc-number">4.2.</span> <span class="toc-text">� 實用技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8B%95%E6%85%8B%E6%9F%A5%E8%A9%A2%E5%BB%BA%E6%A7%8B"><span class="toc-number">4.2.1.</span> <span class="toc-text">動態查詢建構</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E9%A0%81%E6%9F%A5%E8%A9%A2"><span class="toc-number">4.2.2.</span> <span class="toc-text">分頁查詢</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BF%BD-%E7%B8%BD%E7%B5%90"><span class="toc-number">5.</span> <span class="toc-text">� 總結</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%91-%E9%97%9C%E9%8D%B5%E8%A6%81%E9%BB%9E"><span class="toc-number">5.1.</span> <span class="toc-text">🔑 關鍵要點</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%9D-%E6%AA%A2%E6%9F%A5%E6%B8%85%E5%96%AE"><span class="toc-number">5.2.</span> <span class="toc-text">📝 檢查清單</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9A%80-%E6%95%88%E8%83%BD%E6%9C%80%E4%BD%B3%E5%8C%96%E7%9A%84%E9%BB%83%E9%87%91%E6%B3%95%E5%89%87"><span class="toc-number">5.3.</span> <span class="toc-text">🚀 效能最佳化的黃金法則</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9A%A8-%E6%A1%88%E4%BE%8B%E4%B8%89%EF%BC%9A%E8%A4%87%E9%9B%9C%E6%9F%A5%E8%A9%A2%E4%B8%AD%E7%9A%84%E9%9A%B1%E8%97%8F%E9%99%B7%E9%98%B1"><span class="toc-number">6.</span> <span class="toc-text">🚨 案例三：複雜查詢中的隱藏陷阱</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%92%A5-%E5%95%8F%E9%A1%8C%E7%A8%8B%E5%BC%8F%E7%A2%BC-2"><span class="toc-number">6.1.</span> <span class="toc-text">💥 問題程式碼</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%8D-%E5%95%8F%E9%A1%8C%E5%88%86%E6%9E%90"><span class="toc-number">6.2.</span> <span class="toc-text">🔍 問題分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9A%A0%EF%B8%8F-%E5%AF%A6%E9%9A%9B%E5%9F%B7%E8%A1%8C%E6%83%85%E6%B3%81"><span class="toc-number">6.3.</span> <span class="toc-text">⚠️ 實際執行情況</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%A7-%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%88-2"><span class="toc-number">6.4.</span> <span class="toc-text">🔧 解決方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E7%A7%BB%E9%99%A4%E5%85%A7%E9%83%A8-ToList-%EF%BC%8C%E8%AE%93-EF-Core-%E8%87%AA%E5%8B%95%E8%99%95%E7%90%86"><span class="toc-number">6.4.1.</span> <span class="toc-text">✅ 方法一：移除內部 ToList()，讓 EF Core 自動處理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8-Include-%E9%A0%90%E8%BC%89%E5%85%A5%E9%97%9C%E8%81%AF%E8%B3%87%E6%96%99"><span class="toc-number">6.4.2.</span> <span class="toc-text">✅ 方法二：使用 Include 預載入關聯資料</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%B8%89%EF%BC%9A%E5%88%86%E9%9B%A2%E6%9F%A5%E8%A9%A2%EF%BC%88%E9%81%A9%E7%94%A8%E6%96%BC%E8%A4%87%E9%9B%9C%E5%A0%B4%E6%99%AF%EF%BC%89"><span class="toc-number">6.4.3.</span> <span class="toc-text">✅ 方法三：分離查詢（適用於複雜場景）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%8A-%E6%95%88%E8%83%BD%E5%B0%8D%E6%AF%94-1"><span class="toc-number">6.5.</span> <span class="toc-text">📊 效能對比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8E%AF-%E9%97%9C%E9%8D%B5%E6%B4%9E%E5%AF%9F"><span class="toc-number">6.6.</span> <span class="toc-text">🎯 關鍵洞察</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%9A%A8-%E5%85%B6%E4%BB%96%E5%B8%B8%E8%A6%8B%E7%9A%84%E6%8A%95%E5%BD%B1%E9%99%B7%E9%98%B1"><span class="toc-number">6.7.</span> <span class="toc-text">🚨 其他常見的投影陷阱</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/15/LINQ-IQIEEEEEEEEEE/" title="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異"><img src="https://i.imgur.com/cBfeEDY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異"/></a><div class="content"><a class="title" href="/2025/11/15/LINQ-IQIEEEEEEEEEE/" title="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異">EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異</a><time datetime="2025-11-15T00:06:05.000Z" title="Created 2025-11-15 08:06:05">2025-11-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/14/webapi-header/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/14/webapi-header/" title="Untitled">Untitled</a><time datetime="2025-11-14T15:48:41.433Z" title="Created 2025-11-14 23:48:41">2025-11-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:34:23.075Z" title="Created 2025-11-13 23:34:23">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:04:10.629Z" title="Created 2025-11-13 23:04:10">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:02:21.085Z" title="Created 2025-11-13 23:02:21">2025-11-13</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

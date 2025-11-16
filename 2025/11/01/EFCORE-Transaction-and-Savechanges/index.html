@@ -1,0 +1,250 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>EFCore - Tranaction and SaveChanges | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="🌊 SaveChanges() 和 Transaction 的關係在資料庫的世界裡，一次或多次資料修改（INSERT、UPDATE、DELETE）必須放在 交易（Transaction） 裡，這樣如果其中一步錯了，整個動作都可以 rollback 回去，確保資料不會半途修改一半 SaveChanges() 就是 EF Core 幫你「把所有變動打包起來執行」的動作。而 EF Core 為了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EFCore - Tranaction and SaveChanges">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/11/01/EFCORE-Transaction-and-Savechanges/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="🌊 SaveChanges() 和 Transaction 的關係在資料庫的世界裡，一次或多次資料修改（INSERT、UPDATE、DELETE）必須放在 交易（Transaction） 裡，這樣如果其中一步錯了，整個動作都可以 rollback 回去，確保資料不會半途修改一半 SaveChanges() 就是 EF Core 幫你「把所有變動打包起來執行」的動作。而 EF Core 為了">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true">
+<meta property="article:published_time" content="2025-11-01T03:24:00.000Z">
+<meta property="article:modified_time" content="2025-11-16T01:31:26.139Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="資料疆界的航圖">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/11/01/EFCORE-Transaction-and-Savechanges/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'EFCore - Tranaction and SaveChanges',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-16 09:31:26'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">153</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">30</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">EFCore - Tranaction and SaveChanges</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-01T03:24:00.000Z" title="Created 2025-11-01 11:24:00">2025-11-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-16T01:31:26.139Z" title="Updated 2025-11-16 09:31:26">2025-11-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%B3%87%E6%96%99%E7%96%86%E7%95%8C%E7%9A%84%E8%88%AA%E5%9C%96/">資料疆界的航圖</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="EFCore - Tranaction and SaveChanges"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" alt="EFCore"></p>
+<br>
+
+<h2 id="🌊-SaveChanges-和-Transaction-的關係"><a href="#🌊-SaveChanges-和-Transaction-的關係" class="headerlink" title="🌊 SaveChanges() 和 Transaction 的關係"></a>🌊 SaveChanges() 和 Transaction 的關係</h2><p>在資料庫的世界裡，一次或多次資料修改（INSERT、UPDATE、DELETE）必須放在 交易（Transaction） 裡，這樣如果其中一步錯了，整個動作都可以 rollback 回去，確保資料不會半途修改一半</p>
+<p>SaveChanges() 就是 EF Core 幫你「把所有變動打包起來執行」的動作。而 EF Core 為了確保這個過程的資料一致性，在執行時會自動幫你開一個 Transaction</p>
+<table>
+<thead>
+<tr>
+<th>狀況</th>
+<th>EF Core 內部會自動開啟交易嗎？</th>
+<th><code>SaveChanges()</code> 會自動 Commit 嗎？</th>
+<th>備註</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>✅ 你 <strong>沒有</strong> 手動開交易</td>
+<td>✅ 是</td>
+<td>✅ 是</td>
+<td><code>SaveChanges()</code> 自動包一個 transaction，執行完自動 commit</td>
+</tr>
+<tr>
+<td>⚠️ 你 <strong>手動開了交易 (<code>BeginTransaction()</code>)</strong></td>
+<td>❌ 否（你已經開了）</td>
+<td>❌ 否（尊重你控制的交易）</td>
+<td><code>SaveChanges()</code> 只會執行 SQL，不會幫你 commit</td>
+</tr>
+</tbody></table>
+<p>當你呼叫 context.SaveChanges()，EF Core 做了這幾件事</p>
+<ul>
+<li>檢查目前是否已有開啟中的 transaction</li>
+</ul>
+<p>沒有 → 自己開一個（用 BeginTransaction()）<br>有 → 使用現有的 transaction</p>
+<ul>
+<li>執行所有要更新的 SQL (UPDATE, INSERT, DELETE)</li>
+</ul>
+<p>若是 EF 自己開的 transaction，就在完成後自動呼叫 Commit()，若是你開的 → EF 不會 commit，交給你決定。</p>
+<br>
+<br>
+
+<h2 id="🌊-TransactionScope-的時間限制"><a href="#🌊-TransactionScope-的時間限制" class="headerlink" title="🌊 TransactionScope 的時間限制"></a>🌊 TransactionScope 的時間限制</h2><h3 id="🔹-BeginTransaction"><a href="#🔹-BeginTransaction" class="headerlink" title="🔹 BeginTransaction()"></a>🔹 BeginTransaction()</h3><p>BeginTransaction() 沒有固定時間限制，它會一直存在，直到你呼叫 Commit()、Rollback()、或連線被關閉 &#x2F; 中斷為止</p>
+<br>
+
+<h3 id="🔹-TransactionScope"><a href="#🔹-TransactionScope" class="headerlink" title="🔹 TransactionScope"></a>🔹 TransactionScope</h3><p>測試 timeout</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> <span class="keyword">var</span> scope = services.CreateScope();</span><br><span class="line"><span class="keyword">var</span> context = scope.ServiceProvider.GetRequiredService&lt;WebStoreDbContext&gt;();</span><br><span class="line"></span><br><span class="line"><span class="comment">// ✅ 使用 TransactionScope with Timeout</span></span><br><span class="line"><span class="keyword">var</span> transactionOptions = <span class="keyword">new</span> TransactionOptions</span><br><span class="line">&#123;</span><br><span class="line">    IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,</span><br><span class="line">    Timeout = TimeSpan.FromSeconds(<span class="number">5</span>) <span class="comment">// 🔥 交易最長可持續 5 秒</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ✅ 使用 TransactionScopeAsyncFlowOption.Enabled 可避免 async 時出錯</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">var</span> ts = <span class="keyword">new</span> TransactionScope(</span><br><span class="line">    TransactionScopeOption.Required,</span><br><span class="line">    transactionOptions,</span><br><span class="line">    TransactionScopeAsyncFlowOption.Enabled);</span><br><span class="line"></span><br><span class="line">System.Console.WriteLine(<span class="string">$&quot;🕐 Transaction started at: <span class="subst">&#123;DateTime.Now:HH:mm:ss&#125;</span>&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> result = context.PromotionEngines</span><br><span class="line">    .First(p =&gt; p.PromotionEngineId == <span class="number">6344</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模擬長時間操作（這裡會超過 timeout）</span></span><br><span class="line">Thread.Sleep(<span class="number">40000</span>);</span><br><span class="line"></span><br><span class="line">result.PromotionEngineName = <span class="string">&quot;Test Timeout TransactionScope&quot;</span>;</span><br><span class="line">context.SaveChanges(); <span class="comment">// ❌ 此時交易已超時，會丟 TransactionAbortedException</span></span><br><span class="line"></span><br><span class="line">ts.Complete(); <span class="comment">// 不會執行到這裡，因為上面已超時</span></span><br><span class="line">System.Console.WriteLine(<span class="string">$&quot;✅ Transaction completed at: <span class="subst">&#123;DateTime.Now:HH:mm:ss&#125;</span>&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h2 id="🌊-錯誤記錄"><a href="#🌊-錯誤記錄" class="headerlink" title="🌊 錯誤記錄"></a>🌊 錯誤記錄</h2><p><strong>Timeout 的錯誤</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">An exception occurred in the database while saving changes for context type &#x27;WTF.Console.Models.WebStoreDbContext&#x27;.</span><br><span class="line">System.Transactions.TransactionException: The operation is not valid for the state of the transaction.</span><br><span class="line">---&gt; System.TimeoutException: Transaction Timeout</span><br><span class="line">    --- End of inner exception stack trace ---</span><br><span class="line">    at System.Transactions.TransactionState.EnlistPromotableSinglePhase(InternalTransaction tx, IPromotableSinglePhaseNotification promotableSinglePhaseNotification, Transaction atomicTransaction, Guid promoterType)</span><br><span class="line">    at System.Transactions.Transaction.EnlistPromotableSinglePhase(IPromotableSinglePhaseNotification promotableSinglePhaseNotification, Guid promoterType)</span><br><span class="line">    at System.Transactions.Transaction.EnlistPromotableSinglePhase(IPromotableSinglePhaseNotification promotableSinglePhaseNotification)</span><br><span class="line">    at Microsoft.Data.SqlClient.SqlInternalConnection.EnlistNonNull(Transaction tx)</span><br><span class="line">    at Microsoft.Data.SqlClient.SqlInternalConnection.Enlist(Transaction tx)</span><br><span class="line">    at Microsoft.Data.SqlClient.SqlInternalConnectionTds.Activate(Transaction transaction)</span><br><span class="line">    at Microsoft.Data.ProviderBase.DbConnectionInternal.ActivateConnection(Transaction transaction)</span><br><span class="line">    at Microsoft.Data.ProviderBase.DbConnectionPool.PrepareConnection(DbConnection owningObject, DbConnectionInternal obj, Transaction transaction)</span><br><span class="line">    at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal&amp; connection)</span><br><span class="line">    at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, TaskCompletionSource`1 retry, DbConnectionOptions userOptions, DbConnectionInternal&amp; connection)</span><br><span class="line">    at Microsoft.Data.ProviderBase.DbConnectionFactory.TryGetConnection(DbConnection owningConnection, TaskCompletionSource`1 retry, DbConnectionOptions userOptions, DbConnectionInternal oldConnection, DbConnectionInternal&amp; connection)</span><br><span class="line">    at Microsoft.Data.ProviderBase.DbConnectionInternal.TryOpenConnectionInternal(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)</span><br><span class="line">    at Microsoft.Data.ProviderBase.DbConnectionClosed.TryOpenConnection(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)</span><br><span class="line">    at Microsoft.Data.SqlClient.SqlConnection.TryOpen(TaskCompletionSource`1 retry, SqlConnectionOverrides overrides)</span><br><span class="line">    at Microsoft.Data.SqlClient.SqlConnection.Open(SqlConnectionOverrides overrides)</span><br><span class="line">    at Microsoft.Data.SqlClient.SqlConnection.Open()</span><br><span class="line">    at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerConnection.OpenDbConnection(Boolean errorsExpected)</span><br><span class="line">    at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternal(Boolean errorsExpected)</span><br><span class="line">    at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>中間網路斷掉</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">fail: Microsoft.EntityFrameworkCore.Update[10000]</span><br><span class="line">      An exception occurred in the database while saving changes for context type &#x27;WTF.Console.Models.WebStoreDbContext&#x27;.</span><br><span class="line">      Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.</span><br><span class="line">       ---&gt; Microsoft.Data.SqlClient.SqlException (0x80131904): A transport-level error has occurred when receiving results from the server. (provider: Session Provider, error: 19 - Physical connection is not usable)</span><br><span class="line">         at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)</span><br><span class="line">         at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)</span><br><span class="line">         at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)</span><br><span class="line">         at Microsoft.Data.SqlClient.TdsParserStateObject.ThrowExceptionAndWarning(Boolean callerHasConnectionLock, Boolean asyncClose)</span><br><span class="line">         at Microsoft.Data.SqlClient.TdsParserStateObject.ReadSniError(TdsParserStateObject stateObj, UInt32 error)</span><br><span class="line">         at Microsoft.Data.SqlClient.TdsParserStateObject.ReadSniSyncOverAsync()</span><br><span class="line">         at Microsoft.Data.SqlClient.TdsParserStateObject.TryReadNetworkPacket()</span><br><span class="line">         at Microsoft.Data.SqlClient.TdsParserStateObject.TryPrepareBuffer()</span><br><span class="line">         at Microsoft.Data.SqlClient.TdsParserStateObject.TryReadByte(Byte&amp; value)</span><br><span class="line">         at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean&amp; dataReady)</span><br><span class="line">         at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()</span><br><span class="line">         at Microsoft.Data.SqlClient.SqlDataReader.get_MetaData()</span><br><span class="line">         at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>在 savechangrs 前 complete</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">fail: Microsoft.EntityFrameworkCore.Update[10000]</span><br><span class="line">      An exception occurred in the database while saving changes for context type &#x27;WTF.Console.Models.WebStoreDbContext&#x27;.</span><br><span class="line">      System.InvalidOperationException: The current TransactionScope is already complete.</span><br><span class="line">         at System.Transactions.Transaction.get_Current()</span><br><span class="line">         at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.get_CurrentAmbientTransaction()</span><br><span class="line">         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChanges(IList`1 entries)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IList`1 entriesToSave)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(StateManager stateManager, Boolean acceptAllChangesOnSuccess)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.&lt;&gt;c.&lt;SaveChanges&gt;b__112_0(DbContext _, ValueTuple`2 t)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)</span><br><span class="line">      System.InvalidOperationException: The current TransactionScope is already complete.</span><br><span class="line">         at System.Transactions.Transaction.get_Current()</span><br><span class="line">         at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.get_CurrentAmbientTransaction()</span><br><span class="line">         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChanges(IList`1 entries)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IList`1 entriesToSave)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(StateManager stateManager, Boolean acceptAllChangesOnSuccess)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.&lt;&gt;c.&lt;SaveChanges&gt;b__112_0(DbContext _, ValueTuple`2 t)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)</span><br><span class="line">         at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/11/01/EFCORE-Transaction-and-Savechanges/">https://allenlin000.github.io.git/2025/11/01/EFCORE-Transaction-and-Savechanges/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%B3%87%E6%96%99%E7%96%86%E7%95%8C%E7%9A%84%E8%88%AA%E5%9C%96/">資料疆界的航圖</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/31/Generic-3/" title="Generic -"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Generic -</div></div></a></div><div class="next-post pull-right"><a href="/2025/11/03/%E9%80%B1%E6%9C%9F%E6%80%A7%E8%A7%B8%E7%99%BC/" title="Modulo — 記憶の螺旋"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Modulo — 記憶の螺旋</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/10/05/EFCORE-EFCORE-%E5%8A%B9%E7%8E%87%E3%81%AE%E8%A9%A9/" title="EFCORE - 効率の詩"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-05</div><div class="title">EFCORE - 効率の詩</div></div></a></div><div><a href="/2025/10/05/EFCORE-EFCORE-%E5%8A%B9%E7%8E%87%E3%81%AE%E8%A9%A9-2/" title="EFCORE - 効率の詩 2"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-05</div><div class="title">EFCORE - 効率の詩 2</div></div></a></div><div><a href="/2025/10/25/EFCORE-sql-injection/" title="SQL Injection"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-25</div><div class="title">SQL Injection</div></div></a></div><div><a href="/2025/10/10/EFCORE-%E9%97%9C%E8%81%AF%E8%BC%89%E5%85%A5%E7%9A%84%E6%B5%B7%E6%B5%81/" title="EFCORE - 關聯載入的海流"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-10</div><div class="title">EFCORE - 關聯載入的海流</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">153</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">30</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">20</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-SaveChanges-%E5%92%8C-Transaction-%E7%9A%84%E9%97%9C%E4%BF%82"><span class="toc-number">1.</span> <span class="toc-text">🌊 SaveChanges() 和 Transaction 的關係</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-TransactionScope-%E7%9A%84%E6%99%82%E9%96%93%E9%99%90%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">🌊 TransactionScope 的時間限制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-BeginTransaction"><span class="toc-number">2.1.</span> <span class="toc-text">🔹 BeginTransaction()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-TransactionScope"><span class="toc-number">2.2.</span> <span class="toc-text">🔹 TransactionScope</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8C%8A-%E9%8C%AF%E8%AA%A4%E8%A8%98%E9%8C%84"><span class="toc-number">3.</span> <span class="toc-text">🌊 錯誤記錄</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/15/LINQ-IQIEEEEEEEEEE/" title="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異"><img src="https://i.imgur.com/cBfeEDY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異"/></a><div class="content"><a class="title" href="/2025/11/15/LINQ-IQIEEEEEEEEEE/" title="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異">EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異</a><time datetime="2025-11-15T00:06:05.000Z" title="Created 2025-11-15 08:06:05">2025-11-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/14/webapi-header/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/14/webapi-header/" title="Untitled">Untitled</a><time datetime="2025-11-14T15:48:41.433Z" title="Created 2025-11-14 23:48:41">2025-11-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E9%87%91%E6%B5%81%E8%A8%AD%E8%A8%88-%E7%95%B0%E5%B8%B8%E8%99%95%E7%90%86/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:34:23.075Z" title="Created 2025-11-13 23:34:23">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-ValidateAntiForgeryToken/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:04:10.629Z" title="Created 2025-11-13 23:04:10">2025-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/13/%E8%B3%87%E5%AE%89-%E8%B3%87%E6%96%99%E9%81%AE%E7%BD%A9/" title="Untitled">Untitled</a><time datetime="2025-11-13T15:02:21.085Z" title="Created 2025-11-13 23:02:21">2025-11-13</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
