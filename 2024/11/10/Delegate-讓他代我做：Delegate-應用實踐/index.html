@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>讓他代我做：Delegate 應用實踐 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="在 第一篇 我們從「什麼是委派（Delegate）」開始，理解它的誕生是為了解決什麼樣的需求：將行為作為參數傳遞。 接著第二篇 我們進一步探討了實務上會遇到的挑戰，以及 .NET 框架提供的標準解法（像是泛型委派 Action、Func、Predicate）。 這次，我們要來真正動手，體會 Delegate 如何在日常開發中，帶來更高的彈性與更好的設計感。 🏪 動態選擇條件總結訂單資訊💬說明">
+<meta property="og:type" content="article">
+<meta property="og:title" content="讓他代我做：Delegate 應用實踐">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/11/10/Delegate-%E8%AE%93%E4%BB%96%E4%BB%A3%E6%88%91%E5%81%9A%EF%BC%9ADelegate-%E6%87%89%E7%94%A8%E5%AF%A6%E8%B8%90/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="在 第一篇 我們從「什麼是委派（Delegate）」開始，理解它的誕生是為了解決什麼樣的需求：將行為作為參數傳遞。 接著第二篇 我們進一步探討了實務上會遇到的挑戰，以及 .NET 框架提供的標準解法（像是泛型委派 Action、Func、Predicate）。 這次，我們要來真正動手，體會 Delegate 如何在日常開發中，帶來更高的彈性與更好的設計感。 🏪 動態選擇條件總結訂單資訊💬說明">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/zTSkblP.png">
+<meta property="article:published_time" content="2024-11-09T23:33:00.000Z">
+<meta property="article:modified_time" content="2025-11-19T09:47:07.651Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Delegate">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/zTSkblP.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/11/10/Delegate-%E8%AE%93%E4%BB%96%E4%BB%A3%E6%88%91%E5%81%9A%EF%BC%9ADelegate-%E6%87%89%E7%94%A8%E5%AF%A6%E8%B8%90/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '讓他代我做：Delegate 應用實踐',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-19 17:47:07'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">173</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">21</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/zTSkblP.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">讓他代我做：Delegate 應用實踐</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-11-09T23:33:00.000Z" title="Created 2024-11-10 07:33:00">2024-11-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-19T09:47:07.651Z" title="Updated 2025-11-19 17:47:07">2025-11-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%A2%A8%E9%9F%B3%E5%AD%90/">風音子</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="讓他代我做：Delegate 應用實踐"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>在 <a target="_blank" rel="noopener" href="https://allenlin000.github.io/2024/11/07/NEW-Delegate-1/">第一篇</a></p>
+<p>我們從「什麼是委派（Delegate）」開始，理解它的誕生是為了解決什麼樣的需求：將行為作為參數傳遞。</p>
+<p>接著<a target="_blank" rel="noopener" href="https://allenlin000.github.io/2024/11/10/NEW-Delegate-2/">第二篇</a></p>
+<p>我們進一步探討了實務上會遇到的挑戰，以及 .NET 框架提供的標準解法（像是泛型委派 Action、Func、Predicate）。</p>
+<p>這次，我們要來真正動手，體會 Delegate 如何在日常開發中，帶來更高的彈性與更好的設計感。</p>
+<h2 id="🏪-動態選擇條件總結訂單資訊"><a href="#🏪-動態選擇條件總結訂單資訊" class="headerlink" title="🏪 動態選擇條件總結訂單資訊"></a>🏪 動態選擇條件總結訂單資訊</h2><p><strong>💬說明</strong></p>
+<p>你有一組訂單資料 Order，客戶希望可以動態選擇條件，例如：</p>
+<ul>
+<li><p>只加總金額超過 500 的訂單</p>
+</li>
+<li><p>只加總客戶名稱是 “Allen” 的訂單</p>
+</li>
+<li><p>加總指定客戶清單裡的人（比如 VIP 客戶）</p>
+</li>
+</ul>
+<p>請設計一個方法，讓使用者自訂篩選條件（以委派的方式傳入），然後針對符合條件的訂單做加總。</p>
+<p><strong>解析</strong></p>
+<p>先定義甚麼是 Order</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Order</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">int</span> Id &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">string</span> OrderId &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">string</span> CustomerName &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">decimal</span> Amount &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">string</span> CustomerId &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">decimal</span> TotalAmount &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接著定義方法</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">OrderFunc</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">decimal</span> <span class="title">SumOrder</span>(<span class="params">IEnumerable&lt;Order&gt; orders, Predicate&lt;Order&gt; filter, Func&lt;Order,<span class="built_in">decimal</span>&gt; selector</span>)</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> orders.Where(order =&gt; filter(order)).Sum(order =&gt; selector(order));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>使用時</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> orders = <span class="keyword">new</span> List&lt;Order&gt;</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">new</span> Order &#123; CustomerName = <span class="string">&quot;John&quot;</span>, Amount = <span class="number">100</span>, TotalAmount = <span class="number">150</span> &#125;,</span><br><span class="line">	<span class="keyword">new</span> Order &#123; CustomerName = <span class="string">&quot;Mary&quot;</span>, Amount = <span class="number">200</span>, TotalAmount = <span class="number">250</span> &#125;,</span><br><span class="line">	<span class="keyword">new</span> Order &#123; CustomerName = <span class="string">&quot;Tom&quot;</span>, Amount = <span class="number">600</span>, TotalAmount = <span class="number">650</span> &#125;,</span><br><span class="line">	<span class="keyword">new</span> Order &#123; CustomerName = <span class="string">&quot;Allen&quot;</span>, Amount = <span class="number">800</span>, TotalAmount = <span class="number">900</span> &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">OrderFunc.SumOrder(orders,order =&gt; order.Amount &gt; <span class="number">100</span>, order =&gt; order.TotalAmount).Dump();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 1800</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>✅ 透過 Predicate 自訂篩選條件，Func 指定加總欄位，實現了「動態條件加總」！</p>
+<h2 id="🐎設計一個-Retry-的機制"><a href="#🐎設計一個-Retry-的機制" class="headerlink" title="🐎設計一個 Retry 的機制"></a>🐎設計一個 Retry 的機制</h2><p><strong>💬 說明</strong></p>
+<p>Retry 是一個很常見的功能，舉凡</p>
+<ul>
+<li>Db 連線的 Retry</li>
+<li>Cache</li>
+<li>三方 API 重試設計</li>
+</ul>
+<p>今天我們簡單實作一個 RetryHelper，我們可以隨意傳入我們想要重試的方法</p>
+<p><strong>🛠設計重點</strong></p>
+<ul>
+<li>重試的框架是甚麼 ?<ul>
+<li>怎麼重複執行? while loop</li>
+<li>怎麼正常結束？ break</li>
+<li>Exception 後怎麼再來一次? try … catch 接住, 繼續下一個 loop</li>
+<li>超過次數仍失敗後怎麼結束? 當 次數 &gt; 最大重試次數, 拋出 Exception</li>
+</ul>
+</li>
+<li>重試幾次如何設計 ? 使用者傳入參數, 在 catch 中判斷是否繼續 while loop</li>
+<li>重試過程要等待嗎 ? 使用這傳入參數, 在 catch 中判斷可重試後，塞入等待時間</li>
+<li>在可接受次數的重試過程中，需要做什麼處理 (例如 : 記 log)** 在 catch 中判斷可重試後，記 log 標明重試次數與失敗原因</li>
+</ul>
+<p>這是我們設計的 Retry 機制</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">FuncExtension</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">async</span> Task <span class="title">RetryAsync</span>&lt;<span class="title">TSource</span>&gt;(<span class="params"><span class="keyword">this</span> Func&lt;TSource,Task&gt; doSomething, TSource arg,<span class="built_in">int</span> maxRetries = <span class="number">3</span>, <span class="built_in">int</span> delayMilliseconds = <span class="number">300</span>, Action&lt;System.Exception,<span class="built_in">int</span>&gt; onRetry = <span class="literal">null</span></span>)</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">int</span> attempt = <span class="number">0</span>;</span><br><span class="line">		List&lt;Exception&gt; exceptions = <span class="keyword">new</span> List&lt;Exception&gt;();</span><br><span class="line">		<span class="keyword">while</span>(<span class="literal">true</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">try</span>&#123;</span><br><span class="line">				<span class="keyword">await</span> doSomething(arg);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">catch</span>(Exception ex)</span><br><span class="line">			&#123;</span><br><span class="line">				exceptions.Add(ex);</span><br><span class="line">				<span class="keyword">if</span> (++attempt &gt;= maxRetries)</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="keyword">throw</span> <span class="keyword">new</span> AggregateException(<span class="string">$&quot;Operation failed after <span class="subst">&#123;maxRetries&#125;</span> attempts.&quot;</span>, exceptions);</span><br><span class="line">				&#125;</span><br><span class="line">				</span><br><span class="line">				onRetry.Invoke(ex,attempt);</span><br><span class="line">				<span class="keyword">await</span> Task.Delay(delayMilliseconds);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我們可以這樣來使用他</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Func&lt;<span class="built_in">string</span>, Task&gt; func = <span class="keyword">async</span> (<span class="built_in">string</span> something) =&gt;</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">$&quot;~~~~~<span class="subst">&#123;something&#125;</span>~~~&quot;</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">await</span> func.RetryAsync(</span><br><span class="line">		arg: <span class="string">&quot;Something&quot;</span>,</span><br><span class="line">		maxRetries: <span class="number">3</span>,</span><br><span class="line">		delayMilliseconds: <span class="number">500</span>,</span><br><span class="line">		onRetry: (ex, count) =&gt; Console.WriteLine(<span class="string">$&quot;Retry 第 <span class="subst">&#123;count&#125;</span> 次失敗：<span class="subst">&#123;ex.Message&#125;</span>&quot;</span>)</span><br><span class="line">	);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>✅ 使用者只需要專注在要執行的操作，Retry 的邏輯完全抽離！</p>
+<h2 id="🛒-商品篩選系統"><a href="#🛒-商品篩選系統" class="headerlink" title="🛒 商品篩選系統"></a>🛒 商品篩選系統</h2><p><strong>💬 說明</strong><br>設計一個商品篩選系統，可以：</p>
+<ul>
+<li>過濾商品（如價格篩選，小於某價格的商品）。</li>
+<li>對符合篩選條件的商品執行特定操作（如列印商品資訊）。</li>
+<li>計算每個商品的折扣後價格。</li>
+</ul>
+<p>我們先定義 Product 有什麼性質</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Product</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">decimal</span> Price &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接著，我們想建立一個商品服務，本身帶有計算機、做某種行為、篩選行為，並設計一個方法應用他們</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ProductService</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">readonly</span> Predicate&lt;Product&gt; _productFilter;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">readonly</span> Action&lt;Product&gt; _productAction;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">readonly</span> Func&lt;Product,<span class="built_in">decimal</span>&gt; _productDiscountCalculator;</span><br><span class="line">	<span class="keyword">private</span> Dictionary&lt;Product,<span class="built_in">decimal</span>&gt; _productMoneySaveDictionary = <span class="keyword">new</span> Dictionary&lt;Product,<span class="built_in">decimal</span>&gt;();</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">ProductService</span>(<span class="params">Predicate&lt;Product&gt; productFilter, Action&lt;Product&gt; productAction, Func&lt;Product, <span class="built_in">decimal</span>&gt; productDiscountCalculator</span>)</span></span><br><span class="line">	&#123;</span><br><span class="line">		_productFilter = productFilter;</span><br><span class="line">		_productAction = productAction;</span><br><span class="line">		_productDiscountCalculator = productDiscountCalculator;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">CalculateAndTellMe</span>(<span class="params">IEnumerable&lt;Product&gt; products</span>)</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">foreach</span> (<span class="keyword">var</span> product <span class="keyword">in</span> products)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">// 先判斷篩選條件</span></span><br><span class="line">			<span class="keyword">if</span> (_productFilter(product))</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">// 如果還沒計算過折扣，計算並儲存</span></span><br><span class="line">				<span class="keyword">if</span> (!_productMoneySaveDictionary.ContainsKey(product))</span><br><span class="line">				&#123;</span><br><span class="line">					_productMoneySaveDictionary[product] = _productDiscountCalculator(product);</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 對這個商品執行動作</span></span><br><span class="line">				_productAction(product);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>應用方式如下</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">	<span class="keyword">var</span> products = <span class="keyword">new</span> List&lt;Product&gt;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">new</span> Product &#123; Name = <span class="string">&quot;商品A&quot;</span>, Price = <span class="number">100</span> &#125;,</span><br><span class="line">		<span class="keyword">new</span> Product &#123; Name = <span class="string">&quot;商品B&quot;</span>, Price = <span class="number">200</span> &#125;,</span><br><span class="line">		<span class="keyword">new</span> Product &#123; Name = <span class="string">&quot;商品C&quot;</span>, Price = <span class="number">300</span> &#125;</span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> service = <span class="keyword">new</span> ProductService(</span><br><span class="line">		p =&gt; p.Price &gt; <span class="number">100</span>,</span><br><span class="line">		p =&gt; Console.WriteLine(<span class="string">$&quot;買這個: <span class="subst">&#123;p.Name&#125;</span>, 折扣後價格: <span class="subst">&#123;p.Price * <span class="number">0.8</span>m&#125;</span>&quot;</span>),</span><br><span class="line">		p =&gt; p.Price * <span class="number">0.8</span>m</span><br><span class="line">	);</span><br><span class="line"></span><br><span class="line">	service.CalculateAndTellMe(products);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 買這個: 商品B, 折扣後價格: 160.0</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 買這個: 商品C, 折扣後價格: 240.0</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>✅ 資料流順暢地從篩選到計算再到執行行為，呼叫者只需定義細節，不必每次手刻流程！</p>
+<p>這時你可能會問，這樣全部給呼叫端定義就好了啊，ProductService 不就是一個空殼嗎 ?</p>
+<p>以這個例子來說，確實還不夠 “商品服務” 的感覺，主要只有以 CalculateAndTellMe 的方法來表現這件事情，因為<br>ProductService（內部流程框架）至少保證了一個商品處理流程「先篩選 → 計算折扣 → 再做行為」這個流程，外部人不需要每次都手寫篩選、計算、行為，流程混在一起。<br>當然我們可以擴充拆分成更多的商品服務功能</p>
+<p>ProductService<br>│<br>├── FilterProducts()<br>├── CalculateDiscounts()<br>├── ExecuteAction()<br>├── BulkProcess()<br>├── GenerateReport()<br>├── SaveProcessedProducts()<br>├── ValidateProduct()<br>├── SortProducts()<br>└── ApplyPromotions()</p>
+<p>所以有這個疑問是對的，我們再想一想 Delegate 的本質</p>
+<p>✅ Delegate 本身不是為了省寫程式碼而存在的。<br>✅ Delegate 是為了讓你「保留流程控制權」，但又「開放細節彈性」而存在的。</p>
+<p>這種設計特別適合，流程有標準節奏，但細節千變萬化的場景（像商品流程、訂單流程、外掛式設計），希望不同情境下注入不同邏輯，但核心框架穩定不動的場景</p>
+<h2 id="☘️-結語"><a href="#☘️-結語" class="headerlink" title="☘️ 結語"></a>☘️ 結語</h2><p>Delegate 的力量，不在於讓程式碼更短，而是讓變化可以被掌握，流程可以被守住。<br>它讓我們在設計時，清楚劃出界線：哪些邏輯需要彈性，哪些節奏必須穩定。在這個節奏之下，我們不只是在組裝功能，更是在建立一個能應對變化的系統骨架。<br>這就是 Delegate 真正的價值。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/11/10/Delegate-%E8%AE%93%E4%BB%96%E4%BB%A3%E6%88%91%E5%81%9A%EF%BC%9ADelegate-%E6%87%89%E7%94%A8%E5%AF%A6%E8%B8%90/">https://allenlin000.github.io.git/2024/11/10/Delegate-%E8%AE%93%E4%BB%96%E4%BB%A3%E6%88%91%E5%81%9A%EF%BC%9ADelegate-%E6%87%89%E7%94%A8%E5%AF%A6%E8%B8%90/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Delegate/">Delegate</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/zTSkblP.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/11/07/Delegate-%E8%AE%93%E4%BB%96%E4%BB%A3%E6%88%91%E8%AA%AA%EF%BC%9ADelegate-%E7%9A%84%E6%BA%AB%E6%9F%94%E8%A8%AD%E8%A8%88%E5%AD%B8/" title="讓他代我說：Delegate 的溫柔設計學"><img class="cover" src="https://i.imgur.com/zTSkblP.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">讓他代我說：Delegate 的溫柔設計學</div></div></a></div><div class="next-post pull-right"><a href="/2024/11/10/Delegate-%E8%AE%93%E4%BB%96%E4%BB%A3%E6%88%91%E5%81%9A%EF%BC%9ADelegate-%E5%BE%9E%E4%BD%BF%E7%94%A8%E5%88%B0%E8%A8%AD%E8%A8%88%EF%BC%8C%E7%82%BA%E7%9B%AE%E7%9A%84%E8%80%8C%E9%80%B2%E5%8C%96/" title="讓他代我做：Delegate 從使用到設計，為目的而進化"><img class="cover" src="https://i.imgur.com/zTSkblP.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">讓他代我做：Delegate 從使用到設計，為目的而進化</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/11/10/Delegate-%E8%AE%93%E4%BB%96%E4%BB%A3%E6%88%91%E5%81%9A%EF%BC%9ADelegate-%E5%BE%9E%E4%BD%BF%E7%94%A8%E5%88%B0%E8%A8%AD%E8%A8%88%EF%BC%8C%E7%82%BA%E7%9B%AE%E7%9A%84%E8%80%8C%E9%80%B2%E5%8C%96/" title="讓他代我做：Delegate 從使用到設計，為目的而進化"><img class="cover" src="https://i.imgur.com/zTSkblP.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-10</div><div class="title">讓他代我做：Delegate 從使用到設計，為目的而進化</div></div></a></div><div><a href="/2024/11/07/Delegate-%E8%AE%93%E4%BB%96%E4%BB%A3%E6%88%91%E8%AA%AA%EF%BC%9ADelegate-%E7%9A%84%E6%BA%AB%E6%9F%94%E8%A8%AD%E8%A8%88%E5%AD%B8/" title="讓他代我說：Delegate 的溫柔設計學"><img class="cover" src="https://i.imgur.com/zTSkblP.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-07</div><div class="title">讓他代我說：Delegate 的溫柔設計學</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">173</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">21</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8F%AA-%E5%8B%95%E6%85%8B%E9%81%B8%E6%93%87%E6%A2%9D%E4%BB%B6%E7%B8%BD%E7%B5%90%E8%A8%82%E5%96%AE%E8%B3%87%E8%A8%8A"><span class="toc-number">1.</span> <span class="toc-text">🏪 動態選擇條件總結訂單資訊</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%90%8E%E8%A8%AD%E8%A8%88%E4%B8%80%E5%80%8B-Retry-%E7%9A%84%E6%A9%9F%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">🐎設計一個 Retry 的機制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%92-%E5%95%86%E5%93%81%E7%AF%A9%E9%81%B8%E7%B3%BB%E7%B5%B1"><span class="toc-number">3.</span> <span class="toc-text">🛒 商品篩選系統</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%98%98%EF%B8%8F-%E7%B5%90%E8%AA%9E"><span class="toc-number">4.</span> <span class="toc-text">☘️ 結語</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/19/%E8%B3%87%E5%AE%89-mweb-CORS/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/19/%E8%B3%87%E5%AE%89-mweb-CORS/" title="Untitled">Untitled</a><time datetime="2025-11-19T00:42:40.697Z" title="Created 2025-11-19 08:42:40">2025-11-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%BD%89%E5%B0%8E/" title="Open Redirect"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Open Redirect"/></a><div class="content"><a class="title" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%BD%89%E5%B0%8E/" title="Open Redirect">Open Redirect</a><time datetime="2025-11-18T15:51:11.000Z" title="Created 2025-11-18 23:51:11">2025-11-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="跨店跨會員"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="跨店跨會員"/></a><div class="content"><a class="title" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="跨店跨會員">跨店跨會員</a><time datetime="2025-11-18T15:38:11.000Z" title="Created 2025-11-18 23:38:11">2025-11-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%B3%BC%E7%89%A9%E8%BB%8AK/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%B3%BC%E7%89%A9%E8%BB%8AK/" title="Untitled">Untitled</a><time datetime="2025-11-18T00:56:28.132Z" title="Created 2025-11-18 08:56:28">2025-11-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/15/LINQ-IQIEEEEEEEEEE/" title="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異"><img src="https://i.imgur.com/cBfeEDY.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異"/></a><div class="content"><a class="title" href="/2025/11/15/LINQ-IQIEEEEEEEEEE/" title="EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異">EF Core 效能陷阱：IQueryable vs IEnumerable 的致命差異</a><time datetime="2025-11-15T00:06:05.000Z" title="Created 2025-11-15 08:06:05">2025-11-15</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
