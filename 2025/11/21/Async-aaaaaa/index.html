@@ -1,0 +1,398 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>平屋慢生活 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="意義   問題 答案    非同步會讓程式同時跑多個工作嗎？ ✅ 在邏輯上「同時」進行，但實際是快速切換。   非同步會開多個執行緒嗎？ ❌ 通常不會（除非你手動用 Task.Run）。   非同步能讓伺服器同時處理更多請求嗎？ ✅ 可以（因為節省 Thread）。   非同步能加快 CPU 密集任務嗎？ ❌ 不會（要用多執行緒或平行運算）。   例外Task.WhenAll() 在「有任一個 T">
+<meta property="og:type" content="article">
+<meta property="og:title" content="平屋慢生活">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/11/21/Async-aaaaaa/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="意義   問題 答案    非同步會讓程式同時跑多個工作嗎？ ✅ 在邏輯上「同時」進行，但實際是快速切換。   非同步會開多個執行緒嗎？ ❌ 通常不會（除非你手動用 Task.Run）。   非同步能讓伺服器同時處理更多請求嗎？ ✅ 可以（因為節省 Thread）。   非同步能加快 CPU 密集任務嗎？ ❌ 不會（要用多執行緒或平行運算）。   例外Task.WhenAll() 在「有任一個 T">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2025-11-21T00:39:03.063Z">
+<meta property="article:modified_time" content="2025-11-21T00:40:54.707Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/11/21/Async-aaaaaa/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '平屋慢生活',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-21 08:40:54'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">188</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">37</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">22</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Untitled</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-21T00:39:03.063Z" title="Created 2025-11-21 08:39:03">2025-11-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-21T00:40:54.707Z" title="Updated 2025-11-21 08:40:54">2025-11-21</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="意義"><a href="#意義" class="headerlink" title="意義"></a>意義</h2><table>
+<thead>
+<tr>
+<th>問題</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>非同步會讓程式同時跑多個工作嗎？</td>
+<td>✅ 在邏輯上「同時」進行，但實際是快速切換。</td>
+</tr>
+<tr>
+<td>非同步會開多個執行緒嗎？</td>
+<td>❌ 通常不會（除非你手動用 <code>Task.Run</code>）。</td>
+</tr>
+<tr>
+<td>非同步能讓伺服器同時處理更多請求嗎？</td>
+<td>✅ 可以（因為節省 Thread）。</td>
+</tr>
+<tr>
+<td>非同步能加快 CPU 密集任務嗎？</td>
+<td>❌ 不會（要用多執行緒或平行運算）。</td>
+</tr>
+</tbody></table>
+<h2 id="例外"><a href="#例外" class="headerlink" title="例外"></a>例外</h2><p>Task.WhenAll() 在「有任一個 Task 出現例外」時的行為 👇</p>
+<p>await Task.WhenAll(task1, task2, task3);</p>
+<p>如果其中 任何一個 Task 拋出例外（Exception）：</p>
+<p>Task.WhenAll 本身會進入 Faulted 狀態。</p>
+<p>它不會立刻停止其他 Task。其他 Task 仍會繼續執行，直到完成。</p>
+<p>所有 Task 都完成後，Task.WhenAll 才會結束，並聚合所有例外到 AggregateException 裡。</p>
+<p>async Task Demo()<br>{<br>    var t1 &#x3D; Task.Run(() &#x3D;&gt; throw new InvalidOperationException(“A 錯誤”));<br>    var t2 &#x3D; Task.Run(() &#x3D;&gt; throw new ArgumentException(“B 錯誤”));<br>    var t3 &#x3D; Task.Run(() &#x3D;&gt; “OK”);</p>
+<pre><code>try
+&#123;
+    await Task.WhenAll(t1, t2, t3);
+&#125;
+catch (Exception ex)
+&#123;
+    Console.WriteLine(ex.GetType().Name); // =&gt; AggregateException
+    Console.WriteLine(ex.Message);        // =&gt; One or more errors occurred.
+    
+    // 如果要看細節：
+    if (ex is AggregateException agg)
+    &#123;
+        foreach (var inner in agg.InnerExceptions)
+        &#123;
+            Console.WriteLine($&quot;Inner: &#123;inner.GetType().Name&#125; - &#123;inner.Message&#125;&quot;);
+        &#125;
+    &#125;
+&#125;
+</code></pre>
+<p>}</p>
+<p>AggregateException<br>One or more errors occurred.<br>Inner: InvalidOperationException - A 錯誤<br>Inner: ArgumentException - B 錯誤</p>
+<table>
+<thead>
+<tr>
+<th>行為</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>✅ 所有 Task 都會執行完</td>
+<td>不會因為一個錯誤就提前中斷。</td>
+</tr>
+<tr>
+<td>⚠️ <code>await</code> 會丟出 AggregateException</td>
+<td>要用 <code>catch (Exception)</code> 或 <code>catch (AggregateException)</code> 接住。</td>
+</tr>
+<tr>
+<td>✅ 可透過 <code>Task.WhenAll(...).ContinueWith()</code> 處理例外</td>
+<td>若不想用 try&#x2F;catch，也可在 ContinueWith 內觀察 <code>.Exception</code>。</td>
+</tr>
+<tr>
+<td>🧩 可用 <code>Task.WhenAll().ConfigureAwait(false)</code> 在非 UI 環境避免 deadlock</td>
+<td>特別是在 ASP.NET 或 console app 裡。</td>
+</tr>
+</tbody></table>
+<p>👉 即使其中一個 Task 發生 Exception，其他尚未出錯或尚未完成的 Task 仍然會繼續執行到結束。</p>
+<h2 id="best-practice"><a href="#best-practice" class="headerlink" title="best practice"></a>best practice</h2><p>💡 Guideline 1：Avoid async void</p>
+<p>（盡量不要使用 async void）</p>
+<p>🌱 白話解釋</p>
+<p>在 C# 裡，async 方法通常有三種回傳型別：</p>
+<p>Task</p>
+<p>Task<T></p>
+<p>void</p>
+<p>前兩種（Task 與 Task<T>）才是自然的非同步回傳型別，因為它們會回傳一個「代表這個動作」的 Task 物件。</p>
+<p>而 async void 是個特例，主要是為了讓 事件處理器（Event Handler） 能夠是非同步的，例如：</p>
+<p>private async void button1_Click(object sender, EventArgs e)<br>{<br>    await Task.Delay(1000);<br>}</p>
+<p>⚠️ 為什麼其他情況要避免？</p>
+<p>例外處理（Exception Handling）會出問題</p>
+<p>async Task 的例外會被包在 Task 裡面 → 呼叫者可以 await 或用 try&#x2F;catch 接住。</p>
+<p>async void 的例外會直接丟到 SynchronizationContext，導致你在 try&#x2F;catch 裡面也接不到錯。</p>
+<p>private async void ThrowExceptionAsync()<br>{<br>    throw new InvalidOperationException();<br>}</p>
+<p>public void Test()<br>{<br>    try<br>    {<br>        ThrowExceptionAsync();<br>    }<br>    catch<br>    {<br>        &#x2F;&#x2F; 永遠不會進來！<br>    }<br>}</p>
+<p>無法組合（Composability）</p>
+<p>Task 可以被 await、Task.WhenAll、Task.WhenAny 等操作組合。</p>
+<p>void 沒有 Task 可供追蹤，無法知道它什麼時候結束。</p>
+<p>難以測試（Unit Test）<br>單元測試框架（例如 MSTest、xUnit）只能等待 Task 型別，不能測 async void。</p>
+<p>✅ 實務建議</p>
+<p>除了事件處理器（event handler）外，請一律用 async Task 或 async Task<T>。</p>
+<p>若事件處理器中有邏輯，可分拆成可測試的 async Task 方法：</p>
+<p>private async void button1_Click(object sender, EventArgs e)<br>{<br>    await DoSomethingAsync();<br>}</p>
+<p>public async Task DoSomethingAsync()<br>{<br>    await Task.Delay(1000);<br>}</p>
+<p>💡 Guideline 2：Async all the way</p>
+<p>（非同步要一路到底，不要一半同步一半非同步）</p>
+<p>🌱 白話解釋</p>
+<p>非同步就像「傳染病」或「烏龜層層疊」（作者原文比喻）。<br>你一旦讓某個方法變成 async，它呼叫的上層也要變成 async，一路傳到最外層。</p>
+<p>⚠️ 為什麼不能混著用？</p>
+<p>因為如果你用同步的方式去「等非同步結果」，例如：</p>
+<p>var task &#x3D; DelayAsync();<br>task.Wait(); &#x2F;&#x2F; 或 task.Result</p>
+<p>在 GUI 或 ASP.NET 環境下會造成 死結（Deadlock）。</p>
+<p>💥 死結的原因</p>
+<p>await 會捕捉目前的 SynchronizationContext（GUI 或 ASP.NET 環境只允許一個動作同時執行）。</p>
+<p>當你呼叫 Task.Wait() 時，主執行緒在等結果；<br>而 await 又要回到主執行緒繼續執行 → 雙方互等 → 卡死。</p>
+<p>✅ 解法</p>
+<p>讓 async 由內往外傳到底。<br>例如讓 controller、event handler、service 都改成 async。</p>
+<p>如果是 Console App，Main 不能是 async，所以這裡是唯一可例外：</p>
+<p>static void Main() &#x3D;&gt; MainAsync().Wait();<br>static async Task MainAsync() &#x3D;&gt; await Task.Delay(1000);</p>
+<p>永遠用 await 取代 .Result 或 .Wait()。</p>
+<p>💡 Guideline 3：Configure Context（使用 ConfigureAwait(false)）<br>🌱 白話解釋</p>
+<p>await 會自動「記住目前的執行環境（context）」，完成後再回去。<br>這在 GUI 程式裡很方便，因為可以回 UI 執行續更新畫面。</p>
+<p>但在非 GUI 或大量 await 的情況下，這會拖慢效能。<br>所以你可以在 await 後加 .ConfigureAwait(false)，告訴程式：</p>
+<p>「這段 await 完成後，不需要回原本的 context，用 thread pool 執行就好。」</p>
+<p>await Task.Delay(1000).ConfigureAwait(false);<br>⚙️ 效能與死結的關聯<br>避免頻繁回 UI thread，能提升效能。</p>
+<p>若使用 .ConfigureAwait(false)，有時還能避免死結（因為不綁定 context）。</p>
+<p>🚫 什麼情況不能用？<br>當你 await 之後需要「回 UI 控制項」或「使用 HttpContext」時，不能用 ConfigureAwait(false)。</p>
+<p>csharp<br>Copy code<br>private async void button_Click(object sender, EventArgs e)<br>{<br>    button.Enabled &#x3D; false;<br>    await Task.Delay(1000); &#x2F;&#x2F; 不要加 ConfigureAwait(false)<br>    button.Enabled &#x3D; true;  &#x2F;&#x2F; 需要回 UI<br>}<br>但若邏輯可以拆開，像這樣就能在子方法使用：</p>
+<p>csharp<br>Copy code<br>private async Task DoWorkAsync()<br>{<br>    await Task.Delay(1000).ConfigureAwait(false);<br>}</p>
+<p>💡 Guideline 4：Know Your Tools（熟悉常用非同步工具）</p>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>執行背景工作</td>
+<td><code>Task.Run()</code></td>
+</tr>
+<tr>
+<td>包裝舊式 async 模型</td>
+<td><code>TaskCompletionSource&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td>支援取消</td>
+<td><code>CancellationTokenSource</code> &#x2F; <code>CancellationToken</code></td>
+</tr>
+<tr>
+<td>回報進度</td>
+<td><code>IProgress&lt;T&gt;</code> &#x2F; <code>Progress&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td>處理資料流</td>
+<td><code>TPL Dataflow</code> &#x2F; <code>Reactive Extensions (Rx)</code></td>
+</tr>
+<tr>
+<td>鎖定共享資源</td>
+<td><code>SemaphoreSlim.WaitAsync()</code></td>
+</tr>
+<tr>
+<td>非同步初始化</td>
+<td><code>AsyncLazy&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td>非同步佇列</td>
+<td><code>BufferBlock&lt;T&gt;</code> &#x2F; <code>AsyncCollection&lt;T&gt;</code></td>
+</tr>
+</tbody></table>
+<p>🔒 非同步鎖的例子</p>
+<p>SemaphoreSlim mutex &#x3D; new SemaphoreSlim(1);<br>int value;</p>
+<p>async Task UpdateValueAsync()<br>{<br>    await mutex.WaitAsync();<br>    try<br>    {<br>        value &#x3D; await GetNextValueAsync(value);<br>    }<br>    finally<br>    {<br>        mutex.Release();<br>    }<br>}</p>
+<p>這樣可以避免兩個同時執行的 async 方法修改同一個資源。</p>
+<table>
+<thead>
+<tr>
+<th>Guideline</th>
+<th>重點</th>
+<th>例外</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Avoid async void</strong></td>
+<td>用 <code>async Task</code> 取代 <code>async void</code></td>
+<td>事件處理器</td>
+</tr>
+<tr>
+<td><strong>Async all the way</strong></td>
+<td>不要混用同步&#x2F;非同步</td>
+<td>Console Main</td>
+</tr>
+<tr>
+<td><strong>Configure context</strong></td>
+<td>用 <code>ConfigureAwait(false)</code> 提升效能與防止死結</td>
+<td>需要 UI 或 HttpContext 的地方</td>
+</tr>
+<tr>
+<td><strong>Know your tools</strong></td>
+<td>熟悉 <code>Task.Run</code>, <code>SemaphoreSlim</code>, <code>CancellationToken</code>, <code>Progress&lt;T&gt;</code> 等</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<h2 id="whenall"><a href="#whenall" class="headerlink" title="whenall"></a>whenall</h2><p>Validators</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tasks = <span class="keyword">this</span>._validators.Select(<span class="keyword">async</span> validator =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">string</span> errorMessage = <span class="built_in">string</span>.Empty;</span><br><span class="line">    <span class="built_in">string</span> exceptionMessage = <span class="built_in">string</span>.Empty;</span><br><span class="line">    <span class="built_in">bool</span> isValid = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> result = <span class="keyword">await</span> validator.IsValidAsync(context);</span><br><span class="line">        isValid = result.isValid;</span><br><span class="line">        errorMessage = result.errorMessage;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Exception ex)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> serviceName = validator.GetType().Name;</span><br><span class="line">        exceptionMessages.Enqueue(<span class="string">$&quot;<span class="subst">&#123;serviceName&#125;</span> 發生exception!&quot;</span>);</span><br><span class="line">        <span class="keyword">this</span>._logger.LogError(ex, <span class="string">&quot;Service name: &#123;serviceName&#125;, PayProcessContext:&#123;@context&#125;.An exception occure.&quot;</span>, serviceName, context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 如果發生exception，isValid會是false但錯誤訊息是空的，所以要判斷有錯誤訊息再印出</span></span><br><span class="line">    <span class="keyword">if</span> (isValid == <span class="literal">false</span> &amp;&amp; <span class="built_in">string</span>.IsNullOrEmpty(errorMessage) == <span class="literal">false</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        invalidResult.Enqueue(errorMessage);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;).ToList();</span><br><span class="line"></span><br><span class="line">Task.WhenAll(tasks).GetAwaiter().GetResult();</span><br></pre></td></tr></table></figure>
+
+<p>CreateTaskByShop</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">    List&lt;Task&gt; taskList = <span class="keyword">new</span> List&lt;Task&gt;();</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> shopPromotion <span class="keyword">in</span> shopPromotionList)</span><br><span class="line">    &#123;</span><br><span class="line">        taskList.Add(CreateTaskByShopAsync(shopPromotion, dateEnd));</span><br><span class="line">    &#125;</span><br><span class="line">    Task.WhenAll(taskList).ConfigureAwait(<span class="literal">false</span>).GetAwaiter().GetResult();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 建立NMQ Task</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;shopPromotion&quot;&gt;</span>商店及活動清單<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;param name=&quot;dateEnd&quot;&gt;</span>執行日期(截止日)<span class="doctag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;returns&gt;</span><span class="doctag">&lt;/returns&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">async</span> Task <span class="title">CreateTaskByShopAsync</span>(<span class="params">KeyValuePair&lt;<span class="built_in">long</span>, List&lt;<span class="built_in">long</span>&gt;&gt; shopPromotion, DateTime dateEnd</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> taskData = <span class="keyword">new</span> PromotionRewardPointSkuAddEntity</span><br><span class="line">    &#123;</span><br><span class="line">        ShopId = shopPromotion.Key,</span><br><span class="line">        PromotionEngineIds = shopPromotion.Value,</span><br><span class="line">        ExecuteDateTime = dateEnd</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> taskDataString = JsonSerializer.Serialize(taskData);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">await</span> <span class="keyword">this</span>._nmqV3TaskService.CreateTaskAsync(<span class="keyword">nameof</span>(PromotionRewardPointSkuAddJob), taskDataString);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/11/21/Async-aaaaaa/">https://allenlin000.github.io.git/2025/11/21/Async-aaaaaa/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2025/11/19/%E8%B3%87%E5%AE%89-mweb-CORS/" title=""><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info"></div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">188</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">37</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">22</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%84%8F%E7%BE%A9"><span class="toc-number">1.</span> <span class="toc-text">意義</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E5%A4%96"><span class="toc-number">2.</span> <span class="toc-text">例外</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#best-practice"><span class="toc-number">3.</span> <span class="toc-text">best practice</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#whenall"><span class="toc-number">4.</span> <span class="toc-text">whenall</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/21/Async-aaaaaa/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/21/Async-aaaaaa/" title="Untitled">Untitled</a><time datetime="2025-11-21T00:39:03.063Z" title="Created 2025-11-21 08:39:03">2025-11-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/19/%E8%B3%87%E5%AE%89-mweb-CORS/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/19/%E8%B3%87%E5%AE%89-mweb-CORS/" title="Untitled">Untitled</a><time datetime="2025-11-19T00:42:40.697Z" title="Created 2025-11-19 08:42:40">2025-11-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%BD%89%E5%B0%8E/" title="Open Redirect"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Open Redirect"/></a><div class="content"><a class="title" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%BD%89%E5%B0%8E/" title="Open Redirect">Open Redirect</a><time datetime="2025-11-18T15:51:11.000Z" title="Created 2025-11-18 23:51:11">2025-11-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="跨店跨會員"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="跨店跨會員"/></a><div class="content"><a class="title" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%B7%A8%E5%BA%97%E8%B7%A8%E6%9C%83%E5%93%A1/" title="跨店跨會員">跨店跨會員</a><time datetime="2025-11-18T15:38:11.000Z" title="Created 2025-11-18 23:38:11">2025-11-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%B3%BC%E7%89%A9%E8%BB%8AK/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/18/%E8%B3%87%E5%AE%89-%E8%B3%BC%E7%89%A9%E8%BB%8AK/" title="Untitled">Untitled</a><time datetime="2025-11-18T00:56:28.132Z" title="Created 2025-11-18 08:56:28">2025-11-18</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
