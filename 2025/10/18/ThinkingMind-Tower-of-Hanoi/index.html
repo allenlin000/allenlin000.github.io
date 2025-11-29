@@ -1,0 +1,276 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Tower of Hanoi | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="當問題太大時，我們無法一次跨越；唯有把它拆開、分段、重複，才能抵達目的。—— 河內塔（Tower of Hanoi）    🍲 今天想做的事有三根柱子（A、B、C），以及 N 個大小不同的圓盤，開始時都堆在 A 上（小的在上，大的在下）。每次只能移動一個圓盤，且不能把大的放在小的上面。要怎麼把整堆圓盤從 A 搬到 C？    🍲 徒手劈柴如果有 1 個…👉 需要 1 次移動   如果">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tower of Hanoi">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/18/ThinkingMind-Tower-of-Hanoi/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="當問題太大時，我們無法一次跨越；唯有把它拆開、分段、重複，才能抵達目的。—— 河內塔（Tower of Hanoi）    🍲 今天想做的事有三根柱子（A、B、C），以及 N 個大小不同的圓盤，開始時都堆在 A 上（小的在上，大的在下）。每次只能移動一個圓盤，且不能把大的放在小的上面。要怎麼把整堆圓盤從 A 搬到 C？    🍲 徒手劈柴如果有 1 個…👉 需要 1 次移動   如果">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true">
+<meta property="article:published_time" content="2025-10-18T01:30:05.000Z">
+<meta property="article:modified_time" content="2025-11-29T03:10:45.180Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="思索日和">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/18/ThinkingMind-Tower-of-Hanoi/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Tower of Hanoi',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-29 11:10:45'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">207</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">23</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Tower of Hanoi</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-18T01:30:05.000Z" title="Created 2025-10-18 09:30:05">2025-10-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-11-29T03:10:45.180Z" title="Updated 2025-11-29 11:10:45">2025-11-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/">思索日和</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Tower of Hanoi"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" alt="エナガ"></p>
+<br>
+
+<blockquote>
+<p>當問題太大時，我們無法一次跨越；<br>唯有把它拆開、分段、重複，才能抵達目的。<br>—— 河內塔（Tower of Hanoi）  </p>
+</blockquote>
+<h2 id="🍲-今天想做的事"><a href="#🍲-今天想做的事" class="headerlink" title="🍲 今天想做的事"></a>🍲 今天想做的事</h2><p>有三根柱子（A、B、C），以及 N 個大小不同的圓盤，開始時都堆在 A 上（小的在上，大的在下）。每次只能移動一個圓盤，且不能把大的放在小的上面。要怎麼把整堆圓盤從 A 搬到 C？</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/haonai_tower.png?raw=true" alt="tower"></p>
+<br>
+
+<h2 id="🍲-徒手劈柴"><a href="#🍲-徒手劈柴" class="headerlink" title="🍲 徒手劈柴"></a>🍲 徒手劈柴</h2><h3 id="如果有-1-個…"><a href="#如果有-1-個…" class="headerlink" title="如果有 1 個…"></a>如果有 1 個…</h3><p>👉 需要 <strong>1 次移動</strong></p>
+<br>
+
+<h3 id="如果有-2-個…"><a href="#如果有-2-個…" class="headerlink" title="如果有 2 個…"></a>如果有 2 個…</h3><ul>
+<li>先把上面那個搬開（一次）</li>
+<li>搬最底下那個（一次）</li>
+<li>再把上面那個放回去（一次）</li>
+</ul>
+<p>👉 總共 <strong>3 次</strong></p>
+<br>
+
+<h3 id="如果有-3-本書…"><a href="#如果有-3-本書…" class="headerlink" title="如果有 3 本書…"></a>如果有 3 本書…</h3><ul>
+<li>先搬 2 個（會用 3 次）</li>
+<li>搬最底下一個（1 次）</li>
+<li>再搬 2 個回去（3 次）</li>
+</ul>
+<p>👉 總共是 <strong>3 + 1 + 3 &#x3D; 7 次</strong></p>
+<br>
+
+<hr>
+<p>看起來好像只是單純在搬盤子，但當我們會發現，裡面藏著明確的規律</p>
+<hr>
+<br>
+
+<h2 id="🍲-問題的結構"><a href="#🍲-問題的結構" class="headerlink" title="🍲 問題的結構"></a>🍲 問題的結構</h2><p>我們想搬 n 個盤子時，可以分成三個步驟</p>
+<ul>
+<li>先把上面 n-1 個盤子搬到「中間柱子」(暫存)。</li>
+<li>再搬動最大的第 n 個盤子到目標柱子。</li>
+<li>最後再把那 n-1 個盤子搬回目標柱子上。</li>
+</ul>
+<p>這三步裡，第一步 和 第三步 都是一樣的動作：「搬 n-1 個盤子」<br>也就是說，這兩步都會再呼叫自己，由此不斷的循環下去<del>，直到宇宙塌縮為止</del></p>
+<br>
+<br>
+
+<h2 id="🍲-思考背後的意涵"><a href="#🍲-思考背後的意涵" class="headerlink" title="🍲 思考背後的意涵"></a>🍲 思考背後的意涵</h2><p>河內塔代表的是一種「結構化的問題拆解」</p>
+<p>1️⃣ 先把上面 N−1 個盤子移到 B（暫存）<br>2️⃣ 把最大那個盤子移到 C<br>3️⃣ 再把 N−1 個盤子從 B 移到 C</p>
+<p>💡 這三步，第二步是「直接動作」，但第一步和第三步，結構上其實跟原本的問題一模一樣 —— 只是「盤子數量變少」而已。這就是「自相似（Self-similarity）」的特徵 —— 小問題的形狀和大問題完全一樣，只是規模縮小</p>
+<p>分支圖</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Hanoi(3, A, C, B)</span><br><span class="line">├─ Hanoi(2, A, B, C)</span><br><span class="line">│  ├─ Hanoi(1, A, C, B)</span><br><span class="line">│  ├─ Move(2) Move disk 1 from A to C</span><br><span class="line">│  └─ Hanoi(1, C, B, A)</span><br><span class="line">├─ Move(3)</span><br><span class="line">└─ Hanoi(2, B, C, A)</span><br><span class="line">   ├─ Hanoi(1, B, A, C)</span><br><span class="line">   ├─ Move(2) Move disk 1 from B to C</span><br><span class="line">   └─ Hanoi(1, A, C, B)</span><br></pre></td></tr></table></figure>
+
+<p>這個結構就像一棵「任務樹」，每一個節點都代表一次「子問題」的呼叫。</p>
+<br>
+<br>
+
+<h2 id="🍲-呼叫樹-Recursion-Tree"><a href="#🍲-呼叫樹-Recursion-Tree" class="headerlink" title="🍲 呼叫樹 (Recursion Tree)"></a>🍲 呼叫樹 (Recursion Tree)</h2><p>由以上的分析得知，整個問題大致上是長這樣</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T(n) = 2 * T(n-1) + 1</span><br></pre></td></tr></table></figure>
+<p>這裡的「2」就是代表兩次遞迴呼叫（左子樹、右子樹），因此這個遞迴形成一棵「二元遞迴樹 (binary recursion tree)」</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">            T(3)</span><br><span class="line">        /        \</span><br><span class="line">    T(2)          T(2)</span><br><span class="line">    /   \         /   \</span><br><span class="line">T(1)   T(1)   T(1)   T(1)</span><br></pre></td></tr></table></figure>
+<p>每個節點 T(k) 都會生出 兩個子節點 T(k-1)。當 k&#x3D;1 時，就是底層（base case），不再分支，樹的高度是 N（因為每一層代表少一個盤子）。</p>
+<p>第 1 層有 1 個節點 (T(n))<br>第 2 層有 2 個節點 (兩個 T(n-1))<br>第 3 層有 4 個節點 (四個 T(n-2))<br>…<br>第 N 層有 2^(N-1) 個節點 (最底層的 T(1))</p>
+<p>所以<strong>節點總數</strong>會是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1 + 2 + 4 + 8 + … + 2^(N-1)</span><br></pre></td></tr></table></figure>
+
+<p>接著計算<strong>等比數列和</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">## 總和</span><br><span class="line">S = 1 + 2 + 4 + 8 + … + 2^(N-1)</span><br><span class="line"></span><br><span class="line">## 我們把整個式子乘以 2</span><br><span class="line">2S = 2 + 4 + 8 + … + 2^(N-1) + 2^N</span><br><span class="line"></span><br><span class="line">## 然後把上面這兩個式子「相減」</span><br><span class="line">(2S - S) = (2 + 4 + 8 + … + 2^N) - (1 + 2 + 4 + … + 2^(N-1))</span><br><span class="line"></span><br><span class="line">## 中間的項目都互相抵消掉，只剩下</span><br><span class="line">S = 2^N - 1</span><br></pre></td></tr></table></figure>
+
+<p>每一個節點就代表「一次遞迴呼叫」，而在河內塔問題中，每次遞迴的最後都會有一次移動動作，所以最少移動次數也是 2^N - 1。</p>
+<br>
+<br>
+
+<h2 id="🍲-類比這個問題"><a href="#🍲-類比這個問題" class="headerlink" title="🍲 類比這個問題"></a>🍲 類比這個問題</h2><p>如果換個角度想：我有一個初始狀態 A，要轉換成目標狀態 C。這個轉換太複雜，所以我定義一個「中介行為」F，讓我一步步接近目標。<br>這種「把大問題拆成小問題」的思維，其實無所不在。例如公司的組織架構：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">公司 (大問題)</span><br><span class="line"> ├─ 部門 (中問題)</span><br><span class="line"> │   ├─ 小組 (小問題)</span><br><span class="line"> │   │   ├─ 個人 (最小單位)</span><br></pre></td></tr></table></figure>
+
+<p>整個組織就像一棵「遞迴的任務樹」，每一層都在把上層的任務拆解成更小、更可解決的子任務。CEO 制定公司策略，部門主管以同樣邏輯制定部門目標，小組長再以同樣思維安排團隊工作。這就是河內塔所呈現的哲學：大問題的解法，其實隱藏在小問題的重複之中。</p>
+<br>
+<br>
+
+<h2 id="🍲-程式碼"><a href="#🍲-程式碼" class="headerlink" title="🍲 程式碼"></a>🍲 程式碼</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Hanoi</span>(<span class="params"><span class="built_in">int</span> n, <span class="built_in">string</span> <span class="keyword">from</span>, <span class="built_in">string</span> to, <span class="built_in">string</span> aux</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">1</span>)</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;Move disk 1 from <span class="subst">&#123;<span class="keyword">from</span>&#125;</span> to <span class="subst">&#123;to&#125;</span>&quot;</span>);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        Hanoi(n - <span class="number">1</span>, <span class="keyword">from</span>, aux, to);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;Move disk <span class="subst">&#123;n&#125;</span> from <span class="subst">&#123;<span class="keyword">from</span>&#125;</span> to <span class="subst">&#123;to&#125;</span>&quot;</span>);</span><br><span class="line">        Hanoi(n - <span class="number">1</span>, aux, to, <span class="keyword">from</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這段程式表達出「自相似」的邏輯，每次都在解一個規模更小的相同問題，當遞迴層層展開時，我們看到的不是單純的搬運，而是一種把複雜問題變簡單、再重複執行的智慧</p>
+<br>
+<br>
+
+<h2 id="🍲-結語"><a href="#🍲-結語" class="headerlink" title="🍲 結語"></a>🍲 結語</h2><p>河內塔是一種「思考方式」。生活中的許多困難，其實都像一座巨大的河內塔。我們無法一次解決所有事，只能拆開、排序、遞迴地前進，學習、成長、改變都是如此，每一步都像是在搬一個盤子，看似微小，但方向正確；當我們回頭看時，才會發現自己，早已完成了一場龐大的遞迴</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/18/ThinkingMind-Tower-of-Hanoi/">https://allenlin000.github.io.git/2025/10/18/ThinkingMind-Tower-of-Hanoi/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/">思索日和</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/17/EFCORE-COMMIT/" title="EF Core - TransactionScope vs BEGIN TRAN/COMMIT"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">EF Core - TransactionScope vs BEGIN TRAN/COMMIT</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/21/Async-Asynchronous-Programming-%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0-Task-WhenAll/" title="Asynchronous Programming - 第十三章:Task.WhenAll"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Asynchronous Programming - 第十三章:Task.WhenAll</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/11/03/%E9%80%B1%E6%9C%9F%E6%80%A7%E8%A7%B8%E7%99%BC/" title="Modulo — 記憶の螺旋"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-03</div><div class="title">Modulo — 記憶の螺旋</div></div></a></div><div><a href="/2025/10/25/ThinkingMind-XOR/" title="XOR"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-25</div><div class="title">XOR</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">207</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">23</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%B2-%E4%BB%8A%E5%A4%A9%E6%83%B3%E5%81%9A%E7%9A%84%E4%BA%8B"><span class="toc-number">1.</span> <span class="toc-text">🍲 今天想做的事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%B2-%E5%BE%92%E6%89%8B%E5%8A%88%E6%9F%B4"><span class="toc-number">2.</span> <span class="toc-text">🍲 徒手劈柴</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E6%9C%89-1-%E5%80%8B%E2%80%A6"><span class="toc-number">2.1.</span> <span class="toc-text">如果有 1 個…</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E6%9C%89-2-%E5%80%8B%E2%80%A6"><span class="toc-number">2.2.</span> <span class="toc-text">如果有 2 個…</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E6%9C%89-3-%E6%9C%AC%E6%9B%B8%E2%80%A6"><span class="toc-number">2.3.</span> <span class="toc-text">如果有 3 本書…</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%B2-%E5%95%8F%E9%A1%8C%E7%9A%84%E7%B5%90%E6%A7%8B"><span class="toc-number">3.</span> <span class="toc-text">🍲 問題的結構</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%B2-%E6%80%9D%E8%80%83%E8%83%8C%E5%BE%8C%E7%9A%84%E6%84%8F%E6%B6%B5"><span class="toc-number">4.</span> <span class="toc-text">🍲 思考背後的意涵</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%B2-%E5%91%BC%E5%8F%AB%E6%A8%B9-Recursion-Tree"><span class="toc-number">5.</span> <span class="toc-text">🍲 呼叫樹 (Recursion Tree)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%B2-%E9%A1%9E%E6%AF%94%E9%80%99%E5%80%8B%E5%95%8F%E9%A1%8C"><span class="toc-number">6.</span> <span class="toc-text">🍲 類比這個問題</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%B2-%E7%A8%8B%E5%BC%8F%E7%A2%BC"><span class="toc-number">7.</span> <span class="toc-text">🍲 程式碼</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%B2-%E7%B5%90%E8%AA%9E"><span class="toc-number">8.</span> <span class="toc-text">🍲 結語</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/22/CancellationToken/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/22/CancellationToken/" title="Untitled">Untitled</a><time datetime="2025-11-22T06:57:38.541Z" title="Created 2025-11-22 14:57:38">2025-11-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/22/CSHARP-NET-DATETIME/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/22/CSHARP-NET-DATETIME/" title="Untitled">Untitled</a><time datetime="2025-11-21T23:47:37.435Z" title="Created 2025-11-22 07:47:37">2025-11-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/22/Encode-Encoding-UTF8/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/22/Encode-Encoding-UTF8/" title="Untitled">Untitled</a><time datetime="2025-11-21T23:29:43.534Z" title="Created 2025-11-22 07:29:43">2025-11-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/21/Async-aaaaaa/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/21/Async-aaaaaa/" title="Untitled">Untitled</a><time datetime="2025-11-21T00:39:03.063Z" title="Created 2025-11-21 08:39:03">2025-11-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/19/%E8%B3%87%E5%AE%89-mweb-CORS/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/19/%E8%B3%87%E5%AE%89-mweb-CORS/" title="Untitled">Untitled</a><time datetime="2025-11-19T00:42:40.697Z" title="Created 2025-11-19 08:42:40">2025-11-19</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
