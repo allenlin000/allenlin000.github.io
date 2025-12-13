@@ -1,0 +1,261 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Datetime Flow | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Flow時間參數化函數計算迴圈實現參數變化流程感「我現在要解的是這個階段的問題，不是把一輩子的焦慮一次扛起來」 沒有流程感的人，常常會為了明年的事，現在就內耗、為了別人的人生進度，拖慢自己的腳步、為了「全部都要顧」，結果什麼都顧不好，流程感的人會先說清楚：「現在，只處理這一段。」任何進階分析、轉換、統計之前，第一件事永遠是：先用「可走索引的時間區間參數」把資料切出一塊安全的工作區  格式轉換（YE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Datetime Flow">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/09/DeepType-SQL-Thinking-Datetime-Flow/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="Flow時間參數化函數計算迴圈實現參數變化流程感「我現在要解的是這個階段的問題，不是把一輩子的焦慮一次扛起來」 沒有流程感的人，常常會為了明年的事，現在就內耗、為了別人的人生進度，拖慢自己的腳步、為了「全部都要顧」，結果什麼都顧不好，流程感的人會先說清楚：「現在，只處理這一段。」任何進階分析、轉換、統計之前，第一件事永遠是：先用「可走索引的時間區間參數」把資料切出一塊安全的工作區  格式轉換（YE">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/NfCnwwU.png">
+<meta property="article:published_time" content="2025-10-09T03:00:34.000Z">
+<meta property="article:modified_time" content="2025-12-13T08:08:46.542Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="SQL 職場歷險記">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/NfCnwwU.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/09/DeepType-SQL-Thinking-Datetime-Flow/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Datetime Flow',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-12-13 16:08:46'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">213</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">24</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/NfCnwwU.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Datetime Flow</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-09T03:00:34.000Z" title="Created 2025-10-09 11:00:34">2025-10-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-12-13T08:08:46.542Z" title="Updated 2025-12-13 16:08:46">2025-12-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/SQL-%E8%81%B7%E5%A0%B4%E6%AD%B7%E9%9A%AA%E8%A8%98/">SQL 職場歷險記</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Datetime Flow"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="datetime-flow"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="datetime-flow-1">Flow</button><button type="button" class="tab " data-href="datetime-flow-2">時間參數化</button><button type="button" class="tab " data-href="datetime-flow-3">函數計算</button><button type="button" class="tab " data-href="datetime-flow-4">迴圈實現參數變化</button><button type="button" class="tab " data-href="datetime-flow-5">流程感</button></ul><div class="tab-contents"><div class="tab-item-content active" id="datetime-flow-1"><p>「我現在要解的是這個階段的問題，不是把一輩子的焦慮一次扛起來」</p>
+<p>沒有流程感的人，常常會為了明年的事，現在就內耗、為了別人的人生進度，拖慢自己的腳步、為了「全部都要顧」，結果什麼都顧不好，流程感的人會先說清楚：「現在，只處理這一段。」</p></div><div class="tab-item-content" id="datetime-flow-2"><p>任何進階分析、轉換、統計之前，第一件事永遠是：先用「可走索引的時間區間參數」把資料切出一塊安全的工作區</p>
+<ul>
+<li>格式轉換（YEAR &#x2F; MONTH &#x2F; CONVERT &#x2F; 字串化）</li>
+<li>計算邏輯（DATEDIFF、CASE、狀態判斷）</li>
+<li>資料聚合（GROUP BY、AVG、SUM）</li>
+</ul>
+<p>這三件事有一個共同點，它們都會破壞索引的使用價值，或至少讓索引變得沒那麼重要</p>
+<p>所以正確的順序不是：我要算月報 → GROUP BY MONTH → 再來想效能，而是先用時間參數把資料量縮到「合理範圍」 → 再隨便你怎麼算</p></div><div class="tab-item-content" id="datetime-flow-3"><p>資料庫不是在「算答案」，而是在「快速縮小資料範圍」，SARGable 的條件才能讓索引幫你做這件事</p>
+<h4 id="❌"><a href="#❌" class="headerlink" title="❌"></a>❌</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">USE WebStoreDB;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> VipMember_CreatedDateTime, </span><br><span class="line">       <span class="keyword">DAY</span>(VipMember_CreatedDateTime), </span><br><span class="line">       VipMember_Id</span><br><span class="line"><span class="keyword">FROM</span> VipMember(NOLOCK)</span><br><span class="line"><span class="keyword">WHERE</span> VipMember_ValidFlag <span class="operator">=</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">AND</span> <span class="keyword">DAY</span>(VipMember_CreatedDateTime) <span class="operator">=</span> <span class="number">1</span>; <span class="comment">-- Non-SARGable，無法有效利用索引</span></span><br></pre></td></tr></table></figure>
+
+<p><code>VipMember_CreatedDateTime</code> 本來是一個「可排序、可用索引搜尋」的欄位，DAY(VipMember_CreatedDateTime)，在這裡 SQL Server 必須對每一筆資料先算 DAY()，算完後才能知道是不是等於 1，因為索引裡存的是「原始欄位值」，不是「DAY() 計算後的結果」，所以 Optimizer 無法用索引快速定位，只能把整張表（或整個索引）掃過一次，結果就是 Index Scan &#x2F; Table Scan → 效能直接爆炸</p>
+<p>你等於對 SQL Server 說：「每一筆你都幫我算完，我再告訴你要不要」</p>
+<br>
+
+<h4 id="✅"><a href="#✅" class="headerlink" title="✅"></a>✅</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DECLARE</span> <span class="variable">@firstDayOfMonth</span> <span class="type">date</span> <span class="operator">=</span> <span class="string">&#x27;2025-10-01&#x27;</span>; <span class="comment">-- 先準備一個明確、可比較的邊界值</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> VipMember_CreatedDateTime,</span><br><span class="line">       VipMember_Id</span><br><span class="line"><span class="keyword">FROM</span> dbo.VipMember <span class="keyword">WITH</span> (READCOMMITTED)</span><br><span class="line"><span class="keyword">WHERE</span> VipMember_ValidFlag <span class="operator">=</span> <span class="number">1</span></span><br><span class="line">  <span class="keyword">AND</span> VipMember_CreatedDateTime <span class="operator">&gt;=</span> <span class="variable">@firstDayOfMonth</span>               <span class="comment">-- 10/1 00:00</span></span><br><span class="line">  <span class="keyword">AND</span> VipMember_CreatedDateTime <span class="operator">&lt;</span>  DATEADD(<span class="keyword">DAY</span>, <span class="number">1</span>, <span class="variable">@firstDayOfMonth</span>); <span class="comment">-- 10/2 00:00</span></span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="datetime-flow-4"><p>當發現需求其實是「同一件事重複做，只是某個參數在規律變化」，那問題就不再是 SQL，而是要不要交給迴圈處理」</p>
+<h4 id="先抽離「你真正要做的事」"><a href="#先抽離「你真正要做的事」" class="headerlink" title="先抽離「你真正要做的事」"></a>先抽離「你真正要做的事」</h4><p>你不是在查 1 月，也不是在查 2 月，而是「給我一個月份，我就能查出該月份的資料」</p>
+<br>
+
+<h4 id="辨識「哪些是固定的，哪些是會變的」"><a href="#辨識「哪些是固定的，哪些是會變的」" class="headerlink" title="辨識「哪些是固定的，哪些是會變的」"></a>辨識「哪些是固定的，哪些是會變的」</h4><ul>
+<li>固定的：查詢邏輯，表、欄位、條件結構</li>
+<li>會變的：只有「月份」</li>
+</ul>
+<br>
+
+<h4 id="把「會變的東西」抽成參數"><a href="#把「會變的東西」抽成參數" class="headerlink" title="把「會變的東西」抽成參數"></a>把「會變的東西」抽成參數</h4><ul>
+<li>月份 → @month</li>
+<li>年份 → @year</li>
+<li>月初 → @startDate , 用 DATEFROMPARTS(@year, @month, 1) 產生 @startDate</li>
+<li>月末 → @endDate, @endDate &#x3D; DATEADD(DAY, 1, @startDate)（半開區間）</li>
+</ul>
+<br>
+
+<h4 id="邏輯設計"><a href="#邏輯設計" class="headerlink" title="邏輯設計"></a>邏輯設計</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">設定年度、月份 = 1</span><br><span class="line"> │</span><br><span class="line"> ▼</span><br><span class="line">[WHILE 迴圈]</span><br><span class="line"> ├─► 設定 @startDate = 當年某月1號</span><br><span class="line"> │    @endDate = 當年某月2號</span><br><span class="line"> │</span><br><span class="line"> ├─► 從 VipMember 找出該日註冊資料</span><br><span class="line"> │    → INSERT 進暫存表</span><br><span class="line"> │</span><br><span class="line"> └─► 月份 + 1，繼續下一回合</span><br><span class="line"> │</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">USE WebStoreDB;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> IF <span class="keyword">EXISTS</span> #VipMember_FirstDay;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> #VipMember_FirstDay(</span><br><span class="line">    CreateDate DATETIME,</span><br><span class="line">    Id <span class="type">BIGINT</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">DECLARE</span> <span class="variable">@year</span> <span class="type">INT</span> <span class="operator">=</span> <span class="keyword">YEAR</span>(GETDATE()),</span><br><span class="line">        <span class="variable">@month</span> <span class="type">INT</span> <span class="operator">=</span> <span class="number">1</span>,</span><br><span class="line">        <span class="variable">@startDate</span> DATETIME,</span><br><span class="line">        <span class="variable">@endDate</span> DATETIME;</span><br><span class="line"></span><br><span class="line">WHILE <span class="variable">@month</span> <span class="operator">&lt;=</span> <span class="number">12</span></span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    <span class="keyword">SET</span> <span class="variable">@startDate</span> <span class="operator">=</span> DATEFROMPARTS(<span class="variable">@year</span>, <span class="variable">@month</span>, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">SET</span> <span class="variable">@endDate</span> <span class="operator">=</span> DATEADD(<span class="keyword">DAY</span>, <span class="number">1</span>, <span class="variable">@startDate</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">INSERT</span> <span class="keyword">INTO</span> #VipMember_FirstDay(CreateDate, Id)</span><br><span class="line">    <span class="keyword">SELECT</span> VipMember_CreatedDateTime, VipMember_Id</span><br><span class="line">    <span class="keyword">FROM</span> VipMember(NOLOCK)</span><br><span class="line">    <span class="keyword">WHERE</span> VipMember_CreatedDateTime <span class="operator">&gt;=</span> <span class="variable">@startDate</span></span><br><span class="line">        <span class="keyword">AND</span> VipMember_CreatedDateTime <span class="operator">&lt;</span> <span class="variable">@endDate</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">SET</span> <span class="variable">@month</span> <span class="operator">=</span> <span class="variable">@month</span> <span class="operator">+</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">END</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> #VipMember_FirstDay;</span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="datetime-flow-5"><p>當一件事變得複雜步驟多時，像做菜我們需要洗菜、切菜、下鍋，你不會每翻炒一次就再洗一次菜</p>
+<p>當我們遇到資料查詢與需要這種流程感!</p>
+<ol>
+<li><p>先問自己：我到底要分析哪一坨資料, 「我要的是 今年的訂單，不是全部歷史資料」，如果資料本來就不該進分析流程，那它越早被排除越好</p>
+</li>
+<li><p>哪些東西是「資料本身」，哪些是「分析用格式」？</p>
+</li>
+</ol>
+<ul>
+<li>TradesOrderGroup_DateTime 是原始資料</li>
+<li>YYYY-MM 是分析用的視角</li>
+</ul>
+<p>「月份不是資料的一部分，而是我『看資料的方式』」那它就不該在每個地方臨時算一次</p>
+<ol start="3">
+<li>發現重複運算，其實是在提醒你「邏輯混在一起了」</li>
+</ol>
+<p>當看到</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CONVERT</span>(...)</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">/</span> <span class="keyword">GROUP</span> <span class="keyword">BY</span> <span class="operator">/</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br></pre></td></tr></table></figure>
+<p>這其實是在暗示資料轉換、資料彙總，被寫在同一個層級裡了!</p>
+<h4 id="「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」-❌"><a href="#「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」-❌" class="headerlink" title="「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」 ❌"></a>「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」 ❌</h4><ul>
+<li>GROUP BY CONVERT(CHAR(7), TradesOrderGroup_DateTime, 120)與 ORDER BY CONVERT(CHAR(7), TradesOrderGroup_DateTime, 120) 都會讓 SQL Server 對每筆資料進行字串轉換</li>
+<li>CONVERT() 出現在 SELECT、GROUP BY ORDER BY，SQL Server 會視為三次運算，CPU 多做了三倍的事</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">USE WebStoreDB;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    <span class="keyword">CONVERT</span>(<span class="type">CHAR</span>(<span class="number">7</span>), TradesOrderGroup_DateTime, <span class="number">120</span>) <span class="keyword">AS</span> 月份,</span><br><span class="line">    <span class="built_in">SUM</span>(TradesOrderGroup_TotalPayment) <span class="keyword">AS</span> 總金額</span><br><span class="line"><span class="keyword">FROM</span> TradesOrderGroup(NOLOCK)</span><br><span class="line"><span class="keyword">WHERE</span> TradesOrderGroup_DateTime <span class="operator">&gt;=</span> DATEFROMPARTS(<span class="keyword">YEAR</span>(GETDATE()), <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">AND</span> TradesOrderGroup_DateTime <span class="operator">&lt;</span> DATEFROMPARTS(<span class="keyword">YEAR</span>(GETDATE()) <span class="operator">+</span> <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> <span class="keyword">CONVERT</span>(<span class="type">CHAR</span>(<span class="number">7</span>), TradesOrderGroup_DateTime, <span class="number">120</span>)</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">CONVERT</span>(<span class="type">CHAR</span>(<span class="number">7</span>), TradesOrderGroup_DateTime, <span class="number">120</span>);</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h4 id="「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」-✅"><a href="#「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」-✅" class="headerlink" title="「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」 ✅"></a>「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」 ✅</h4><ul>
+<li>用暫存表先篩出「今年的資料」</li>
+<li>後續的分組與轉換只在後面上運算</li>
+<li>用 CTE 預先轉換一次月份 CONVERT() 只執行一次</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">use WebStoreDB</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 避免 where 無法吃到索引</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> IF <span class="keyword">EXISTS</span> #yyyyy;</span><br><span class="line"><span class="keyword">select</span> TradesOrderGroup_Id,</span><br><span class="line">		TradesOrderGroup_DateTime,</span><br><span class="line">		TradesOrderGroup_TotalPayment</span><br><span class="line"><span class="keyword">into</span> #yyyyy</span><br><span class="line"><span class="keyword">from</span> TradesOrderGroup(nolock)</span><br><span class="line"><span class="keyword">where</span> TradesOrderGroup_DateTime <span class="operator">&gt;=</span> DATEFROMPARTS(<span class="keyword">YEAR</span>(GETDATE()),<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line"><span class="keyword">AND</span> TradesOrderGroup_DateTime <span class="operator">&lt;</span> DATEFROMPARTS(<span class="keyword">YEAR</span>(GETDATE()) <span class="operator">+</span> <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 避免重複 convert 運算</span></span><br><span class="line"><span class="keyword">WITH</span> AA <span class="keyword">AS</span>(</span><br><span class="line">	<span class="keyword">SELECT</span> <span class="keyword">convert</span>(<span class="type">char</span>(<span class="number">7</span>),TradesOrderGroup_DateTime, <span class="number">120</span>) <span class="keyword">AS</span> MON,</span><br><span class="line">			TradesOrderGroup_TotalPayment</span><br><span class="line">	<span class="keyword">FROM</span> #yyyyy</span><br><span class="line">)</span><br><span class="line"><span class="keyword">select</span> MON,<span class="built_in">SUM</span>(TradesOrderGroup_TotalPayment) <span class="keyword">AS</span> Payment</span><br><span class="line"><span class="keyword">from</span> AA</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> MON</span><br></pre></td></tr></table></figure>
+
+<h4 id="「今年每個月，平均一筆訂單從『建立』到『實際出貨』要花幾天？」-✅"><a href="#「今年每個月，平均一筆訂單從『建立』到『實際出貨』要花幾天？」-✅" class="headerlink" title="「今年每個月，平均一筆訂單從『建立』到『實際出貨』要花幾天？」 ✅"></a>「今年每個月，平均一筆訂單從『建立』到『實際出貨』要花幾天？」 ✅</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    OrderSlaveFlow_Id,</span><br><span class="line">    OrderSlaveFlow_CreatedDateTime,</span><br><span class="line">    OrderSlaveFlow_ShippingOrderSlaveDateTime</span><br><span class="line"><span class="keyword">INTO</span> #FlowTemp</span><br><span class="line"><span class="keyword">FROM</span> OrderSlaveFlow (NOLOCK)</span><br><span class="line"><span class="keyword">WHERE</span> OrderSlaveFlow_CreatedDateTime <span class="operator">&gt;=</span> DATEFROMPARTS(<span class="keyword">YEAR</span>(GETDATE()), <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">  <span class="keyword">AND</span> OrderSlaveFlow_CreatedDateTime <span class="operator">&lt;</span> DATEFROMPARTS(<span class="keyword">YEAR</span>(GETDATE()) <span class="operator">+</span> <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">WITH</span> CTE <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> </span><br><span class="line">        <span class="keyword">YEAR</span>(OrderSlaveFlow_CreatedDateTime) <span class="keyword">AS</span> Y,</span><br><span class="line">        <span class="keyword">MONTH</span>(OrderSlaveFlow_CreatedDateTime) <span class="keyword">AS</span> MON,</span><br><span class="line">        DATEDIFF(<span class="keyword">DAY</span>, OrderSlaveFlow_CreatedDateTime, OrderSlaveFlow_ShippingOrderSlaveDateTime) <span class="keyword">AS</span> timespentforShipping</span><br><span class="line">    <span class="keyword">FROM</span> #FlowTemp</span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    Y, MON,</span><br><span class="line">    <span class="built_in">AVG</span>(timespentforShipping) <span class="keyword">AS</span> 平均出貨時間</span><br><span class="line"><span class="keyword">FROM</span> CTE</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> Y, MON;</span><br></pre></td></tr></table></figure></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/09/DeepType-SQL-Thinking-Datetime-Flow/">https://allenlin000.github.io.git/2025/10/09/DeepType-SQL-Thinking-Datetime-Flow/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/SQL-%E8%81%B7%E5%A0%B4%E6%AD%B7%E9%9A%AA%E8%A8%98/">SQL 職場歷險記</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/NfCnwwU.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/09/SQL-string/" title="SQL - 文字列の森"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">SQL - 文字列の森</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/10/EFCORE-%E9%97%9C%E8%81%AF%E8%BC%89%E5%85%A5%E7%9A%84%E6%B5%B7%E6%B5%81/" title="EFCORE - 關聯載入的海流"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">EFCORE - 關聯載入的海流</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/10/15/SQL-Performance-1/" title="Performance"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-15</div><div class="title">Performance</div></div></a></div><div><a href="/2025/10/26/SQL-SQL-%E6%99%82%E9%96%932/" title="SQL - 時の雫"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-26</div><div class="title">SQL - 時の雫</div></div></a></div><div><a href="/2025/10/15/SQL-%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F/" title="執行順序"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-15</div><div class="title">執行順序</div></div></a></div><div><a href="/2025/10/09/SQL-string/" title="SQL - 文字列の森"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-09</div><div class="title">SQL - 文字列の森</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">213</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">24</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9D%8C"><span class="toc-number">1.</span> <span class="toc-text">❌</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85"><span class="toc-number">2.</span> <span class="toc-text">✅</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%88%E6%8A%BD%E9%9B%A2%E3%80%8C%E4%BD%A0%E7%9C%9F%E6%AD%A3%E8%A6%81%E5%81%9A%E7%9A%84%E4%BA%8B%E3%80%8D"><span class="toc-number">3.</span> <span class="toc-text">先抽離「你真正要做的事」</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BE%A8%E8%AD%98%E3%80%8C%E5%93%AA%E4%BA%9B%E6%98%AF%E5%9B%BA%E5%AE%9A%E7%9A%84%EF%BC%8C%E5%93%AA%E4%BA%9B%E6%98%AF%E6%9C%83%E8%AE%8A%E7%9A%84%E3%80%8D"><span class="toc-number">4.</span> <span class="toc-text">辨識「哪些是固定的，哪些是會變的」</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%8A%E3%80%8C%E6%9C%83%E8%AE%8A%E7%9A%84%E6%9D%B1%E8%A5%BF%E3%80%8D%E6%8A%BD%E6%88%90%E5%8F%83%E6%95%B8"><span class="toc-number">5.</span> <span class="toc-text">把「會變的東西」抽成參數</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%82%8F%E8%BC%AF%E8%A8%AD%E8%A8%88"><span class="toc-number">6.</span> <span class="toc-text">邏輯設計</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E3%80%8C%E6%88%91%E6%83%B3%E7%9F%A5%E9%81%93%E3%80%8E%E4%BB%8A%E5%B9%B4%E3%80%8F%E6%AF%8F%E4%B8%80%E5%80%8B%E6%9C%88%E5%AF%A6%E9%9A%9B%E6%94%B6%E5%88%B0%E5%A4%9A%E5%B0%91%E8%A8%82%E5%96%AE%E9%87%91%E9%A1%8D%EF%BC%8C%E7%94%A8%E4%BE%86%E5%81%9A%E7%87%9F%E9%81%8B%E5%88%86%E6%9E%90%E8%88%87%E6%B1%BA%E7%AD%96%E3%80%82%E3%80%8D-%E2%9D%8C"><span class="toc-number">7.</span> <span class="toc-text">「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」 ❌</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E3%80%8C%E6%88%91%E6%83%B3%E7%9F%A5%E9%81%93%E3%80%8E%E4%BB%8A%E5%B9%B4%E3%80%8F%E6%AF%8F%E4%B8%80%E5%80%8B%E6%9C%88%E5%AF%A6%E9%9A%9B%E6%94%B6%E5%88%B0%E5%A4%9A%E5%B0%91%E8%A8%82%E5%96%AE%E9%87%91%E9%A1%8D%EF%BC%8C%E7%94%A8%E4%BE%86%E5%81%9A%E7%87%9F%E9%81%8B%E5%88%86%E6%9E%90%E8%88%87%E6%B1%BA%E7%AD%96%E3%80%82%E3%80%8D-%E2%9C%85"><span class="toc-number">8.</span> <span class="toc-text">「我想知道『今年』每一個月實際收到多少訂單金額，用來做營運分析與決策。」 ✅</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E3%80%8C%E4%BB%8A%E5%B9%B4%E6%AF%8F%E5%80%8B%E6%9C%88%EF%BC%8C%E5%B9%B3%E5%9D%87%E4%B8%80%E7%AD%86%E8%A8%82%E5%96%AE%E5%BE%9E%E3%80%8E%E5%BB%BA%E7%AB%8B%E3%80%8F%E5%88%B0%E3%80%8E%E5%AF%A6%E9%9A%9B%E5%87%BA%E8%B2%A8%E3%80%8F%E8%A6%81%E8%8A%B1%E5%B9%BE%E5%A4%A9%EF%BC%9F%E3%80%8D-%E2%9C%85"><span class="toc-number">9.</span> <span class="toc-text">「今年每個月，平均一筆訂單從『建立』到『實際出貨』要花幾天？」 ✅</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/12/10/DeepType-SQL-Thinking-Pre-filtering-Post-filtering/" title="Pre-filtering vs. Post-filtering"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Pre-filtering vs. Post-filtering"/></a><div class="content"><a class="title" href="/2025/12/10/DeepType-SQL-Thinking-Pre-filtering-Post-filtering/" title="Pre-filtering vs. Post-filtering">Pre-filtering vs. Post-filtering</a><time datetime="2025-12-10T00:13:34.000Z" title="Created 2025-12-10 08:13:34">2025-12-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/12/06/DeepType-SQL-Thinking-IsolationLevel-1/" title="ReadUncommitted and SnapShot"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ReadUncommitted and SnapShot"/></a><div class="content"><a class="title" href="/2025/12/06/DeepType-SQL-Thinking-IsolationLevel-1/" title="ReadUncommitted and SnapShot">ReadUncommitted and SnapShot</a><time datetime="2025-12-05T16:09:34.000Z" title="Created 2025-12-06 00:09:34">2025-12-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/Async-HOT-TASK/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/30/Async-HOT-TASK/" title="Untitled">Untitled</a><time datetime="2025-11-30T02:13:31.164Z" title="Created 2025-11-30 10:13:31">2025-11-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/IO-AWS-S3/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/30/IO-AWS-S3/" title="Untitled">Untitled</a><time datetime="2025-11-30T02:03:10.445Z" title="Created 2025-11-30 10:03:10">2025-11-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/29/CSHARP-NEW-STRING/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/29/CSHARP-NEW-STRING/" title="Untitled">Untitled</a><time datetime="2025-11-29T08:18:53.683Z" title="Created 2025-11-29 16:18:53">2025-11-29</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
