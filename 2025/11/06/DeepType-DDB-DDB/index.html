@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>DynamoDB | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="🍊 w&#x2F;rcuWCU (Write Capacity Unit)：寫入容量單位RCU (Read Capacity Unit)：讀取容量單位 在 Amazon DynamoDB 裡，每一次「讀寫」資料都會消耗一定的「容量單位 (capacity units)」，可以這樣理解    類型 代表什麼 簡單例子    RCU 每秒能處理多少次「讀取」 1 RCU ≈ 每秒可以讀一筆 4KB">
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>DynamoDB 基礎概念 - 分散的藝術 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="故事：圖書館的智慧📘 RCU &amp; WCU：圖書館的服務能量☁️ Serverless：你不用管伺服器🚦 Throttling：被限流了怎麼辦🔑 Partition Key：資料的身分證 想像一座巨大的圖書館，每天有成千上萬的人來借還書。 傳統的圖書館只有一個櫃檯，所有人都要排隊等候同一個館員處理。高峰時段，隊伍排得很長，有人只是想借一本輕小說，卻要等前面的人處理完十幾本厚重的專業書籍。 聰明">
 <meta property="og:type" content="article">
-<meta property="og:title" content="DynamoDB">
+<meta property="og:title" content="DynamoDB 基礎概念 - 分散的藝術">
 <meta property="og:url" content="https://allenlin000.github.io.git/2025/11/06/DeepType-DDB-DDB/">
 <meta property="og:site_name" content="平屋慢生活">
-<meta property="og:description" content="🍊 w&#x2F;rcuWCU (Write Capacity Unit)：寫入容量單位RCU (Read Capacity Unit)：讀取容量單位 在 Amazon DynamoDB 裡，每一次「讀寫」資料都會消耗一定的「容量單位 (capacity units)」，可以這樣理解    類型 代表什麼 簡單例子    RCU 每秒能處理多少次「讀取」 1 RCU ≈ 每秒可以讀一筆 4KB">
+<meta property="og:description" content="故事：圖書館的智慧📘 RCU &amp; WCU：圖書館的服務能量☁️ Serverless：你不用管伺服器🚦 Throttling：被限流了怎麼辦🔑 Partition Key：資料的身分證 想像一座巨大的圖書館，每天有成千上萬的人來借還書。 傳統的圖書館只有一個櫃檯，所有人都要排隊等候同一個館員處理。高峰時段，隊伍排得很長，有人只是想借一本輕小說，卻要等前面的人處理完十幾本厚重的專業書籍。 聰明">
 <meta property="og:locale">
 <meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true">
 <meta property="article:published_time" content="2025-11-06T09:54:05.000Z">
-<meta property="article:modified_time" content="2025-12-19T23:16:50.590Z">
+<meta property="article:modified_time" content="2025-12-20T02:57:03.401Z">
 <meta property="article:author" content="Allen">
 <meta property="article:tag" content="noSQL">
 <meta name="twitter:card" content="summary">
@@ -51,12 +51,12 @@
   },
   autoDarkmode: false
 }</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'DynamoDB',
+  title: 'DynamoDB 基礎概念 - 分散的藝術',
   isPost: true,
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2025-12-20 07:16:50'
+  postUpdate: '2025-12-20 10:57:03'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -153,56 +153,180 @@
         }
       }
       detectApple()
-    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">215</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">24</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">DynamoDB</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-06T09:54:05.000Z" title="Created 2025-11-06 17:54:05">2025-11-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-12-19T23:16:50.590Z" title="Updated 2025-12-20 07:16:50">2025-12-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/noSQL/">noSQL</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="DynamoDB"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="🍊-w-rcu"><a href="#🍊-w-rcu" class="headerlink" title="🍊 w&#x2F;rcu"></a>🍊 w&#x2F;rcu</h2><p><code>WCU (Write Capacity Unit)</code>：寫入容量單位<br><code>RCU (Read Capacity Unit)</code>：讀取容量單位</p>
-<p>在 Amazon DynamoDB 裡，每一次「讀寫」資料都會消耗一定的「容量單位 (capacity units)」，可以這樣理解</p>
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">215</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">24</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">DynamoDB 基礎概念 - 分散的藝術</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-06T09:54:05.000Z" title="Created 2025-11-06 17:54:05">2025-11-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-12-20T02:57:03.401Z" title="Updated 2025-12-20 10:57:03">2025-12-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/noSQL/">noSQL</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="DynamoDB 基礎概念 - 分散的藝術"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="dynamodb-基礎概念"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="dynamodb-基礎概念-1">故事：圖書館的智慧</button><button type="button" class="tab " data-href="dynamodb-基礎概念-2">📘 RCU & WCU：圖書館的服務能量</button><button type="button" class="tab " data-href="dynamodb-基礎概念-3">☁️ Serverless：你不用管伺服器</button><button type="button" class="tab " data-href="dynamodb-基礎概念-4">🚦 Throttling：被限流了怎麼辦</button><button type="button" class="tab " data-href="dynamodb-基礎概念-5">🔑 Partition Key：資料的身分證</button></ul><div class="tab-contents"><div class="tab-item-content active" id="dynamodb-基礎概念-1"><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/woodhouse.png" alt="library"></p>
+<p>想像一座巨大的圖書館，每天有成千上萬的人來借還書。</p>
+<p>傳統的圖書館只有一個櫃檯，所有人都要排隊等候同一個館員處理。高峰時段，隊伍排得很長，有人只是想借一本輕小說，卻要等前面的人處理完十幾本厚重的專業書籍。</p>
+<p>聰明的館長決定改革：</p>
+<ol>
+<li><strong>把圖書館分成多個區域</strong>（Partition）：小說區、科技區、藝術區…每個區都有獨立的櫃檯</li>
+<li><strong>每本書都有明確的歸屬</strong>（Partition Key）：根據書的類別編號，自動知道該去哪個櫃檯</li>
+<li><strong>每個櫃檯都能獨立工作</strong>（分散式處理）：不會因為科技區很忙，就影響到小說區的借書速度</li>
+</ol>
+<p>這就是 DynamoDB 的核心思想：<strong>不要讓所有人擠在同一個地方，把壓力分散開來，每個人都能快速得到服務。</strong></p>
+<p>當某個區域（partition）突然湧入大量讀者，館長不需要叫所有館員都跑去幫忙，只要在那個區域增加一個臨時櫃檯就好。這就是 <strong>Serverless</strong> 和 <strong>Auto Scaling</strong> 的概念。</p>
+<p>但如果所有人都只想借《哈利波特》（Hot Key），即使有再多櫃檯也沒用，因為那本書只有一本。這時候館長會怎麼做？買更多複本、設定借閱冷卻時間（Throttling），或是引導讀者去借其他類似的書。</p></div><div class="tab-item-content" id="dynamodb-基礎概念-2"><h2 id="🔢-容量單位的本質"><a href="#🔢-容量單位的本質" class="headerlink" title="🔢 容量單位的本質"></a>🔢 容量單位的本質</h2><p>在 DynamoDB 的世界裡，每一次操作都會消耗「能量」，這個能量就是容量單位。</p>
+<h4 id="📖-RCU-Read-Capacity-Unit"><a href="#📖-RCU-Read-Capacity-Unit" class="headerlink" title="📖 RCU (Read Capacity Unit)"></a>📖 RCU (Read Capacity Unit)</h4><p><strong>RCU &#x3D; 讀取容量單位</strong>，代表「每秒能處理多少次讀取」</p>
 <table>
 <thead>
 <tr>
-<th>類型</th>
-<th>代表什麼</th>
-<th>簡單例子</th>
+<th>讀取類型</th>
+<th>1 RCU 可以讀取的資料量</th>
+<th>適用情境</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>RCU</strong></td>
-<td>每秒能處理多少次「讀取」</td>
-<td>1 RCU ≈ 每秒可以讀一筆 4KB 的資料</td>
+<td><strong>強一致性讀取</strong></td>
+<td>4 KB</td>
+<td>需要立即看到最新資料（如：付款後立即查詢餘額）</td>
 </tr>
 <tr>
-<td><strong>WCU</strong></td>
-<td>每秒能處理多少次「寫入」</td>
-<td>1 WCU ≈ 每秒可以寫一筆 1KB 的資料</td>
+<td><strong>最終一致性讀取</strong></td>
+<td>8 KB</td>
+<td>可以接受短暫延遲（如：瀏覽商品列表）</td>
 </tr>
 </tbody></table>
-<p>所以「monitor w&#x2F;rcu」的意思是：監控 DynamoDB 的讀寫容量使用情況，如果太高，就代表你的應用在短時間內讀寫太多資料</p>
 <br>
 <br>
 
-<h2 id="🍊-DynamoDB-是-Serverless"><a href="#🍊-DynamoDB-是-Serverless" class="headerlink" title="🍊 DynamoDB 是 Serverless"></a>🍊 <code>DynamoDB</code> 是 <code>Serverless</code></h2><p><code>Serverless</code> 意思是：你不需要自己管理伺服器（例如開機、CPU、RAM、網路、磁碟空間、升級、安全修補… 等），AWS 幫你全包辦<br>以 DynamoDB 為例：</p>
+<h4 id="實際案例計算"><a href="#實際案例計算" class="headerlink" title="實際案例計算"></a>實際案例計算</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">情境：電商網站的商品瀏覽</span><br><span class="line"></span><br><span class="line">假設：</span><br><span class="line">- 每個商品資訊 = 2 KB</span><br><span class="line">- 每秒 1000 個使用者在瀏覽商品</span><br><span class="line">- 使用最終一致性讀取（省一半 RCU）</span><br><span class="line"></span><br><span class="line">計算：</span><br><span class="line">1. 每次讀取需要 RCU = 2 KB ÷ 8 KB = 0.25 RCU（向上取整 = 1 RCU）</span><br><span class="line">2. 每秒需要的總 RCU = 1000 次讀取 × 0.25 RCU = 250 RCU</span><br><span class="line"></span><br><span class="line">如果改用強一致性讀取：</span><br><span class="line">1. 每次讀取需要 RCU = 2 KB ÷ 4 KB = 0.5 RCU（向上取整 = 1 RCU）</span><br><span class="line">2. 每秒需要的總 RCU = 1000 次讀取 × 0.5 RCU = 500 RCU</span><br><span class="line"></span><br><span class="line">結論：使用最終一致性讀取可以省一半的 RCU！</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h4 id="✍️-WCU-Write-Capacity-Unit"><a href="#✍️-WCU-Write-Capacity-Unit" class="headerlink" title="✍️ WCU (Write Capacity Unit)"></a>✍️ WCU (Write Capacity Unit)</h4><p><strong>WCU &#x3D; 寫入容量單位</strong>，代表「每秒能處理多少次寫入」</p>
+<table>
+<thead>
+<tr>
+<th>操作類型</th>
+<th>1 WCU 可以寫入的資料量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>標準寫入</strong></td>
+<td>1 KB</td>
+</tr>
+<tr>
+<td><strong>交易寫入</strong></td>
+<td>1 KB（但消耗 2 倍 WCU）</td>
+</tr>
+</tbody></table>
+<br>
+<br>
+
+<h4 id="實際案例計算-1"><a href="#實際案例計算-1" class="headerlink" title="實際案例計算"></a>實際案例計算</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">情境：促銷活動的訂單寫入</span><br><span class="line"></span><br><span class="line">假設：</span><br><span class="line">- 每筆訂單資料 = 3 KB</span><br><span class="line">- 促銷期間每秒產生 500 筆訂單</span><br><span class="line"></span><br><span class="line">計算：</span><br><span class="line">1. 每筆訂單需要 WCU = 3 KB ÷ 1 KB = 3 WCU</span><br><span class="line">2. 每秒需要的總 WCU = 500 筆 × 3 WCU = 1500 WCU</span><br><span class="line"></span><br><span class="line">如果需要交易寫入（確保強一致性）：</span><br><span class="line">1. 每筆訂單需要 WCU = 3 × 2 = 6 WCU</span><br><span class="line">2. 每秒需要的總 WCU = 500 筆 × 6 WCU = 3000 WCU</span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="dynamodb-基礎概念-3"><p><strong>Serverless ≠ 沒有伺服器</strong>  而是 <strong>你不需要管理伺服器</strong></p>
+<div style="display: flex; gap: 40px;"><div>
+
+<p><strong>傳統 MySQL&#x2F;PostgreSQL</strong></p>
+<p>你需要處理：</p>
 <ul>
-<li>你不需要建 EC2 或 Redis Cluster</li>
-<li>不用管 CPU、記憶體爆掉</li>
-<li>不需要設定自動擴展</li>
-<li>DynamoDB 會根據流量自動擴展容量</li>
+<li>❌ 選擇 EC2 規格（CPU、RAM）</li>
+<li>❌ 設定磁碟空間</li>
+<li>❌ 安裝資料庫軟體</li>
+<li>❌ 設定備份機制</li>
+<li>❌ 監控 CPU&#x2F;記憶體使用率</li>
+<li>❌ 手動擴容（停機風險）</li>
+<li>❌ 作業系統安全修補</li>
+<li>❌ 資料庫版本升級</li>
 </ul>
-<p>你只要「設定表格」跟「定價模式（<code>On-Demand</code> 或 <code>Provisioned</code>）」就可以用了，也就是說，它會根據你的使用量自動調整效能，這就是 Serverless 的精神</p>
+</div>
+<div>
+
+<p><strong>DynamoDB (Serverless)</strong></p>
+<p>AWS 幫你處理一切：</p>
+<ul>
+<li>✅ 自動分配計算資源</li>
+<li>✅ 自動擴展儲存空間</li>
+<li>✅ 自動備份與復原</li>
+<li>✅ 自動監控與警報</li>
+<li>✅ 無需停機擴容</li>
+<li>✅ 自動安全修補</li>
+<li>✅ 零維護成本</li>
+</ul>
+</div>
+</div>
+
+<h4 id="活動促銷系統"><a href="#活動促銷系統" class="headerlink" title="活動促銷系統"></a>活動促銷系統</h4><p>雙11大促銷，流量從平時的 100 QPS 暴增到 10,000 QPS</p>
+<p><strong>RDS</strong></p>
+<p>&#x2F;&#x2F; 1. 需要提前一週準備擴容計畫<br>&#x2F;&#x2F; 2. 活動前一天晚上停機擴容（風險高）<br>&#x2F;&#x2F; 3. 活動結束後，資源閒置但仍需付費<br>&#x2F;&#x2F; 4. 如果預估錯誤，可能當機或資源浪費</p>
+<ul>
+<li>EC2 r5.2xlarge (8 vCPU, 64 GB RAM): $0.504&#x2F;小時</li>
+<li>每月成本 &#x3D; $0.504 × 24 × 30 &#x3D; $362.88</li>
+<li>儲存空間 1 TB SSD: $115&#x2F;月</li>
+<li>備份與快照: $50&#x2F;月</li>
+<li>總計: ~$528&#x2F;月（固定成本，無論流量多少）</li>
+</ul>
+<p><strong>DynamoDB</strong></p>
+<p>完全不需要擔心容量，DynamoDB 自動根據流量擴容，流量自動分散到多個 partition</p>
+<p>DynamoDB (On-Demand)：</p>
+<ul>
+<li><p>平常流量（低峰）:</p>
+<ul>
+<li>每月 100 萬次讀取 × $0.25&#x2F;百萬 &#x3D; $0.25</li>
+<li>每月 50 萬次寫入 × $1.25&#x2F;百萬 &#x3D; $0.625</li>
+<li>儲存 100 GB × $0.25&#x2F;GB &#x3D; $25</li>
+<li>總計: ~$26&#x2F;月</li>
+</ul>
+</li>
+<li><p>促銷高峰（一個月 3 天）:</p>
+<ul>
+<li>峰值期間成本 ~$150</li>
+<li>其他時間成本 ~$26</li>
+<li>總計: ~$176&#x2F;月</li>
+</ul>
+</li>
+</ul></div><div class="tab-item-content" id="dynamodb-基礎概念-4"><h4 id="Throttling-節流-被拒絕服務"><a href="#Throttling-節流-被拒絕服務" class="headerlink" title="Throttling &#x3D; 節流 &#x3D; 被拒絕服務"></a>Throttling &#x3D; 節流 &#x3D; 被拒絕服務</h4><p>當你的請求超過 DynamoDB 的容量限制時，AWS 會暫時拒絕你的請求，並回傳錯誤：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ProvisionedThroughputExceededException: </span><br><span class="line">You exceeded your maximum allowed provisioned throughput for a table or for one or more global secondary indexes.</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>說明</th>
+<th>範例情境</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>容量不足</strong></td>
+<td>Provisioned 模式下 WCU&#x2F;RCU 設定太低</td>
+<td>促銷活動流量暴增，但只設定 100 WCU</td>
+</tr>
+<tr>
+<td><strong>Hot Partition</strong></td>
+<td>大量請求集中在同一個 Partition Key</td>
+<td>所有使用者都在搶同一個限量商品</td>
+</tr>
+<tr>
+<td><strong>Burst Capacity 耗盡</strong></td>
+<td>短時間內突發流量過大</td>
+<td>秒殺活動開始的瞬間</td>
+</tr>
+<tr>
+<td><strong>GSI 容量不足</strong></td>
+<td>Global Secondary Index 的容量比主表低</td>
+<td>主表夠用，但查詢 GSI 被限流</td>
+</tr>
+</tbody></table>
 <br>
 <br>
 
-<h2 id="🍊-Throttling（節流）"><a href="#🍊-Throttling（節流）" class="headerlink" title="🍊 Throttling（節流）"></a>🍊 <code>Throttling</code>（節流）</h2><p><code>Throttling</code> 指的是「被限流」，也就是當你對 DynamoDB 發出太多讀寫請求，超過它的容量（RCU&#x2F;WCU），DynamoDB 會暫時拒絕或延遲某些請求</p>
-<p>它不會讓資料「壞掉」或「消失」，只是讓你有些請求「被延遲」或「被拒絕」，你需要重試（retry）</p>
+<ul>
+<li>使用 Exponential Backoff 重試</li>
+<li>避免 Hot Partition</li>
+<li>使用 DynamoDB Accelerator (DAX,  DynamoDB 的記憶體快取)</li>
+</ul></div><div class="tab-item-content" id="dynamodb-基礎概念-5"><p><strong>Partition Key &#x3D; 決定資料存放位置的關鍵</strong></p>
+<p>在 DynamoDB 中，每筆資料都必須有一個 Partition Key（也叫 Hash Key），這個 Key 決定了：</p>
+<ol>
+<li>資料會被存在哪個 partition</li>
+<li>查詢時如何快速定位資料</li>
+<li>流量如何分散</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">你的 Table</span><br><span class="line">    ↓</span><br><span class="line">【Partition 1】  【Partition 2】  【Partition 3】  【Partition 4】</span><br><span class="line"> UserId: 001      UserId: 002      UserId: 003      UserId: 004</span><br><span class="line"> UserId: 005      UserId: 006      UserId: 007      UserId: 008</span><br><span class="line"> UserId: 009      UserId: 010      UserId: 011      UserId: 012</span><br><span class="line">    ↓                ↓                ↓                ↓</span><br><span class="line"> 不同的實體機器    不同的實體機器    不同的實體機器    不同的實體機器</span><br></pre></td></tr></table></figure>
+
+<p>DynamoDB對 Partition Key 做 Hash、將 Hash 值轉換成數字、模除 partition 總數，得到目標 </p>
 <br>
 <br>
 
-<h2 id="🍊-Partition-Key"><a href="#🍊-Partition-Key" class="headerlink" title="🍊 Partition Key"></a>🍊 <code>Partition Key</code></h2><p><code>Partition Key</code> 是 DynamoDB 資料表（Table）的主要索引欄位之一，用來決定<strong>這筆資料會被存在哪一個分區（partition）</strong> 裡，DynamoDB 把你的資料表切成很多「資料櫃」（partition），每筆資料會根據 <code>Partition Key</code> 的值，被平均分配到不同櫃子裡</p>
-<br>
-<br>
-
-<h2 id="🍊-為什麼要有-Partition-Key"><a href="#🍊-為什麼要有-Partition-Key" class="headerlink" title="🍊 為什麼要有 Partition Key"></a>🍊 為什麼要有 <code>Partition Key</code></h2><p>因為 <code>DynamoDB</code> 是為了高併發、分散式存取設計的資料庫，不同的 partition 可以同時處理請求，互不影響，Partition Key 的分佈越平均，DynamoDB 的效能越穩定，Partition Key 如果設計不好（例如大家都用同一個值），DynamoDB 會集中讀寫到單一 partition → 效能變差甚至 throttling</p>
-<br>
-<br>
-
-<h2 id="🍊-什麼叫「設計好的-Partition-Key」"><a href="#🍊-什麼叫「設計好的-Partition-Key」" class="headerlink" title="🍊 什麼叫「設計好的 Partition Key」"></a>🍊 什麼叫「設計好的 Partition Key」</h2><table>
+<h4 id="✅-好的-Partition-Key"><a href="#✅-好的-Partition-Key" class="headerlink" title="✅ 好的 Partition Key"></a>✅ 好的 Partition Key</h4><table>
 <thead>
 <tr>
 <th>原則</th>
@@ -211,22 +335,25 @@
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>分佈平均</strong></td>
-<td>不同資料的 Key 值應該平均分散，避免集中在同一個 partition</td>
-<td>❌ 用「固定字串」當 key<br>✅ 用「使用者ID」、「訂單編號」、「裝置ID」等</td>
+<td><strong>高基數（High Cardinality）</strong></td>
+<td>有很多不同的值</td>
+<td>✅ UserId (百萬個不同值)<br>❌ Status (只有 3 個值：Active&#x2F;Inactive&#x2F;Deleted)</td>
 </tr>
 <tr>
-<td><strong>查詢方便</strong></td>
-<td>你最常查的條件，應該就是 Partition Key</td>
-<td>例如常查「依使用者ID 查訂單」，那 Partition Key 就應該是 <code>UserId</code></td>
+<td><strong>均勻分佈</strong></td>
+<td>存取頻率平均</td>
+<td>✅ OrderId (每筆訂單都不同)<br>❌ Date (今天的訂單都集中在同一天)</td>
 </tr>
 <tr>
-<td><strong>避免熱點（hot partition）</strong></td>
-<td>不要讓太多請求打在同一個 key 上</td>
-<td>❌ 用「today」當 key，所有人都寫入今天的資料會變成瓶頸</td>
+<td><strong>符合查詢模式</strong></td>
+<td>你最常用的查詢欄位</td>
+<td>✅ 如果常查「某使用者的訂單」→ UserId 當 PK<br>❌ 如果常查「某時間區間的訂單」→ UserId 不適合</td>
 </tr>
 </tbody></table>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/11/06/DeepType-DDB-DDB/">https://allenlin000.github.io.git/2025/11/06/DeepType-DDB-DDB/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/noSQL/">noSQL</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/11/06/DeepType-DDB-DDB2/" title="DynamoDB - 讓流量走散，是最溫柔的防禦"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">DynamoDB - 讓流量走散，是最溫柔的防禦</div></div></a></div><div class="next-post pull-right"><a href="/2025/11/08/DeepType-CPU-CPU-DB/" title="CPU"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Server/cat.jpg?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">CPU</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/11/06/DeepType-DDB-DDB2/" title="DynamoDB - 讓流量走散，是最溫柔的防禦"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-06</div><div class="title">DynamoDB - 讓流量走散，是最溫柔的防禦</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">215</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">24</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-w-rcu"><span class="toc-number">1.</span> <span class="toc-text">🍊 w&#x2F;rcu</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-DynamoDB-%E6%98%AF-Serverless"><span class="toc-number">2.</span> <span class="toc-text">🍊 DynamoDB 是 Serverless</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-Throttling%EF%BC%88%E7%AF%80%E6%B5%81%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">🍊 Throttling（節流）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-Partition-Key"><span class="toc-number">4.</span> <span class="toc-text">🍊 Partition Key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-%E7%82%BA%E4%BB%80%E9%BA%BC%E8%A6%81%E6%9C%89-Partition-Key"><span class="toc-number">5.</span> <span class="toc-text">🍊 為什麼要有 Partition Key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8D%8A-%E4%BB%80%E9%BA%BC%E5%8F%AB%E3%80%8C%E8%A8%AD%E8%A8%88%E5%A5%BD%E7%9A%84-Partition-Key%E3%80%8D"><span class="toc-number">6.</span> <span class="toc-text">🍊 什麼叫「設計好的 Partition Key」</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/12/14/%E8%B3%87%E5%AE%89-fe/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/12/14/%E8%B3%87%E5%AE%89-fe/" title="Untitled">Untitled</a><time datetime="2025-12-14T07:03:50.572Z" title="Created 2025-12-14 15:03:50">2025-12-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/12/10/DeepType-SQL-Thinking-Pre-filtering-Post-filtering/" title="Pre-filtering vs. Post-filtering"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Pre-filtering vs. Post-filtering"/></a><div class="content"><a class="title" href="/2025/12/10/DeepType-SQL-Thinking-Pre-filtering-Post-filtering/" title="Pre-filtering vs. Post-filtering">Pre-filtering vs. Post-filtering</a><time datetime="2025-12-10T00:13:34.000Z" title="Created 2025-12-10 08:13:34">2025-12-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/12/06/DeepType-SQL-Thinking-IsolationLevel-1/" title="ReadUncommitted and SnapShot"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ReadUncommitted and SnapShot"/></a><div class="content"><a class="title" href="/2025/12/06/DeepType-SQL-Thinking-IsolationLevel-1/" title="ReadUncommitted and SnapShot">ReadUncommitted and SnapShot</a><time datetime="2025-12-05T16:09:34.000Z" title="Created 2025-12-06 00:09:34">2025-12-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/Async-HOT-TASK/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/30/Async-HOT-TASK/" title="Untitled">Untitled</a><time datetime="2025-11-30T02:13:31.164Z" title="Created 2025-11-30 10:13:31">2025-11-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/IO-AWS-S3/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/30/IO-AWS-S3/" title="Untitled">Untitled</a><time datetime="2025-11-30T02:03:10.445Z" title="Created 2025-11-30 10:03:10">2025-11-30</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+<br>
+<br>
+
+<h4 id="❌-糟糕的-Partition-Key-範例"><a href="#❌-糟糕的-Partition-Key-範例" class="headerlink" title="❌ 糟糕的 Partition Key 範例"></a>❌ 糟糕的 Partition Key 範例</h4><p>使用固定值，所有資料都有相同的 Partition Key，後果是所有資料都擠在同一個 partition，完全無法發揮 DynamoDB 的分散式優勢</p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/11/06/DeepType-DDB-DDB/">https://allenlin000.github.io.git/2025/11/06/DeepType-DDB-DDB/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/noSQL/">noSQL</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/11/06/DeepType-DDB-DynamoDB-%E8%AE%93%E6%B5%81%E9%87%8F%E8%B5%B0%E6%95%A3%EF%BC%8C%E6%98%AF%E6%9C%80%E6%BA%AB%E6%9F%94%E7%9A%84%E9%98%B2%E7%A6%A6/" title="DynamoDB - 讓流量走散，是最溫柔的防禦"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">DynamoDB - 讓流量走散，是最溫柔的防禦</div></div></a></div><div class="next-post pull-right"><a href="/2025/11/08/DeepType-CPU-CPU-DB/" title="CPU"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Server/cat.jpg?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">CPU</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/11/06/DeepType-DDB-DynamoDB-%E8%AE%93%E6%B5%81%E9%87%8F%E8%B5%B0%E6%95%A3%EF%BC%8C%E6%98%AF%E6%9C%80%E6%BA%AB%E6%9F%94%E7%9A%84%E9%98%B2%E7%A6%A6/" title="DynamoDB - 讓流量走散，是最溫柔的防禦"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/noSQL/tags.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-06</div><div class="title">DynamoDB - 讓流量走散，是最溫柔的防禦</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">215</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">24</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%A2-%E5%AE%B9%E9%87%8F%E5%96%AE%E4%BD%8D%E7%9A%84%E6%9C%AC%E8%B3%AA"><span class="toc-number">1.</span> <span class="toc-text">🔢 容量單位的本質</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%93%96-RCU-Read-Capacity-Unit"><span class="toc-number">1.0.1.</span> <span class="toc-text">📖 RCU (Read Capacity Unit)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%A6%E9%9A%9B%E6%A1%88%E4%BE%8B%E8%A8%88%E7%AE%97"><span class="toc-number">1.0.2.</span> <span class="toc-text">實際案例計算</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%8D%EF%B8%8F-WCU-Write-Capacity-Unit"><span class="toc-number">1.0.3.</span> <span class="toc-text">✍️ WCU (Write Capacity Unit)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%A6%E9%9A%9B%E6%A1%88%E4%BE%8B%E8%A8%88%E7%AE%97-1"><span class="toc-number">1.0.4.</span> <span class="toc-text">實際案例計算</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B4%BB%E5%8B%95%E4%BF%83%E9%8A%B7%E7%B3%BB%E7%B5%B1"><span class="toc-number">1.0.5.</span> <span class="toc-text">活動促銷系統</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Throttling-%E7%AF%80%E6%B5%81-%E8%A2%AB%E6%8B%92%E7%B5%95%E6%9C%8D%E5%8B%99"><span class="toc-number">1.0.6.</span> <span class="toc-text">Throttling &#x3D; 節流 &#x3D; 被拒絕服務</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E5%A5%BD%E7%9A%84-Partition-Key"><span class="toc-number">1.0.7.</span> <span class="toc-text">✅ 好的 Partition Key</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9D%8C-%E7%B3%9F%E7%B3%95%E7%9A%84-Partition-Key-%E7%AF%84%E4%BE%8B"><span class="toc-number">1.0.8.</span> <span class="toc-text">❌ 糟糕的 Partition Key 範例</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/12/14/%E8%B3%87%E5%AE%89-fe/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/12/14/%E8%B3%87%E5%AE%89-fe/" title="Untitled">Untitled</a><time datetime="2025-12-14T07:03:50.572Z" title="Created 2025-12-14 15:03:50">2025-12-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/12/10/DeepType-SQL-Thinking-Pre-filtering-Post-filtering/" title="Pre-filtering vs. Post-filtering"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Pre-filtering vs. Post-filtering"/></a><div class="content"><a class="title" href="/2025/12/10/DeepType-SQL-Thinking-Pre-filtering-Post-filtering/" title="Pre-filtering vs. Post-filtering">Pre-filtering vs. Post-filtering</a><time datetime="2025-12-10T00:13:34.000Z" title="Created 2025-12-10 08:13:34">2025-12-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/12/06/DeepType-SQL-Thinking-IsolationLevel-1/" title="ReadUncommitted and SnapShot"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ReadUncommitted and SnapShot"/></a><div class="content"><a class="title" href="/2025/12/06/DeepType-SQL-Thinking-IsolationLevel-1/" title="ReadUncommitted and SnapShot">ReadUncommitted and SnapShot</a><time datetime="2025-12-05T16:09:34.000Z" title="Created 2025-12-06 00:09:34">2025-12-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/Async-HOT-TASK/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/30/Async-HOT-TASK/" title="Untitled">Untitled</a><time datetime="2025-11-30T02:13:31.164Z" title="Created 2025-11-30 10:13:31">2025-11-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/IO-AWS-S3/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/11/30/IO-AWS-S3/" title="Untitled">Untitled</a><time datetime="2025-11-30T02:03:10.445Z" title="Created 2025-11-30 10:03:10">2025-11-30</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
   const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
   if ($mermaid.length === 0) return
   const runMermaid = () => {
