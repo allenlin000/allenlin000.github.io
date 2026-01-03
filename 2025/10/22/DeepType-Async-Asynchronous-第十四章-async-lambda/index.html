@@ -1,0 +1,218 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Asynchronous Programming - 第十四章 :async lambda | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="LINQ ForEach() 與 async &#x2F; await  問題的起點 — async lambda 與 Fire-and-Forget 陷阱問題的起點 — async lambda 與 Fire-and-Forget 陷阱解法 1：簡單但不平行解法 2：真正的非同步 + 平行執行LINQ 的 Select 不會「馬上執行」完整的 Code新的一年，動力滿格，誓言要變成更好的自己，我們開始報名">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Asynchronous Programming - 第十四章 :async lambda">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/22/DeepType-Async-Asynchronous-%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0-async-lambda/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="LINQ ForEach() 與 async &#x2F; await  問題的起點 — async lambda 與 Fire-and-Forget 陷阱問題的起點 — async lambda 與 Fire-and-Forget 陷阱解法 1：簡單但不平行解法 2：真正的非同步 + 平行執行LINQ 的 Select 不會「馬上執行」完整的 Code新的一年，動力滿格，誓言要變成更好的自己，我們開始報名">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true">
+<meta property="article:published_time" content="2025-10-22T06:08:05.000Z">
+<meta property="article:modified_time" content="2026-01-03T00:54:39.834Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Asynchronous Programming">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/22/DeepType-Async-Asynchronous-%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0-async-lambda/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Asynchronous Programming - 第十四章 :async lambda',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2026-01-03 08:54:39'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">215</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">25</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Asynchronous Programming - 第十四章 :async lambda</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-22T06:08:05.000Z" title="Created 2025-10-22 14:08:05">2025-10-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-01-03T00:54:39.834Z" title="Updated 2026-01-03 08:54:39">2026-01-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%AA%E6%9D%A5%E3%82%88%E3%82%8A%E3%81%AE%E8%BF%94%E6%AD%8C/">未来よりの返歌</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Asynchronous Programming - 第十四章 :async lambda"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><a class="btn-beautify " target="_blank" rel="noopener" href="https://blog.darkthread.net/blog/linq-foreach-n-async/" 
+  title="LINQ ForEach() 與 async / await"><i class="far fa-hand-point-right"></i><span>LINQ ForEach() 與 async / await</span></a>
+
+<div class="tabs" id="asynchronous"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="asynchronous-1">問題的起點 — async lambda 與 Fire-and-Forget 陷阱</button><button type="button" class="tab " data-href="asynchronous-2">問題的起點 — async lambda 與 Fire-and-Forget 陷阱</button><button type="button" class="tab " data-href="asynchronous-3">解法 1：簡單但不平行</button><button type="button" class="tab " data-href="asynchronous-4">解法 2：真正的非同步 + 平行執行</button><button type="button" class="tab " data-href="asynchronous-5">LINQ 的 Select 不會「馬上執行」</button><button type="button" class="tab " data-href="asynchronous-6">完整的 Code</button></ul><div class="tab-contents"><div class="tab-item-content active" id="asynchronous-1"><p>新的一年，動力滿格，誓言要變成更好的自己，我們開始報名課程、立下目標、說要健身、要學語言、要創業，那一刻就像丟出一個 Task 嚷嚷著我會做到的承諾。但接下來，沒有積極安排「等待與驗收」，例如固定回顧、截止日、交付物、找人督促，生活的 ForEach 將忙碌的人生繼續往下跑，我們會很快進入下一堆事情。最後你回頭看 results 可能是空的、有的只有一半（做到一半被別的事用掉了）、有時看起來做了很多，但沒有一個真正可用的成果，問題不在是否努力，是因為沒設計「誰來等你完成」!!!</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/2026.png" alt="2026"></p></div><div class="tab-item-content" id="asynchronous-2"><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">urls.ForEach(<span class="keyword">async</span> url =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> response = <span class="keyword">await</span> client.GetAsync(url);</span><br><span class="line">    results.Add(url, <span class="keyword">await</span> response.Content.ReadAsStringAsync());</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>實際上這段 code 有兩個問題</p>
+<ul>
+<li><code>Fire and Forget</code>：<code>ForEach</code> 本身不會等待內部的 <code>async</code> 動作完成，等於是「丟出去就不管了」</li>
+</ul>
+<p>async 「先把控制權還出去，等結果準備好再回來」，所以拿到的是「承諾會有結果的 <code>Task</code>」，而不是結果本身</p>
+<ol>
+<li>async Lambda 被建立，這個 Lambda 的型別是：Func&lt;string, Task&gt;，它「不是馬上做完事情」，而是「回傳一個 Task」</li>
+<li>執行到 await client.GetAsync(url)，HTTP Request 發出去，還沒拿到回應時，這個方法「暫停」，執行緒被釋放回 Thread Pool（重點）</li>
+<li>HTTP 回來後，繼續往下跑，讀取 response content，組成字串整個 Lambda 結束</li>
+<li>Task 標記為 Completed「未來的結果」才正式完成，但 ForEach 跑完，整個方法會直接往下執行，所以可能會看到results 有時是空的、有時只有一半、有時還沒加完就被用掉了</li>
+</ol>
+<p>👉 問題不在 async 本身，而在「誰有在等這個 Task」</p>
+<ul>
+<li><code>Thread Safety</code>：results 是共用的字典，在多個非同步任務同時 <code>Add()</code> 時，可能會出現執行緒安全（<code>Thread Safety</code>）問題</li>
+</ul></div><div class="tab-item-content" id="asynchronous-3"><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span> (<span class="keyword">var</span> url <span class="keyword">in</span> urls)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> response = <span class="keyword">await</span> client.GetAsync(url);</span><br><span class="line">    results.Add(url, <span class="keyword">await</span> response.Content.ReadAsStringAsync());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這樣的寫法雖然「安全又可預期」，但每個請求都要等上一個完成後才能繼續下一個，是「排隊」的概念</p></div><div class="tab-item-content" id="asynchronous-4"><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tasks = urls.Select(<span class="keyword">async</span> url =&gt; &#123;</span><br><span class="line">    <span class="keyword">var</span> response = <span class="keyword">await</span> client.GetAsync(url);</span><br><span class="line">    <span class="keyword">var</span> content = <span class="keyword">await</span> response.Content.ReadAsStringAsync();</span><br><span class="line">    <span class="keyword">return</span> (Url: url, Content: content);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> result = <span class="keyword">await</span> Task.WhenAll(tasks);</span><br><span class="line"><span class="keyword">var</span> dicts = result.ToDictionary(x =&gt; x.Url, x =&gt; x.Content);</span><br></pre></td></tr></table></figure>
+
+<p>這段才是「真正的非同步」，他透過 <code>Select()</code> 建立一組非同步任務（每個 URL 對應一個 <code>Task</code>），並且使用 <code>Task.WhenAll()</code> 等待所有任務完成，回傳的結果可以整齊地整理成字典（Dictionary）</p></div><div class="tab-item-content" id="asynchronous-5"><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">urls.Select(<span class="keyword">async</span> url =&gt; &#123; ... &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>因為 LINQ 的 <code>Select()</code> 是 延遲執行（Deferred Execution） 的，它只是一個「規劃」，直到你真的去「取用結果」時（例如 <code>.ToList()</code>、<code>.Count()</code>、<code>await Task.WhenAll()</code>），它才會開始跑</p></div><div class="tab-item-content" id="asynchronous-6"><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">async</span> Task <span class="title">Main</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">var</span> client = <span class="keyword">new</span> HttpClient();</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">var</span> urls = <span class="keyword">new</span> List&lt;<span class="built_in">string</span>&gt;()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="string">&quot;https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw&quot;</span>,</span><br><span class="line">		<span class="string">&quot;https://v2.jokeapi.dev/joke/Any?lang=ru&quot;</span></span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="comment"><span class="doctag">///</span>/ Fire And Forget &amp; ThreadSafe</span></span><br><span class="line">	<span class="comment">//var results = new Dictionary&lt;string, string&gt;();</span></span><br><span class="line">	<span class="comment">//urls.ForEach(async url =&gt;</span></span><br><span class="line">	<span class="comment">//&#123;</span></span><br><span class="line">	<span class="comment">//	var response = await client.GetAsync(url);</span></span><br><span class="line">	<span class="comment">//	results.Add(url, await response.Content.ReadAsStringAsync());</span></span><br><span class="line">	<span class="comment">//&#125;);</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment"><span class="doctag">///</span>/ 解法 1 但會一個個做不會平行執行</span></span><br><span class="line">	<span class="comment">//foreach (var url in urls)</span></span><br><span class="line">	<span class="comment">//&#123;</span></span><br><span class="line">	<span class="comment">//	var response = await client.GetAsync(url);</span></span><br><span class="line">	<span class="comment">//	results.Add(url, await response.Content.ReadAsStringAsync());</span></span><br><span class="line">	<span class="comment">//&#125;</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment"><span class="doctag">///</span>/ 解法 2 非同步 + 平行執行 (尚未執行)</span></span><br><span class="line">	<span class="keyword">var</span> tasks = urls.Select(<span class="keyword">async</span> url =&gt; &#123;</span><br><span class="line">		<span class="keyword">var</span> response = <span class="keyword">await</span> client.GetAsync(url);</span><br><span class="line">		<span class="keyword">var</span> content = <span class="keyword">await</span> response.Content.ReadAsStringAsync();</span><br><span class="line">		<span class="comment"><span class="doctag">///</span>/ return () 後續可以解構</span></span><br><span class="line">		<span class="keyword">return</span> (Url: url, Content: content);</span><br><span class="line">	&#125;);</span><br><span class="line">	</span><br><span class="line">	<span class="comment"><span class="doctag">///</span>/ 開始 enumerate tasks (消費)</span></span><br><span class="line">	<span class="keyword">var</span> result = <span class="keyword">await</span> Task.WhenAll(tasks);</span><br><span class="line">	<span class="comment"><span class="doctag">///</span>/ 這裡就好分辨</span></span><br><span class="line">	<span class="keyword">var</span> dicts = result.ToDictionary(x =&gt; x.Url, x =&gt; x.Content);</span><br><span class="line">	</span><br><span class="line">	<span class="comment"><span class="doctag">///</span>/ 若僅僅 select 會是延遲執行所以不會做任何事情</span></span><br><span class="line">	dicts.Select(dic =&gt; &#123;</span><br><span class="line">		Console.WriteLine(<span class="string">$&quot;url : <span class="subst">&#123;dic.Key&#125;</span>\n content : <span class="subst">&#123;dic.Value&#125;</span>&quot;</span>);</span><br><span class="line">		<span class="keyword">return</span> dic;</span><br><span class="line">	&#125;).ToList();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/22/DeepType-Async-Asynchronous-%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0-async-lambda/">https://allenlin000.github.io.git/2025/10/22/DeepType-Async-Asynchronous-%E7%AC%AC%E5%8D%81%E5%9B%9B%E7%AB%A0-async-lambda/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Asynchronous-Programming/">Asynchronous Programming</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/21/DeepType-Async-Asynchronous-%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0-Task-WhenAll/" title="Asynchronous Programming - 第十三章:Task.WhenAll"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Asynchronous Programming - 第十三章:Task.WhenAll</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/25/DeepType-ThinkingMind-XOR/" title="XOR"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">XOR</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/05/07/DeepType-Async-Asynchronous-%E7%AC%AC%E4%B8%80%E7%AB%A0-%E9%9B%B2%E7%AB%AF%E4%B8%AD%E7%9A%84%E6%9C%AA%E7%AB%9F%E4%B9%8B%E4%BA%8B/" title="Asynchronous - 第一章:雲端中的未竟之事"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-07</div><div class="title">Asynchronous - 第一章:雲端中的未竟之事</div></div></a></div><div><a href="/2024/09/26/DeepType-Async-Asynchronous-%E7%AC%AC%E5%85%AD%E7%AB%A0-%E6%99%82%E9%96%93%E7%A2%8E%E7%89%87%E8%A3%A1%E7%9A%84%E5%93%A1%E5%B7%A5%E5%80%91/" title="Asynchronous Programming - 第六章:時間碎片裡的員工們"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-26</div><div class="title">Asynchronous Programming - 第六章:時間碎片裡的員工們</div></div></a></div><div><a href="/2024/10/26/DeepType-Async-Asynchronous-%E7%AC%AC%E4%B8%83%E7%AB%A0-%E9%9D%9E%E5%90%8C%E6%AD%A5%E4%B9%8B%E6%9E%97-%E5%9F%B7%E8%A1%8C%E7%B7%92%E7%9A%84%E5%9B%9B%E5%AD%A3%E8%BC%AA%E8%BF%B4/" title="Asynchronous Programming - 第七章:非同步之林：執行緒的四季輪迴"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-26</div><div class="title">Asynchronous Programming - 第七章:非同步之林：執行緒的四季輪迴</div></div></a></div><div><a href="/2024/05/07/DeepType-Async-Asynchronous-%E7%AC%AC%E4%BA%8C%E7%AB%A0-%E4%BB%BB%E5%8B%99-Task/" title="Asynchronous - 第二章:任務 (Task)"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-07</div><div class="title">Asynchronous - 第二章:任務 (Task)</div></div></a></div><div><a href="/2024/10/26/DeepType-Async-Asynchronous-%E7%AC%AC%E5%85%AB%E7%AB%A0-%E4%B8%80%E5%BA%A7%E6%B1%A0%E5%AD%90%E7%9A%84%E5%91%BC%E5%90%B8/" title="Asynchronous Programming - 第八章:一座池子的呼吸"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-26</div><div class="title">Asynchronous Programming - 第八章:一座池子的呼吸</div></div></a></div><div><a href="/2024/08/31/DeepType-Async-Asynchronous-%E7%AC%AC%E4%BA%94%E7%AB%A0-%E9%8C%AF%E8%AA%A4%E7%AD%89%E5%BE%85%E7%9A%84%E6%AD%BB%E9%8E%96%E4%B9%8B%E5%90%BB/" title="Asynchronous Programming - 第五章:錯誤等待的死鎖之吻"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-31</div><div class="title">Asynchronous Programming - 第五章:錯誤等待的死鎖之吻</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">215</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">25</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/02/DeepType-ThinkingMind-%E6%9C%9F%E6%9C%9B%E5%80%BC/" title="Expected Value"><img src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Expected Value"/></a><div class="content"><a class="title" href="/2026/01/02/DeepType-ThinkingMind-%E6%9C%9F%E6%9C%9B%E5%80%BC/" title="Expected Value">Expected Value</a><time datetime="2026-01-02T13:37:03.000Z" title="Created 2026-01-02 21:37:03">2026-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/02/DeepType-ThinkingMind-Bulls-and-Cows/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/02/DeepType-ThinkingMind-Bulls-and-Cows/" title="Untitled">Untitled</a><time datetime="2026-01-02T00:51:45.615Z" title="Created 2026-01-02 08:51:45">2026-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/12/25/DeepType-K8S-container/" title="Container"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Container"/></a><div class="content"><a class="title" href="/2025/12/25/DeepType-K8S-container/" title="Container">Container</a><time datetime="2025-12-25T09:54:05.000Z" title="Created 2025-12-25 17:54:05">2025-12-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/12/14/%E8%B3%87%E5%AE%89-fe/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2025/12/14/%E8%B3%87%E5%AE%89-fe/" title="Untitled">Untitled</a><time datetime="2025-12-14T07:03:50.572Z" title="Created 2025-12-14 15:03:50">2025-12-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/12/10/DeepType-SQL-Thinking-Pre-filtering-Post-filtering/" title="Pre-filtering vs. Post-filtering"><img src="https://i.imgur.com/NfCnwwU.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Pre-filtering vs. Post-filtering"/></a><div class="content"><a class="title" href="/2025/12/10/DeepType-SQL-Thinking-Pre-filtering-Post-filtering/" title="Pre-filtering vs. Post-filtering">Pre-filtering vs. Post-filtering</a><time datetime="2025-12-10T00:13:34.000Z" title="Created 2025-12-10 08:13:34">2025-12-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
