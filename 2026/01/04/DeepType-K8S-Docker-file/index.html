@@ -1,0 +1,231 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Dcokerfile | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Dcokerfile工作流程Dockerfile 實作Dockerfile 是「怎麼做」的規則，而 Image 是「照規則做完後」的結果；一個負責描述過程，一個負責被拿來用，Dockerfile 本質上就是一份「把環境準備流程寫成程式碼」的說明書，讓電腦每次都用一模一樣的步驟，生出一模一樣的執行環境 假設寫了一個後端 API，你的電腦可以跑，而同事電腦版本不合，可能是因為環境完全不同，如果沒有 D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dcokerfile">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/01/04/DeepType-K8S-Docker-file/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="Dcokerfile工作流程Dockerfile 實作Dockerfile 是「怎麼做」的規則，而 Image 是「照規則做完後」的結果；一個負責描述過程，一個負責被拿來用，Dockerfile 本質上就是一份「把環境準備流程寫成程式碼」的說明書，讓電腦每次都用一模一樣的步驟，生出一模一樣的執行環境 假設寫了一個後端 API，你的電腦可以跑，而同事電腦版本不合，可能是因為環境完全不同，如果沒有 D">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png">
+<meta property="article:published_time" content="2026-01-04T06:09:05.000Z">
+<meta property="article:modified_time" content="2026-01-04T15:02:22.550Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/01/04/DeepType-K8S-Docker-file/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Dcokerfile',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-01-04 23:02:22'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">25</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Dcokerfile</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-01-04T06:09:05.000Z" title="Created 2026-01-04 14:09:05">2026-01-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-01-04T15:02:22.550Z" title="Updated 2026-01-04 23:02:22">2026-01-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Docker/">Docker</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Dcokerfile"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="dcokerfile"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="dcokerfile-1">Dcokerfile</button><button type="button" class="tab " data-href="dcokerfile-2">工作流程</button><button type="button" class="tab " data-href="dcokerfile-3">Dockerfile 實作</button></ul><div class="tab-contents"><div class="tab-item-content active" id="dcokerfile-1"><p>Dockerfile 是「怎麼做」的規則，而 Image 是「照規則做完後」的結果；一個負責描述過程，一個負責被拿來用，Dockerfile 本質上就是一份「把環境準備流程寫成程式碼」的說明書，讓電腦每次都用一模一樣的步驟，生出一模一樣的執行環境</p>
+<p>假設寫了一個後端 API，你的電腦可以跑，而同事電腦版本不合，可能是因為環境完全不同，如果沒有 Dockerfile，只能用嘴巴或 README 描述：「先裝這個、再裝那個、版本要對喔」，而有 Dockerfile，等於是直接說「照這份 Dockerfile build，就一定能跑。」</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Docker/dockerfile.png" alt="dockerfile"></p></div><div class="tab-item-content" id="dcokerfile-2"><h2 id="撰寫-Dockerfile"><a href="#撰寫-Dockerfile" class="headerlink" title="撰寫 Dockerfile"></a>撰寫 Dockerfile</h2><ol>
+<li>先寫 Dockerfile 裡面寫清楚從哪個基底環境開始、要裝哪些套件、程式放哪、容器啟動要幹嘛</li>
+<li>設定工作目錄，決定之後所有指令是在容器裡的哪個資料夾執行</li>
+<li>準備需要的檔案，把程式碼、設定檔複製進容器</li>
+<li>安裝依賴套件，用指令把程式需要的套件一次裝好</li>
+<li>設定啟動方式，告訴 Docker 這個環境「跑起來」時，要執行哪個指令</li>
+</ol>
+<p>👉 Docker 會照這個順序，一行一行執行，最後產生一個「映像檔（Image）」</p>
+<br>
+
+<h2 id="執行-build"><a href="#執行-build" class="headerlink" title="執行 build"></a>執行 build</h2><p>Docker 讀 Dockerfile，一行一行照做產生 Image，每一步都變成一層（layer），最後組合成一個 Image</p>
+<br>
+
+<h2 id="Image-被拿來用"><a href="#Image-被拿來用" class="headerlink" title="Image 被拿來用"></a>Image 被拿來用</h2><p>可以開 Container、可以丟給同事、可以丟上 Registry</p>
+<p>當我需要 Ubuntu + Node 18 + npm install 來跑 server.js，Image 表示「好，這一包已經全部準備好了」，如果程式壞了，就改 Dockerfile → 重新 build → 新 Image，而不是「進去 Image 裡面手改」</p></div><div class="tab-item-content" id="dcokerfile-3"><h2 id="準備"><a href="#準備" class="headerlink" title="準備"></a>準備</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 準備資料夾</span></span><br><span class="line"><span class="built_in">mkdir</span> dockerfile-demo</span><br><span class="line"><span class="built_in">cd</span> dockerfile-demo</span><br><span class="line"></span><br><span class="line"><span class="comment">## 建立App</span></span><br><span class="line">New-Item server.js -ItemType File</span><br><span class="line"></span><br><span class="line"><span class="comment">## Dockerfile 建立</span></span><br><span class="line">New-Item Dockerfile</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h2 id="server-js"><a href="#server-js" class="headerlink" title="server.js"></a>server.js</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//node server.js 執行專案</span></span><br><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">&quot;http&quot;</span>);</span><br><span class="line"></span><br><span class="line">http.<span class="title function_">createServer</span>(<span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  res.<span class="title function_">end</span>(<span class="string">&quot;Hello World\n&quot;</span>);</span><br><span class="line">&#125;).<span class="title function_">listen</span>(<span class="number">3000</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Server running at http://localhost:3000&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h2 id="Dockerfile-撰寫"><a href="#Dockerfile-撰寫" class="headerlink" title="Dockerfile 撰寫"></a>Dockerfile 撰寫</h2><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1) 選一個 base image（這是「唯讀層」的起點）</span></span><br><span class="line"><span class="keyword">FROM</span> node:<span class="number">20</span>-alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 設定工作目錄（之後 COPY / RUN 都以這裡為基準）</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /app</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 把程式複製進 image（這會形成一層新 layer）</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> server.js .</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4) 宣告容器會用到的 port（只是宣告，真正開放要靠 -p）</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">3000</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5) 容器啟動時預設執行的命令</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;node&quot;</span>, <span class="string">&quot;server.js&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<p>FROM、WORKDIR、COPY、EXPOSE、CMD，這就是 Dockerfile 最核心的骨架</p>
+<br>
+
+<h2 id="Build：從-Dockerfile-做出-image"><a href="#Build：從-Dockerfile-做出-image" class="headerlink" title="Build：從 Dockerfile 做出 image"></a>Build：從 Dockerfile 做出 image</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 把「Dockerfile + 當下目錄內容」➜ 組裝成一個 Image</span></span><br><span class="line"><span class="comment">## 幫這個 image 命名 + 打 tag</span></span><br><span class="line"><span class="comment">## .（最後那個點）, 「我把 目前這個資料夾交給 Docker，請你照 Dockerfile 製作 image」</span></span><br><span class="line"><span class="comment">## 把 . 目錄「打包」 , 傳給 Docker daemon , Dockerfile 裡的 COPY 只能用這個範圍內的檔案</span></span><br><span class="line">docker build -t hello-dockerfile:1 .</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">## 驗證 image 出現</span></span><br><span class="line"><span class="comment">## docker images 列出目前電腦上所有 Docker images</span></span><br><span class="line"><span class="comment">## |（pipe）把左邊的輸出，交給右邊處理</span></span><br><span class="line"><span class="comment">## 從輸入的每一行中，找出「包含 hello-dockerfile 的行」</span></span><br><span class="line">docker images | Select-String hello-dockerfile</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h2 id="Run：用-image-啟動-container"><a href="#Run：用-image-啟動-container" class="headerlink" title="Run：用 image 啟動 container"></a>Run：用 image 啟動 container</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 把容器的 3000 映射到你本機 3000</span></span><br><span class="line">docker run --name hello1 -p 3000:3000 -d hello-dockerfile:1</span><br><span class="line"></span><br><span class="line"><span class="comment">## 驗證容器有在跑</span></span><br><span class="line">docker ps | Select-String hello1</span><br><span class="line"></span><br><span class="line"><span class="comment">## 測試</span></span><br><span class="line">curl http://localhost:3000</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h2 id="進入-container-看檔案"><a href="#進入-container-看檔案" class="headerlink" title="進入 container 看檔案"></a>進入 container 看檔案</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 進去 shell</span></span><br><span class="line">docker <span class="built_in">exec</span> -it hello1 sh</span><br><span class="line"></span><br><span class="line"><span class="comment">## 在裡面看 /app</span></span><br><span class="line"><span class="built_in">ls</span> -l</span><br><span class="line"><span class="built_in">cat</span> server.js</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="清理"><a href="#清理" class="headerlink" title="清理"></a>清理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 進去 shell</span></span><br><span class="line">docker stop ./hello1</span><br><span class="line">docker <span class="built_in">rm</span> ./hello1</span><br><span class="line">docker rmi hello-dockerfile:1</span><br></pre></td></tr></table></figure></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/01/04/DeepType-K8S-Docker-file/">https://allenlin000.github.io.git/2026/01/04/DeepType-K8S-Docker-file/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Docker/">Docker</a></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2026/01/03/DeepType-K8S-Image-Layer/" title="Image Layer"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Image Layer</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/01/03/DeepType-K8S-Image-Layer/" title="Image Layer"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-03</div><div class="title">Image Layer</div></div></a></div><div><a href="/2025/12/25/DeepType-K8S-container/" title="Container"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-25</div><div class="title">Container</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">25</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%92%B0%E5%AF%AB-Dockerfile"><span class="toc-number">1.</span> <span class="toc-text">撰寫 Dockerfile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%B7%E8%A1%8C-build"><span class="toc-number">2.</span> <span class="toc-text">執行 build</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Image-%E8%A2%AB%E6%8B%BF%E4%BE%86%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">Image 被拿來用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%96%E5%82%99"><span class="toc-number">4.</span> <span class="toc-text">準備</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#server-js"><span class="toc-number">5.</span> <span class="toc-text">server.js</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dockerfile-%E6%92%B0%E5%AF%AB"><span class="toc-number">6.</span> <span class="toc-text">Dockerfile 撰寫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Build%EF%BC%9A%E5%BE%9E-Dockerfile-%E5%81%9A%E5%87%BA-image"><span class="toc-number">7.</span> <span class="toc-text">Build：從 Dockerfile 做出 image</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Run%EF%BC%9A%E7%94%A8-image-%E5%95%9F%E5%8B%95-container"><span class="toc-number">8.</span> <span class="toc-text">Run：用 image 啟動 container</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%B2%E5%85%A5-container-%E7%9C%8B%E6%AA%94%E6%A1%88"><span class="toc-number">9.</span> <span class="toc-text">進入 container 看檔案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%85%E7%90%86"><span class="toc-number">10.</span> <span class="toc-text">清理</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/04/DeepType-K8S-Docker-file/" title="Dcokerfile"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Dcokerfile"/></a><div class="content"><a class="title" href="/2026/01/04/DeepType-K8S-Docker-file/" title="Dcokerfile">Dcokerfile</a><time datetime="2026-01-04T06:09:05.000Z" title="Created 2026-01-04 14:09:05">2026-01-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/03/DeepType-K8S-Image-Layer/" title="Image Layer"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Image Layer"/></a><div class="content"><a class="title" href="/2026/01/03/DeepType-K8S-Image-Layer/" title="Image Layer">Image Layer</a><time datetime="2026-01-03T02:31:05.000Z" title="Created 2026-01-03 10:31:05">2026-01-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/02/DeepType-ThinkingMind-%E6%9C%9F%E6%9C%9B%E5%80%BC/" title="Expected Value"><img src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Expected Value"/></a><div class="content"><a class="title" href="/2026/01/02/DeepType-ThinkingMind-%E6%9C%9F%E6%9C%9B%E5%80%BC/" title="Expected Value">Expected Value</a><time datetime="2026-01-02T13:37:03.000Z" title="Created 2026-01-02 21:37:03">2026-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/02/DeepType-ThinkingMind-Bulls-and-Cows/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/02/DeepType-ThinkingMind-Bulls-and-Cows/" title="Untitled">Untitled</a><time datetime="2026-01-02T00:51:45.615Z" title="Created 2026-01-02 08:51:45">2026-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/12/25/DeepType-K8S-container/" title="Container"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Container"/></a><div class="content"><a class="title" href="/2025/12/25/DeepType-K8S-container/" title="Container">Container</a><time datetime="2025-12-25T09:54:05.000Z" title="Created 2025-12-25 17:54:05">2025-12-25</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
