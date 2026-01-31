@@ -1,0 +1,258 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>static method, instance method | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="behaviors設計核心原則：是否依賴物件狀態實例方法 : string.Substring()靜態方法 :　char.ToUpper()總結有些事，必須「由我親自完成」。像是「寄信給某個人」、「打開我家的門」、「改變自己的心情」。這些行為，都需要知道「我是誰」 ， 要有具體的對象，行為才有意義  在程式裡，這樣的行為就像 實例方法（Instance Method）。它依附在一個物件上，只有當那">
+<meta property="og:type" content="article">
+<meta property="og:title" content="static method, instance method">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/11/02/DeepType-CSHARP-static-method-instance-method/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="behaviors設計核心原則：是否依賴物件狀態實例方法 : string.Substring()靜態方法 :　char.ToUpper()總結有些事，必須「由我親自完成」。像是「寄信給某個人」、「打開我家的門」、「改變自己的心情」。這些行為，都需要知道「我是誰」 ， 要有具體的對象，行為才有意義  在程式裡，這樣的行為就像 實例方法（Instance Method）。它依附在一個物件上，只有當那">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/Zly1UDM.png">
+<meta property="article:published_time" content="2025-11-02T03:27:05.000Z">
+<meta property="article:modified_time" content="2026-01-31T04:06:44.614Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="程思舞想">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/Zly1UDM.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/11/02/DeepType-CSHARP-static-method-instance-method/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'static method, instance method',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2026-01-31 12:06:44'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">218</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">42</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">28</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/Zly1UDM.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">static method, instance method</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-11-02T03:27:05.000Z" title="Created 2025-11-02 11:27:05">2025-11-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-01-31T04:06:44.614Z" title="Updated 2026-01-31 12:06:44">2026-01-31</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%A8%8B%E6%80%9D%E8%88%9E%E6%83%B3/">程思舞想</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="static method, instance method"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="static-method-vs-instance-method"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="static-method-vs-instance-method-1">behaviors</button><button type="button" class="tab " data-href="static-method-vs-instance-method-2">設計核心原則：是否依賴物件狀態</button><button type="button" class="tab " data-href="static-method-vs-instance-method-3">實例方法 : string.Substring()</button><button type="button" class="tab " data-href="static-method-vs-instance-method-4">靜態方法 :　char.ToUpper()</button><button type="button" class="tab " data-href="static-method-vs-instance-method-5">總結</button></ul><div class="tab-contents"><div class="tab-item-content active" id="static-method-vs-instance-method-1"><p>有些事，必須「由我親自完成」。像是「寄信給某個人」、「打開我家的門」、「改變自己的心情」。這些行為，都需要知道<strong>「我是誰」</strong> ， 要有具體的對象，行為才有意義</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Code_Design/instance_static/if_should_know_me.png" alt="s"></p>
+<p>在程式裡，這樣的行為就像 實例方法（Instance Method）。它依附在一個物件上，只有當那個物件存在（例如某個字串、某個人、某個訂單），方法才能運作，因為它需要用到那個物件的內部狀態</p>
+<p>但有些事，誰都能做。像是「把字變成大寫」、「計算兩個數的和」、「取得目前時間」。它們不需要知道「我是誰」，只要照著規則執行，就能得到相同的結果</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/Code_Design/instance_static/instance_and_static.png?raw=true" alt="s"></p></div><div class="tab-item-content" id="static-method-vs-instance-method-2"><table>
+<thead>
+<tr>
+<th>類型</th>
+<th>是否依賴物件狀態</th>
+<th>範例</th>
+<th>設計意圖</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>實例方法 (Instance Method)</strong></td>
+<td>✅ 是</td>
+<td><code>string.Substring()</code></td>
+<td>方法的邏輯需要使用「該物件的資料」。</td>
+</tr>
+<tr>
+<td><strong>靜態方法 (Static Method)</strong></td>
+<td>❌ 否</td>
+<td><code>char.ToUpper()</code></td>
+<td>方法不依賴任何物件，只根據輸入參數運算。</td>
+</tr>
+</tbody></table>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/Code_Design/instance_static/if_rely_on_state.png?raw=true" alt="a"></p></div><div class="tab-item-content" id="static-method-vs-instance-method-3"><p>因為它要「從這個字串」取出一部分，也就是它需要知道目前這個字串的內容。它的邏輯會使用 this（也就是目前字串的實例），像這樣</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">Substring</span>(<span class="params"><span class="built_in">int</span> startIndex, <span class="built_in">int</span> length</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 內部其實會使用 this.Length, this._firstChar 等欄位</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">string</span>(<span class="keyword">this</span>._firstChar, startIndex, length);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>沒有 this，就不知道要從哪一個字串取子字串。所以它必須是實例方法</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Code_Design/instance_static/substring.png" alt="this"></p></div><div class="tab-item-content" id="static-method-vs-instance-method-4"><p>char 是一個 value type (struct)，代表一個「單一字元」。把字元轉成大寫這個動作，不需要知道「這個字元所在的物件」或「任何內部狀態」，只要輸入一個字元，回傳一個新的字元即可</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">char</span> <span class="title">ToUpper</span>(<span class="params"><span class="built_in">char</span> c</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (c &gt;= <span class="string">&#x27;a&#x27;</span> &amp;&amp; c &lt;= <span class="string">&#x27;z&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> (<span class="built_in">char</span>)(c - <span class="number">32</span>);</span><br><span class="line">    <span class="keyword">return</span> c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它不依賴於任何「實例」的資料，所以設計成靜態方法更合理、更輕量（不需 new 或產生實例）</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Code_Design/instance_static/toupper.png" alt="s"></p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/Code_Design/instance_static/char-32.png?raw=true" alt="d"></p></div><div class="tab-item-content" id="static-method-vs-instance-method-5"><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Code_Design/instance_static/decision_table.png" alt="t"></p>
+<table>
+<thead>
+<tr>
+<th>判斷問題</th>
+<th>建議方法型態</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>方法會使用到 <code>this</code>（物件內部資料）</td>
+<td>➤ 實例方法</td>
+</tr>
+<tr>
+<td>方法僅根據傳入參數運算</td>
+<td>➤ 靜態方法</td>
+</tr>
+<tr>
+<td>方法需要被覆寫（多型）</td>
+<td>➤ 實例方法</td>
+</tr>
+<tr>
+<td>方法屬於整個類別的共同行為</td>
+<td>➤ 靜態方法</td>
+</tr>
+<tr>
+<td>是否需要在沒有任何實例的情況下使用</td>
+<td>➤ 靜態方法</td>
+</tr>
+</tbody></table>
+<p>靜態方法，是「工具」；實例方法，是「行為」。當一個動作需要了解「我是誰」，它屬於物件；<br>當一個動作不需知道「我是誰」，它屬於類別。就像現實生活中，有些事要靠自己去完成（instance），有些事，只要依照規則，就能重現相同結果（static）</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Code_Design/instance_static/slogan.png" alt="s"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Code_Design/instance_static/summa.png" alt="fj"></p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/11/02/DeepType-CSHARP-static-method-instance-method/">https://allenlin000.github.io.git/2025/11/02/DeepType-CSHARP-static-method-instance-method/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%A8%8B%E6%80%9D%E8%88%9E%E6%83%B3/">程思舞想</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/Zly1UDM.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/11/01/EFCORE-Transaction-and-Savechanges/" title="EFCore - Tranaction and SaveChanges"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">EFCore - Tranaction and SaveChanges</div></div></a></div><div class="next-post pull-right"><a href="/2025/11/02/DeepType-CSHARP-Closure/" title="Closure"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Closure</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/11/02/DeepType-CSHARP-Closure/" title="Closure"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-02</div><div class="title">Closure</div></div></a></div><div><a href="/2025/09/21/DeepType-CSHARP-Extension-Method/" title="Extension Method"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-21</div><div class="title">Extension Method</div></div></a></div><div><a href="/2025/10/27/DeepType-Generic-Generic-1/" title="Generic - 型越の魂"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-27</div><div class="title">Generic - 型越の魂</div></div></a></div><div><a href="/2025/10/30/DeepType-Generic-Generic-2/" title="Generic - 記憶の箱"><img class="cover" src="https://i.imgur.com/Zly1UDM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-30</div><div class="title">Generic - 記憶の箱</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">218</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">42</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">28</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled">Untitled</a><time datetime="2026-01-14T14:38:13.918Z" title="Created 2026-01-14 22:38:13">2026-01-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Factory/factory.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LoggerFactory"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory">LoggerFactory</a><time datetime="2026-01-11T02:58:05.000Z" title="Created 2026-01-11 10:58:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cammand"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand">Cammand</a><time datetime="2026-01-11T00:47:05.000Z" title="Created 2026-01-11 08:47:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis - 分散式架構（Sharding）"/></a><div class="content"><a class="title" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）">Redis - 分散式架構（Sharding）</a><time datetime="2026-01-10T15:30:11.000Z" title="Created 2026-01-10 23:30:11">2026-01-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
