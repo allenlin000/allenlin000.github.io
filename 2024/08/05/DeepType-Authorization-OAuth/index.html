@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>OAuth 2.0 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="OpenIDOAuthOAuth 2.0 (Open Authorization)為什麼中間會先回一個 Authorization Code，而且還暴露在 Url上資料分享summary讓我們想像一下，如果每次進入一個新的國家，都需要重新申請一個新的身份證會很麻煩，但這就是早期網路使用者的日常生活 —— 每個網站都需要一個新的帳號和密碼。於是，OpenID 的概念應運而生，它就像是網路世界的通用護">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OAuth 2.0">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/08/05/DeepType-Authorization-OAuth/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="OpenIDOAuthOAuth 2.0 (Open Authorization)為什麼中間會先回一個 Authorization Code，而且還暴露在 Url上資料分享summary讓我們想像一下，如果每次進入一個新的國家，都需要重新申請一個新的身份證會很麻煩，但這就是早期網路使用者的日常生活 —— 每個網站都需要一個新的帳號和密碼。於是，OpenID 的概念應運而生，它就像是網路世界的通用護">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/rJvffnd.png">
+<meta property="article:published_time" content="2024-08-05T15:02:00.000Z">
+<meta property="article:modified_time" content="2026-02-03T01:05:03.290Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/rJvffnd.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/08/05/DeepType-Authorization-OAuth/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'OAuth 2.0',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2026-02-03 09:05:03'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">218</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/rJvffnd.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">OAuth 2.0</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-08-05T15:02:00.000Z" title="Created 2024-08-05 23:02:00">2024-08-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-03T01:05:03.290Z" title="Updated 2026-02-03 09:05:03">2026-02-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Authorization/">Authorization</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="OAuth 2.0"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="oauth-2.0"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="oauth-2.0-1">OpenID</button><button type="button" class="tab " data-href="oauth-2.0-2">OAuth</button><button type="button" class="tab " data-href="oauth-2.0-3">OAuth 2.0 (Open Authorization)</button><button type="button" class="tab " data-href="oauth-2.0-4">為什麼中間會先回一個 Authorization Code，而且還暴露在 Url上</button><button type="button" class="tab " data-href="oauth-2.0-5">資料分享</button><button type="button" class="tab " data-href="oauth-2.0-6">summary</button></ul><div class="tab-contents"><div class="tab-item-content active" id="oauth-2.0-1"><p>讓我們想像一下，如果每次進入一個新的國家，都需要重新申請一個新的身份證會很麻煩，但這就是早期網路使用者的日常生活 —— 每個網站都需要一個新的帳號和密碼。於是，OpenID 的概念應運而生，它就像是網路世界的通用護照，為技術發展添加了人性化的一面</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/Authorization/OAuth/a_lot_of_passwords.png?raw=true" alt="op"></p>
+<p>故事開始於 Blaine Cook  試圖在 Twitter 上實現 OpenID。這就像是試圖讓你的護照（OpenID）不僅能證明你的身份，還能授權別人代表你處理一些事務。但 Blaine 和他的朋友發現，OpenID 的核心價值，是讓「證明你是誰」這件事可以被重複使用，而不用每個系統都自己養一套帳密系統，而不是授權（允許別人做什麼）</p>
+<p>使用者已經在某個可信任的地方有身分，例如一個 OpenID Provider（身分提供者），接著他嘗試登入另一個網站，這個網站不想自己管理帳密，而網站把「你是誰的驗證責任」交給 OpenID Provider，因此網站不碰你的密碼，只相信驗證結果，OpenID Provider 回傳驗證成功，而網站只在乎一件事「你是不是你」</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Authorization/OAuth/authen_autho.png" alt="a"></p></div><div class="tab-item-content" id="oauth-2.0-2"><p>於是，OAuth 的概念誕生，用來解決授權問題。如果說 OpenID 是護照，那麼 OAuth 就比較像授權書，允許特定的人或應用程式以你的名義執行特定的操作</p>
+<p>Blaine Cook 約一幫狐群狗黨 —— David Recordon、Larry Halff …，在 CitizenSpace 的一次 OpenID 聚會上碰面。大家討論得熱火朝天、面紅耳赤、大頭巨耳，Larry 正在為 Ma.gnolia 的儀表板小工具絞盡腦汁，也想找個好方法來整合 OpenID，最後他們得出一個的結論：欸斗，居然沒有一個開放標準來處理 API 訪問授權！</p>
+<p><img src="https://i.imgur.com/OCYCB7e.png" alt="Image"></p>
+<p>這個想法像新冠一樣在線上線下傳播開。<br>到了 2007 年 4 月，事情開始變得正式起來。他們成立一個 Google 群組，並開始召集人選，Blaine Cook 對著前來的人說道: 讓我看看你的念吧!</p>
+<p>經過一陣嚴格的篩選，組好隊開始摩拳擦掌準備著手起草協議的提案。2007 年 7 月，團隊終於拿出了一份初步規範。他們決定敞開大門，歡迎任何對此感興趣的人來貢獻自己的智慧。而 3 個月後，OAuth Core 1.0 的最終草案終於問世</p>
+<p>接著，到 2012，OAuth 升級為 OAuth 2.0，他簡化開發過程，降低了實施難度，並且使用 HTTPS 進行傳輸層安全減少了開發者的負擔，同時保持了安全性並且引入了刷新 token 的概念。就像有效期的簽證，需要定期更新，還有其他一系列的改善</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Authorization/OAuth/the_progress.png" alt="p"></p></div><div class="tab-item-content" id="oauth-2.0-3"><p>下面這個畫面是不是很熟悉</p>
+<p><img src="https://i.imgur.com/stYgnPE.png" alt="Image"></p>
+<p>現在許多知名的網站幾乎都可以支持使用 OpenId 登入，讓你不用再建立一個帳號密碼，更不用給這個網站自己的 Google 帳號密碼</p>
+<p>OAuth 把「誰信任誰」這件事拆成三方，避免任何一方拿到不該拿的權力</p>
+<p>三個角色各自只做一件事：</p>
+<ul>
+<li>網站 &#x2F; App（Client）想取得資料，但不該拿密碼</li>
+<li>OAuth Provider（如 Google、Microsoft），負責驗證身份，負責詢問使用者是否同意</li>
+<li>End-User，真正擁有帳號與資料的人，可以決定「給不給、給多少」</li>
+</ul>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/Authorization/OAuth/triangle.png?raw=true" alt="a"></p>
+<p>成功藉由 Google OAuth 登入後，網站就可以拿到一個 token，接著網站就可以透過這個 token 從 Google 取得用戶部分權限的資料，像是頭像、偏好…</p>
+<p>可以參考 Google 文件的 Google OAuth 2.0 Flow<br><img src="https://i.imgur.com/NYJcxAG.png" alt="Image"></p>
+<ol>
+<li>使用者在你的網站點擊「使用 Google 登入」，你的網站不負責驗證帳密，只負責「把人送到 Google」</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Authorization/OAuth/step1.png" alt="1"></p>
+<ol start="2">
+<li><p>使用者在 Provider（Google）完成登入與同意授權、輸入帳密、勾選同意哪些資料可以被使用</p>
+</li>
+<li><p>Google 回傳一個 Authorization Code 給你的網站，這個 Code 本身不能用來存取資料，只是一張「一次性兌換券」</p>
+</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Authorization/OAuth/step2.png" alt="2"></p>
+<ol start="4">
+<li>你的後端用 Authorization Code 向 Google 換取 Token，這一步一定在 Server 端進行，Client Secret 不會曝光，網站拿著 Token 呼叫 Google API，只能存取使用者「同意過的範圍（scope）」</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Authorization/OAuth/step3.png" alt="3"></p></div><div class="tab-item-content" id="oauth-2.0-4"><p>Authorization Code 的存在，是為了避免 Token 在瀏覽器或網路上被撿走，因為在身分驗證階段，用戶被導到 Auth Server (這裡是 Google)，在那邊同意授權 Postman 可以取得一定程度的各訊息後，會在瀏覽器被導回 Postman，此時，如果直接把 Token 在瀏覽器間傳遞，是相對高風險的作法，是可以被截取的，方法可能有很多種，例如取得用戶 Chrome 的歷史文件資訊、取得Log、中間人攻擊、社交工程、Referrer，因此，在純前端的傳遞，會先給一個 Grant (也就是 Authorization Code)，Postman Server 連同 ClientId &#x2F; Secret 以及 Code 向 Google 要 token 去做後面一些比較敏感的資訊操作</p></div><div class="tab-item-content" id="oauth-2.0-5"><p>參考影片 : <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=996OiexHze0&t=144s">https://www.youtube.com/watch?v=996OiexHze0&amp;t=144s</a></p>
+<p>演講的主要內容，包括 OAuth 2.0 和 OpenID Connect 的區別，在網路世界遇到的認證困難，例如不同 device 認證機制、delegated authorization problem(Yelp 曾經直接跟用戶使用 Google 帳密…)，接著說明 Delegated authorization with OAuth 2.0 以及 token解析，最後 demo OAuth，我覺得對 OAuth 有一點簡單的理解再看會是一個不錯的銜接教材(不會難度突然跳太多)</p></div><div class="tab-item-content" id="oauth-2.0-6"></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/08/05/DeepType-Authorization-OAuth/">https://allenlin000.github.io.git/2024/08/05/DeepType-Authorization-OAuth/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/rJvffnd.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/07/26/host-files/" title="關於 host file ( Windows )"><img class="cover" src="https://i.imgur.com/3Td7Wnr.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">關於 host file ( Windows )</div></div></a></div><div class="next-post pull-right"><a href="/2024/08/10/Hosting-Web-Hosting/" title="Host"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Host</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">218</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled">Untitled</a><time datetime="2026-01-14T14:38:13.918Z" title="Created 2026-01-14 22:38:13">2026-01-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Factory/factory.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LoggerFactory"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory">LoggerFactory</a><time datetime="2026-01-11T02:58:05.000Z" title="Created 2026-01-11 10:58:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cammand"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand">Cammand</a><time datetime="2026-01-11T00:47:05.000Z" title="Created 2026-01-11 08:47:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis - 分散式架構（Sharding）"/></a><div class="content"><a class="title" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）">Redis - 分散式架構（Sharding）</a><time datetime="2026-01-10T15:30:11.000Z" title="Created 2026-01-10 23:30:11">2026-01-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
