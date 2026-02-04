@@ -1,0 +1,270 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>TempTable | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="#temp（Local Temporary Table）##temp（Global Temporary Table）TVP (Table-Valued Parameters)#temp 的本質，是把「一次查不完、邏輯又複雜的中間結果」變成一個可以被優化、重用、逐步加工的暫存資料集，讓 SQL Optimizer 有機會幫你把事情做對   建立與隔離：在 tempdb 中開闢一塊專屬空間，僅限當前連">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TempTable">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/06/DeepType-SQL-Thinking-TempTable/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="#temp（Local Temporary Table）##temp（Global Temporary Table）TVP (Table-Valued Parameters)#temp 的本質，是把「一次查不完、邏輯又複雜的中間結果」變成一個可以被優化、重用、逐步加工的暫存資料集，讓 SQL Optimizer 有機會幫你把事情做對   建立與隔離：在 tempdb 中開闢一塊專屬空間，僅限當前連">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/NfCnwwU.png">
+<meta property="article:published_time" content="2025-10-06T14:52:05.000Z">
+<meta property="article:modified_time" content="2026-02-04T00:59:49.689Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/NfCnwwU.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/06/DeepType-SQL-Thinking-TempTable/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'TempTable',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-02-04 08:59:49'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">218</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/NfCnwwU.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">TempTable</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-06T14:52:05.000Z" title="Created 2025-10-06 22:52:05">2025-10-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-04T00:59:49.689Z" title="Updated 2026-02-04 08:59:49">2026-02-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/SQL/">SQL</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="TempTable"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="temptable"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="temptable-1">#temp（Local Temporary Table）</button><button type="button" class="tab " data-href="temptable-2">##temp（Global Temporary Table）</button><button type="button" class="tab " data-href="temptable-3"><i class="t（Table Variable）" style="text-align: center;"></i></button><button type="button" class="tab " data-href="temptable-4">TVP (Table-Valued Parameters)</button></ul><div class="tab-contents"><div class="tab-item-content active" id="temptable-1"><p>#temp 的本質，是把「一次查不完、邏輯又複雜的中間結果」變成一個可以被優化、重用、逐步加工的暫存資料集，讓 SQL Optimizer 有機會幫你把事情做對</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/SQL/tempTable/Why_temptable.png?raw=true" alt="temp"></p>
+<ul>
+<li>建立與隔離：在 <code>tempdb</code> 中開闢一塊專屬空間，僅限當前連線（Session）存取，確保資料不會跟別人的請求打架</li>
+<li>資料灌入：利用 <code>SELECT INTO</code> 或 <code>INSERT INTO</code> 將中間運算結果存入</li>
+<li>優化加速：視需求針對 <code>#temp</code> 建立索引（<code>Index</code>），這在處理萬筆以上資料時非常關</li>
+<li>多次加工：在同一個連線內，後續的 Stored Procedure 或 SQL 指令可以反覆讀取、更新這份暫存資料。</li>
+<li>生命週期終結：當連線關閉時自動銷毀，保持資料庫環境整潔</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%23temp.png" alt="aa"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> #TEMP(</span><br><span class="line">  NAME <span class="type">CHAR</span>(<span class="number">20</span>),</span><br><span class="line">  ID   <span class="type">CHAR</span>(<span class="number">10</span>)</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
+
+<h2 id="電商雙-11-促銷結帳"><a href="#電商雙-11-促銷結帳" class="headerlink" title="電商雙 11 促銷結帳"></a>電商雙 11 促銷結帳</h2><p>想像我們要幫上萬名會員計算購物車折扣</p>
+<ul>
+<li>第一步：先撈出所有符合活動資格的訂單到 #OrdersToBill</li>
+<li>第二步：將這份名單去串接複雜的「會員分級表」與「階梯折扣表」，算出最終折扣並存入 #CustomerDiscount</li>
+<li>第三步：最後才把這些算好的結果吐給前端顯示</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Step 1: 篩出候選訂單</span></span><br><span class="line"><span class="keyword">SELECT</span> o.OrderId, o.CustomerId, o.TotalAmount</span><br><span class="line"><span class="keyword">INTO</span> #OrdersToBill</span><br><span class="line"><span class="keyword">FROM</span> dbo.Orders o</span><br><span class="line"><span class="keyword">WHERE</span> o.Status <span class="operator">=</span> <span class="string">&#x27;ReadyToBill&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- Step 2: 跟促銷規則做 Join 後彙整</span></span><br><span class="line"><span class="keyword">SELECT</span> ob.CustomerId, <span class="built_in">SUM</span>(ob.TotalAmount <span class="operator">*</span> p.DiscountRate) <span class="keyword">AS</span> DiscountTotal</span><br><span class="line"><span class="keyword">INTO</span> #CustomerDiscount</span><br><span class="line"><span class="keyword">FROM</span> #OrdersToBill ob</span><br><span class="line"><span class="keyword">JOIN</span> dbo.Promotions p <span class="keyword">ON</span> p.RuleId <span class="operator">=</span> ob.PromoRuleId</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> ob.CustomerId;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- Step 3: 輸出結果</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> #CustomerDiscount;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 用完可手動清理（選擇性）</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> #CustomerDiscount, #OrdersToBill;</span><br></pre></td></tr></table></figure>
+
+<p>這批資料只對「這次報表 &#x2F; 這次計算」有意義、下一個使用者跑一樣的報表，資料內容一定不同，而 @table variable 的問題是沒有（或非常弱的）統計資訊，Optimizer 常假設「大概只有 1 筆資料吧 🤷」</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%23temp_case.png" alt="temp"></p>
+<h2 id="📊-統計資訊-Statistics-與執行計畫"><a href="#📊-統計資訊-Statistics-與執行計畫" class="headerlink" title="📊 統計資訊 (Statistics) 與執行計畫"></a>📊 統計資訊 (Statistics) 與執行計畫</h2><p>這是 #temp 勝過表變數 (@table) 的殺手鐧，它會主動告訴資料庫：「我這裡有十萬筆資料，請認真對待」。若糾結要用 @table 還是 #temp。簡單來說，@table 適合資料量極小（幾百筆以內）的情況；但當資料量大時，資料庫會誤判 @table 只有 1 筆資料，導致查詢變超慢。#temp 則擁有完整的統計資訊，能讓 SQL 引擎選對 Join 的方式</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%23temp_statistics.png" alt="f"></p>
+<h2 id="🛠️-索引-Index-的彈性"><a href="#🛠️-索引-Index-的彈性" class="headerlink" title="🛠️ 索引 (Index) 的彈性"></a>🛠️ 索引 (Index) 的彈性</h2><p>如果打算對這份暫存資料進行多次搜尋或 Join，記得幫它「開外掛」加索引。#temp 雖然是暫存的，但它在本質上就是一張「表」。如果在一個 Session 裡要對這張表做多次過濾，建立索引能讓原本要掃描全表的動作變成精準定位，這對於複雜報表的效能提升非常有感</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%23temp_index.png" alt="i"></p>
+<h2 id="🧹-手動清理-Explicit-Drop-的好習慣"><a href="#🧹-手動清理-Explicit-Drop-的好習慣" class="headerlink" title="🧹 手動清理 (Explicit Drop) 的好習慣"></a>🧹 手動清理 (Explicit Drop) 的好習慣</h2><p>雖然系統會幫收尾，但「用完即丟」是工程師優雅的展現，也能減輕 tempdb 的負擔。在長連線（Connection Pooling）的機制下，雖然 Session 可能沒關閉，但邏輯已經跑完。手動執行 DROP TABLE #TEMP 可以立刻釋放 tempdb 的空間與記憶體資源，避免在高併發環境下讓暫存資料庫塞車</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%23temp_manual_clean.png" alt="a"></p>
+<p>有時過度使用暫存表會導致 IO 壓力過大（因為資料必須寫入磁碟上的 tempdb）。在某些情況下，使用 CTE (Common Table Expressions) 或是優化過的 Subquery 可能會更快，因為它們在記憶體中運算的可能性更高</p></div><div class="tab-item-content" id="temptable-2"><p>全域暫存表 (Global Temporary Table, ##temp) 的特性。與區域暫存表 (#temp) 相比，它最大的不同在於「共享性」與「生命週期」，可以把 ##temp 想像成一個公共的臨時佈告欄 📋：任何路過的人（不同的連線 Session）都能看到上面的內容並進行操作，直到最後一個關注這個佈告欄的人離開為止</p>
+<p>Global Temporary Table 用意是建立一個跨連線的臨時資料共享中心，讓不同的處理程序能像接力賽一樣傳遞數據。在複雜的系統架構中，有時 A 程序算完的結果需要立刻給 B 程序接手（例如不同的排程或非同步的查詢），這時 ##temp 就是最簡單的橋樑，讓你不需要真的去實體資料庫建一張永久表</p>
+<ul>
+<li>在「同一個 SQL Server 實例」中所有連線都可見（跨資料庫可用，但不能跨伺服器）；存在 tempdb；當建立它的那個 Session 結束且沒有其他 Session 使用時，才會被刪除</li>
+<li>##Table是全域的資料表，所有人均可取用(其他資料庫也可使用)</li>
+<li>名稱務必唯一（加日期與隨機碼），避免彼此覆蓋</li>
+<li>要有清理機制（或控制生命週期），不然容易造成資料錯讀或安全風險</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%23%23temp.png" alt="a"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ##TEMP(</span><br><span class="line">  NAME <span class="type">CHAR</span>(<span class="number">20</span>),</span><br><span class="line">  ID   <span class="type">CHAR</span>(<span class="number">10</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h2 id="自動化物流排程"><a href="#自動化物流排程" class="headerlink" title="自動化物流排程"></a>自動化物流排程</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Session A：產出結果，給其他工作讀</span></span><br><span class="line"><span class="keyword">SELECT</span> OrderId, ShipDate</span><br><span class="line"><span class="keyword">INTO</span> ##ShippingToday_20251006_0D6F</span><br><span class="line"><span class="keyword">FROM</span> dbo.Shipments</span><br><span class="line"><span class="keyword">WHERE</span> <span class="built_in">CAST</span>(ShipDate <span class="keyword">AS</span> <span class="type">date</span>) <span class="operator">=</span> <span class="string">&#x27;2025-10-06&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- Session B（甚至是批次排程、另一個 DBA 的 SSMS）：可讀取</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> ##ShippingToday_20251006_0D6F;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 當 A 結束且 B 不再使用，這張表就會被清掉</span></span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%23%23temp_case.png" alt="f"></p>
+<h2 id="🛡️-命名衝突與覆蓋風險"><a href="#🛡️-命名衝突與覆蓋風險" class="headerlink" title="🛡️ 命名衝突與覆蓋風險"></a>🛡️ 命名衝突與覆蓋風險</h2><p>因為 ##temp 是全域的，如果兩個人都寫 CREATE TABLE ##MyData，第二個人就會失敗。實務上我們必須像範例中提到的，加上日期與隨機碼 _20251006_0D6F，這不是為了美觀，而是為了生存（系統穩定性）</p>
+<h2 id="安全性與權限漏洞"><a href="#安全性與權限漏洞" class="headerlink" title="安全性與權限漏洞"></a>安全性與權限漏洞</h2><p>##temp 的權限相對鬆散，同一個伺服器上的其他資料庫使用者也可能讀到內容。如果資料包含客戶個資或交易細節，這會是一個潛在的安全破口</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%23%23temp_risk.png" alt="f"></p></div><div class="tab-item-content" id="temptable-3"><ul>
+<li>是變數，用 DECLARE @t TABLE(…) 宣告</li>
+<li>作用域只限於目前的 Batch&#x2F;Stored Procedure&#x2F;Function 生命週期到該作用域結束即自動回收</li>
+<li>底層也會用到 tempdb（不是純記憶體），小量資料多半在記憶體中，量大一樣可能寫到磁碟</li>
+<li>小型清單、快速過濾、參數化傳遞</li>
+<li>只是幾十到幾百筆的小清單，語意像參數；作用域自然結束就回收，不用 DROP</li>
+<li>若變大且邏輯複雜，建議改 #temp 讓優化器有更好的統計</li>
+<li>從 .NET 傳大清單可用 Table-Valued Parameter (TVP)，在 SQL 端再配合 #temp 做複雜處理，是電商常見高效組合</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%40table.png" alt="p"></p>
+<h2 id="秒殺／限時搶購（Flash-Sale）名單過濾"><a href="#秒殺／限時搶購（Flash-Sale）名單過濾" class="headerlink" title="秒殺／限時搶購（Flash Sale）名單過濾"></a>秒殺／限時搶購（Flash Sale）名單過濾</h2><p>從應用程式傳入少量候選 SkuId（數十筆以內），需要即時比對庫存與價格做快速檢查</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DECLARE</span> <span class="variable">@SkuList</span> <span class="keyword">TABLE</span> (SkuId <span class="type">INT</span> <span class="keyword">PRIMARY</span> KEY);</span><br><span class="line"><span class="comment">-- 應用程式批次傳入候選 SKU</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="variable">@SkuList</span> <span class="keyword">VALUES</span> (<span class="number">101</span>),(<span class="number">102</span>),(<span class="number">103</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> s.SkuId, p.Price, i.Stock</span><br><span class="line"><span class="keyword">FROM</span> <span class="variable">@SkuList</span> s</span><br><span class="line"><span class="keyword">JOIN</span> ProductPrice p <span class="keyword">ON</span> s.SkuId <span class="operator">=</span> p.SkuId</span><br><span class="line"><span class="keyword">JOIN</span> Inventory i <span class="keyword">ON</span> s.SkuId <span class="operator">=</span> i.SkuId;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>資料量小，作用域只在該批請求內</li>
+<li>不需建立索引或統計</li>
+<li>系統會在執行結束時自動清除，乾淨又快速</li>
+</ul>
+<h2 id="黑名單／白名單過濾（高頻小清單）"><a href="#黑名單／白名單過濾（高頻小清單）" class="headerlink" title="黑名單／白名單過濾（高頻小清單）"></a>黑名單／白名單過濾（高頻小清單）</h2><p>像是活動可用的 CouponCode、或風控黑名單使用者 ID。這些清單通常只有數十～數百筆，每次檢查時由應用程式傳入</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DECLARE</span> <span class="variable">@BlackList</span> <span class="keyword">TABLE</span> (UserId <span class="type">INT</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="variable">@BlackList</span> <span class="keyword">VALUES</span> (<span class="number">101</span>,<span class="number">105</span>,<span class="number">108</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> u.UserId, u.LoginTime</span><br><span class="line"><span class="keyword">FROM</span> Users u</span><br><span class="line"><span class="keyword">WHERE</span> u.UserId <span class="keyword">IN</span> (<span class="keyword">SELECT</span> UserId <span class="keyword">FROM</span> <span class="variable">@BlackList</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%40table_case.png" alt="f"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/%40table_risk.png" alt="f"></p></div><div class="tab-item-content" id="temptable-4"><p>TVP 的本質，是讓應用程式「一次傳一整組結構化資料給 SQL」，而不是硬把集合塞成字串再請資料庫自己想辦法拆，TVP 做的事很就是直接把「表格」當成參數傳進來</p>
+<p>流程會是這樣，Application 組好一張表 → 當參數傳給 SQL → SQL 當成正常資料表用</p>
+<h2 id="Step-1：先在-SQL-Server-定義「表的型別」"><a href="#Step-1：先在-SQL-Server-定義「表的型別」" class="headerlink" title="Step 1：先在 SQL Server 定義「表的型別」"></a>Step 1：先在 SQL Server 定義「表的型別」</h2><p>這不是 Table，是 Table 的「型別」，專門拿來當參數用，就像 C# 裡的 class &#x2F; struct 定義</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> TYPE dbo.IdListType <span class="keyword">AS</span> <span class="keyword">TABLE</span></span><br><span class="line">(</span><br><span class="line">    Id <span class="type">BIGINT</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Step-2：Stored-Procedure-接收-TVP"><a href="#Step-2：Stored-Procedure-接收-TVP" class="headerlink" title="Step 2：Stored Procedure 接收 TVP"></a>Step 2：Stored Procedure 接收 TVP</h2><p>TVP 一定要 READONLY，在 SQL 裡它看起來、用起來、Join 起來，都跟一張表一樣</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> dbo.usp_GetOrdersByIds</span><br><span class="line">    <span class="variable">@Ids</span> dbo.IdListType READONLY</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    <span class="keyword">SELECT</span> o.<span class="operator">*</span></span><br><span class="line">    <span class="keyword">FROM</span> Orders o</span><br><span class="line">    <span class="keyword">JOIN</span> <span class="variable">@Ids</span> i <span class="keyword">ON</span> o.OrderId <span class="operator">=</span> i.Id;</span><br><span class="line"><span class="keyword">END</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Step-3：應用程式端怎麼傳（概念）"><a href="#Step-3：應用程式端怎麼傳（概念）" class="headerlink" title="Step 3：應用程式端怎麼傳（概念）"></a>Step 3：應用程式端怎麼傳（概念）</h2><p>以 .NET 為例，要做的事就是建一個 DataTable、塞進 Id 清單、當參數丟給 Stored Procedure，他不是字串、不是 JSON，是真的一張表</p>
+<h2 id="商品搜尋-訂單批次處理"><a href="#商品搜尋-訂單批次處理" class="headerlink" title="商品搜尋 &#x2F; 訂單批次處理"></a>商品搜尋 &#x2F; 訂單批次處理</h2><p>前端一次選 5000 個商品，不可能用 IN (…)、不想用字串 Split，正確姿勢是</p>
+<p>Application 組 TVP-&gt; SQL 接收 TVP -&gt; 轉存 #temp -&gt; 加 index -&gt; 開始算折扣、排序、排名</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/tempTable/TVP.png" alt="t"></p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/06/DeepType-SQL-Thinking-TempTable/">https://allenlin000.github.io.git/2025/10/06/DeepType-SQL-Thinking-TempTable/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/NfCnwwU.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/06/DeepType-SQL-Thinking-Window-Func-1/" title="在夜裡奔跑的資料，不需要回頭 JOIN"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">在夜裡奔跑的資料，不需要回頭 JOIN</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/06/%E7%B5%B1%E8%A8%88/" title="SQL - Store Procedure"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">SQL - Store Procedure</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">218</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%BB%E5%95%86%E9%9B%99-11-%E4%BF%83%E9%8A%B7%E7%B5%90%E5%B8%B3"><span class="toc-number">1.</span> <span class="toc-text">電商雙 11 促銷結帳</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8A-%E7%B5%B1%E8%A8%88%E8%B3%87%E8%A8%8A-Statistics-%E8%88%87%E5%9F%B7%E8%A1%8C%E8%A8%88%E7%95%AB"><span class="toc-number">2.</span> <span class="toc-text">📊 統計資訊 (Statistics) 與執行計畫</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E7%B4%A2%E5%BC%95-Index-%E7%9A%84%E5%BD%88%E6%80%A7"><span class="toc-number">3.</span> <span class="toc-text">🛠️ 索引 (Index) 的彈性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%A7%B9-%E6%89%8B%E5%8B%95%E6%B8%85%E7%90%86-Explicit-Drop-%E7%9A%84%E5%A5%BD%E7%BF%92%E6%85%A3"><span class="toc-number">4.</span> <span class="toc-text">🧹 手動清理 (Explicit Drop) 的好習慣</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%8B%95%E5%8C%96%E7%89%A9%E6%B5%81%E6%8E%92%E7%A8%8B"><span class="toc-number">5.</span> <span class="toc-text">自動化物流排程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1%EF%B8%8F-%E5%91%BD%E5%90%8D%E8%A1%9D%E7%AA%81%E8%88%87%E8%A6%86%E8%93%8B%E9%A2%A8%E9%9A%AA"><span class="toc-number">6.</span> <span class="toc-text">🛡️ 命名衝突與覆蓋風險</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%80%A7%E8%88%87%E6%AC%8A%E9%99%90%E6%BC%8F%E6%B4%9E"><span class="toc-number">7.</span> <span class="toc-text">安全性與權限漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A7%92%E6%AE%BA%EF%BC%8F%E9%99%90%E6%99%82%E6%90%B6%E8%B3%BC%EF%BC%88Flash-Sale%EF%BC%89%E5%90%8D%E5%96%AE%E9%81%8E%E6%BF%BE"><span class="toc-number">8.</span> <span class="toc-text">秒殺／限時搶購（Flash Sale）名單過濾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%BB%91%E5%90%8D%E5%96%AE%EF%BC%8F%E7%99%BD%E5%90%8D%E5%96%AE%E9%81%8E%E6%BF%BE%EF%BC%88%E9%AB%98%E9%A0%BB%E5%B0%8F%E6%B8%85%E5%96%AE%EF%BC%89"><span class="toc-number">9.</span> <span class="toc-text">黑名單／白名單過濾（高頻小清單）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-1%EF%BC%9A%E5%85%88%E5%9C%A8-SQL-Server-%E5%AE%9A%E7%BE%A9%E3%80%8C%E8%A1%A8%E7%9A%84%E5%9E%8B%E5%88%A5%E3%80%8D"><span class="toc-number">10.</span> <span class="toc-text">Step 1：先在 SQL Server 定義「表的型別」</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-2%EF%BC%9AStored-Procedure-%E6%8E%A5%E6%94%B6-TVP"><span class="toc-number">11.</span> <span class="toc-text">Step 2：Stored Procedure 接收 TVP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-3%EF%BC%9A%E6%87%89%E7%94%A8%E7%A8%8B%E5%BC%8F%E7%AB%AF%E6%80%8E%E9%BA%BC%E5%82%B3%EF%BC%88%E6%A6%82%E5%BF%B5%EF%BC%89"><span class="toc-number">12.</span> <span class="toc-text">Step 3：應用程式端怎麼傳（概念）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%95%86%E5%93%81%E6%90%9C%E5%B0%8B-%E8%A8%82%E5%96%AE%E6%89%B9%E6%AC%A1%E8%99%95%E7%90%86"><span class="toc-number">13.</span> <span class="toc-text">商品搜尋 &#x2F; 訂單批次處理</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled">Untitled</a><time datetime="2026-01-14T14:38:13.918Z" title="Created 2026-01-14 22:38:13">2026-01-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Factory/factory.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LoggerFactory"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory">LoggerFactory</a><time datetime="2026-01-11T02:58:05.000Z" title="Created 2026-01-11 10:58:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cammand"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand">Cammand</a><time datetime="2026-01-11T00:47:05.000Z" title="Created 2026-01-11 08:47:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis - 分散式架構（Sharding）"/></a><div class="content"><a class="title" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）">Redis - 分散式架構（Sharding）</a><time datetime="2026-01-10T15:30:11.000Z" title="Created 2026-01-10 23:30:11">2026-01-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
