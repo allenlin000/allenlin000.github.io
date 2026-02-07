@@ -1,0 +1,302 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Index - 發揮作用...了嗎 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="5個概念拯救龜速的SQL查詢(Query)    索引沒有覆蓋（Covering Index)索引沒有覆蓋查詢（Covering Index）複合索引的順序不對（Leftmost Prefix 原則)索引欄位的「資料分佈」不好（Cardinality）Equality 與 Range 的順序Optimizersummary索引是「查詢條件、資料分佈、索引結構三件事剛好對齊時，Optimizer 才">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Index - 發揮作用...了嗎">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/12/DeepType-SQL-Index-2/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="5個概念拯救龜速的SQL查詢(Query)    索引沒有覆蓋（Covering Index)索引沒有覆蓋查詢（Covering Index）複合索引的順序不對（Leftmost Prefix 原則)索引欄位的「資料分佈」不好（Cardinality）Equality 與 Range 的順序Optimizersummary索引是「查詢條件、資料分佈、索引結構三件事剛好對齊時，Optimizer 才">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/NfCnwwU.png">
+<meta property="article:published_time" content="2025-10-12T05:51:05.000Z">
+<meta property="article:modified_time" content="2026-02-07T01:58:52.985Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="情報の存在論">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/NfCnwwU.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/12/DeepType-SQL-Index-2/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Index - 發揮作用...了嗎',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-02-07 09:58:52'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/NfCnwwU.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Index - 發揮作用...了嗎</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-12T05:51:05.000Z" title="Created 2025-10-12 13:51:05">2025-10-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-07T01:58:52.985Z" title="Updated 2026-02-07 09:58:52">2026-02-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%83%85%E5%A0%B1%E3%81%AE%E5%AD%98%E5%9C%A8%E8%AB%96/">情報の存在論</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Index - 發揮作用...了嗎"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><a class="btn-beautify " target="_blank" rel="noopener" href="https://medium.com/@henry-chou/5%E5%80%8B%E6%A6%82%E5%BF%B5%E6%8B%AF%E6%95%91%E9%BE%9C%E9%80%9F%E7%9A%84sql%E6%9F%A5%E8%A9%A2-query-d10e06b8bae3" 
+  title="5個概念拯救龜速的SQL查詢(Query)"><i class="far fa-hand-point-right"></i><span>5個概念拯救龜速的SQL查詢(Query)</span></a>
+
+<br>
+
+<div class="tabs" id="index2"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="index2-1">索引沒有覆蓋（Covering Index)</button><button type="button" class="tab " data-href="index2-2">索引沒有覆蓋查詢（Covering Index）</button><button type="button" class="tab " data-href="index2-3">複合索引的順序不對（Leftmost Prefix 原則)</button><button type="button" class="tab " data-href="index2-4">索引欄位的「資料分佈」不好（Cardinality）</button><button type="button" class="tab " data-href="index2-5">Equality 與 Range 的順序</button><button type="button" class="tab " data-href="index2-6">Optimizer</button><button type="button" class="tab " data-href="index2-7">summary</button></ul><div class="tab-contents"><div class="tab-item-content active" id="index2-1"><p>索引是「查詢條件、資料分佈、索引結構三件事剛好對齊時，Optimizer 才會願意用它」，假設我們今天建立了一個 Index<br>，我們以為它可以幫忙「快速定位資料」，Optimizer 看查詢條件會嘗試判斷能不能用這個 Index 做 Seek、用了之後要不要回主表（Key Lookup）、成本是不是比 Scan 還低，Optimizer 依據 Statistics 估算回傳列數，不是實際跑，而是「猜」，如果猜錯，整個執行計畫就歪掉，只要任何一環不理想、Index 欄位不夠、欄位順序不對、資料分佈太平均、統計過期，則 Optimizer 就會放棄你以為「應該要用」的索引</p>
+<p>因此會發生已經建好索引，而且查詢條件也寫得很明確，但實際發生的是出現 Key Lookup、Index Scan &#x2F; Table Scan、查詢隨資料量成長而變慢，因為照你的設計用索引不划算!</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/SQL/Index/1___index_is_about_cost.png?raw=true" alt="G"></p></div><div class="tab-item-content" id="index2-2"><p>事情已經發生到「你就在現場」了，卻因為少帶一樣東西，只好再跑一趟</p>
+<p>你已經請好假、準時到機場、行李也託運了，輪到你登機…「護照呢？」</p>
+<p>在托運行李裡 😇😇😇</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/baggage2.png" alt="baggage"></p>
+<br>
+
+<p>索引也一樣，他只能回答它「帶在身上的資訊」，缺的欄位一定得回主表補，回表一多，索引的優勢就被吃光，Covering 是把「查詢會用到的資料一次拿齊」，讓 Seek 結束就真的結束</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> INDEX IX_Trip_Checkin</span><br><span class="line"><span class="keyword">ON</span> Trip(DepartureDate, Destination, Airline);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> PassengerName, SeatNo, BoardingGroup</span><br><span class="line"><span class="keyword">FROM</span> Trip</span><br><span class="line"><span class="keyword">WHERE</span> DepartureDate <span class="operator">=</span> <span class="string">&#x27;2025-12-01&#x27;</span></span><br><span class="line">  <span class="keyword">AND</span> Destination <span class="operator">=</span> <span class="string">&#x27;Tokyo&#x27;</span></span><br><span class="line">  <span class="keyword">AND</span> Airline <span class="operator">=</span> <span class="string">&#x27;ANA&#x27;</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> BoardingGroup <span class="keyword">DESC</span>;</span><br></pre></td></tr></table></figure>
+
+<p>這個索引裡 沒有包含 BoardingGroup 欄位。所以 SQL Server 雖然可以用這個索引快速找到<br>「今天、飛東京、搭 ANA 的旅客」，但它還得 回主表 (Key Lookup)去拿 BoardingGroup 因此造成大量的隨機 I&#x2F;O</p>
+<p>雖然有索引 + Key Lookup 還是比全表掃描快很多（特別是資料量大時），只是當「命中筆數變多」，Lookup 成本會開始反咬你</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/2___keylookup.png" alt="G"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/2____keylookup___pro" alt="C"></p>
+<h2 id="✅-解法：改成「Covering-Index」"><a href="#✅-解法：改成「Covering-Index」" class="headerlink" title="✅ 解法：改成「Covering Index」"></a>✅ 解法：改成「Covering Index」</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> INDEX IX_Trip_Checkin_Cover</span><br><span class="line"><span class="keyword">ON</span> Trip(DepartureDate, Destination, Airline)</span><br><span class="line">INCLUDE (BoardingGroup, PassengerName, SeatNo);</span><br></pre></td></tr></table></figure>
+
+<p>SQL Server 不用回主表，就像你護照就在口袋裡，輪到你，直接登機!</p>
+<p>而 Covering Index 是用空間與維護成本，去換「某些查詢的穩定速度」，因此每多 INCLUDE 一個欄位，表示索引頁變大、INSERT &#x2F; UPDATE &#x2F; DELETE 更慢、Buffer Pool 壓力變高，因此 Covering Index 只該為「高頻、痛點查詢」服務</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/2___convering__index.pn" alt="F"></p></div><div class="tab-item-content" id="index2-3"><p>一本很厚的參考書，它的編排方式是</p>
+<p>1️⃣ 先依語言分章（Language）<br>2️⃣ 每一章裡再依 類別分節（Category）<br>3️⃣ 每一節裡，內容再依 時間排序（EventTime）</p>
+<p>這本書是實體印刷的，頁碼是固定的，你只能這樣找，先翻到「中文」那一章，再在該章裡找「體育」這一節，最後在這一節裡，依時間往前或往後翻，這樣，每一次翻頁，搜尋範圍都會快速縮小。在 SQL Server 裡，複合索引 也是有順序的。這順序會直接影響查詢能不能用上索引</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/3___book__is_sequence.png" alt="F"></p>
+<p>複合索引就像一本只能「照目錄順序翻」的書，只要跳過最前面的分類，後面的資訊再齊全也派不上用場</p>
+<p>Leftmost Prefix Rule 說的是書就是這樣排的，你只能照它的目錄結構來找，一旦你跳過最前面的分類（Language），書沒有任何線索告訴你該從哪一頁開始，就只能從頭一頁一頁翻，搜尋自然就退化成「掃描整本書」</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> INDEX IX_EventCategory</span><br><span class="line"><span class="keyword">ON</span> EventCategory(<span class="keyword">Language</span>, Category, EventTime);</span><br></pre></td></tr></table></figure>
+
+<p>能有效支援的條件是：</p>
+<table>
+<thead>
+<tr>
+<th>查詢條件</th>
+<th>能用到索引嗎？</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WHERE Language &#x3D; …</td>
+<td>✅ 可以</td>
+</tr>
+<tr>
+<td>WHERE Language &#x3D; … AND Category &#x3D; …</td>
+<td>✅ 可以</td>
+</tr>
+<tr>
+<td>WHERE Language &#x3D; … AND Category &#x3D; … AND EventTime &#x3D; …</td>
+<td>✅ 可以</td>
+</tr>
+<tr>
+<td>WHERE Category &#x3D; … AND EventTime &#x3D; …</td>
+<td>❌ 不行（漏掉最左邊 Language）</td>
+</tr>
+<tr>
+<td>WHERE Language &#x3D; … AND EventTime &#x3D; …</td>
+<td>⚠️ 部分使用（可能效能不佳）</td>
+</tr>
+</tbody></table>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/3__index__broke.png" alt="H"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/3___sequence__rule.pn" alt="KK"></p>
+<h2 id="情況一：完全沒照順序（漏掉最左邊）"><a href="#情況一：完全沒照順序（漏掉最左邊）" class="headerlink" title="情況一：完全沒照順序（漏掉最左邊）"></a>情況一：完全沒照順序（漏掉最左邊）</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WHERE</span> Category <span class="operator">=</span> <span class="string">&#x27;Sport&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>「我知道你要找『體育』，但我整本書裡每一種語言都有體育，你又沒告訴我從哪一章開始……」</p>
+<p>結果導致不能 Index Seek、不能快速定位起點、退化成 Index Scan（幾乎等於沒用索引），這種情況，實務上可以把它當作「沒用索引」來看</p>
+<h2 id="情況二：有用到最左邊，但中間斷掉"><a href="#情況二：有用到最左邊，但中間斷掉" class="headerlink" title="情況二：有用到最左邊，但中間斷掉"></a>情況二：有用到最左邊，但中間斷掉</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WHERE</span> <span class="keyword">Language</span> <span class="operator">=</span> <span class="string">&#x27;zh-TW&#x27;</span> <span class="keyword">AND</span> EventTime <span class="operator">&gt;=</span> <span class="string">&#x27;2025-01-01&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>索引其實還是能幫一點忙，可以先跳到 Language &#x3D; ‘zh-TW’ 那一整段，但在這一段裡，資料是先依 Category 排，再依 EventTime，所以 EventTime 不能再精準 Seek，結果通常是 Seek + Scan（掃 zh-TW 這一整段），或看起來像 Seek，但實際 I&#x2F;O 還是不小，不是沒用索引，而是「只用了一半」</p>
+<p>沒照順序，但有用到最左邊欄位，還算有用索引，但效果打折，連最左邊欄位都沒用到，幾乎等於沒用索引（Index Scan &#x2F; Table Scan）</p></div><div class="tab-item-content" id="index2-4"><p>「我很努力」「我很認真」「我很善良」</p>
+<p>這些就像 IsActive &#x3D; 1，幾乎每個人都有，所以選擇性太低，世界不會因此特別為你走 Index Seek，這不代表它不重要，而是它不足以讓你被快速選中，屬於低基數</p>
+<p>而真正讓人生加速的，是高選擇性那一欄例如</p>
+<ul>
+<li>你獨有的經驗</li>
+<li>你不可替代的視角</li>
+<li>你能直接解決的問題</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/4___i_am_kind.png" alt="C"></p>
+<p>Cardinality（基數）就是「某個欄位有多少種不同的值」的程度</p>
+<ul>
+<li>IsActive 只有 0&#x2F;1 兩種 → 低 Cardinality</li>
+<li>UserId 幾乎每筆都不同 → 高 Cardinality</li>
+</ul>
+<p>Query Optimizer 要決定走哪個 Index（索引）時，需要先估計「這個條件會篩出多少列」。這個估計，主要靠 Statistics（統計資料）。如果 Statistics 過期或不準導致估計錯，則可能選錯索引或選錯執行計畫，導致變慢，而Optimizer 透過 Statistics 來估 Cardinality，如果估錯，就可能選錯索引</p>
+<h2 id="💠-低-Cardinality-欄位（例如-IsActive）"><a href="#💠-低-Cardinality-欄位（例如-IsActive）" class="headerlink" title="💠 低 Cardinality 欄位（例如 IsActive）"></a>💠 低 Cardinality 欄位（例如 IsActive）</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> EventCategory</span><br><span class="line"><span class="keyword">WHERE</span> IsActive <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>IsActive 只有 0&#x2F;1，選擇性（Selectivity）低。如果大多數資料都是 IsActive &#x3D; 1（例如 95% 都是 1），即使有 IsActive 的索引，也不一定會使用 Index Seek，因為掃幾乎整張表跟用索引再回表（Key Lookup）成本差不多甚至更高。這種情況，Optimzer 常會選 Index Scan 或 Table Scan，這不是「壞」，只是比較符合成本模型</p>
+<h2 id="高-Cardinality-欄位（例如-UserId）"><a href="#高-Cardinality-欄位（例如-UserId）" class="headerlink" title="高 Cardinality 欄位（例如 UserId）"></a>高 Cardinality 欄位（例如 UserId）</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> EventCategory</span><br><span class="line"><span class="keyword">WHERE</span> UserId <span class="operator">=</span> <span class="variable">@userId</span> <span class="keyword">AND</span> IsActive <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>UserId 幾乎唯一，選擇性高 → 很適合走 Index Seek。但如果 Statistics 過舊（例如剛大量匯入&#x2F;刪除資料，或資料分佈變化很大），Optimizer 就可能低估或高估回傳列數，導致選錯索引（例如選擇掃描一個大索引）</p>
+<p>改善就是先把統計更新到新鮮的狀態</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 精準但較慢（完整掃描）</span></span><br><span class="line"><span class="keyword">UPDATE</span> STATISTICS dbo.EventCategory <span class="keyword">WITH</span> FULLSCAN;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 一般快速更新</span></span><br><span class="line"><span class="keyword">UPDATE</span> STATISTICS dbo.EventCategory;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 全資料庫批次更新比較省事</span></span><br><span class="line"><span class="keyword">EXEC</span> sp_updatestats;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Filtered-Index"><a href="#Filtered-Index" class="headerlink" title="Filtered Index"></a>Filtered Index</h2><p>若你只會查活躍資料，考慮 Filtered Index，索引鍵只有一個欄位：SomeSelectiveColumn，這是唯一的 Index Key Column。WHERE IsActive &#x3D; 1 是「篩選條件」，不是索引鍵，Filtered Index 的意思是只有 IsActive &#x3D; 1 的資料列會被包含進這個索引，其他資料列（IsActive &#x3D; 0 或 NULL）全部忽略，這不會讓 IsActive 成為索引的一部分，它只是一個 filter predicate。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> INDEX IX_EventCategory_IsActive_1</span><br><span class="line"><span class="keyword">ON</span> dbo.EventCategory(SomeSelectiveColumn)  <span class="comment">-- 可放你常查的更具選擇性的欄位</span></span><br><span class="line"><span class="keyword">WHERE</span> IsActive <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>這樣針對 IsActive &#x3D; 1 的查詢，索引更小、更精準</p>
+<p>若還有其他選擇性高的條件，如 CategoryId 或 UpdatedAt，把選擇性高的欄位放在複合索引（Composite Index）的前面</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> INDEX IX_EventCategory_CategoryId_IsActive</span><br><span class="line"><span class="keyword">ON</span> dbo.EventCategory(CategoryId, IsActive);</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/4___filtered__index.png" alt="C"></p></div><div class="tab-item-content" id="index2-5"><p>若條件一個是等號（&#x3D;），一個是範圍（BETWEEN、&gt;、&lt;、LIKE ‘x%’），把等號欄位放前面，再放範圍欄位，Seek 能力最好。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 常見條件：Category = &#x27;Sport&#x27; AND PublishedAt &gt;= @d</span></span><br><span class="line"><span class="keyword">CREATE</span> INDEX IX_Articles_Category_PublishedAt</span><br><span class="line"><span class="keyword">ON</span> dbo.Articles(Category, PublishedAt);</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/4____cardio__order.png" alt="G"></p></div><div class="tab-item-content" id="index2-6"><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/5___optimizer.png" alt="GG"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/5___optimizer__refresh.png" alt="k"></p></div><div class="tab-item-content" id="index2-7"><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/6___table.png" alt="t"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/SQL/Index/6___final.png" alt="p"></p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/SQL/Index/unnamed.png?raw=true" alt="sum"></p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/12/DeepType-SQL-Index-2/">https://allenlin000.github.io.git/2025/10/12/DeepType-SQL-Index-2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%83%85%E5%A0%B1%E3%81%AE%E5%AD%98%E5%9C%A8%E8%AB%96/">情報の存在論</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/NfCnwwU.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/11/SQL-IsoloationLevel/" title="IsolationLevel"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">IsolationLevel</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/13/SQL-field/" title="Field"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Field</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/10/09/DeepType-SQL-Datetime-Flow/" title="Datetime Flow"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-09</div><div class="title">Datetime Flow</div></div></a></div><div><a href="/2025/10/06/DeepType-SQL-TempTable/" title="TempTable"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-06</div><div class="title">TempTable</div></div></a></div><div><a href="/2024/06/08/DeepType-SQL-Thinking-Anti-Join-Performance/" title="Anti Join"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-06-08</div><div class="title">Anti Join</div></div></a></div><div><a href="/2025/10/04/DeepType-SQL-Thinking-Index/" title="Index"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-04</div><div class="title">Index</div></div></a></div><div><a href="/2025/12/06/DeepType-SQL-Thinking-IsolationLevel-1/" title="ReadUncommitted and SnapShot"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-06</div><div class="title">ReadUncommitted and SnapShot</div></div></a></div><div><a href="/2024/06/08/DeepType-SQL-Thinking-String-Agg/" title="STRING_AGG"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-06-08</div><div class="title">STRING_AGG</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9C%85-%E8%A7%A3%E6%B3%95%EF%BC%9A%E6%94%B9%E6%88%90%E3%80%8CCovering-Index%E3%80%8D"><span class="toc-number">1.</span> <span class="toc-text">✅ 解法：改成「Covering Index」</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%85%E6%B3%81%E4%B8%80%EF%BC%9A%E5%AE%8C%E5%85%A8%E6%B2%92%E7%85%A7%E9%A0%86%E5%BA%8F%EF%BC%88%E6%BC%8F%E6%8E%89%E6%9C%80%E5%B7%A6%E9%82%8A%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">情況一：完全沒照順序（漏掉最左邊）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%85%E6%B3%81%E4%BA%8C%EF%BC%9A%E6%9C%89%E7%94%A8%E5%88%B0%E6%9C%80%E5%B7%A6%E9%82%8A%EF%BC%8C%E4%BD%86%E4%B8%AD%E9%96%93%E6%96%B7%E6%8E%89"><span class="toc-number">3.</span> <span class="toc-text">情況二：有用到最左邊，但中間斷掉</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%A0-%E4%BD%8E-Cardinality-%E6%AC%84%E4%BD%8D%EF%BC%88%E4%BE%8B%E5%A6%82-IsActive%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">💠 低 Cardinality 欄位（例如 IsActive）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AB%98-Cardinality-%E6%AC%84%E4%BD%8D%EF%BC%88%E4%BE%8B%E5%A6%82-UserId%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">高 Cardinality 欄位（例如 UserId）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Filtered-Index"><span class="toc-number">6.</span> <span class="toc-text">Filtered Index</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled">Untitled</a><time datetime="2026-01-14T14:38:13.918Z" title="Created 2026-01-14 22:38:13">2026-01-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Factory/factory.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LoggerFactory"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory">LoggerFactory</a><time datetime="2026-01-11T02:58:05.000Z" title="Created 2026-01-11 10:58:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cammand"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand">Cammand</a><time datetime="2026-01-11T00:47:05.000Z" title="Created 2026-01-11 08:47:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis - 分散式架構（Sharding）"/></a><div class="content"><a class="title" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）">Redis - 分散式架構（Sharding）</a><time datetime="2026-01-10T15:30:11.000Z" title="Created 2026-01-10 23:30:11">2026-01-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
