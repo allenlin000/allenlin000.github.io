@@ -1,0 +1,247 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Cert | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="憑證公鑰驗證流程CN &#x2F; SANRoot Certificate (根憑證)本機開發環境自簽的 Root Certificate不同的憑證https 與憑證summary憑證是一個「資料包」，裡面同時包含  網域資訊（CN&#x2F;SAN） 公鑰（Public Key） 其他欄位（有效期限、用途…） CA 的數位簽章（Signature）  公鑰只是其中一個欄位，功能是給 TLS 握手用（以及驗">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cert">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/09/25/DeepType-Web-Cert/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="憑證公鑰驗證流程CN &#x2F; SANRoot Certificate (根憑證)本機開發環境自簽的 Root Certificate不同的憑證https 與憑證summary憑證是一個「資料包」，裡面同時包含  網域資訊（CN&#x2F;SAN） 公鑰（Public Key） 其他欄位（有效期限、用途…） CA 的數位簽章（Signature）  公鑰只是其中一個欄位，功能是給 TLS 握手用（以及驗">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true">
+<meta property="article:published_time" content="2025-09-25T00:28:34.000Z">
+<meta property="article:modified_time" content="2026-02-20T02:39:42.140Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/09/25/DeepType-Web-Cert/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Cert',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-02-20 10:39:42'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">44</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Cert</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-09-25T00:28:34.000Z" title="Created 2025-09-25 08:28:34">2025-09-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-20T02:39:42.140Z" title="Updated 2026-02-20 10:39:42">2026-02-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web/">Web</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Cert"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="cert"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="cert-1">憑證</button><button type="button" class="tab " data-href="cert-2">公鑰</button><button type="button" class="tab " data-href="cert-3">驗證流程</button><button type="button" class="tab " data-href="cert-4">CN / SAN</button><button type="button" class="tab " data-href="cert-5">Root Certificate (根憑證)</button><button type="button" class="tab " data-href="cert-6">本機開發環境自簽的 Root Certificate</button><button type="button" class="tab " data-href="cert-7">不同的憑證</button><button type="button" class="tab " data-href="cert-8">https 與憑證</button><button type="button" class="tab " data-href="cert-9">summary</button></ul><div class="tab-contents"><div class="tab-item-content active" id="cert-1"><p>憑證是一個「資料包」，裡面同時包含</p>
+<ul>
+<li>網域資訊（CN&#x2F;SAN）</li>
+<li>公鑰（Public Key）</li>
+<li>其他欄位（有效期限、用途…）</li>
+<li>CA 的數位簽章（Signature）</li>
+</ul>
+<p>公鑰只是其中一個欄位，功能是給 TLS 握手用（以及驗證伺服器真的有私鑰）</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/1_what_is_cert.png" alt="3"></p></div><div class="tab-item-content" id="cert-2"><p>公鑰是非對稱加密（Public Key Cryptography）裡的一半鑰匙，通常是一對</p>
+<p>公鑰（Public Key）：可以公開給所有人<br>私鑰（Private Key）：只能放在伺服器手上，不能外流</p>
+<p>在 HTTPS 裡面，公鑰主要用來做兩件事</p>
+<p>協助建立加密連線<br>瀏覽器拿到憑證的公鑰後，可以在握手過程中完成「只有真正持有私鑰的那台伺服器才接得住」的驗證&#x2F;交換流程（不同握手版本細節不同，但核心概念是這樣）。</p>
+<p>驗證連到的伺服器真的握有私鑰，因為只有持有私鑰的人，才做得到某些對應的加密&#x2F;簽名運算</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/2_public_and_private.png" alt="2"></p></div><div class="tab-item-content" id="cert-3"><ul>
+<li><p>在瀏覽器輸入 <a target="_blank" rel="noopener" href="https://example.com/">https://example.com</a></p>
+</li>
+<li><p>瀏覽器跟伺服器開始建立 HTTPS 連線（握手過程）</p>
+</li>
+<li><p>伺服器送出「憑證」給瀏覽器</p>
+</li>
+<li><p>瀏覽器檢查憑證內容</p>
+<ul>
+<li>這張憑證寫的網域是不是 example.com（看 CN &#x2F; SAN）</li>
+<li>有沒有過期（有效期限）</li>
+<li>這張憑證是不是某個 CA 簽發的（發行者 &#x2F; 簽章）</li>
+<li>瀏覽器再用自己電腦&#x2F;系統內建的「信任清單」去確認這個 CA 我信不信</li>
+<li>檢查都通過 → 顯示 🔒，接著用憑證裡的公鑰等資訊把加密通道建立起來</li>
+</ul>
+</li>
+</ul>
+<p>任一關不通過 → 跳警告（例如：不受信任、過期、網域對不上）</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/3_check_cert.png" alt="3"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/3_tls_handshake.png" alt="2"></p></div><div class="tab-item-content" id="cert-4"><p>憑證要能「列出我可以代表哪些網域」，瀏覽器才知道你不是拿別人的證來冒充。現在一張憑證常常要同時涵蓋多個網域&#x2F;子網域（例如 example.com、<a target="_blank" rel="noopener" href="http://www.example.com、api.example.com),主要靠/">www.example.com、api.example.com），主要靠</a> SAN 來列清單，如果連的是 <a target="_blank" rel="noopener" href="http://www.example.com/">www.example.com</a> 但憑證只寫 example.com，瀏覽器就會說「名字對不上」直接警告</p></div><div class="tab-item-content" id="cert-5"><p>公開網際網路之所以能運作，是因為我們自己的作業系統出廠時就先塞好一批「大家公認的 CA 根憑證」，例如今天去一家新網站，網站憑證顯示「由某 CA 簽發」。而瀏覽器不會因為它自稱 CA 就相信，而是會一路追到根憑證，「這家 CA 的根憑證有沒有被我系統列為可信？」，有就放行，而沒有（例如公司內部自建 CA，或陌生 CA）則會跳警告或需要手動安裝那張根憑證</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/4_chain_of_trust.png" alt="2"></p></div><div class="tab-item-content" id="cert-6"><p>自己做一個「本機專用的發證機關」，再把它加入電腦的信任清單，這樣在 <a target="_blank" rel="noopener" href="https://localhost/">https://localhost</a> 或自訂網域跑 HTTPS 才不會每次都被瀏覽器跳紅字嚇阻</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/5_local_teat_hard.png" alt="f"></p>
+<p>在做需要 HTTPS 的功能，例如 Service Worker &#x2F; PWA、HTTP-only &#x2F; Secure cookie 行為測試、OAuth &#x2F; SSO redirect URI 需要 https、WebAuthn、Camera&#x2F;Mic、某些 API 在非安全來源會被限制，而這些在純 <a target="_blank" rel="noopener" href="http://localhost/">http://localhost</a> 或被警告擋住時很麻煩。因此自簽 Root CA + 本機信任後，就可以在本機用「像正式環境一樣」的 HTTPS 行為測試</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/6_why_https.png" alt="3"></p></div><div class="tab-item-content" id="cert-7"><p>公有 CA 發的憑證（正式用，像 Let’s Encrypt, DigiCert），瀏覽器&#x2F;OS 預設信任，線上網站一定要用這種。</p>
+<p>自簽憑證 (Self-signed certificate)（本機開發、測試用），例如 localhost 憑證，這種瀏覽器不會自動信任，要自己手動安裝</p>
+<p>而開發憑證 (dotnet dev-certs)，.NET Core &#x2F; Visual Studio 自動產生的，目的是讓你在 <a target="_blank" rel="noopener" href="https://localhost/">https://localhost</a> 測試時不會跳「不安全」。</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/7_dev_and_prod.png" alt="2"></p>
+<h2 id="用-NET-CLI-產生-管理一張「開發用、自簽」的-HTTPS-憑證"><a href="#用-NET-CLI-產生-管理一張「開發用、自簽」的-HTTPS-憑證" class="headerlink" title="用 .NET CLI 產生&#x2F;管理一張「開發用、自簽」的 HTTPS 憑證"></a>用 .NET CLI 產生&#x2F;管理一張「開發用、自簽」的 HTTPS 憑證</h2><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/8_net_cert.png" alt="2"></p>
+<ol>
+<li>執行 dotnet dev-certs https，.NET CLI 會產生&#x2F;管理一張「開發用、自簽」的 HTTPS 憑證</li>
+<li>再執行 dotnet dev-certs https –trust，會把這張開發憑證加進 OS 的信任機制（不同平台行為略不同），讓瀏覽器顯示 🔒 而不是警告</li>
+<li>ASP.NET Core（Kestrel&#x2F;IIS Express）啟動時就能用這張憑證在 <a href="https://localhost:xxxx">https://localhost:xxxx</a> 提供 HTTPS</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/8_net_cli.png" alt="2"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 檢查目前是否有可用的開發憑證</span></span><br><span class="line">dotnet dev-certs https --check</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清掉舊的開發憑證（常用來解決「突然不被信任」或過期等問題）</span></span><br><span class="line">dotnet dev-certs https --clean</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新建立並信任（最常見的修復組合）</span></span><br><span class="line">dotnet dev-certs https --trust</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/8_net_cert_command.png" alt="2"></p></div><div class="tab-item-content" id="cert-8"><p>公開網際網路之所以能運作，是因為我們自己的作業系統出廠時就先塞好一批「大家公認的 CA 根憑證」，例如今天去一家新網站，網站憑證顯示「由某 CA 簽發」。而瀏覽器不會因為它自稱 CA 就相信，而是會一路追到根憑證，「這家 CA 的根憑證有沒有被我系統列為可信？」，有就放行，而沒有（例如公司內部自建 CA，或陌生 CA）則會跳警告或需要手動安裝那張根憑證</p>
+<h2 id="沒憑證，TLS-沒辦法做「身分驗證」"><a href="#沒憑證，TLS-沒辦法做「身分驗證」" class="headerlink" title="沒憑證，TLS 沒辦法做「身分驗證」"></a>沒憑證，TLS 沒辦法做「身分驗證」</h2><p>HTTPS 連線一開始，伺服器必須拿出一個證據讓瀏覽器相信「我真的代表這個網域（example.com）」、「而且這把公鑰真的屬於我」，這個證據就是憑證：網域（SAN&#x2F;CN）+ 公鑰 + CA 簽章，少了它，瀏覽器根本不知道對方是不是冒牌貨，MITM（中間人攻擊）會變得容易</p>
+<h2 id="沒憑證，現代瀏覽器通常直接不給你建立-HTTPS"><a href="#沒憑證，現代瀏覽器通常直接不給你建立-HTTPS" class="headerlink" title="沒憑證，現代瀏覽器通常直接不給你建立 HTTPS"></a>沒憑證，現代瀏覽器通常直接不給你建立 HTTPS</h2><p>可以把 TLS 想成「談好一組加密方式與鑰匙」的流程。在 Web 的世界裡，瀏覽器對「安全」有硬規則，網站要提供 HTTPS，基本上就得出示憑證。伺服器如果沒證書／不送證書，TLS 握手會直接失敗，而握手失敗 &#x3D; HTTPS 連線建立不起來 &#x3D; 你連不上，所以從使用者角度就是沒有憑證，瀏覽器連不上 HTTPS</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/9_keys.png" alt="2"></p></div><div class="tab-item-content" id="cert-9"><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Web/Cert/cert.png" alt="s"></p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/09/25/DeepType-Web-Cert/">https://allenlin000.github.io.git/2025/09/25/DeepType-Web-Cert/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Web/">Web</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/09/23/Delegate-Delegate-%E5%A7%94%E6%B4%BE%E7%9A%84%E6%84%8F%E7%BE%A9/" title="Delegate - 委派的意義"><img class="cover" src="https://i.imgur.com/zTSkblP.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Delegate - 委派的意義</div></div></a></div><div class="next-post pull-right"><a href="/2025/09/25/WebApi-%E6%B8%AC%E8%A9%A6%E5%B7%A5%E5%85%B7/" title="WebApi - Cert"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">WebApi - Cert</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/09/23/DeepType-Web-ActionFilter/" title="WebApi - ActionFilter"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-23</div><div class="title">WebApi - ActionFilter</div></div></a></div><div><a href="/2024/08/10/DeepType-Web-Hosting/" title="Host"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-10</div><div class="title">Host</div></div></a></div><div><a href="/2025/09/23/DeepType-Web-WebApi/" title="WebAPI"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-23</div><div class="title">WebAPI</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">44</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8-NET-CLI-%E7%94%A2%E7%94%9F-%E7%AE%A1%E7%90%86%E4%B8%80%E5%BC%B5%E3%80%8C%E9%96%8B%E7%99%BC%E7%94%A8%E3%80%81%E8%87%AA%E7%B0%BD%E3%80%8D%E7%9A%84-HTTPS-%E6%86%91%E8%AD%89"><span class="toc-number">1.</span> <span class="toc-text">用 .NET CLI 產生&#x2F;管理一張「開發用、自簽」的 HTTPS 憑證</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B2%92%E6%86%91%E8%AD%89%EF%BC%8CTLS-%E6%B2%92%E8%BE%A6%E6%B3%95%E5%81%9A%E3%80%8C%E8%BA%AB%E5%88%86%E9%A9%97%E8%AD%89%E3%80%8D"><span class="toc-number">2.</span> <span class="toc-text">沒憑證，TLS 沒辦法做「身分驗證」</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B2%92%E6%86%91%E8%AD%89%EF%BC%8C%E7%8F%BE%E4%BB%A3%E7%80%8F%E8%A6%BD%E5%99%A8%E9%80%9A%E5%B8%B8%E7%9B%B4%E6%8E%A5%E4%B8%8D%E7%B5%A6%E4%BD%A0%E5%BB%BA%E7%AB%8B-HTTPS"><span class="toc-number">3.</span> <span class="toc-text">沒憑證，現代瀏覽器通常直接不給你建立 HTTPS</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled">Untitled</a><time datetime="2026-01-14T14:38:13.918Z" title="Created 2026-01-14 22:38:13">2026-01-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Factory/factory.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LoggerFactory"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory">LoggerFactory</a><time datetime="2026-01-11T02:58:05.000Z" title="Created 2026-01-11 10:58:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cammand"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand">Cammand</a><time datetime="2026-01-11T00:47:05.000Z" title="Created 2026-01-11 08:47:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis - 分散式架構（Sharding）"/></a><div class="content"><a class="title" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）">Redis - 分散式架構（Sharding）</a><time datetime="2026-01-10T15:30:11.000Z" title="Created 2026-01-10 23:30:11">2026-01-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
