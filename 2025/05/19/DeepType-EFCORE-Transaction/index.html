@@ -1,0 +1,332 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>EF Core - Transaction | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Using Transactions 關於 TransactionSaveChanges() 自動包成 Transaction使用 BeginTransaction() 控制交易範圍，可以包多次 SaveChanges()多個 DbContext 共用同一個交易使用 TransactionScope 自動處理多資源交易SaveChanges() 測試BeginTransaction() 測試Tra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EF Core - Transaction">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/05/19/DeepType-EFCORE-Transaction/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="Using Transactions 關於 TransactionSaveChanges() 自動包成 Transaction使用 BeginTransaction() 控制交易範圍，可以包多次 SaveChanges()多個 DbContext 共用同一個交易使用 TransactionScope 自動處理多資源交易SaveChanges() 測試BeginTransaction() 測試Tra">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true">
+<meta property="article:published_time" content="2025-05-19T14:07:05.000Z">
+<meta property="article:modified_time" content="2026-03-03T15:00:45.852Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/05/19/DeepType-EFCORE-Transaction/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'EF Core - Transaction',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2026-03-03 23:00:45'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">EF Core - Transaction</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-05-19T14:07:05.000Z" title="Created 2025-05-19 22:07:05">2025-05-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-03-03T15:00:45.852Z" title="Updated 2026-03-03 23:00:45">2026-03-03</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="EF Core - Transaction"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-tw/ef/core/saving/transactions?WT.mc_id=DOP-MVP-37580">Using Transactions</a></p>
+<div class="tabs" id="transaction"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="transaction-1">關於 Transaction</button><button type="button" class="tab " data-href="transaction-2">SaveChanges() 自動包成 Transaction</button><button type="button" class="tab " data-href="transaction-3">使用 BeginTransaction() 控制交易範圍，可以包多次 SaveChanges()</button><button type="button" class="tab " data-href="transaction-4">多個 DbContext 共用同一個交易</button><button type="button" class="tab " data-href="transaction-5">使用 TransactionScope 自動處理多資源交易</button><button type="button" class="tab " data-href="transaction-6">SaveChanges() 測試</button><button type="button" class="tab " data-href="transaction-7">BeginTransaction() 測試</button><button type="button" class="tab " data-href="transaction-8">TransactionScope 測試</button><button type="button" class="tab " data-href="transaction-9">summary</button></ul><div class="tab-contents"><div class="tab-item-content active" id="transaction-1"><p>在系統開發中，最可怕的狀況不是資料存不進去，而是「資料只成功了一半」</p>
+<p>你可能會覺得沒什麼——多一筆少一筆資料，好像影響不大。但實際上，這種「半成品」的狀態，才是造成系統錯誤與災難的根源</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/1_half.png" alt="3"></p>
+<ul>
+<li>使用者下單成功了，庫存卻沒扣 → 超賣</li>
+<li>客戶付款完成，但系統沒記帳 → 客訴、查帳風暴</li>
+<li>發票開出來了，卻沒連到訂單 → 財報對不起來</li>
+</ul>
+<p>這些問題不是 bug，也不是 crash，而是資料邏輯不一致，讓系統表面正常、實際混亂。這時候，就需要一種「全部成功或全部失敗」的保護機制 —— 這就是 交易（Transaction） 的存在價值。</p>
+<p>交易就像你畫圖時的一顆橡皮擦：如果中間畫錯了，可以整張擦掉重來，而不是留下殘破不堪的塗鴉。</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/1_eraser.png" alt="f"></p></div><div class="tab-item-content" id="transaction-2"><p>在 EF Core 中，只要你呼叫 SaveChanges() 或 SaveChangesAsync()，它就會自動包一個隱含的交易（Implicit Transaction）。這代表：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> context = <span class="keyword">new</span> MyDbContext())</span><br><span class="line">&#123;</span><br><span class="line">    context.Users.Add(<span class="keyword">new</span> User &#123; Name = <span class="string">&quot;小明&quot;</span> &#125;);</span><br><span class="line">    context.Orders.Add(<span class="keyword">new</span> Order &#123; Item = <span class="string">&quot;筆電&quot;</span> &#125;);</span><br><span class="line"></span><br><span class="line">    context.SaveChanges(); <span class="comment">// 任何一個失敗，全部操作都會 rollback</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>適合簡單 CRUD</li>
+<li>乾淨簡單、效能佳</li>
+<li>若發生例外，自動 Rollback</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/2_1_savechanges.png" alt="f"></p></div><div class="tab-item-content" id="transaction-3"><p>有些情境你會需要呼叫多次 SaveChanges()，但仍然希望它們「要嘛全成，要嘛全不成」。這時就可以使用 BeginTransaction() 取得 IDbContextTransaction：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> context = <span class="keyword">new</span> MyDbContext())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> transaction = context.Database.BeginTransaction())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> user = <span class="keyword">new</span> User &#123; Name = <span class="string">&quot;小明&quot;</span> &#125;;</span><br><span class="line">            context.Users.Add(user);</span><br><span class="line">            context.SaveChanges(); <span class="comment">// 執行後 user.Id 才有值</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">var</span> order = <span class="keyword">new</span> Order &#123; UserId = user.Id, Item = <span class="string">&quot;滑鼠&quot;</span> &#125;;</span><br><span class="line">            context.Orders.Add(order);</span><br><span class="line">            context.SaveChanges(); <span class="comment">// 第二次 SaveChanges()</span></span><br><span class="line"></span><br><span class="line">            transaction.Commit();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span></span><br><span class="line">        &#123;</span><br><span class="line">            transaction.Rollback();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>可多次 SaveChanges()</li>
+<li>手動控制 Commit &#x2F; Rollback</li>
+<li>單一 DbContext</li>
+</ul>
+<br>
+
+<p>但你可能會問，幹嘛不一次 SaveChanges() 就好，原因可能有</p>
+<ul>
+<li>你需要先 SaveChanges() 才能取得資料庫生成的值（如 Identity ID）</li>
+<li>你需要在中間進行額外邏輯、檢查、呼叫外部 API</li>
+<li>有些資料之間有順序、依賴、條件判斷</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/2_2_begintransaction.png" alt="d"></p>
+<p>是否「一定需要」包 transaction？取決於資料關聯的重要性與穩定性</p>
+<table>
+<thead>
+<tr>
+<th>情境</th>
+<th>是否需要 Transaction</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. 新增會員 → 寄歡迎信</td>
+<td><strong>可以不用</strong></td>
+<td>資料獨立，寄信失敗不影響主資料</td>
+</tr>
+<tr>
+<td>2. 新增 User → 新增 Order</td>
+<td><strong>建議使用</strong></td>
+<td>兩者有強關聯，失敗時要 Rollback</td>
+</tr>
+<tr>
+<td>3. 修改 A → 寫入 AuditLog</td>
+<td><strong>強烈建議使用</strong></td>
+<td>若 Log 寫入失敗，主資料就不能 commit，否則會造成審計遺漏</td>
+</tr>
+<tr>
+<td>4. 新增 Order → 呼叫外部金流服務</td>
+<td><strong>需要自訂補償機制或用 Transaction</strong></td>
+<td>若金流失敗，Order 不想保留</td>
+</tr>
+</tbody></table>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/3_decision_scenerio.png" alt="6"></p></div><div class="tab-item-content" id="transaction-4"><p>大型系統中，往往有多個 DbContext（例如：User 資料庫、Order 資料庫），你會希望這兩邊能「一起成功或一起失敗」。這可以透過共用同一個資料庫連線與交易物件，不過條件建立在:</p>
+<ul>
+<li>使用相同連線</li>
+<li>共用交易</li>
+</ul>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> connection = <span class="keyword">new</span> SqlConnection(<span class="string">&quot;your-connection-string&quot;</span>);</span><br><span class="line">connection.Open();</span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> context1 = <span class="keyword">new</span> UserDbContext(connection))</span><br><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> context2 = <span class="keyword">new</span> OrderDbContext(connection))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> transaction = context1.Database.BeginTransaction())</span><br><span class="line">    &#123;</span><br><span class="line">        context2.Database.UseTransaction(transaction.GetDbTransaction());</span><br><span class="line"></span><br><span class="line">        context1.Users.Add(<span class="keyword">new</span> User &#123; Name = <span class="string">&quot;小華&quot;</span> &#125;);</span><br><span class="line">        context1.SaveChanges();</span><br><span class="line"></span><br><span class="line">        context2.Orders.Add(<span class="keyword">new</span> Order &#123; Item = <span class="string">&quot;鍵盤&quot;</span> &#125;);</span><br><span class="line">        context2.SaveChanges();</span><br><span class="line"></span><br><span class="line">        transaction.Commit(); <span class="comment">// 兩個 Context 的操作一起提交</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/4_1_multicontext.png" alt="f"></p>
+<p>但實務上，「很少」這樣做，</p>
+<ol>
+<li>DbContext 拆分背後通常代表邏輯或資料來源的分離，不管是 CQRS、模組劃分、DDD 聚合分離，DbContext 拆開的目的就是要「邏輯分開」。如果還要「共用連線」，那就有點「拆了又綁」的違和感。</li>
+<li>共用連線會帶來額外的維護負擔，你得自己手動開啟連線、關閉連線、處理例外情況，容易出現一方 Dispose 影響另一方的問題（特別是 scope 或 async context 下）</li>
+<li>絕大多數需求下，一個 DbContext 就夠了</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/4_2_seldom_saredconnection.png" alt="f"></p>
+<p>對同一個資料庫的操作，幾乎都可以在單一 DbContext 中完成<br>若有多模組需求，也可以透過 Extension &#x2F; Partial Class &#x2F; Repository 等方式切出邏輯，而不需強拆成多個 DbContext</p></div><div class="tab-item-content" id="transaction-5"><p>TransactionScope 是 .NET 的「環境式交易管理器」，它會根據程式中所涉及的資源（SQL、File、Message Queue…）自動升級成 分散式交易（透過 MSDTC）或維持在本地交易（例如單一 SQL Server）</p>
+<p>只需要</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> scope = <span class="keyword">new</span> TransactionScope())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 這裡的所有連線都會自動納入交易</span></span><br><span class="line">    scope.Complete();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>使用情境</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. <strong>單體系統中，多個 <code>DbContext</code> + Dapper + ADO.NET 一起寫入資料庫</strong></td>
+<td>可用 <code>TransactionScope</code> 把他們包起來，避免交易手動管理太複雜</td>
+</tr>
+<tr>
+<td>2. <strong>你明確知道都連到同一個資料庫</strong>，但用的是不同資料存取技術</td>
+<td>避免你要手動開交易物件</td>
+</tr>
+<tr>
+<td>3. <strong>你願意接受 MSDTC（分散式交易協調器）帶來的效能與部署複雜性</strong></td>
+<td>跨資料庫或跨主機才有意義</td>
+</tr>
+</tbody></table>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> scope = <span class="keyword">new</span> TransactionScope())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> context1 = <span class="keyword">new</span> UserDbContext())</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> context2 = <span class="keyword">new</span> OrderDbContext())</span><br><span class="line">    &#123;</span><br><span class="line">        context1.Users.Add(<span class="keyword">new</span> User &#123; Name = <span class="string">&quot;小花&quot;</span> &#125;);</span><br><span class="line">        context1.SaveChanges();</span><br><span class="line"></span><br><span class="line">        context2.Orders.Add(<span class="keyword">new</span> Order &#123; Item = <span class="string">&quot;耳機&quot;</span> &#125;);</span><br><span class="line">        context2.SaveChanges();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    scope.Complete(); <span class="comment">// 呼叫這行才會真的提交交易</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/4_3_transactionscope.png" alt="f"></p>
+<ul>
+<li>自動偵測參與的資源</li>
+<li>自動決定 Commit &#x2F; Rollback</li>
+<li>必須使用 TransactionScopeAsyncFlowOption.Enabled 才能搭配 async</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/4_4_transactionscope_case.png" alt="f"></p></div><div class="tab-item-content" id="transaction-6"><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">AddItem</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> RD1 = <span class="keyword">new</span> Rd()</span><br><span class="line">    &#123;</span><br><span class="line">        RdName = <span class="string">&quot;Amber&quot;</span>,</span><br><span class="line">        DeptCode = <span class="string">&quot;PQ2&quot;</span>,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    _dbContext.Rds.Add(RD1);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> RD2 = <span class="keyword">new</span> Rd()</span><br><span class="line">    &#123;</span><br><span class="line">        RdName = <span class="string">&quot;grger&quot;</span>,</span><br><span class="line">        DeptCode = <span class="string">&quot;fffffffffffffffffffffffffffff&quot;</span>, <span class="comment">// 超出欄位長度</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    _dbContext.Rds.Add(RD2);</span><br><span class="line">    <span class="keyword">await</span> _dbContext.SaveChangesAsync();  <span class="comment">// 發生錯誤，兩筆皆 rollback</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p>執行這段程式後，會收到錯誤訊息：</p>
+<blockquote>
+<p>String or binary data would be truncated.<br><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/Transaction/sqlUpdateTooLong.png?raw=true" alt="SQLUpdateException"></p>
+</blockquote>
+<p>兩筆資料都沒進資料庫！這代表 EF Core 在呼叫 SaveChanges() 的時候，自動幫你包了一層交易（Transaction）。發生錯誤時，自動 Rollback。好貼心</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/5_1_rollback.png" alt="2"></p>
+<p>甚至可以用 SQL Profiler 看到，BEGIN TRANSACTION -&gt; 然後一連串 SQL 執行 -&gt; 接著是 ROLLBACK TRANSACTION<br><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/Transaction/sqlProfiler1.png?raw=true" alt="SQL Profiler"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/5_2_sql_profiler.png" alt="d"></p></div><div class="tab-item-content" id="transaction-7"><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">BeginTransactionScopeTest</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> transaction = <span class="keyword">this</span>._dbContext.Database.BeginTransaction())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">await</span> DoJob1();</span><br><span class="line">        <span class="keyword">await</span> DoJob2();</span><br><span class="line">        <span class="keyword">await</span> transaction.CommitAsync();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">async</span> Task <span class="title">DoJob2</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> rd = <span class="keyword">new</span> Rd()</span><br><span class="line">    &#123;</span><br><span class="line">        RdName = <span class="string">&quot;Chicken&quot;</span>,</span><br><span class="line">        DeptCode = <span class="string">&quot;RD04&quot;</span>,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    _dbContext.Add(rd);</span><br><span class="line">    <span class="keyword">await</span> _dbContext.SaveChangesAsync();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">async</span> Task <span class="title">DoJob1</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> rd = <span class="keyword">new</span> Rd()</span><br><span class="line">    &#123;</span><br><span class="line">        RdName = <span class="string">&quot;Bird&quot;</span>,</span><br><span class="line">        DeptCode = <span class="string">&quot;RD055555555555555&quot;</span>,  <span class="comment">// 又太長，欄位哀嚎</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    _dbContext.Add(rd);</span><br><span class="line">    <span class="keyword">await</span> _dbContext.SaveChangesAsync();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p>由於 DoJob1() 發生錯誤，整個交易還沒 Commit 就失敗，自然也會 Rollback。<br>結果兩筆資料都沒進資料庫。<br>SQL Profiler 證實有 BEGIN TRANSACTION -&gt; 沒有 COMMIT -&gt; 最後收場的是 ROLLBACK<br><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/Transaction/sqlUpdateTooLong2.png?raw=true" alt="SQLUpdateException"></p>
+<p>檢查資料庫，第一筆資料並未寫入，證明有 Transaction 且 Rollback 了。由 SQL Profiler 也成功蒐集到證據，兩次 sp_executesql 前有 BEGIN TRANSACTION，之後有 ROLLBACK TRANSACTION：<br><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/Transaction/sqlProfiler2.png?raw=true" alt="SQL Profiler"></p></div><div class="tab-item-content" id="transaction-8"><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">TransactionScopeInit</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> scope = <span class="keyword">new</span> TransactionScope(TransactionScopeOption.Required,<span class="keyword">new</span> TransactionOptions &#123; IsolationLevel = IsolationLevel.ReadCommitted&#125;, TransactionScopeAsyncFlowOption.Enabled))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">await</span> DoJob1();</span><br><span class="line">        <span class="keyword">await</span> DoJob2();</span><br><span class="line">        scope.Complete();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p>只要你沒呼叫 scope.Complete()，或者中途有一個爆了，就會自動回到初始狀態。資料沒寫入，SQL Profiler 出現 ROLLBACK。<br><img src="https://github.com/CHI-KEKE/pics/blob/main/EF/Transaction/sqlProfileTransactionScope.png?raw=true" alt="SQL Profiler"></p></div><div class="tab-item-content" id="transaction-9"><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/transaction.png" alt="s"></p>
+<p>在資料寫入的世界裡，有一種義氣叫做 Transaction。不論你是單純地用 SaveChanges()，還是自己手動開局 (BeginTransaction())，甚至升級為能跨越一切的 TransactionScope，他們的共同信念只有一句「我們是資料兄弟，要衝一起衝，有人滑倒就全體退場！」</p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/05/19/DeepType-EFCORE-Transaction/">https://allenlin000.github.io.git/2025/05/19/DeepType-EFCORE-Transaction/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/EF/ocean.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/05/18/NEW-DependencyInjection-5/" title="Dependency Injection - EF Core DbContext"><img class="cover" src="https://i.imgur.com/xAbpKgd.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Dependency Injection - EF Core DbContext</div></div></a></div><div class="next-post pull-right"><a href="/2025/05/20/DeepType-EFCORE-Scoped/" title="EF Core - DbContext 生命週期"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Scoped/1_landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">EF Core - DbContext 生命週期</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled">Untitled</a><time datetime="2026-01-14T14:38:13.918Z" title="Created 2026-01-14 22:38:13">2026-01-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Factory/factory.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LoggerFactory"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory">LoggerFactory</a><time datetime="2026-01-11T02:58:05.000Z" title="Created 2026-01-11 10:58:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cammand"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand">Cammand</a><time datetime="2026-01-11T00:47:05.000Z" title="Created 2026-01-11 08:47:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis - 分散式架構（Sharding）"/></a><div class="content"><a class="title" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）">Redis - 分散式架構（Sharding）</a><time datetime="2026-01-10T15:30:11.000Z" title="Created 2026-01-10 23:30:11">2026-01-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
