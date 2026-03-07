@@ -1,0 +1,417 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>EFCORE - 効率の詩 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="AsNoTracking()關於使用 DbContext Update 效能最好笛卡兒爆炸非同步IQueryable &#x2F; IEnumerable &#x2F; IListSummary🔹 EF Core 為什麼需要 Tracking？在預設情況下，EF Core 查詢出來的物件會被放進 Change Tracker，它會記錄  哪些屬性被讀進來 哪些屬性值被修改 哪些 Entity 跟其他 Entity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EFCORE - 効率の詩">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/10/05/DeepType-EFCORE-%E5%8A%B9%E7%8E%87%E3%81%AE%E8%A9%A9/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="AsNoTracking()關於使用 DbContext Update 效能最好笛卡兒爆炸非同步IQueryable &#x2F; IEnumerable &#x2F; IListSummary🔹 EF Core 為什麼需要 Tracking？在預設情況下，EF Core 查詢出來的物件會被放進 Change Tracker，它會記錄  哪些屬性被讀進來 哪些屬性值被修改 哪些 Entity 跟其他 Entity">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/1_landing.png">
+<meta property="article:published_time" content="2025-10-05T01:08:05.000Z">
+<meta property="article:modified_time" content="2026-03-07T02:46:41.563Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="EF CORE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/1_landing.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/10/05/DeepType-EFCORE-%E5%8A%B9%E7%8E%87%E3%81%AE%E8%A9%A9/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'EFCORE - 効率の詩',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-03-07 10:46:41'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/1_landing.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">EFCORE - 効率の詩</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-05T01:08:05.000Z" title="Created 2025-10-05 09:08:05">2025-10-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-03-07T02:46:41.563Z" title="Updated 2026-03-07 10:46:41">2026-03-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%B3%87%E6%96%99%E7%96%86%E7%95%8C%E7%9A%84%E8%88%AA%E5%9C%96/">資料疆界的航圖</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="EFCORE - 効率の詩"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="効率の詩"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="効率の詩-1">AsNoTracking()</button><button type="button" class="tab " data-href="効率の詩-2">關於使用 DbContext Update 效能最好</button><button type="button" class="tab " data-href="効率の詩-3">笛卡兒爆炸</button><button type="button" class="tab " data-href="効率の詩-4">非同步</button><button type="button" class="tab " data-href="効率の詩-5">IQueryable / IEnumerable / IList</button><button type="button" class="tab " data-href="効率の詩-6">Summary</button></ul><div class="tab-contents"><div class="tab-item-content active" id="効率の詩-1"><h2 id="🔹-EF-Core-為什麼需要-Tracking？"><a href="#🔹-EF-Core-為什麼需要-Tracking？" class="headerlink" title="🔹 EF Core 為什麼需要 Tracking？"></a>🔹 EF Core 為什麼需要 Tracking？</h2><p>在預設情況下，EF Core 查詢出來的物件會被放進 Change Tracker，它會記錄</p>
+<ul>
+<li>哪些屬性被讀進來</li>
+<li>哪些屬性值被修改</li>
+<li>哪些 Entity 跟其他 Entity 有關聯</li>
+</ul>
+<p>這樣 EF Core 才能在 SaveChanges() 的時候，自動知道要 Update&#x2F;Insert&#x2F;Delete 哪些資料。</p>
+<h2 id="🔹-Tracking-帶來的效能負擔"><a href="#🔹-Tracking-帶來的效能負擔" class="headerlink" title="🔹 Tracking 帶來的效能負擔"></a>🔹 Tracking 帶來的效能負擔</h2><p>Tracking 雖方便，但會多做很多事情</p>
+<ul>
+<li>建立快照 (Snapshot)：每個 Entity 要存一份原始值，方便比對</li>
+<li>變更偵測 (Change Detection)：每次存取或更新，EF 都要比對目前值與快照值</li>
+<li>關聯維護 (Relationship Fixup)：要維護 Navigation Properties (例如 Order → Customer)</li>
+</ul>
+<p><strong>如果只是單純查詢 (Read-Only)，這些動作完全是 多餘的成本</strong>。尤其當查詢回來的資料很多（成千上萬筆），這些「追蹤資料」會嚴重拖慢效能，佔用 CPU + 記憶體</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/3_tracker_heavy.png" alt="F"></p>
+<h2 id="🔹-AsNoTracking-怎麼提高效能？"><a href="#🔹-AsNoTracking-怎麼提高效能？" class="headerlink" title="🔹 AsNoTracking() 怎麼提高效能？"></a>🔹 AsNoTracking() 怎麼提高效能？</h2><p>當你呼叫 AsNoTracking()，EF 就會 跳過 Change Tracker，效果有幾點：</p>
+<ul>
+<li>不建立快照 → 減少記憶體用量</li>
+<li>不做變更比對 → 查詢速度變快</li>
+<li>不維護關聯 → CPU 負擔變小</li>
+<li>避免 GC 壓力 → 整體系統效能提升</li>
+</ul>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 預設有 Tracking</span></span><br><span class="line"><span class="keyword">var</span> customers1 = context.Customers</span><br><span class="line">    .Where(c =&gt; c.IsActive)</span><br><span class="line">    .ToList();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 AsNoTracking</span></span><br><span class="line"><span class="keyword">var</span> customers2 = context.Customers</span><br><span class="line">    .AsNoTracking()</span><br><span class="line">    .Where(c =&gt; c.IsActive)</span><br><span class="line">    .ToList();</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/3_3_tracker_proscons.png" alt="F"></p></div><div class="tab-item-content" id="効率の詩-2"><h3 id="🔹-一般-Update（傳統做法）是怎樣"><a href="#🔹-一般-Update（傳統做法）是怎樣" class="headerlink" title="🔹 一般 Update（傳統做法）是怎樣?"></a>🔹 一般 Update（傳統做法）是怎樣?</h3><p>要更新一筆訂單，EF Core 的一般流程是這樣：</p>
+<ul>
+<li>先查資料（SELECT） → 把訂單資料抓回來。</li>
+<li>在記憶體改值（order.Status &#x3D; Paid）。</li>
+<li>呼叫 SaveChanges() → EF Core 幫你比對「原本 vs 改後」，然後產生 UPDATE。</li>
+</ul>
+<p>這個流程需要「先查後改」，有時候只為了改一個欄位卻多了一次 SELECT，效率不好。</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/4_update_trouble.png" alt="F"></p>
+<h2 id="🔹-ExecuteUpdateAsync-的做法"><a href="#🔹-ExecuteUpdateAsync-的做法" class="headerlink" title="🔹 ExecuteUpdateAsync 的做法"></a>🔹 ExecuteUpdateAsync 的做法</h2><p>直接跳過「先查資料」這步。你告訴 EF Core 哪些資料要更新（Where 條件）、要改哪些欄位（SetProperty）EF Core 就直接丟一條 SQL UPDATE 給資料庫。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">await</span> db.Orders</span><br><span class="line">    .Where(o =&gt; o.Status == OrderStatus.Pending &amp;&amp; o.Id == id)</span><br><span class="line">    .ExecuteUpdateAsync(setters =&gt; setters</span><br><span class="line">        .SetProperty(o =&gt; o.Status, o =&gt; OrderStatus.Paid)</span><br><span class="line">        .SetProperty(o =&gt; o.PaidAt, o =&gt; DateTime.UtcNow));</span><br></pre></td></tr></table></figure>
+<p>生成的 SQL 大概會長這樣</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> Orders</span><br><span class="line"><span class="keyword">SET</span> Status <span class="operator">=</span> <span class="string">&#x27;Paid&#x27;</span>,</span><br><span class="line">    PaidAt <span class="operator">=</span> <span class="string">&#x27;2025-10-01 12:00:00&#x27;</span></span><br><span class="line"><span class="keyword">WHERE</span> Status <span class="operator">=</span> <span class="string">&#x27;Pending&#x27;</span> <span class="keyword">AND</span> Id <span class="operator">=</span> <span class="number">123</span>;</span><br></pre></td></tr></table></figure>
+
+<p>又或者，批次更新</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">await</span> db.Users</span><br><span class="line">    .Where(u =&gt; u.LastLogin &lt; DateTime.UtcNow.AddYears(<span class="number">-1</span>))</span><br><span class="line">    .ExecuteUpdateAsync(s =&gt; s.SetProperty(u =&gt; u.IsActive, u =&gt; <span class="literal">false</span>));</span><br></pre></td></tr></table></figure>
+
+<p>👉 ExecuteUpdateAsync 就是「直接發 SQL UPDATE，不經過 EF Core 的實體&#x2F;追蹤機制」。</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/4_2_executeupdateasync.png" alt="F"></p></div><div class="tab-item-content" id="効率の詩-3"><p>EF Core 的 <code>Include()</code> 用單一查詢時 → 很容易遇到「一個主表資料被重複很多次」的情況，這就是笛卡兒爆炸</p>
+<ul>
+<li>一對多 (One-to-Many) 例如：User → Orders (一個用戶有很多訂單)。User 會被重複列出很多次。</li>
+<li>多對多 (Many-to-Many) 例如：User ↔ Roles (一個用戶有多個角色)。 User 會被重複列出更多次，尤其角色數量龐大時，效能問題更明顯。</li>
+</ul>
+<p>User A：3 筆訂單（Order 1、2、3）<br>User B：2 筆訂單（Order 4、5）</p>
+<h2 id="🔹-普通-Include"><a href="#🔹-普通-Include" class="headerlink" title="🔹 普通 Include"></a>🔹 普通 Include</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> users = _db.Users</span><br><span class="line">    .Include(u =&gt; u.Orders)</span><br><span class="line">    .ToList();</span><br></pre></td></tr></table></figure>
+
+<p>SQL 結果（Join 展開）</p>
+<table>
+<thead>
+<tr>
+<th>UserId</th>
+<th>UserName</th>
+<th>OrderId</th>
+<th>Amount</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td>Alice</td>
+<td>1</td>
+<td>100</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Alice</td>
+<td>2</td>
+<td>200</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Alice</td>
+<td>3</td>
+<td>300</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Bob</td>
+<td>4</td>
+<td>50</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Bob</td>
+<td>5</td>
+<td>75</td>
+</tr>
+</tbody></table>
+<p>EF Core 物件圖（去重）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">users.Count = 2</span><br><span class="line">Alice.Orders = [1, 2, 3]</span><br><span class="line">Bob.Orders = [4, 5]</span><br></pre></td></tr></table></figure>
+
+<h4 id="✅-好處"><a href="#✅-好處" class="headerlink" title="✅ 好處"></a>✅ 好處</h4><p>程式方便直接使用完整物件</p>
+<h4 id="❌-壞處"><a href="#❌-壞處" class="headerlink" title="❌ 壞處"></a>❌ 壞處</h4><p>SQL 行數 &#x3D; N * M → 當 Order 數量很多時，資料量爆炸</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/5_include_decard_explode.png" alt="F"></p>
+<h2 id="🔹-投影成-DTO，只取必要資料"><a href="#🔹-投影成-DTO，只取必要資料" class="headerlink" title="🔹 投影成 DTO，只取必要資料"></a>🔹 投影成 DTO，只取必要資料</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> users = _db.Users</span><br><span class="line">    .Select(u =&gt; <span class="keyword">new</span> &#123;</span><br><span class="line">        u.Id,</span><br><span class="line">        u.Name,</span><br><span class="line">        Orders = u.Orders.Select(o =&gt; <span class="keyword">new</span> &#123; o.Id, o.Amount &#125;).ToList()</span><br><span class="line">    &#125;)</span><br><span class="line">    .ToList();</span><br></pre></td></tr></table></figure>
+
+<p>EF Core 會生成 子查詢 &#x2F; 二段查詢，或可能生成一個 JSON 聚合（依 Provider 版本不同）</p>
+<table>
+<thead>
+<tr>
+<th>UserId</th>
+<th>UserName</th>
+<th>Orders (子查詢聚合)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td>Alice</td>
+<td>[{1,100},{2,200},{3,300}]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Bob</td>
+<td>[{4,50},{5,75}]</td>
+</tr>
+</tbody></table>
+<p>EF Core &#x2F; DTO 物件</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">users.Count = <span class="number">2</span></span><br><span class="line">Alice.Orders = [ &#123;Id=<span class="number">1</span>, Amount=<span class="number">100</span>&#125;, &#123;<span class="number">2</span>,<span class="number">200</span>&#125;, &#123;<span class="number">3</span>,<span class="number">300</span>&#125; ]</span><br><span class="line">Bob.Orders   = [ &#123;<span class="number">4</span>,<span class="number">50</span>&#125;, &#123;<span class="number">5</span>,<span class="number">75</span>&#125; ]</span><br></pre></td></tr></table></figure>
+
+<h4 id="✅-好處-1"><a href="#✅-好處-1" class="headerlink" title="✅ 好處"></a>✅ 好處</h4><ul>
+<li>SQL 直接聚合關聯資料，不會 N * M 爆炸</li>
+<li>可以只取必要欄位（Id、Amount）</li>
+</ul>
+<h4 id="❌-壞處-1"><a href="#❌-壞處-1" class="headerlink" title="❌ 壞處"></a>❌ 壞處</h4><ul>
+<li>無法直接操作實體，只能用 DTO</li>
+<li>無法追蹤 Entity（沒辦法 Update 回 DbContext）</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/5_2_selecttodto.png" alt="F"></p>
+<h2 id="🔹-分兩次查詢"><a href="#🔹-分兩次查詢" class="headerlink" title="🔹 分兩次查詢"></a>🔹 分兩次查詢</h2><p>Explicit Load</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> users = _db.Users.ToList(); <span class="comment">// 先撈 User</span></span><br><span class="line">_db.Entry(users[<span class="number">0</span>]).Collection(u =&gt; u.Orders).Load(); <span class="comment">// 再載入 Order</span></span><br></pre></td></tr></table></figure>
+
+<p>Split Query（EF Core 5+）</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> users = _db.Users</span><br><span class="line">    .Include(u =&gt; u.Orders)</span><br><span class="line">    .AsSplitQuery()</span><br><span class="line">    .ToList();</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>UserId</th>
+<th>UserName</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td>Alice</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Bob</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>OrderId</th>
+<th>UserId</th>
+<th>Amount</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>A</td>
+<td>100</td>
+</tr>
+<tr>
+<td>2</td>
+<td>A</td>
+<td>200</td>
+</tr>
+<tr>
+<td>3</td>
+<td>A</td>
+<td>300</td>
+</tr>
+<tr>
+<td>4</td>
+<td>B</td>
+<td>50</td>
+</tr>
+<tr>
+<td>5</td>
+<td>B</td>
+<td>75</td>
+</tr>
+</tbody></table>
+<p>EF Core 物件圖</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">users.Count = <span class="number">2</span></span><br><span class="line">Alice.Orders = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line">Bob.Orders = [<span class="number">4</span>,<span class="number">5</span>]</span><br></pre></td></tr></table></figure>
+
+<h4 id="✅-好處-2"><a href="#✅-好處-2" class="headerlink" title="✅ 好處"></a>✅ 好處</h4><ul>
+<li>SQL 行數 &#x3D; N + M → 避免 N * M 爆炸</li>
+<li>可以用實體（可 Update 回 DbContext）</li>
+<li>支援 Include 多層關聯</li>
+</ul>
+<h4 id="❌-壞處-2"><a href="#❌-壞處-2" class="headerlink" title="❌ 壞處"></a>❌ 壞處</h4><p>會發送多個 SQL 查詢（Trade-off：網路往返多一次，但每筆行數少）</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/5_3_assplitquery.png" alt="F"></p></div><div class="tab-item-content" id="効率の詩-4"><p>操作資料庫屬於 I&#x2F;O 需求，同步 API 在資料庫執行期間會封鎖執行緒，增加執行緒需求，同時無法避免執行緒內容切換</p>
+<br>
+
+<h2 id="🔹-I-O-Input-Output"><a href="#🔹-I-O-Input-Output" class="headerlink" title="🔹 I&#x2F;O &#x3D; Input&#x2F;Output"></a>🔹 I&#x2F;O &#x3D; Input&#x2F;Output</h2><p>在程式世界裡通常指 <strong>跟外部資源溝通</strong>，而不是 CPU 算數學，因為 EF Core 在你呼叫 .ToListAsync() 或 .SaveChangesAsync() 時，背後是透過 ADO.NET → TCP&#x2F;IP → SQL Server 去跟資料庫伺服器溝通。<br>操作是依照 Entity Framework (EF Core) → 高階 ORM (Object Relational Mapper)，讓你用 C# 的物件去操作資料，不用自己寫 SQL。</p>
+<br>
+
+<h2 id="🔹-ADO-NET"><a href="#🔹-ADO-NET" class="headerlink" title="🔹 ADO.NET"></a>🔹 ADO.NET</h2><p>.NET 內建的底層資料存取 API，負責真正跟資料庫「溝通」。EF Core 只是包裝 (Wrapper)，實際執行 SQL 查詢的還是 ADO.NET，ADO.NET 提供一組 API，讓程式能透過 資料庫驅動程式 (Data Provider) 去連接資料庫<br>主要元件：</p>
+<ul>
+<li><code>Connection</code> → 跟資料庫建立連線 (例如 <code>SqlConnection</code>)</li>
+<li><code>Command</code> → 執行 SQL 指令 (例如 <code>SqlCommand</code>)</li>
+<li><code>DataReader</code> → 一筆一筆讀資料</li>
+<li><code>DataAdapter</code> &#x2F; <code>DataSet</code> → (傳統的方式) 批次存取資料</li>
+</ul>
+<p><code>ADO.NET</code> &#x3D; 鐵路系統（火車頭、鐵軌） → 直接跟資料庫搬運資料<br><code>EF Core</code> &#x3D; 高鐵 APP → 你只要輸入起點終點，它幫你產生車票、安排火車，實際的運輸還是靠鐵路</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/1_adonet_like_train.png" alt="gf"></p>
+<h2 id="🔹-同步-API"><a href="#🔹-同步-API" class="headerlink" title="🔹 同步 API"></a>🔹 同步 API</h2><p>呼叫後，執行緒會「卡住」直到 DB 把結果回傳</p>
+<br>
+
+<h2 id="🔹-非同步-API-Async"><a href="#🔹-非同步-API-Async" class="headerlink" title="🔹 非同步 API (Async)"></a>🔹 非同步 API (Async)</h2><p>呼叫後，執行緒會釋放回 ThreadPool，等 DB 回應時再喚醒繼續，在高併發（例如 Web API 同時上百請求）時，非同步能避免 ThreadPool 被塞爆。因為少了不必要的閒置執行緒，確實會降低 OS 的排程壓力<br>但要注意非同步本身有開銷，Async&#x2F;Await 會產生狀態機 (state machine)，如果只是單一 Console App 查一次 DB → await 可能反而更慢</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/2_async.png" alt="gf"></p></div><div class="tab-item-content" id="効率の詩-5"><h2 id="🔹-IQueryable"><a href="#🔹-IQueryable" class="headerlink" title="🔹 IQueryable"></a>🔹 IQueryable<T></h2><p>代表「一個還沒真正執行的查詢 (Query Expression)」，延遲執行 (Deferred Execution) → 直到你 .ToList() 或 foreach 才真的送 SQL 到資料庫，可以在送出前繼續調整查詢，最後只打一個 SQL</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">IQueryable&lt;User&gt; query = context.Users;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 動態加條件</span></span><br><span class="line"><span class="keyword">if</span> (isActiveOnly)</span><br><span class="line">    query = query.Where(u =&gt; u.IsActive);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> result = query.ToList(); <span class="comment">// 這裡才真的送 SQL</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>過濾條件在 DB 端執行</strong>，減少網路傳輸量 &amp; 記憶體負擔</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/6_iq.png" alt="gf"></p>
+<h2 id="🔹-IEnumerable"><a href="#🔹-IEnumerable" class="headerlink" title="🔹 IEnumerable"></a>🔹 IEnumerable</h2><p>IEnumerable<T> 代表「已經在記憶體中可以逐筆讀取的集合」，查詢可能已經執行，資料已經被載入到記憶體，後續的 .Where() 會在記憶體裡過濾，而不是轉成 SQL，如果資料很多，你先 .ToList() 拉回來，再過濾 → 浪費網路頻寬 &amp; 記憶體。適合小資料量，或你已經確定一定要把所有資料都載進來</p>
+<h2 id="🔹-IList"><a href="#🔹-IList" class="headerlink" title="🔹 IList"></a>🔹 IList</h2><p>IList<T> 是「在記憶體裡可操作的清單」，支援 增刪改查，不涉及 SQL，它就是 C# 的一個集合 (通常是 List<T>)，沒有查詢優化的空間，因為資料已經全部在記憶體裡</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/6_2_ieil.png" alt="gf"></p></div><div class="tab-item-content" id="効率の詩-6"><p><a class="btn-beautify " target="_blank" rel="noopener" href="https://medium.com/ricos-note/best-practices-in-ef-core-fe30da4cabed" 
+  title="Best Practices in EF Core"><i class="far fa-hand-point-right"></i><span>Best Practices in EF Core</span></a></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/7_table.png" alt="gf"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/performance1.png" alt="gf"></p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/10/05/DeepType-EFCORE-%E5%8A%B9%E7%8E%87%E3%81%AE%E8%A9%A9/">https://allenlin000.github.io.git/2025/10/05/DeepType-EFCORE-%E5%8A%B9%E7%8E%87%E3%81%AE%E8%A9%A9/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/EF-CORE/">EF CORE</a></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Performance/1_landing.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/10/04/DeepType-SQL-Index/" title="Index"><img class="cover" src="https://i.imgur.com/NfCnwwU.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Index</div></div></a></div><div class="next-post pull-right"><a href="/2025/10/05/DeepType-EFCORE-%E5%8A%B9%E7%8E%87%E3%81%AE%E8%A9%A9-2/" title="EFCORE - 効率の詩 2"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">EFCORE - 効率の詩 2</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2025/10/17/DeepType-EFCORE-COMMIT/" title="EF Core - TransactionScope vs BEGIN TRAN&#x2F;COMMIT"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Commit/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-17</div><div class="title">EF Core - TransactionScope vs BEGIN TRAN&#x2F;COMMIT</div></div></a></div><div><a href="/2025/05/20/DeepType-EFCORE-Scoped/" title="EF Core - DbContext 生命週期"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Scoped/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-20</div><div class="title">EF Core - DbContext 生命週期</div></div></a></div><div><a href="/2025/05/28/DeepType-EFCORE-DbUpdateException/" title="EF Core - DbUpdateException"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/DBUpdateException/1__red_flag.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - DbUpdateException</div></div></a></div><div><a href="/2025/05/28/DeepType-EFCORE-DbUpdateConcurrencyException/" title="EF Core - DbUpdateConcurrencyException"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Concurrency/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-28</div><div class="title">EF Core - DbUpdateConcurrencyException</div></div></a></div><div><a href="/2025/05/19/DeepType-EFCORE-Transaction/" title="EF Core - Transaction"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Transaction/1_half.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-19</div><div class="title">EF Core - Transaction</div></div></a></div><div><a href="/2025/05/27/DeepType-EFCORE-Logging/" title="EF Core - Logging"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/EF/Logging/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-27</div><div class="title">EF Core - Logging</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">217</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-EF-Core-%E7%82%BA%E4%BB%80%E9%BA%BC%E9%9C%80%E8%A6%81-Tracking%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">🔹 EF Core 為什麼需要 Tracking？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-Tracking-%E5%B8%B6%E4%BE%86%E7%9A%84%E6%95%88%E8%83%BD%E8%B2%A0%E6%93%94"><span class="toc-number">2.</span> <span class="toc-text">🔹 Tracking 帶來的效能負擔</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-AsNoTracking-%E6%80%8E%E9%BA%BC%E6%8F%90%E9%AB%98%E6%95%88%E8%83%BD%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">🔹 AsNoTracking() 怎麼提高效能？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%B9-%E4%B8%80%E8%88%AC-Update%EF%BC%88%E5%82%B3%E7%B5%B1%E5%81%9A%E6%B3%95%EF%BC%89%E6%98%AF%E6%80%8E%E6%A8%A3"><span class="toc-number">3.1.</span> <span class="toc-text">🔹 一般 Update（傳統做法）是怎樣?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-ExecuteUpdateAsync-%E7%9A%84%E5%81%9A%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">🔹 ExecuteUpdateAsync 的做法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-%E6%99%AE%E9%80%9A-Include"><span class="toc-number">5.</span> <span class="toc-text">🔹 普通 Include</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E5%A5%BD%E8%99%95"><span class="toc-number">5.0.1.</span> <span class="toc-text">✅ 好處</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9D%8C-%E5%A3%9E%E8%99%95"><span class="toc-number">5.0.2.</span> <span class="toc-text">❌ 壞處</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-%E6%8A%95%E5%BD%B1%E6%88%90-DTO%EF%BC%8C%E5%8F%AA%E5%8F%96%E5%BF%85%E8%A6%81%E8%B3%87%E6%96%99"><span class="toc-number">6.</span> <span class="toc-text">🔹 投影成 DTO，只取必要資料</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E5%A5%BD%E8%99%95-1"><span class="toc-number">6.0.1.</span> <span class="toc-text">✅ 好處</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9D%8C-%E5%A3%9E%E8%99%95-1"><span class="toc-number">6.0.2.</span> <span class="toc-text">❌ 壞處</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-%E5%88%86%E5%85%A9%E6%AC%A1%E6%9F%A5%E8%A9%A2"><span class="toc-number">7.</span> <span class="toc-text">🔹 分兩次查詢</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9C%85-%E5%A5%BD%E8%99%95-2"><span class="toc-number">7.0.1.</span> <span class="toc-text">✅ 好處</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9D%8C-%E5%A3%9E%E8%99%95-2"><span class="toc-number">7.0.2.</span> <span class="toc-text">❌ 壞處</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-I-O-Input-Output"><span class="toc-number">8.</span> <span class="toc-text">🔹 I&#x2F;O &#x3D; Input&#x2F;Output</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-ADO-NET"><span class="toc-number">9.</span> <span class="toc-text">🔹 ADO.NET</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-%E5%90%8C%E6%AD%A5-API"><span class="toc-number">10.</span> <span class="toc-text">🔹 同步 API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-%E9%9D%9E%E5%90%8C%E6%AD%A5-API-Async"><span class="toc-number">11.</span> <span class="toc-text">🔹 非同步 API (Async)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-IQueryable"><span class="toc-number">12.</span> <span class="toc-text">🔹 IQueryable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-IEnumerable"><span class="toc-number">13.</span> <span class="toc-text">🔹 IEnumerable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B9-IList"><span class="toc-number">14.</span> <span class="toc-text">🔹 IList</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled">Untitled</a><time datetime="2026-01-14T14:38:13.918Z" title="Created 2026-01-14 22:38:13">2026-01-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Factory/factory.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LoggerFactory"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory">LoggerFactory</a><time datetime="2026-01-11T02:58:05.000Z" title="Created 2026-01-11 10:58:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cammand"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand">Cammand</a><time datetime="2026-01-11T00:47:05.000Z" title="Created 2026-01-11 08:47:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis - 分散式架構（Sharding）"/></a><div class="content"><a class="title" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）">Redis - 分散式架構（Sharding）</a><time datetime="2026-01-10T15:30:11.000Z" title="Created 2026-01-10 23:30:11">2026-01-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
