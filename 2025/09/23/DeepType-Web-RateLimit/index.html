@@ -1,0 +1,256 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>RateLimit | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="超過時回 429 Too Many Requests  限流演算法Fixed Window：最好懂，像「每分鐘 60 次」適合大多數一般 API Sliding Window：比固定視窗平滑，邊界比較不會突然爆量適合你很在意公平性 Token Bucket：比較像流量池，適合有突發流量的情境很多公開 API 會偏愛這個 Concurrency：保護重 CPU &#x2F; 重 I&#x2F;O">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RateLimit">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/09/23/DeepType-Web-RateLimit/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="超過時回 429 Too Many Requests  限流演算法Fixed Window：最好懂，像「每分鐘 60 次」適合大多數一般 API Sliding Window：比固定視窗平滑，邊界比較不會突然爆量適合你很在意公平性 Token Bucket：比較像流量池，適合有突發流量的情境很多公開 API 會偏愛這個 Concurrency：保護重 CPU &#x2F; 重 I&#x2F;O">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2025-09-23T01:21:34.000Z">
+<meta property="article:modified_time" content="2026-03-09T00:32:53.457Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/09/23/DeepType-Web-RateLimit/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'RateLimit',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-03-09 08:32:53'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">218</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">RateLimit</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-09-23T01:21:34.000Z" title="Created 2025-09-23 09:21:34">2025-09-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-03-09T00:32:53.457Z" title="Updated 2026-03-09 08:32:53">2026-03-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Web/">Web</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="RateLimit"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li>超過時回 429 Too Many Requests</li>
+</ul>
+<h2 id="限流演算法"><a href="#限流演算法" class="headerlink" title="限流演算法"></a>限流演算法</h2><p>Fixed Window：最好懂，像「每分鐘 60 次」<br>適合大多數一般 API</p>
+<p>Sliding Window：比固定視窗平滑，邊界比較不會突然爆量<br>適合你很在意公平性</p>
+<p>Token Bucket：比較像流量池，適合有突發流量的情境<br>很多公開 API 會偏愛這個</p>
+<p>Concurrency：保護重 CPU &#x2F; 重 I&#x2F;O API<br>例如報表匯出、影像處理、AI 推論</p>
+<h2 id="把-RateLimiter-掛進-Program-cs"><a href="#把-RateLimiter-掛進-Program-cs" class="headerlink" title="把 RateLimiter 掛進 Program.cs"></a>把 RateLimiter 掛進 Program.cs</h2><p>用 AddRateLimiter 註冊政策</p>
+<p>用 OnRejected 統一處理超限時的回應</p>
+<p>回 429</p>
+<p>有 Retry-After 就寫到 header</p>
+<p>記結構化 log，後面好做告警</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System.Globalization;</span><br><span class="line"><span class="keyword">using</span> System.Threading.RateLimiting;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.RateLimiting;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> builder = WebApplication.CreateBuilder(args);</span><br><span class="line"></span><br><span class="line">builder.Services.AddControllers();</span><br><span class="line"></span><br><span class="line">builder.Services.AddRateLimiter(options =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;</span><br><span class="line"></span><br><span class="line">    options.OnRejected = <span class="keyword">async</span> (context, token) =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> http = context.HttpContext;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 官方文件示範：可從 lease metadata 取 RetryAfter</span></span><br><span class="line">        <span class="keyword">if</span> (context.Lease.TryGetMetadata(MetadataName.RetryAfter, <span class="keyword">out</span> <span class="keyword">var</span> retryAfter))</span><br><span class="line">        &#123;</span><br><span class="line">            http.Response.Headers.RetryAfter =</span><br><span class="line">                ((<span class="built_in">int</span>)retryAfter.TotalSeconds).ToString(CultureInfo.InvariantCulture);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 你自己的 header，前端/呼叫方會很好判讀</span></span><br><span class="line">        http.Response.Headers[<span class="string">&quot;X-RateLimit-Policy&quot;</span>] = <span class="string">&quot;api-per-user&quot;</span>;</span><br><span class="line">        http.Response.Headers[<span class="string">&quot;X-RateLimit-Blocked&quot;</span>] = <span class="string">&quot;true&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> logger = http.RequestServices</span><br><span class="line">            .GetRequiredService&lt;ILoggerFactory&gt;()</span><br><span class="line">            .CreateLogger(<span class="string">&quot;RateLimit&quot;</span>);</span><br><span class="line"></span><br><span class="line">        logger.LogWarning(</span><br><span class="line">            <span class="string">&quot;Rate limit exceeded. TraceId=&#123;TraceId&#125;, Path=&#123;Path&#125;, User=&#123;User&#125;, IP=&#123;IP&#125;&quot;</span>,</span><br><span class="line">            http.TraceIdentifier,</span><br><span class="line">            http.Request.Path,</span><br><span class="line">            http.User?.Identity?.Name ?? <span class="string">&quot;anonymous&quot;</span>,</span><br><span class="line">            http.Connection.RemoteIpAddress?.ToString());</span><br><span class="line"></span><br><span class="line">        http.Response.ContentType = <span class="string">&quot;application/json; charset=utf-8&quot;</span>;</span><br><span class="line">        <span class="keyword">await</span> http.Response.WriteAsJsonAsync(<span class="keyword">new</span></span><br><span class="line">        &#123;</span><br><span class="line">            error = <span class="string">&quot;rate_limit_exceeded&quot;</span>,</span><br><span class="line">            message = <span class="string">&quot;請求過於頻繁，請稍後再試。&quot;</span>,</span><br><span class="line">            traceId = http.TraceIdentifier</span><br><span class="line">        &#125;, cancellationToken: token);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    options.AddSlidingWindowLimiter(<span class="string">&quot;api-per-user&quot;</span>, limiterOptions =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        limiterOptions.PermitLimit = <span class="number">30</span>; <span class="comment">// 30 次</span></span><br><span class="line">        limiterOptions.Window = TimeSpan.FromMinutes(<span class="number">1</span>); <span class="comment">// 1 分鐘</span></span><br><span class="line">        limiterOptions.SegmentsPerWindow = <span class="number">6</span>;</span><br><span class="line">        limiterOptions.QueueLimit = <span class="number">0</span>;</span><br><span class="line">        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> app = builder.Build();</span><br><span class="line"></span><br><span class="line">app.UseRouting();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 若分區要看登入者資訊，要放在驗證之後</span></span><br><span class="line">app.UseAuthentication();</span><br><span class="line">app.UseAuthorization();</span><br><span class="line"></span><br><span class="line">app.UseRateLimiter();</span><br><span class="line"></span><br><span class="line">app.MapControllers().RequireRateLimiting(<span class="string">&quot;api-per-user&quot;</span>);</span><br><span class="line"></span><br><span class="line">app.Run();</span><br></pre></td></tr></table></figure>
+
+<p>官方文件明確提到 OnRejected 可用來統一處理超限請求，官方範例也示範了從 MetadataName.RetryAfter 取得 retry 時間、設定 Retry-After header、回 429、以及寫 log。官方也指出預設 rejected status 是 503，若要表達「你打太快」，通常應改成 429 Too Many Requests。</p>
+<h2 id="Header-要回哪些，前端和外部串接的人才真的看得懂"><a href="#Header-要回哪些，前端和外部串接的人才真的看得懂" class="headerlink" title="Header 要回哪些，前端和外部串接的人才真的看得懂"></a>Header 要回哪些，前端和外部串接的人才真的看得懂</h2><p>最低標配</p>
+<p>Retry-After<br>告訴對方幾秒後再來。官方指出這個 metadata 可用於 Token Bucket、Fixed Window、Sliding Window；Concurrency limiter 因為沒法估計何時釋放，因此不適合期待一定拿得到。</p>
+<p>X-RateLimit-Policy<br>讓你知道是哪條政策擋的</p>
+<p>X-RateLimit-Blocked: true<br>很直白，好查問題</p>
+<p>進階常用</p>
+<p>X-RateLimit-Limit</p>
+<p>X-RateLimit-Remaining</p>
+<p>X-RateLimit-Reset</p>
+<h2 id="Middleware-順序不能亂放"><a href="#Middleware-順序不能亂放" class="headerlink" title="Middleware 順序不能亂放"></a>Middleware 順序不能亂放</h2><p>若是 endpoint-specific rate limit，UseRateLimiter 要放在 UseRouting 之後</p>
+<p>若分區規則需要看認證資訊，應放在 UseAuthentication 之後<br>官方範例也直接註明因為 limiter 用到了 auth info，所以 UseRateLimiter() 放在 UseAuthentication() 後面。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">app.UseRouting();</span><br><span class="line">app.UseAuthentication();</span><br><span class="line">app.UseAuthorization();</span><br><span class="line">app.UseRateLimiter();</span><br><span class="line">app.MapControllers().RequireRateLimiting(<span class="string">&quot;api-per-user&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Response-Header"><a href="#Response-Header" class="headerlink" title="Response Header"></a>Response Header</h2><p>Header 的價值，在於你當場把遊戲規則講清楚，對方才不會一直瞎撞，把你的系統打得更慘。</p>
+<ol>
+<li>Client 打 API 過來</li>
+</ol>
+<p>例如前端、手機 App、合作廠商系統、別的後端服務來呼叫你的 API。</p>
+<ol start="2">
+<li>你的 API 判斷這次請求有沒有超過限制</li>
+</ol>
+<p>例如：</p>
+<p>每分鐘只能打 60 次</p>
+<p>同一個使用者只能同時有 2 個匯出報表請求</p>
+<p>同一個 IP 每分鐘只能嘗試登入 5 次</p>
+<ol start="3">
+<li>你把結果放在 Response Header</li>
+</ol>
+<p>例如：</p>
+<p>Retry-After: 30</p>
+<p>X-RateLimit-Limit: 60</p>
+<p>X-RateLimit-Remaining: 0</p>
+<p>X-RateLimit-Policy: login-ip-limit</p>
+<p>這些不是給你自己內部查帳用的，主要是給「呼叫方」看。</p>
+<ol start="4">
+<li>呼叫方根據 Header 調整行為</li>
+</ol>
+<p>例如：</p>
+<p>前端看到 Retry-After: 30，就 30 秒後再重試</p>
+<p>SDK 看到剩餘次數快沒了，就先暫停</p>
+<p>第三方串接商看到 policy 名稱，就知道是哪條限制生效</p>
+<p>這樣才不會變成：</p>
+<p>被擋了還狂打</p>
+<p>使用者只看到錯誤卻不知道原因</p>
+<p>串接方抱怨 API 不穩，其實只是自己打太快</p>
+<h2 id="問題"><a href="#問題" class="headerlink" title="問題"></a>問題</h2><p>我們現在有串接facebook 直播站台，我們是使用 aspnet core webapi，我們想紀錄或加上 ratelimit 的狀況(rps &#x3D; 100)，串接方式就是我們的站台開出webhook api, facebook 事件(例如留言) 打過來我就可以將資訊透過 webhook 接收並使用 aws apigateway websocket 發送給前端，現在有需求說Header 紀錄 API rate limit Alert, 但我不太懂甚麼意意思，我該做什麼</p>
+<p>希望 Webhook API 能知道自己目前有沒有接近流量上限，並且在快要超過時，把這個狀態記錄下來，最好也能放在 Response Header 或 Log 裡面，方便監控、告警、追查。</p>
+<p>你的 API 要限制自己最多 100 RPS。</p>
+<p>你的 API 每次回應時，要告訴呼叫方目前額度狀態。</p>
+<p>當流量接近 100 RPS，例如到 80% 或 90%，要記錄 alert，讓監控系統告警。<br>這三件事常常會一起做。ASP.NET Core 官方範例也有展示「超限時回應 429」和 OnRejected 的做法。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/09/23/DeepType-Web-RateLimit/">https://allenlin000.github.io.git/2025/09/23/DeepType-Web-RateLimit/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/09/23/DeepType-Web-Routing/" title="Routing"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/MVC/pumpkin.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Routing</div></div></a></div><div class="next-post pull-right"><a href="/2025/09/23/DeepType-Web-WebApi/" title="WebAPI"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/WebAPI/tree.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">WebAPI</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">218</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">31</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%90%E6%B5%81%E6%BC%94%E7%AE%97%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">限流演算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%8A-RateLimiter-%E6%8E%9B%E9%80%B2-Program-cs"><span class="toc-number">2.</span> <span class="toc-text">把 RateLimiter 掛進 Program.cs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Header-%E8%A6%81%E5%9B%9E%E5%93%AA%E4%BA%9B%EF%BC%8C%E5%89%8D%E7%AB%AF%E5%92%8C%E5%A4%96%E9%83%A8%E4%B8%B2%E6%8E%A5%E7%9A%84%E4%BA%BA%E6%89%8D%E7%9C%9F%E7%9A%84%E7%9C%8B%E5%BE%97%E6%87%82"><span class="toc-number">3.</span> <span class="toc-text">Header 要回哪些，前端和外部串接的人才真的看得懂</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Middleware-%E9%A0%86%E5%BA%8F%E4%B8%8D%E8%83%BD%E4%BA%82%E6%94%BE"><span class="toc-number">4.</span> <span class="toc-text">Middleware 順序不能亂放</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Response-Header"><span class="toc-number">5.</span> <span class="toc-text">Response Header</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%95%8F%E9%A1%8C"><span class="toc-number">6.</span> <span class="toc-text">問題</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled">Untitled</a><time datetime="2026-01-14T14:38:13.918Z" title="Created 2026-01-14 22:38:13">2026-01-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Factory/factory.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LoggerFactory"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-Factory-LoggerFactory/" title="LoggerFactory">LoggerFactory</a><time datetime="2026-01-11T02:58:05.000Z" title="Created 2026-01-11 10:58:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cammand"/></a><div class="content"><a class="title" href="/2026/01/11/DeepType-K8S-Command/" title="Cammand">Cammand</a><time datetime="2026-01-11T00:47:05.000Z" title="Created 2026-01-11 08:47:05">2026-01-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis - 分散式架構（Sharding）"/></a><div class="content"><a class="title" href="/2026/01/10/DeepType-Cache-Redis-%E5%88%86%E6%95%A3%E5%BC%8F%E6%9E%B6%E6%A7%8B/" title="Redis - 分散式架構（Sharding）">Redis - 分散式架構（Sharding）</a><time datetime="2026-01-10T15:30:11.000Z" title="Created 2026-01-10 23:30:11">2026-01-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
