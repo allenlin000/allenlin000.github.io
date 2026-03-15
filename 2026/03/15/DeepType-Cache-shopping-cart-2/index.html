@@ -1,0 +1,538 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>shopping-cart-2 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="為什麼需要 AntiForgeryTokenDataCache vs CoreCache清除快取策略（CleanCacheService）整體架構總結 CSRF（Cross-Site Request Forgery，跨站請求偽造） 是一種攻擊手法：攻擊者讓已登入的使用者，在不知情的狀況下，對目標網站送出偽造的請求。 12345① 使用者登入了購物網站，瀏覽器已有登入 Cookie② 使用者同時開著">
+<meta property="og:type" content="article">
+<meta property="og:title" content="shopping-cart-2">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/03/15/DeepType-Cache-shopping-cart-2/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="為什麼需要 AntiForgeryTokenDataCache vs CoreCache清除快取策略（CleanCacheService）整體架構總結 CSRF（Cross-Site Request Forgery，跨站請求偽造） 是一種攻擊手法：攻擊者讓已登入的使用者，在不知情的狀況下，對目標網站送出偽造的請求。 12345① 使用者登入了購物網站，瀏覽器已有登入 Cookie② 使用者同時開著">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/1_landing.png">
+<meta property="article:published_time" content="2026-03-15T00:25:03.000Z">
+<meta property="article:modified_time" content="2026-03-15T06:57:28.695Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Cache">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/1_landing.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/03/15/DeepType-Cache-shopping-cart-2/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'shopping-cart-2',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-03-15 14:57:28'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">220</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/1_landing.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">shopping-cart-2</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-03-15T00:25:03.000Z" title="Created 2026-03-15 08:25:03">2026-03-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-03-15T06:57:28.695Z" title="Updated 2026-03-15 14:57:28">2026-03-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%90%BD%E8%91%89%E4%B8%8B%E7%9A%84%E5%AD%98%E6%AA%94/">落葉下的存檔</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="shopping-cart-2"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="shopping-cart-2"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="shopping-cart-2-1">為什麼需要 AntiForgeryToken</button><button type="button" class="tab " data-href="shopping-cart-2-2">DataCache vs CoreCache</button><button type="button" class="tab " data-href="shopping-cart-2-3">清除快取策略（CleanCacheService）</button><button type="button" class="tab " data-href="shopping-cart-2-4">整體架構總結</button></ul><div class="tab-contents"><div class="tab-item-content active" id="shopping-cart-2-1"><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/5_csrf_token.png" alt="2"></p>
+<p><strong>CSRF（Cross-Site Request Forgery，跨站請求偽造）</strong> 是一種攻擊手法：攻擊者讓已登入的使用者，在不知情的狀況下，對目標網站送出偽造的請求。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">① 使用者登入了購物網站，瀏覽器已有登入 Cookie</span><br><span class="line">② 使用者同時開著惡意網頁（例如被誘騙點開的廣告）</span><br><span class="line">③ 惡意網頁偷偷對購物網站發出 POST /api/checkout/create 請求</span><br><span class="line">④ 瀏覽器自動帶上 Cookie，購物網站以為是本人操作</span><br><span class="line">⑤ 攻擊者成功替使用者結帳，或清空購物車</span><br></pre></td></tr></table></figure>
+
+<p><strong>請求必須帶著一個只有真正前端頁面才拿得到的一次性 Token</strong>。惡意網頁無法預先取得這個 Token，因此偽造請求會被擋下</p>
+<hr>
+<h2 id="Redis-Key-設計"><a href="#Redis-Key-設計" class="headerlink" title="Redis Key 設計"></a>Redis Key 設計</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Core:AntiForgeryToken-20230821:&#123;shopId&#125;:&#123;token&#125;</span><br><span class="line"></span><br><span class="line">範例：</span><br><span class="line">Core:AntiForgeryToken-20230821:10416:f47ac10b-58cc-4372-a567-0e02b2c3d479</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="前端進入結帳頁，取得-Token"><a href="#前端進入結帳頁，取得-Token" class="headerlink" title="前端進入結帳頁，取得 Token"></a>前端進入結帳頁，取得 Token</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AntiForgeryService.cs</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;AntiForgeryTokenResponseEntity&gt; <span class="title">GetAntiForgeryTokenAsync</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 每次都產生全新的 Guid，36 碼，保證唯一</span></span><br><span class="line">    <span class="keyword">var</span> token = Guid.NewGuid().ToString();</span><br><span class="line">    <span class="keyword">var</span> antiForgeryTokenEntity = <span class="keyword">new</span> AntiForgeryTokenEntity &#123; Token = token &#125;;</span><br><span class="line">    <span class="keyword">var</span> isEnableTokenValidation = IsEnableTokenValidation();</span><br><span class="line">    <span class="keyword">if</span> (isEnableTokenValidation)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ 注意：這裡沒有 memberId，只有 shopId + token</span></span><br><span class="line">        <span class="keyword">await</span> _coreCacheService.SaveAsync(</span><br><span class="line">            antiForgeryTokenEntity,</span><br><span class="line">            CoreCacheKeyEnum.AntiForgeryToken,</span><br><span class="line">            _requestDataRetriever.ShopId,</span><br><span class="line">            token);  <span class="comment">// ← token 本身當作 key 的一部分</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> AntiForgeryTokenResponseEntity &#123; Token = token &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Redis 此時執行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET Core:AntiForgeryToken-20230821:10416:f47ac10b-...  <span class="string">&quot;&#123;\&quot;Token\&quot;:\&quot;f47ac10b-...\&quot;&#125;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>前端收到 token 後，存在頁面記憶體（或 sessionStorage），不允許其他網域讀取。</p>
+<hr>
+<h2 id="使用者送出操作時，後端驗證-Token"><a href="#使用者送出操作時，後端驗證-Token" class="headerlink" title="使用者送出操作時，後端驗證 Token"></a>使用者送出操作時，後端驗證 Token</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AntiForgeryService.cs</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">ValidateAsync</span>(<span class="params"><span class="built_in">string</span>? antiForgeryToken</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> isEnableTokenValidation = IsEnableTokenValidation();</span><br><span class="line">    <span class="keyword">if</span> (isEnableTokenValidation == <span class="literal">false</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;  <span class="comment">// 開關未開啟，跳過驗證</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 基本格式驗證：Token 必須是 36 碼的 Guid</span></span><br><span class="line">    <span class="keyword">if</span> (antiForgeryToken == <span class="literal">null</span> || antiForgeryToken.Length != TokenLength)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> AntiforgeryValidationException(AntiforgeryValidationExceptionTypeEnum.InvalidToken);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 去 Redis 查這個 Token 是否存在</span></span><br><span class="line">    <span class="keyword">var</span> antiforgyTokenEntity = <span class="keyword">await</span> _coreCacheService.LoadAsync&lt;AntiForgeryTokenEntity&gt;(</span><br><span class="line">        CoreCacheKeyEnum.AntiForgeryToken,</span><br><span class="line">        _requestDataRetriever.ShopId,</span><br><span class="line">        antiForgeryToken);  <span class="comment">// ← 用 token 本身去查 Redis</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 查不到 → Token 無效或已被用過</span></span><br><span class="line">    <span class="keyword">if</span> (antiforgyTokenEntity == <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> AntiforgeryValidationException(AntiforgeryValidationExceptionTypeEnum.InvalidToken);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Redis 此時執行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET Core:AntiForgeryToken-20230821:10416:f47ac10b-...</span><br><span class="line">→ 有值 = Token 有效</span><br><span class="line">→ nil  = Token 無效（從未存在，或已被刪除）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Step-3：驗證成功後，立刻刪除-Token（一次性）"><a href="#Step-3：驗證成功後，立刻刪除-Token（一次性）" class="headerlink" title="Step 3：驗證成功後，立刻刪除 Token（一次性）"></a>Step 3：驗證成功後，立刻刪除 Token（一次性）</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AntiForgeryService.cs</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">RemoveAsync</span>(<span class="params"><span class="built_in">string</span>? antiForgeryToken</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ ...格式驗證...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">await</span> _coreCacheService.RemoveAsync(</span><br><span class="line">        CoreCacheKeyEnum.AntiForgeryToken,</span><br><span class="line">        _requestDataRetriever.ShopId,</span><br><span class="line">        antiForgeryToken);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Redis 此時執行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DEL Core:AntiForgeryToken-20230821:10416:f47ac10b-...</span><br></pre></td></tr></table></figure>
+
+<p>Token 刪除後，就算攻擊者攔截到這個 Token，再次送出請求，<code>ValidateAsync</code> 就會查不到，直接拋例外。</p>
+<hr>
+<h2 id="設計決策解析"><a href="#設計決策解析" class="headerlink" title="設計決策解析"></a>設計決策解析</h2><table>
+<thead>
+<tr>
+<th>設計決策</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>沒有 memberId</strong></td>
+<td>CSRF 防護是「請求維度」的，未登入用戶（訪客）也可能需要送出表單，如果綁定 memberId，訪客就無法被保護</td>
+</tr>
+<tr>
+<td><strong>token 本身是 Key 的一部分</strong></td>
+<td>驗證時只需帶著 Token 去 Redis 查，不用先找到使用者再比對，時間複雜度 O(1)，極速</td>
+</tr>
+<tr>
+<td><strong>用完就刪（一次性）</strong></td>
+<td>防止重複提交：同一份表單就算按了兩次送出，第一次刪除 Token 後，第二次就會被擋住</td>
+</tr>
+<tr>
+<td><strong>開關控制（IsEnableTokenValidation）</strong></td>
+<td>逐步推出，可以針對特定商店或環境開啟，不影響其他商店</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="實境案例"><a href="#實境案例" class="headerlink" title="實境案例"></a>實境案例</h2><p><strong>情境：惡意機器人嘗試批量結帳</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">① 機器人直接 POST /api/checkouts/create，沒有帶 antiForgeryToken</span><br><span class="line">② AntiForgeryService.ValidateAsync() 收到 null → 拋 InvalidToken 例外</span><br><span class="line">③ 請求被拒絕，購物車結帳流程中止</span><br></pre></td></tr></table></figure>
+
+<p><strong>情境：正常使用者結帳</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">① 使用者點進結帳頁 → GET /api/antiforgery/token</span><br><span class="line">   → 後端 Guid.NewGuid() = <span class="string">&quot;f47ac10b-...&quot;</span></span><br><span class="line">   → 存入 Redis，回傳給前端</span><br><span class="line"></span><br><span class="line">② 使用者點「確認結帳」→ POST /api/checkouts/create，header 帶上 token</span><br><span class="line">   → ValidateAsync(<span class="string">&quot;f47ac10b-...&quot;</span>) → Redis GET → 有值 → 驗證通過</span><br><span class="line">   → RemoveAsync(<span class="string">&quot;f47ac10b-...&quot;</span>) → Redis DEL → Token 消失</span><br><span class="line"></span><br><span class="line">③ 使用者不小心按了兩次「確認結帳」</span><br><span class="line">   → 第二次 POST 送出同一個 <span class="string">&quot;f47ac10b-...&quot;</span></span><br><span class="line">   → ValidateAsync() → Redis GET → nil → 拋 InvalidToken</span><br><span class="line">   → 重複送出被擋住</span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="shopping-cart-2-2"><h2 id="兩種-Cache-Service-的職責分工"><a href="#兩種-Cache-Service-的職責分工" class="headerlink" title="兩種 Cache Service 的職責分工"></a>兩種 Cache Service 的職責分工</h2><p>系統設計了兩套完全不同用途的 Cache 服務，不能混用：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>DataCacheService</th>
+<th>CoreCacheService</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>用途</strong></td>
+<td>商店靜態設定（全店共用）</td>
+<td>個人結帳流程（每人獨立）</td>
+</tr>
+<tr>
+<td><strong>資料特性</strong></td>
+<td>改動頻率低，讀取頻率極高</td>
+<td>每個結帳 session 獨立</td>
+</tr>
+<tr>
+<td><strong>Cache 層數</strong></td>
+<td>雙層（Memory + Redis）</td>
+<td>單層（Redis 只）</td>
+</tr>
+<tr>
+<td><strong>Key 有 memberId？</strong></td>
+<td>❌ 無（商店維度）</td>
+<td>✅ 有（個人維度）</td>
+</tr>
+<tr>
+<td><strong>TTL</strong></td>
+<td>Redis 30 分鐘，Memory 10 秒</td>
+<td>由設定檔控制（預設數小時）</td>
+</tr>
+</tbody></table>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/2_datacache_corecache.png" alt="2"></p>
+<hr>
+<h2 id="DataCacheService：三種存取模式"><a href="#DataCacheService：三種存取模式" class="headerlink" title="DataCacheService：三種存取模式"></a>DataCacheService：三種存取模式</h2><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/2_2_datacache.png" alt="2"></p>
+<h3 id="模式-A：Memory-Redis（雙層快取，最常用）"><a href="#模式-A：Memory-Redis（雙層快取，最常用）" class="headerlink" title="模式 A：Memory + Redis（雙層快取，最常用）"></a>模式 A：Memory + Redis（雙層快取，最常用）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DataCacheService.cs</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> <span class="title">Task</span>&lt;<span class="title">T</span>?&gt; <span class="title">GetMemoryOrRedisCacheDataAsync</span>&lt;<span class="title">T</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="built_in">long</span> shopId, <span class="built_in">string</span> cacheName, <span class="built_in">string</span> cacheType, <span class="built_in">string</span> key,</span></span></span><br><span class="line"><span class="params"><span class="function">    Func&lt;Task&lt;T?&gt;&gt; source,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="built_in">int</span> memoryCacheExpirationSecond = <span class="number">10</span>,    // L1 記憶體 <span class="number">10</span> 秒</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="built_in">int</span> redisCacheExpirationSecond = <span class="number">1800</span>,   // L2 Redis <span class="number">30</span> 分鐘</span></span></span><br><span class="line"><span class="params"><span class="function">    ...</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> fullCacheName = <span class="string">$&quot;<span class="subst">&#123;cacheName&#125;</span>-<span class="subst">&#123;cacheType&#125;</span>-<span class="subst">&#123;shopId&#125;</span>-<span class="subst">&#123;AppendLocale(key)&#125;</span>&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 第一層：先查 MemoryCache（毫秒級）</span></span><br><span class="line">    <span class="keyword">var</span> memoryCacheObject = memoryCache.Get(fullCacheName);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (memoryCacheObject == <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ 第二層：Memory 沒有，去查 Redis（幾毫秒）</span></span><br><span class="line">        memoryCacheObject = <span class="keyword">await</span> GetRedisCacheDataAsync(...);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (memoryCacheObject != <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment"><span class="doctag">///</span>/ 寫回 MemoryCache，下次直接從記憶體拿</span></span><br><span class="line">            memoryCache.Set(fullCacheName, memoryCacheObject,</span><br><span class="line">                DateTimeOffset.Now.AddSeconds(memoryCacheExpirationSecond));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Redis 也沒有的話，就呼叫 source()（通常是打 DB 或外部 API）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>讀取順序：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">請求</span><br><span class="line">  │</span><br><span class="line">  ├─ L1 MemoryCache 有嗎？ → 有 → 直接回傳（~0.01ms）</span><br><span class="line">  │</span><br><span class="line">  ├─ L2 Redis 有嗎？ → 有 → 回傳 + 寫回 MemoryCache（~1ms）</span><br><span class="line">  │</span><br><span class="line">  └─ 都沒有 → 呼叫 <span class="built_in">source</span>()（DB / 外部 API）→ 寫入 Redis + MemoryCache（~10~100ms）</span><br></pre></td></tr></table></figure>
+
+<p><strong>實境案例：商店物流類型設定</strong></p>
+<p>商店 10416 一天可能有 100,000 次結帳請求，每次都需要查「支援哪些配送方式」。</p>
+<ul>
+<li>若每次都打 DB → 100,000 次 DB 查詢，DB 會被打爆</li>
+<li>有 Redis（30 分鐘）→ 只有第一次打 DB，之後 29 分鐘全從 Redis 拿</li>
+<li>有 MemoryCache（10 秒）→ 10 秒內所有請求全從記憶體拿，Redis 也不用打</li>
+</ul>
+<hr>
+<h3 id="模式-B：純-Redis（跨-Pod-共用但無記憶體加速）"><a href="#模式-B：純-Redis（跨-Pod-共用但無記憶體加速）" class="headerlink" title="模式 B：純 Redis（跨 Pod 共用但無記憶體加速）"></a>模式 B：純 Redis（跨 Pod 共用但無記憶體加速）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> <span class="title">Task</span>&lt;<span class="title">T</span>?&gt; <span class="title">GetRedisCacheDataAsync</span>&lt;<span class="title">T</span>&gt;(<span class="params">...</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 直接查 Redis，不走 MemoryCache</span></span><br><span class="line">    <span class="keyword">var</span> result = <span class="keyword">await</span> _cacheService.GetAsync(</span><br><span class="line">        cacheName, cacheType, key,</span><br><span class="line">        TimeSpan.FromSeconds(expirationSecond),</span><br><span class="line">        source,</span><br><span class="line">        CommandFlags.PreferReplica);  <span class="comment">// ← 優先讀取副本節點，分散讀取壓力</span></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>為什麼不加 MemoryCache？</strong> 因為系統通常有多個 Pod（水平擴展），MemoryCache 是 Pod 內部的記憶體，各 Pod 之間不共享。若資料需要即時跨 Pod 一致，就只能用 Redis。</p>
+<p><strong>實境案例：<code>LocationPickup</code>（取貨門市清單）</strong></p>
+<ul>
+<li>門市清單可能在後台即時更新（新增&#x2F;關閉門市）</li>
+<li>若用 MemoryCache，Pod A 看到最新資料，Pod B 還是舊的（10 秒內）</li>
+<li>用純 Redis，所有 Pod 都從同一個 Redis 節點讀，資料一致</li>
+</ul>
+<hr>
+<h3 id="模式-C：純-MemoryCache（僅本次請求，不跨-Pod）"><a href="#模式-C：純-MemoryCache（僅本次請求，不跨-Pod）" class="headerlink" title="模式 C：純 MemoryCache（僅本次請求，不跨 Pod）"></a>模式 C：純 MemoryCache（僅本次請求，不跨 Pod）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> <span class="title">Task</span>&lt;<span class="title">T</span>?&gt; <span class="title">GetMemoryCacheData</span>&lt;<span class="title">T</span>&gt;(<span class="params">...</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 只查 MemoryCache，資料不會存進 Redis</span></span><br><span class="line">    <span class="keyword">var</span> memoryCacheObject = memoryCache.Get(fullCacheName);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (memoryCacheObject == <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        memoryCacheObject = <span class="keyword">await</span> source();  <span class="comment">// ← 直接呼叫原始資料來源</span></span><br><span class="line">        memoryCache.Set(fullCacheName, memoryCacheObject, ...);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (T?)memoryCacheObject;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用場景：</strong> 同一個 HTTP 請求內，同一筆資料會被讀取多次，但不需要跨請求保留。</p>
+<p><strong>實境案例：<code>BlacklistService</code>（付款黑名單）</strong></p>
+<ul>
+<li>一次結帳請求中，可能需要多次確認「這個付款方式是否在黑名單」</li>
+<li>第一次查 DB，後續幾次查 MemoryCache（同一請求內）</li>
+<li>請求結束，MemoryCache 自動失效（或設 10 秒就過期）</li>
+<li>不需要存到 Redis，因為黑名單下一個請求就要重新查（可能被更新）</li>
+</ul>
+<hr>
+<h2 id="DataCacheService-的-Key-設計"><a href="#DataCacheService-的-Key-設計" class="headerlink" title="DataCacheService 的 Key 設計"></a>DataCacheService 的 Key 設計</h2><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/3_datacachekey.png" alt="2"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fullCacheName = &#123;cacheName&#125;-&#123;cacheType&#125;-&#123;shopId&#125;-&#123;key&#125;-&#123;locale&#125;</span><br><span class="line"></span><br><span class="line">實際範例：</span><br><span class="line">Cache:Prod:Shopping:Shop:GetShopShippingTypes-2020082601-10416:-zh-TW</span><br><span class="line">                    ↑    ↑                    ↑      ↑    ↑    ↑</span><br><span class="line">                  前綴  cacheName            cacheType  shopId key locale</span><br></pre></td></tr></table></figure>
+
+<p><strong>每個片段的設計理由：</strong></p>
+<table>
+<thead>
+<tr>
+<th>片段</th>
+<th>值範例</th>
+<th>設計理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cacheName</code></td>
+<td><code>Shop</code></td>
+<td>分類管理，在 Redis 工具中一眼看出是哪個服務的資料</td>
+</tr>
+<tr>
+<td><code>cacheType + 日期版本</code></td>
+<td><code>GetShopShippingTypes-2020082601</code></td>
+<td><strong>版本號就是部署日期</strong>；改資料結構時只需改日期，舊 Key 自然失效，無需 FLUSHDB</td>
+</tr>
+<tr>
+<td><code>shopId</code></td>
+<td><code>10416</code></td>
+<td>多租戶隔離，商店 A 的物流設定不能被商店 B 讀到</td>
+</tr>
+<tr>
+<td><code>locale</code></td>
+<td><code>zh-TW</code></td>
+<td>多語系隔離；台灣商品名稱是中文，香港版是繁中，新加坡版是英文，同一個 <code>shopId</code> 下有多份快取</td>
+</tr>
+</tbody></table>
+<p><strong>日期版本設計的核心價值：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">假設今天要在 ShopShippingTypes 新增一個欄位 <span class="string">&quot;IsExpressDelivery&quot;</span>：</span><br><span class="line"></span><br><span class="line">❌ 若沒有版本號：</span><br><span class="line">   舊 Cache 還在 Redis 裡 → 所有 Pod 撈到舊結構 → 新欄位是 null → Bug</span><br><span class="line"></span><br><span class="line">✅ 有版本號（改日期）：</span><br><span class="line">   舊 Key：GetShopShippingTypes-2020082601-10416</span><br><span class="line">   新 Key：GetShopShippingTypes-20231201-10416</span><br><span class="line">   → 兩個 Key 完全不同，舊 Key 自然過期（30 分鐘），不影響新程式</span><br><span class="line">   → 不需要 FLUSHDB（會影響所有商店的所有快取）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="CoreCacheService-的-Key-設計"><a href="#CoreCacheService-的-Key-設計" class="headerlink" title="CoreCacheService 的 Key 設計"></a>CoreCacheService 的 Key 設計</h2><p>CoreCache 有兩種 overload，對應「有沒有 memberId」</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CoreCacheService.cs GetQueryKey（私有方法）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 有 memberId 版本（個人資料）</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="built_in">string</span> <span class="title">GetQueryKey</span>(<span class="params">CoreCacheKeyEnum keyEnum, <span class="built_in">long</span> shopId, <span class="built_in">long</span> memberId, <span class="keyword">params</span> <span class="built_in">string</span>[] args</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> dataType = keyEnum <span class="keyword">switch</span></span><br><span class="line">    &#123;</span><br><span class="line">        CoreCacheKeyEnum.PersonalDataMask    =&gt; <span class="string">&quot;PersonalDataMask-20230207&quot;</span>,</span><br><span class="line">        CoreCacheKeyEnum.PartialCheckoutData =&gt; <span class="string">&quot;PartialCheckoutData-20230410&quot;</span>,</span><br><span class="line">        _ =&gt; <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentOutOfRangeException(...)</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">$&quot;Core:<span class="subst">&#123;dataType&#125;</span>:<span class="subst">&#123;shopId&#125;</span>:<span class="subst">&#123;memberId&#125;</span>:<span class="subst">&#123;<span class="built_in">string</span>.Join(<span class="string">&#x27;:&#x27;</span>, args)&#125;</span>&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 沒有 memberId 版本（防偽 Token）</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="built_in">string</span> <span class="title">GetQueryKey</span>(<span class="params">CoreCacheKeyEnum keyEnum, <span class="built_in">long</span> shopId, <span class="keyword">params</span> <span class="built_in">string</span>[] args</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> dataType = keyEnum <span class="keyword">switch</span></span><br><span class="line">    &#123;</span><br><span class="line">        CoreCacheKeyEnum.AntiForgeryToken =&gt; <span class="string">&quot;AntiForgeryToken-20230821&quot;</span>,</span><br><span class="line">        _ =&gt; <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentOutOfRangeException(...)</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">$&quot;Core:<span class="subst">&#123;dataType&#125;</span>:<span class="subst">&#123;shopId&#125;</span>:<span class="subst">&#123;<span class="built_in">string</span>.Join(<span class="string">&#x27;:&#x27;</span>, args)&#125;</span>&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>三種 CoreCacheKey 的完整 Key 範例：</strong></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/4_corecache_samples.png" alt="2"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">① PartialCheckoutData（結帳半狀態）</span><br><span class="line">   Core:PartialCheckoutData-20230410:10416:39326184:abc-def-1234</span><br><span class="line">                                     ↑     ↑         ↑</span><br><span class="line">                                   shopId memberId  checkoutUniqueKey</span><br><span class="line"></span><br><span class="line">② PersonalDataMask（個資明碼保險箱）</span><br><span class="line">   Core:PersonalDataMask-20230207:10416:39326184:abc-def-1234</span><br><span class="line">                                  ↑     ↑         ↑</span><br><span class="line">   （同一個 checkoutUniqueKey，同一個人，同一個 session）</span><br><span class="line"></span><br><span class="line">③ AntiForgeryToken（無 memberId）</span><br><span class="line">   Core:AntiForgeryToken-20230821:10416:f47ac10b-58cc-4372-a567-0e02b2c3d479</span><br><span class="line">                                  ↑     ↑</span><br><span class="line">                                shopId  token（Guid，36 碼）</span><br></pre></td></tr></table></figure>
+
+<p><strong>為什麼 ① 和 ② 用同一個 checkoutUniqueKey？</strong></p>
+<p>因為這兩個 Cache 記錄的是<strong>同一個結帳 session 的不同面向</strong>：</p>
+<ul>
+<li><code>PartialCheckoutData</code>：存結帳流程的狀態（選了哪個物流、哪張發票）</li>
+<li><code>PersonalDataMask</code>：存個資明碼（送單時後端自己 unmask）</li>
+</ul>
+<p>用同一個 Key 讓兩者的生命週期可以對應，不會出現「session 在但個資不見了」的情況。</p>
+<hr>
+<h2 id="Redis-節點選擇"><a href="#Redis-節點選擇" class="headerlink" title="Redis 節點選擇"></a>Redis 節點選擇</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DataCacheService 建構子</span></span><br><span class="line">_cacheService = redisInstanceResolver.GetCacheService(CacheInstanceType.ShoppingCache);</span><br><span class="line"></span><br><span class="line"><span class="comment">// CoreCacheService 建構子</span></span><br><span class="line">_redisDataProvider = redisInstanceResolver.GetCacheProvider(CacheInstanceType.ShoppingCache);</span><br></pre></td></tr></table></figure>
+
+<p>兩者都使用同一個 Redis 節點（<code>ShoppingCache</code>），但用不同的操作方式（<code>ICacheService</code> vs <code>ICacheProvider</code>），前者是高階封裝（含 Get-or-Set 邏輯），後者是低階封裝（直接 HSET &#x2F; HGET）。</p></div><div class="tab-item-content" id="shopping-cart-2-3"><h2 id="為什麼要主動清除快取？"><a href="#為什麼要主動清除快取？" class="headerlink" title="為什麼要主動清除快取？"></a>為什麼要主動清除快取？</h2><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/6_clean.png" alt="2"></p>
+<p><code>DataCacheService</code> 的快取 TTL 是 <strong>Redis 30 分鐘</strong>。這表示商店後台剛儲存的設定，最多要等 30 分鐘才能反映在前端。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">後台人員 → 修改商店物流設定（新增「順豐速運」）</span><br><span class="line">               ↓</span><br><span class="line">          存入資料庫</span><br><span class="line">               ↓</span><br><span class="line">          但 Redis 還快取著舊的物流清單（還有 28 分鐘才過期）</span><br><span class="line">               ↓</span><br><span class="line">前端使用者 → 看不到「順豐速運」選項（資料不一致）</span><br></pre></td></tr></table></figure>
+
+<p><code>CleanCacheService</code> 的責任就是：<strong>資料庫一更新，就立刻清除對應的 Redis 快取</strong>，讓下一次請求強制重新從 DB 載入最新資料。</p>
+<hr>
+<h2 id="三個清除方法與對應情境"><a href="#三個清除方法與對應情境" class="headerlink" title="三個清除方法與對應情境"></a>三個清除方法與對應情境</h2><h3 id="方法一：CleanShippingTypesAsync（清除物流設定快取）"><a href="#方法一：CleanShippingTypesAsync（清除物流設定快取）" class="headerlink" title="方法一：CleanShippingTypesAsync（清除物流設定快取）"></a>方法一：<code>CleanShippingTypesAsync</code>（清除物流設定快取）</h3><p><strong>觸發時機：</strong> 後台人員異動商店的配送方式設定（新增、停用、修改物流類型）</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CleanCacheService.cs</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">CleanShippingTypesAsync</span>(<span class="params"><span class="built_in">long</span> shopId</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 先查這個商店支援哪些語系（可能是 &quot;zh-TW,en-US&quot;）</span></span><br><span class="line">    <span class="keyword">var</span> contractLanguage = <span class="keyword">await</span> <span class="keyword">this</span>._shopDefaultService.GetShopDefaultValueAsync(</span><br><span class="line">        shopId, ShopDefaultGroupTypeDefEnum.Language, ShopDefaultKeyEnum.Contract, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ 每個語系各有一份快取，要逐一清除</span></span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> locale <span class="keyword">in</span> contractLanguage!.Split(<span class="string">&#x27;,&#x27;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ 對應的快取 Key（由程式碼中的註解得知）：</span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ Cache:Prod:Shopping:Shop:GetShopShippingTypes-2020082601-10416:-zh-TW</span></span><br><span class="line">        <span class="keyword">this</span>._dataCacheService.RemoveCacheKey(</span><br><span class="line">            shopId: shopId,</span><br><span class="line">            cacheName: <span class="string">&quot;Shop&quot;</span>,</span><br><span class="line">            cacheType: <span class="string">&quot;GetShopShippingTypes-2020082601&quot;</span>,</span><br><span class="line">            key: <span class="string">$&quot;-<span class="subst">&#123;locale&#125;</span>&quot;</span>,</span><br><span class="line">            isAlreadyAppendLocale: <span class="literal">true</span>);  <span class="comment">// ← key 已含 locale，告訴系統不要再 append 一次</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>實境案例：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">後台人員為商店 10416 停用「黑貓宅急便」選項（台灣 + 英文版）</span><br><span class="line"></span><br><span class="line">CleanShippingTypesAsync(shopId: 10416)</span><br><span class="line">  ↓</span><br><span class="line">contractLanguage = <span class="string">&quot;zh-TW,en-US&quot;</span></span><br><span class="line">  ↓</span><br><span class="line">迴圈執行兩次：</span><br><span class="line">  DEL Cache:...:Shop:GetShopShippingTypes-2020082601-10416:-zh-TW</span><br><span class="line">  DEL Cache:...:Shop:GetShopShippingTypes-2020082601-10416:-en-US</span><br><span class="line">  ↓</span><br><span class="line">下一個使用者請求物流清單時：</span><br><span class="line">  Redis 查不到 → 重新從 DB 載入 → 看到最新（已無黑貓宅急便）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="方法二：CleanShopDefaultListAsync（清除商店預設值快取）"><a href="#方法二：CleanShopDefaultListAsync（清除商店預設值快取）" class="headerlink" title="方法二：CleanShopDefaultListAsync（清除商店預設值快取）"></a>方法二：<code>CleanShopDefaultListAsync</code>（清除商店預設值快取）</h3><p><strong>觸發時機：</strong> 後台人員異動商店的各種預設設定（結帳頁顯示選項、功能開關等）</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">CleanShopDefaultListAsync</span>(<span class="params"><span class="built_in">long</span> shopId</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span>/ Cache:Prod:Shopping:ShopDefault:GetShopDefaultListAsync-2021011314-1093:-zh-TW</span></span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> locale <span class="keyword">in</span> contractLanguage!.Split(<span class="string">&#x27;,&#x27;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>._dataCacheService.RemoveCacheKey(</span><br><span class="line">            shopId: shopId,</span><br><span class="line">            cacheName: <span class="string">&quot;ShopDefault&quot;</span>,</span><br><span class="line">            cacheType: <span class="string">&quot;GetShopDefaultListAsync-2021011314&quot;</span>,</span><br><span class="line">            key: <span class="string">$&quot;-<span class="subst">&#123;locale&#125;</span>&quot;</span>,</span><br><span class="line">            isAlreadyAppendLocale: <span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>ShopDefault</code> 控制的設定範例：</strong></p>
+<ul>
+<li>是否開啟新版購物車結帳（<code>Nine1ShoppingCheckoutEnabled</code>）</li>
+<li>是否顯示發票 Email 欄位</li>
+<li>預設配送方式</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">後台人員幫商店 10416 開啟「新版結帳流程」功能</span><br><span class="line">  ↓</span><br><span class="line">DB 更新 ShopDefault 設定</span><br><span class="line">  ↓</span><br><span class="line">CleanShopDefaultListAsync(10416) 被呼叫</span><br><span class="line">  ↓</span><br><span class="line">Redis 清除 ShopDefault 快取</span><br><span class="line">  ↓</span><br><span class="line">下一次使用者結帳，GetCartAndCalculateProcessor 讀到新設定</span><br><span class="line">  → isCheckoutEnabled = <span class="literal">true</span> → 新版結帳頁啟用</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="方法三：CleanMemberCardAsync（清除會員卡等級快取）"><a href="#方法三：CleanMemberCardAsync（清除會員卡等級快取）" class="headerlink" title="方法三：CleanMemberCardAsync（清除會員卡等級快取）"></a>方法三：<code>CleanMemberCardAsync</code>（清除會員卡等級快取）</h3><p><strong>觸發時機：</strong> 後台人員異動會員等級制度，或特定會員的等級變更</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">CleanMemberCardAsync</span>(<span class="params"><span class="built_in">long</span> shopId, <span class="built_in">long</span> memberId</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> locale <span class="keyword">in</span> contractLanguage!.Split(<span class="string">&#x27;,&#x27;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ 清除「全商店會員卡清單」快取</span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ Cache:...:CrmShopMemberCard:GetCrmShopMemberCardListFromWebStoreDBForShoppingCart-2020090800-11500:11500-zh-TW</span></span><br><span class="line">        <span class="keyword">this</span>._dataCacheService.RemoveCacheKey(</span><br><span class="line">            shopId: shopId,</span><br><span class="line">            cacheName: <span class="string">&quot;CrmShopMemberCard&quot;</span>,</span><br><span class="line">            cacheType: <span class="string">&quot;GetCrmShopMemberCardListFromWebStoreDBForShoppingCart-2020090800&quot;</span>,</span><br><span class="line">            key: <span class="string">$&quot;<span class="subst">&#123;shopId&#125;</span>-<span class="subst">&#123;locale&#125;</span>&quot;</span>,</span><br><span class="line">            isAlreadyAppendLocale: <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ 清除「精簡版會員卡清單」快取</span></span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ Cache:...:CrmShopMemberCard:GetCrmShopMemberCardListFromWebStoreDB-2017031816-41134:-zh-TW</span></span><br><span class="line">        <span class="keyword">this</span>._dataCacheService.RemoveCacheKey(</span><br><span class="line">            shopId: shopId,</span><br><span class="line">            cacheName: <span class="string">&quot;CrmShopMemberCard&quot;</span>,</span><br><span class="line">            cacheType: <span class="string">&quot;GetCrmShopMemberCardListFromWebStoreDB-2017031816&quot;</span>,</span><br><span class="line">            key: <span class="string">$&quot;-<span class="subst">&#123;locale&#125;</span>&quot;</span>,</span><br><span class="line">            isAlreadyAppendLocale: <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (memberId &gt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment"><span class="doctag">///</span>/ 清除「特定會員的等級資料」快取</span></span><br><span class="line">            <span class="comment"><span class="doctag">///</span>/ Cache:...:VIPMember:GetCrmShopMemberCardDataAsync-2018092401-10416:39326184-zh-TW</span></span><br><span class="line">            <span class="keyword">this</span>._dataCacheService.RemoveCacheKey(</span><br><span class="line">                shopId: shopId,</span><br><span class="line">                cacheName: <span class="string">&quot;VIPMember&quot;</span>,</span><br><span class="line">                cacheType: <span class="string">&quot;GetCrmShopMemberCardDataAsync-2018092401&quot;</span>,</span><br><span class="line">                key: <span class="string">$&quot;<span class="subst">&#123;memberId&#125;</span>-<span class="subst">&#123;locale&#125;</span>&quot;</span>,</span><br><span class="line">                isAlreadyAppendLocale: <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意這個方法<strong>同時清除三種快取</strong>：</p>
+<ol>
+<li>為購物車優化的完整會員卡清單</li>
+<li>舊版精簡會員卡清單（相容性）</li>
+<li>特定會員的個人等級（僅當 memberId &gt; 0 時）</li>
+</ol>
+<p><strong>實境案例：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">會員 39326184 消費達標，等級升為「金卡會員」</span><br><span class="line">  ↓</span><br><span class="line">DB 更新會員等級</span><br><span class="line">  ↓</span><br><span class="line">CleanMemberCardAsync(shopId: 10416, memberId: 39326184)</span><br><span class="line">  ↓</span><br><span class="line">清除三份相關快取：</span><br><span class="line">  DEL ...CrmShopMemberCard:GetCrmShopMemberCardListFromWebStoreDBForShoppingCart...-10416-zh-TW</span><br><span class="line">  DEL ...CrmShopMemberCard:GetCrmShopMemberCardListFromWebStoreDB...-zh-TW</span><br><span class="line">  DEL ...VIPMember:GetCrmShopMemberCardDataAsync...-39326184-zh-TW</span><br><span class="line">  ↓</span><br><span class="line">下次使用者打開購物車：重新載入 → 看到金卡折扣和優惠</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="isAlreadyAppendLocale-參數的設計意義"><a href="#isAlreadyAppendLocale-參數的設計意義" class="headerlink" title="isAlreadyAppendLocale 參數的設計意義"></a><code>isAlreadyAppendLocale</code> 參數的設計意義</h2><p><code>DataCacheService.RemoveCacheKey</code> 有一個特殊參數：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">bool</span> <span class="title">RemoveCacheKey</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="built_in">long</span> shopId, <span class="built_in">string</span> cacheName, <span class="built_in">string</span> cacheType, <span class="built_in">string</span> key,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="built_in">bool</span> isAlreadyAppendLocale = <span class="literal">false</span></span>)  <span class="comment">// ← 預設 false</span></span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (isAlreadyAppendLocale == <span class="literal">false</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        key = AppendLocale(key);  <span class="comment">// ← 自動在 key 後面加上 &quot;-zh-TW&quot;（從 RequestContext 取）</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 若 isAlreadyAppendLocale = true，表示 key 已經手動包含了 locale，不再 append</span></span><br><span class="line">    _cacheService.Remove(cacheName, cacheType, key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>為什麼要有這個參數？</strong></p>
+<p><code>CleanCacheService</code> 是在<strong>後台 OPS 操作</strong>時被呼叫的，不是在使用者的 HTTP 請求中，因此 <code>RequestDataRetriever.Lang</code> 可能是空的或不正確的。</p>
+<p>所以 <code>CleanCacheService</code> 自己手動組 locale（從 <code>contractLanguage.Split(&#39;,&#39;)</code> 來），再傳入 <code>isAlreadyAppendLocale: true</code> 告訴 <code>DataCacheService</code> 不要再 append 一次，避免 key 變成：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GetShopShippingTypes-...-10416:-zh-TW-zh-TW  ← 重複 locale，永遠刪不到正確的 key</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="快取清除與-TTL-的搭配策略"><a href="#快取清除與-TTL-的搭配策略" class="headerlink" title="快取清除與 TTL 的搭配策略"></a>快取清除與 TTL 的搭配策略</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">資料更新頻率     →  快取策略</span><br><span class="line">─────────────────────────────────────────────────────────</span><br><span class="line">極少更新          →  只靠 TTL 過期（30 分鐘可接受）</span><br><span class="line">後台人員手動異動  →  更新 DB 後，主動呼叫 CleanCacheService 清除</span><br><span class="line">程式碼/資料結構變更 →  升版日期版本號，所有舊 Key 自然失效</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>快取清除方式</th>
+<th>適用情境</th>
+<th>範例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>靠 TTL 自然過期</td>
+<td>資料異動後，短暫不一致可接受</td>
+<td>商品價格（30 分鐘誤差可接受）</td>
+</tr>
+<tr>
+<td><code>CleanCacheService</code> 主動清除</td>
+<td>後台異動後要立即生效</td>
+<td>物流設定、會員等級、商店功能開關</td>
+</tr>
+<tr>
+<td>升級日期版本號</td>
+<td>資料結構變更（部署時）</td>
+<td>新增欄位、改變 Key 格式</td>
+</tr>
+</tbody></table>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/6_2_clean_cache.png" alt="2"></p></div><div class="tab-item-content" id="shopping-cart-2-4"><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/7_all.png" alt="2"></p>
+<h2 id="兩個-Redis-節點的職責"><a href="#兩個-Redis-節點的職責" class="headerlink" title="兩個 Redis 節點的職責"></a>兩個 Redis 節點的職責</h2><p>系統使用同一個 <code>CacheInstanceType.ShoppingCache</code> Redis 節點，但在邏輯上分成兩套 Cache 體系：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Redis（ShoppingCache）</span><br><span class="line">  ├── DataCacheService 管理的 Key</span><br><span class="line">  │     格式：Cache:Prod:Shopping:&#123;cacheName&#125;:&#123;cacheType&#125;-&#123;日期版本&#125;-&#123;shopId&#125;:&#123;key&#125;-&#123;locale&#125;</span><br><span class="line">  │     用途：商店靜態設定、物流類型、會員卡等級（全店共用）</span><br><span class="line">  │     TTL：30 分鐘</span><br><span class="line">  │     清除方式：CleanCacheService 主動清除 或 TTL 自然過期</span><br><span class="line">  │</span><br><span class="line">  └── CoreCacheService 管理的 Key</span><br><span class="line">        格式：Core:&#123;dataType&#125;-&#123;日期版本&#125;:&#123;shopId&#125;:&#123;memberId&#125;:&#123;uniqueKey&#125;</span><br><span class="line">        用途：個人結帳流程（PartialCheckoutData, PersonalDataMask, AntiForgeryToken）</span><br><span class="line">        TTL：由設定檔控制（PartialCheckoutData）/ 60 分鐘（PersonalDataMask）/ TTL（AntiForgeryToken）</span><br><span class="line">        清除方式：結帳完成自動失效 / 用完刪除（AntiForgeryToken）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三種-CoreCacheKey-快速對照"><a href="#三種-CoreCacheKey-快速對照" class="headerlink" title="三種 CoreCacheKey 快速對照"></a>三種 CoreCacheKey 快速對照</h2><table>
+<thead>
+<tr>
+<th>Key 類型</th>
+<th>Redis 結構</th>
+<th>TTL</th>
+<th>memberId</th>
+<th>清除時機</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PartialCheckoutData</code></td>
+<td><strong>Hash</strong>（8 個 field）</td>
+<td>設定檔（數小時）</td>
+<td>✅</td>
+<td>結帳完成 &#x2F; 過期</td>
+</tr>
+<tr>
+<td><code>PersonalDataMask</code></td>
+<td><strong>String</strong>（JSON）</td>
+<td>固定 60 分鐘</td>
+<td>✅</td>
+<td>過期</td>
+</tr>
+<tr>
+<td><code>AntiForgeryToken</code></td>
+<td><strong>String</strong>（JSON）</td>
+<td>與 PartialCheckoutData 同</td>
+<td>❌（無）</td>
+<td>驗證成功後立即刪除</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="設計原則總覽"><a href="#設計原則總覽" class="headerlink" title="設計原則總覽"></a>設計原則總覽</h2><table>
+<thead>
+<tr>
+<th>原則</th>
+<th>體現方式</th>
+<th>好處</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>日期版本號</strong></td>
+<td>Key 後綴部署日期（如 <code>-20230410</code>）</td>
+<td>改資料結構免 FLUSHDB，舊 Key 自然失效</td>
+</tr>
+<tr>
+<td><strong>多語系隔離</strong></td>
+<td>Key 後綴 locale（如 <code>-zh-TW</code>）</td>
+<td>台灣版與英文版不互相污染</td>
+</tr>
+<tr>
+<td><strong>三層 Key 隔離</strong></td>
+<td><code>shopId:memberId:uniqueKey</code></td>
+<td>多租戶 × 多用戶 × 多 session，零資料洩漏</td>
+</tr>
+<tr>
+<td><strong>Redis Hash</strong></td>
+<td>PartialCheckoutData 用 Hash 存 8 個 field</td>
+<td>只讀需要的 field，省流量</td>
+</tr>
+<tr>
+<td><strong>一次性 Token</strong></td>
+<td>AntiForgeryToken 驗證後立即刪除</td>
+<td>防止重複提交、CSRF 防護</td>
+</tr>
+<tr>
+<td><strong>TTL 由設定檔控制</strong></td>
+<td><code>CacheExpireSetting:CoreData.ExpireHours</code></td>
+<td>不重新部署即可調整 TTL</td>
+</tr>
+<tr>
+<td><strong>個資遮罩</strong></td>
+<td>PersonalDataMask 存明碼，前端只看遮罩版</td>
+<td>個資不曝露在 API Response</td>
+</tr>
+<tr>
+<td><strong>主動清除</strong></td>
+<td><code>CleanCacheService</code> 在資料異動後清 Redis</td>
+<td>後台操作即時生效，不需等 TTL</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="完整流程回顧"><a href="#完整流程回顧" class="headerlink" title="完整流程回顧"></a>完整流程回顧</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">使用者進入結帳頁</span><br><span class="line">    │</span><br><span class="line">    ├─ 取 AntiForgeryToken → Redis SET Token（無 memberId）</span><br><span class="line">    │</span><br><span class="line">    ├─ Shopping 呼叫 CartService</span><br><span class="line">    │      ↓</span><br><span class="line">    │   CartService 呼叫 WebStore 取得 k 值（UUID）</span><br><span class="line">    │      ↓</span><br><span class="line">    │   CartService HMSET CheckoutEntity（Hash，含 ShoppingDateTimeUtc）</span><br><span class="line">    │      ↓</span><br><span class="line">    │   回傳 UniqueKey 給 Shopping</span><br><span class="line">    │</span><br><span class="line">    ├─ Shopping CachePartialCheckoutDataProcessor</span><br><span class="line">    │      HMSET PartialCheckoutData（Hash，8 個 field）</span><br><span class="line">    │</span><br><span class="line">    └─ 回傳 UniqueKey 給瀏覽器</span><br><span class="line"></span><br><span class="line">使用者操作結帳頁（選物流、選付款）</span><br><span class="line">    │</span><br><span class="line">    ├─ 每次操作前：ValidateAsync(antiForgeryToken) → Redis GET</span><br><span class="line">    ├─ 操作完成後：RemoveAsync(antiForgeryToken) → Redis DEL</span><br><span class="line">    ├─ SetDelivery → HSET IsDeliverySet=<span class="literal">true</span>（只更新一個 field）</span><br><span class="line">    └─ GetCheckout → 過期檢查（HMGET ShoppingDateTimeUtc，只讀 1 個 field）</span><br><span class="line"></span><br><span class="line">使用者送出訂單</span><br><span class="line">    │</span><br><span class="line">    ├─ UnmaskOrderCompleteRequest → GET PersonalDataMask（還原明碼）</span><br><span class="line">    └─ 打 CartService 成立訂單 → 結帳 session 自然失效</span><br></pre></td></tr></table></figure></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/03/15/DeepType-Cache-shopping-cart-2/">https://allenlin000.github.io.git/2026/03/15/DeepType-Cache-shopping-cart-2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Cache/">Cache</a><a class="post-meta__tags" href="/tags/Redis/">Redis</a></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/1_landing.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/03/14/DeepType-Cache-Cache-%E6%9C%89%E6%95%88%E6%9C%9F%E9%99%90/" title="Time To Live"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/TTL/1_landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Time To Live</div></div></a></div><div class="next-post pull-right"><a href="/2026/03/15/DeepType-Cache-shopping-cart/" title="shopping-cart"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart/1_landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">shopping-cart</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/03/15/DeepType-Cache-shopping-cart/" title="shopping-cart"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-15</div><div class="title">shopping-cart</div></div></a></div><div><a href="/2024/05/04/Cache-OutputCache/" title="OutputCache"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-04</div><div class="title">OutputCache</div></div></a></div><div><a href="/2024/08/24/DeepType-Cache-Browser-Cache/" title="刷新之間，藏著多少重來與等待 - 網頁快取"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-24</div><div class="title">刷新之間，藏著多少重來與等待 - 網頁快取</div></div></a></div><div><a href="/2024/08/24/DeepType-Cache-CDN-Cache/" title="Content Delivery Network（CDN）"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-24</div><div class="title">Content Delivery Network（CDN）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">220</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-Key-%E8%A8%AD%E8%A8%88"><span class="toc-number">1.</span> <span class="toc-text">Redis Key 設計</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%AB%AF%E9%80%B2%E5%85%A5%E7%B5%90%E5%B8%B3%E9%A0%81%EF%BC%8C%E5%8F%96%E5%BE%97-Token"><span class="toc-number">2.</span> <span class="toc-text">前端進入結帳頁，取得 Token</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%80%85%E9%80%81%E5%87%BA%E6%93%8D%E4%BD%9C%E6%99%82%EF%BC%8C%E5%BE%8C%E7%AB%AF%E9%A9%97%E8%AD%89-Token"><span class="toc-number">3.</span> <span class="toc-text">使用者送出操作時，後端驗證 Token</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-3%EF%BC%9A%E9%A9%97%E8%AD%89%E6%88%90%E5%8A%9F%E5%BE%8C%EF%BC%8C%E7%AB%8B%E5%88%BB%E5%88%AA%E9%99%A4-Token%EF%BC%88%E4%B8%80%E6%AC%A1%E6%80%A7%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">Step 3：驗證成功後，立刻刪除 Token（一次性）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E6%B1%BA%E7%AD%96%E8%A7%A3%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text">設計決策解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%A6%E5%A2%83%E6%A1%88%E4%BE%8B"><span class="toc-number">6.</span> <span class="toc-text">實境案例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A9%E7%A8%AE-Cache-Service-%E7%9A%84%E8%81%B7%E8%B2%AC%E5%88%86%E5%B7%A5"><span class="toc-number">7.</span> <span class="toc-text">兩種 Cache Service 的職責分工</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DataCacheService%EF%BC%9A%E4%B8%89%E7%A8%AE%E5%AD%98%E5%8F%96%E6%A8%A1%E5%BC%8F"><span class="toc-number">8.</span> <span class="toc-text">DataCacheService：三種存取模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F-A%EF%BC%9AMemory-Redis%EF%BC%88%E9%9B%99%E5%B1%A4%E5%BF%AB%E5%8F%96%EF%BC%8C%E6%9C%80%E5%B8%B8%E7%94%A8%EF%BC%89"><span class="toc-number">8.1.</span> <span class="toc-text">模式 A：Memory + Redis（雙層快取，最常用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F-B%EF%BC%9A%E7%B4%94-Redis%EF%BC%88%E8%B7%A8-Pod-%E5%85%B1%E7%94%A8%E4%BD%86%E7%84%A1%E8%A8%98%E6%86%B6%E9%AB%94%E5%8A%A0%E9%80%9F%EF%BC%89"><span class="toc-number">8.2.</span> <span class="toc-text">模式 B：純 Redis（跨 Pod 共用但無記憶體加速）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F-C%EF%BC%9A%E7%B4%94-MemoryCache%EF%BC%88%E5%83%85%E6%9C%AC%E6%AC%A1%E8%AB%8B%E6%B1%82%EF%BC%8C%E4%B8%8D%E8%B7%A8-Pod%EF%BC%89"><span class="toc-number">8.3.</span> <span class="toc-text">模式 C：純 MemoryCache（僅本次請求，不跨 Pod）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DataCacheService-%E7%9A%84-Key-%E8%A8%AD%E8%A8%88"><span class="toc-number">9.</span> <span class="toc-text">DataCacheService 的 Key 設計</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CoreCacheService-%E7%9A%84-Key-%E8%A8%AD%E8%A8%88"><span class="toc-number">10.</span> <span class="toc-text">CoreCacheService 的 Key 設計</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-%E7%AF%80%E9%BB%9E%E9%81%B8%E6%93%87"><span class="toc-number">11.</span> <span class="toc-text">Redis 節點選擇</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E8%A6%81%E4%B8%BB%E5%8B%95%E6%B8%85%E9%99%A4%E5%BF%AB%E5%8F%96%EF%BC%9F"><span class="toc-number">12.</span> <span class="toc-text">為什麼要主動清除快取？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E5%80%8B%E6%B8%85%E9%99%A4%E6%96%B9%E6%B3%95%E8%88%87%E5%B0%8D%E6%87%89%E6%83%85%E5%A2%83"><span class="toc-number">13.</span> <span class="toc-text">三個清除方法與對應情境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9ACleanShippingTypesAsync%EF%BC%88%E6%B8%85%E9%99%A4%E7%89%A9%E6%B5%81%E8%A8%AD%E5%AE%9A%E5%BF%AB%E5%8F%96%EF%BC%89"><span class="toc-number">13.1.</span> <span class="toc-text">方法一：CleanShippingTypesAsync（清除物流設定快取）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9ACleanShopDefaultListAsync%EF%BC%88%E6%B8%85%E9%99%A4%E5%95%86%E5%BA%97%E9%A0%90%E8%A8%AD%E5%80%BC%E5%BF%AB%E5%8F%96%EF%BC%89"><span class="toc-number">13.2.</span> <span class="toc-text">方法二：CleanShopDefaultListAsync（清除商店預設值快取）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%89%EF%BC%9ACleanMemberCardAsync%EF%BC%88%E6%B8%85%E9%99%A4%E6%9C%83%E5%93%A1%E5%8D%A1%E7%AD%89%E7%B4%9A%E5%BF%AB%E5%8F%96%EF%BC%89"><span class="toc-number">13.3.</span> <span class="toc-text">方法三：CleanMemberCardAsync（清除會員卡等級快取）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#isAlreadyAppendLocale-%E5%8F%83%E6%95%B8%E7%9A%84%E8%A8%AD%E8%A8%88%E6%84%8F%E7%BE%A9"><span class="toc-number">14.</span> <span class="toc-text">isAlreadyAppendLocale 參數的設計意義</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E5%8F%96%E6%B8%85%E9%99%A4%E8%88%87-TTL-%E7%9A%84%E6%90%AD%E9%85%8D%E7%AD%96%E7%95%A5"><span class="toc-number">15.</span> <span class="toc-text">快取清除與 TTL 的搭配策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A9%E5%80%8B-Redis-%E7%AF%80%E9%BB%9E%E7%9A%84%E8%81%B7%E8%B2%AC"><span class="toc-number">16.</span> <span class="toc-text">兩個 Redis 節點的職責</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E7%A8%AE-CoreCacheKey-%E5%BF%AB%E9%80%9F%E5%B0%8D%E7%85%A7"><span class="toc-number">17.</span> <span class="toc-text">三種 CoreCacheKey 快速對照</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E5%8E%9F%E5%89%87%E7%B8%BD%E8%A6%BD"><span class="toc-number">18.</span> <span class="toc-text">設計原則總覽</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E6%B5%81%E7%A8%8B%E5%9B%9E%E9%A1%A7"><span class="toc-number">19.</span> <span class="toc-text">完整流程回顧</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/03/15/DeepType-Cache-shopping-cart/" title="shopping-cart"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="shopping-cart"/></a><div class="content"><a class="title" href="/2026/03/15/DeepType-Cache-shopping-cart/" title="shopping-cart">shopping-cart</a><time datetime="2026-03-15T00:25:03.000Z" title="Created 2026-03-15 08:25:03">2026-03-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/15/DeepType-Cache-shopping-cart-2/" title="shopping-cart-2"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="shopping-cart-2"/></a><div class="content"><a class="title" href="/2026/03/15/DeepType-Cache-shopping-cart-2/" title="shopping-cart-2">shopping-cart-2</a><time datetime="2026-03-15T00:25:03.000Z" title="Created 2026-03-15 08:25:03">2026-03-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/14/DeepType-Cache-Cache-%E6%9C%89%E6%95%88%E6%9C%9F%E9%99%90/" title="Time To Live"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/TTL/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Time To Live"/></a><div class="content"><a class="title" href="/2026/03/14/DeepType-Cache-Cache-%E6%9C%89%E6%95%88%E6%9C%9F%E9%99%90/" title="Time To Live">Time To Live</a><time datetime="2026-03-14T06:02:03.000Z" title="Created 2026-03-14 14:02:03">2026-03-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/01/14/DeepType-Cache-redis-cache-local/" title="Untitled">Untitled</a><time datetime="2026-01-14T14:38:13.918Z" title="Created 2026-01-14 22:38:13">2026-01-14</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
