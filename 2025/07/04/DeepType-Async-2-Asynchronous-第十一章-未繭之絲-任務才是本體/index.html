@@ -1,0 +1,240 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Asynchronous Programming - 第十一章:未繭之絲：任務才是本體 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="使用 .NET Async&#x2F;Await 的常見錯誤正確理解 C# async 與非同步 蠶的軀殼非同步的本質：回傳 Task 才是真的非同步什麼時候可以不加 await？什麼時候一定要？狀態機的工作：記得「下一步要去哪裡」summary在多執行緒的森林裡，有些線，早已抽離了蠶的軀殼，它們不需繭的庇護，也能沿著記憶結點游走。我們誤以為是 await 編織了非同步的絲線，卻忘了真正編織的是那">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Asynchronous Programming - 第十一章:未繭之絲：任務才是本體">
+<meta property="og:url" content="https://allenlin000.github.io.git/2025/07/04/DeepType-Async-2-Asynchronous-%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0-%E6%9C%AA%E7%B9%AD%E4%B9%8B%E7%B5%B2-%E4%BB%BB%E5%8B%99%E6%89%8D%E6%98%AF%E6%9C%AC%E9%AB%94/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="使用 .NET Async&#x2F;Await 的常見錯誤正確理解 C# async 與非同步 蠶的軀殼非同步的本質：回傳 Task 才是真的非同步什麼時候可以不加 await？什麼時候一定要？狀態機的工作：記得「下一步要去哪裡」summary在多執行緒的森林裡，有些線，早已抽離了蠶的軀殼，它們不需繭的庇護，也能沿著記憶結點游走。我們誤以為是 await 編織了非同步的絲線，卻忘了真正編織的是那">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true">
+<meta property="article:published_time" content="2025-07-04T01:22:05.000Z">
+<meta property="article:modified_time" content="2026-03-31T14:39:13.030Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Asynchronous Programming">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2025/07/04/DeepType-Async-2-Asynchronous-%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0-%E6%9C%AA%E7%B9%AD%E4%B9%8B%E7%B5%B2-%E4%BB%BB%E5%8B%99%E6%89%8D%E6%98%AF%E6%9C%AC%E9%AB%94/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Asynchronous Programming - 第十一章:未繭之絲：任務才是本體',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-03-31 22:39:13'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">219</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Asynchronous Programming - 第十一章:未繭之絲：任務才是本體</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-07-04T01:22:05.000Z" title="Created 2025-07-04 09:22:05">2025-07-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-03-31T14:39:13.030Z" title="Updated 2026-03-31 22:39:13">2026-03-31</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%AA%E6%9D%A5%E3%82%88%E3%82%8A%E3%81%AE%E8%BF%94%E6%AD%8C/">未来よりの返歌</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Asynchronous Programming - 第十一章:未繭之絲：任務才是本體"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><a target="_blank" rel="noopener" href="https://blog.darkthread.net/blog/common-async-await-mistakes/">使用 .NET Async&#x2F;Await 的常見錯誤</a><br><a target="_blank" rel="noopener" href="https://www.opasschang.com/docs/understand-csharp-asyn">正確理解 C# async 與非同步</a></p>
+<div class="tabs" id="asynchronous"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="asynchronous-1">蠶的軀殼</button><button type="button" class="tab " data-href="asynchronous-2">非同步的本質：回傳 Task 才是真的非同步</button><button type="button" class="tab " data-href="asynchronous-3">什麼時候可以不加 await？什麼時候一定要？</button><button type="button" class="tab " data-href="asynchronous-4">狀態機的工作：記得「下一步要去哪裡」</button><button type="button" class="tab " data-href="asynchronous-5">summary</button></ul><div class="tab-contents"><div class="tab-item-content active" id="asynchronous-1"><p>在多執行緒的森林裡，有些線，早已抽離了蠶的軀殼，它們不需繭的庇護，也能沿著記憶結點游走。我們誤以為是 await 編織了非同步的絲線，卻忘了真正編織的是那些未繭的任務。只要 Task 尚在，無論繭在與否，線都還在地底延展，繼續牽動著下一個狀態機的呼吸</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/silkworm.png" alt="silkworm"></p></div><div class="tab-item-content" id="asynchronous-2"><p>非同步的核心是 <code>Task</code> 或 <code>Task&lt;T&gt;</code> 型別。只要方法回傳 <code>Task</code>，它就是非同步，因為 <code>Task</code> 代表著「進行中的工作」。是否使用 <code>await</code> 不影響方法本身是否非同步，<code>await</code> 只決定要不要在這裡把結果拿回來、接著做後續的邏輯。<code>await</code> 的本質是「把非同步操作的結果，用同步的方式 等待完成後，接著執行後續的程式碼」。</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/1_task_is_key.png" alt="silkworm"></p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/2_await_is_wait.png" alt="silkworm"></p>
+<h2 id="沒用-await"><a href="#沒用-await" class="headerlink" title="沒用 await"></a>沒用 await</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Task&lt;<span class="built_in">int</span>&gt; <span class="title">GetDataAsync</span>()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> GetDataFromDbAsync(); <span class="comment">// 直接把 Task 回傳</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>GetDataFromDbAsync() 會回傳一個執行中的 Task。呼叫端收到後可以選擇：先做其他事 → 等需要時再 <code>await</code></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> t = GetDataAsync(); <span class="comment">// t 是 Task&lt;int&gt;，執行中</span></span><br><span class="line"><span class="comment">// ... 可做其他事</span></span><br><span class="line"><span class="keyword">var</span> result = <span class="keyword">await</span> t;   <span class="comment">// 在需要時等待結果</span></span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/3_no_await_is_fine.png" alt="silkworm"></p>
+<h2 id="加-await-→-只是把「等待」內嵌在方法內"><a href="#加-await-→-只是把「等待」內嵌在方法內" class="headerlink" title="加 await → 只是把「等待」內嵌在方法內"></a>加 await → 只是把「等待」內嵌在方法內</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;<span class="built_in">int</span>&gt; <span class="title">GetDataAsync</span>()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> GetDataFromDbAsync();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>差別在於</p>
+<ul>
+<li>有 await 時，C# 編譯器會多生成一個狀態機</li>
+<li>狀態機裡會記住「執行到哪裡停下來」與「完成後去哪裡繼續」</li>
+<li>如果 Task 失敗了，例外也會從 await 處直接拋出</li>
+</ul>
+<p>加 await 是為了「攔住例外」與「插入後續邏輯」，不是為了讓它變成非同步! 回傳 Task 是一種合約，我負責啟動，你負責決定什麼時候等，並且 GetDataFromDbAsync() 在沒有 await 的情況下 不會自動變成 fire-and-forget，只有在 Task 沒被任何人接住、存起來、或 await 時，才是 fire-and-forget</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/4_await_cost.png" alt="silkworm"></p></div><div class="tab-item-content" id="asynchronous-3"><h2 id="【可以不加-await-的情況】"><a href="#【可以不加-await-的情況】" class="headerlink" title="【可以不加 await 的情況】"></a>【可以不加 await 的情況】</h2><p>方法裡沒有後續邏輯要等 <code>Task</code> 結果處理，最後一行直接 return 執行後的 <code>Task</code> 就好，不需要多餘的狀態機</p>
+<ul>
+<li>Library 或中介層只把別人的 <code>Task</code> 包裝後丟出去，呼叫端自己決定要不要 <code>await</code></li>
+<li>組合場景 : 例如用 <code>Task.WhenAll</code>、<code>Task.WhenAny</code> 等</li>
+</ul>
+<p>👉 這樣做能省掉狀態機生成，更高效，也不會多出執行緒上下文切換</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/6_when_to_skip_await.png" alt="silkworm"></p>
+<h2 id="【一定要加-await-的情況】"><a href="#【一定要加-await-的情況】" class="headerlink" title="【一定要加 await 的情況】"></a>【一定要加 await 的情況】</h2><p>有兩個情境，一定要 await，否則執行結果永遠抓不到執行中的例外，只抓同步階段的</p>
+<br>
+
+<h4 id="🔹-try-catch"><a href="#🔹-try-catch" class="headerlink" title="🔹 try&#x2F;catch"></a>🔹 try&#x2F;catch</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> SomeAsync();</span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">    <span class="comment">// 這裡可以抓到 SomeAsync 執行期間的例外</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因為 <code>await</code> 才會讓例外回到目前執行緒，try&#x2F;catch 才能接住！</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/7_should_await_try_catch.png" alt="silkworm"></p>
+<h4 id="🔹-using"><a href="#🔹-using" class="headerlink" title="🔹 using"></a>🔹 using</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> conn = <span class="keyword">new</span> SqlConnection(...)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> conn.DoSomethingAsync(); </span><br><span class="line">    <span class="comment">// 執行完才 Dispose()</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>馬上離開 using，可能還在用就被釋放！await 確保資源在非同步操作完成後才釋放</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/8_should_await_dispose.png" alt="silkworm"></p></div><div class="tab-item-content" id="asynchronous-4"><p>await 產生狀態機（MoveNext）來銜接「尚未完成的 Task」與「後續邏輯」，await 的存在價值不是等結果，而是讓「還沒跑完的程式碼」在未來某一刻接得回來繼續跑</p>
+<h2 id="1️⃣-編譯器看到-async-await"><a href="#1️⃣-編譯器看到-async-await" class="headerlink" title="1️⃣ 編譯器看到 async + await"></a>1️⃣ 編譯器看到 async + await</h2><p>編譯器會幫你生一個 狀態機 struct&#x2F;class，原本的方法內容被拆進 MoveNext()</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/9_await_machine.png" alt="silkworm"></p>
+<h2 id="2️⃣-執行到-await-someTask"><a href="#2️⃣-執行到-await-someTask" class="headerlink" title="2️⃣ 執行到 await someTask"></a>2️⃣ 執行到 await someTask</h2><p>如果 someTask 已完成，直接往下跑（同步路徑），如果 someTask 尚未完成，當下執行緒「退出」，記住目前狀態（state），把「後續要跑的 MoveNext」掛到 Task 的 continuation，本質就是把後續邏輯包成  continuation，等 Task 完成後再回來跑</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/10_await_continue.png" alt="silkworm"></p>
+<h2 id="3️⃣-Task-完成時"><a href="#3️⃣-Task-完成時" class="headerlink" title="3️⃣ Task 完成時"></a>3️⃣ Task 完成時</h2><p>Task 觸發 continuation，狀態機的 MoveNext() 再被呼叫一次，依 state 決定要走哪個分支繼續執行</p>
+<ul>
+<li>有後續邏輯要執行 → 必須用 await。</li>
+<li>只是 return await … → 不需要，除非包在 try&#x2F;catch 或 using。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/11_await_future_follow.png" alt="silkworm"></p></div><div class="tab-item-content" id="asynchronous-5"><p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-11-task-is-key/5_await_table.png" alt="silkworm"></p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2025/07/04/DeepType-Async-2-Asynchronous-%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0-%E6%9C%AA%E7%B9%AD%E4%B9%8B%E7%B5%B2-%E4%BB%BB%E5%8B%99%E6%89%8D%E6%98%AF%E6%9C%AC%E9%AB%94/">https://allenlin000.github.io.git/2025/07/04/DeepType-Async-2-Asynchronous-%E7%AC%AC%E5%8D%81%E4%B8%80%E7%AB%A0-%E6%9C%AA%E7%B9%AD%E4%B9%8B%E7%B5%B2-%E4%BB%BB%E5%8B%99%E6%89%8D%E6%98%AF%E6%9C%AC%E9%AB%94/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Asynchronous-Programming/">Asynchronous Programming</a></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/06/26/DeepType-Async-2-Asynchronous-%E7%AC%AC%E4%B9%9D%E7%AB%A0-%E5%B9%B3%E8%A1%8C%E4%B9%8B%E9%A2%A8%EF%BC%8C%E4%BD%B5%E7%99%BC%E4%B9%8B%E6%AD%8C/" title="Asynchronous Programming - 第九章:平行之風，併發之歌"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Async/logoAsync.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Asynchronous Programming - 第九章:平行之風，併發之歌</div></div></a></div><div class="next-post pull-right"><a href="/2025/07/07/DeepType-Async-Asynchronous-%E7%AC%AC%E5%8D%81%E4%BA%8C%E7%AB%A0-%E7%AB%A0%E9%AD%9A%E7%9A%84%E5%85%AB%E7%88%AA%E4%BE%8B%E5%A4%96-%E5%A4%9A%E5%9F%B7%E8%A1%8C%E7%B7%92%E7%9A%84%E6%8D%95%E7%8D%B2%E8%A1%93/" title="Asynchronous Programming - 第十二章:章魚的八爪例外：多執行緒的捕獲術"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Async/logoAsync.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Asynchronous Programming - 第十二章:章魚的八爪例外：多執行緒的捕獲術</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2024/10/26/DeepType-Async-2-Asynchronous-%E7%AC%AC%E4%B8%83%E7%AB%A0-%E9%9D%9E%E5%90%8C%E6%AD%A5%E4%B9%8B%E6%9E%97-%E5%9F%B7%E8%A1%8C%E7%B7%92%E7%9A%84%E5%9B%9B%E5%AD%A3%E8%BC%AA%E8%BF%B4/" title="Asynchronous Programming - 第七章:非同步之林：執行緒的四季輪迴"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-7-thread-cycle/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-26</div><div class="title">Asynchronous Programming - 第七章:非同步之林：執行緒的四季輪迴</div></div></a></div><div><a href="/2024/05/07/DeepType-Async-2-Asynchronous-%E7%AC%AC%E4%B8%80%E7%AB%A0-%E9%9B%B2%E7%AB%AF%E4%B8%AD%E7%9A%84%E6%9C%AA%E7%AB%9F%E4%B9%8B%E4%BA%8B/" title="Asynchronous - 第一章:雲端中的未竟之事"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-1/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-07</div><div class="title">Asynchronous - 第一章:雲端中的未竟之事</div></div></a></div><div><a href="/2025/06/26/DeepType-Async-2-Asynchronous-%E7%AC%AC%E4%B9%9D%E7%AB%A0-%E5%B9%B3%E8%A1%8C%E4%B9%8B%E9%A2%A8%EF%BC%8C%E4%BD%B5%E7%99%BC%E4%B9%8B%E6%AD%8C/" title="Asynchronous Programming - 第九章:平行之風，併發之歌"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Async/logoAsync.png?raw=true" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-06-26</div><div class="title">Asynchronous Programming - 第九章:平行之風，併發之歌</div></div></a></div><div><a href="/2024/05/07/DeepType-Async-2-Asynchronous-%E7%AC%AC%E4%BA%8C%E7%AB%A0-%E4%BB%BB%E5%8B%99-Task/" title="Asynchronous - 第二章:任務 (Task)"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-2/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-07</div><div class="title">Asynchronous - 第二章:任務 (Task)</div></div></a></div><div><a href="/2024/08/31/DeepType-Async-2-Asynchronous-%E7%AC%AC%E4%BA%94%E7%AB%A0-%E9%8C%AF%E8%AA%A4%E7%AD%89%E5%BE%85%E7%9A%84%E6%AD%BB%E9%8E%96%E4%B9%8B%E5%90%BB/" title="Asynchronous Programming - 第五章:錯誤等待的死鎖之吻"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-5-deadloc/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-31</div><div class="title">Asynchronous Programming - 第五章:錯誤等待的死鎖之吻</div></div></a></div><div><a href="/2024/07/25/DeepType-Async-2-Asynchronous-%E7%AC%AC%E4%B8%89%E7%AB%A0-%E9%9D%9E%E5%90%8C%E6%AD%A5%E4%B8%AD%E7%9A%84%E7%AD%89%E5%BE%85%E8%97%9D%E8%A1%93/" title="Asynchronous Programming - 第三章:非同步中的等待藝術"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-3-taskrun/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-25</div><div class="title">Asynchronous Programming - 第三章:非同步中的等待藝術</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">219</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B2%92%E7%94%A8-await"><span class="toc-number">1.</span> <span class="toc-text">沒用 await</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0-await-%E2%86%92-%E5%8F%AA%E6%98%AF%E6%8A%8A%E3%80%8C%E7%AD%89%E5%BE%85%E3%80%8D%E5%85%A7%E5%B5%8C%E5%9C%A8%E6%96%B9%E6%B3%95%E5%85%A7"><span class="toc-number">2.</span> <span class="toc-text">加 await → 只是把「等待」內嵌在方法內</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E3%80%90%E5%8F%AF%E4%BB%A5%E4%B8%8D%E5%8A%A0-await-%E7%9A%84%E6%83%85%E6%B3%81%E3%80%91"><span class="toc-number">3.</span> <span class="toc-text">【可以不加 await 的情況】</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E3%80%90%E4%B8%80%E5%AE%9A%E8%A6%81%E5%8A%A0-await-%E7%9A%84%E6%83%85%E6%B3%81%E3%80%91"><span class="toc-number">4.</span> <span class="toc-text">【一定要加 await 的情況】</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%94%B9-try-catch"><span class="toc-number">4.0.1.</span> <span class="toc-text">🔹 try&#x2F;catch</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%94%B9-using"><span class="toc-number">4.0.2.</span> <span class="toc-text">🔹 using</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1%EF%B8%8F%E2%83%A3-%E7%B7%A8%E8%AD%AF%E5%99%A8%E7%9C%8B%E5%88%B0-async-await"><span class="toc-number">5.</span> <span class="toc-text">1️⃣ 編譯器看到 async + await</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%EF%B8%8F%E2%83%A3-%E5%9F%B7%E8%A1%8C%E5%88%B0-await-someTask"><span class="toc-number">6.</span> <span class="toc-text">2️⃣ 執行到 await someTask</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%EF%B8%8F%E2%83%A3-Task-%E5%AE%8C%E6%88%90%E6%99%82"><span class="toc-number">7.</span> <span class="toc-text">3️⃣ Task 完成時</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/03/31/DeepType-Docker-VM-vs-Docker-Container/" title="VM vs Docker Container"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="VM vs Docker Container"/></a><div class="content"><a class="title" href="/2026/03/31/DeepType-Docker-VM-vs-Docker-Container/" title="VM vs Docker Container">VM vs Docker Container</a><time datetime="2026-03-31T00:24:05.000Z" title="Created 2026-03-31 08:24:05">2026-03-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/15/DeepType-Cache-shopping-cart-2/" title="shopping-cart-2"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="shopping-cart-2"/></a><div class="content"><a class="title" href="/2026/03/15/DeepType-Cache-shopping-cart-2/" title="shopping-cart-2">shopping-cart-2</a><time datetime="2026-03-15T00:25:03.000Z" title="Created 2026-03-15 08:25:03">2026-03-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/15/DeepType-Cache-shopping-cart/" title="shopping-cart"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="shopping-cart"/></a><div class="content"><a class="title" href="/2026/03/15/DeepType-Cache-shopping-cart/" title="shopping-cart">shopping-cart</a><time datetime="2026-03-15T00:25:03.000Z" title="Created 2026-03-15 08:25:03">2026-03-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/14/DeepType-Cache-Cache-%E6%9C%89%E6%95%88%E6%9C%9F%E9%99%90/" title="Time To Live"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/TTL/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Time To Live"/></a><div class="content"><a class="title" href="/2026/03/14/DeepType-Cache-Cache-%E6%9C%89%E6%95%88%E6%9C%9F%E9%99%90/" title="Time To Live">Time To Live</a><time datetime="2026-03-14T06:02:03.000Z" title="Created 2026-03-14 14:02:03">2026-03-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

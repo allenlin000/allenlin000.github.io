@@ -1,0 +1,445 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>VM vs Docker Container | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="概念VM 的思考方式Container 的思考方式為什麼這樣設計，結果就會差很多namespacecgroup抽象開一個測試環境跑舊系統快速部署一個 Web API啟動快不代表所有情境都適合用 ContainersummaryVM 是把「整台電腦」重做一份出來。它有自己的硬體模擬層、自己的作業系統、自己的開機流程，就像真的多養了一台機器。 Container 則不同，它直接借用同一個 Host O">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VM vs Docker Container">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/03/31/DeepType-Docker-VM-vs-Docker-Container/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="概念VM 的思考方式Container 的思考方式為什麼這樣設計，結果就會差很多namespacecgroup抽象開一個測試環境跑舊系統快速部署一個 Web API啟動快不代表所有情境都適合用 ContainersummaryVM 是把「整台電腦」重做一份出來。它有自己的硬體模擬層、自己的作業系統、自己的開機流程，就像真的多養了一台機器。 Container 則不同，它直接借用同一個 Host O">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png">
+<meta property="article:published_time" content="2026-03-31T00:24:05.000Z">
+<meta property="article:modified_time" content="2026-03-31T00:57:58.751Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/03/31/DeepType-Docker-VM-vs-Docker-Container/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'VM vs Docker Container',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2026-03-31 08:57:58'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">219</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">VM vs Docker Container</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-03-31T00:24:05.000Z" title="Created 2026-03-31 08:24:05">2026-03-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-03-31T00:57:58.751Z" title="Updated 2026-03-31 08:57:58">2026-03-31</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Docker/">Docker</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="VM vs Docker Container"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="vm-vs-docker-container"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="vm-vs-docker-container-1">概念</button><button type="button" class="tab " data-href="vm-vs-docker-container-2">VM 的思考方式</button><button type="button" class="tab " data-href="vm-vs-docker-container-3">Container 的思考方式</button><button type="button" class="tab " data-href="vm-vs-docker-container-4">為什麼這樣設計，結果就會差很多</button><button type="button" class="tab " data-href="vm-vs-docker-container-5">namespace</button><button type="button" class="tab " data-href="vm-vs-docker-container-6">cgroup</button><button type="button" class="tab " data-href="vm-vs-docker-container-7">抽象</button><button type="button" class="tab " data-href="vm-vs-docker-container-8">開一個測試環境跑舊系統</button><button type="button" class="tab " data-href="vm-vs-docker-container-9">快速部署一個 Web API</button><button type="button" class="tab " data-href="vm-vs-docker-container-10">啟動快不代表所有情境都適合用 Container</button><button type="button" class="tab " data-href="vm-vs-docker-container-11">summary</button></ul><div class="tab-contents"><div class="tab-item-content active" id="vm-vs-docker-container-1"><p><code>VM</code> 是把「整台電腦」重做一份出來。它有自己的硬體模擬層、自己的作業系統、自己的開機流程，就像真的多養了一台機器。</p>
+<p><code>Container</code> 則不同，它直接借用同一個 <code>Host OS</code> 的核心，只把應用程式執行所需的空間隔開來，不需要額外的作業系統。</p>
+<p>兩者解決的核心問題其實不一樣：</p>
+<ul>
+<li><code>VM</code> 解的是「我需要一台完整、隔離的電腦」</li>
+<li><code>Container</code> 解的是「我需要一個乾淨、一致的程式執行環境」</li>
+</ul>
+<p>你要的是一個能安全執行程式的環境，但不是每次都值得為了跑一個程式，重新養一整套作業系統。理解這個出發點的差異，才能知道什麼時候該用哪個。</p></div><div class="tab-item-content" id="vm-vs-docker-container-2"><p><code>VM</code> 的核心概念是：<strong>模擬出一台完整的電腦</strong>，讓上面跑的作業系統完全感知不到自己是虛擬的。</p>
+<p>它的啟動流程走的是完整的開機路徑：</p>
+<ul>
+<li><code>Hypervisor</code> 先虛擬出一組硬體資源<ul>
+<li>分配 <code>vCPU</code>、<code>RAM</code>、虛擬磁碟給這台 VM</li>
+<li>VM 內部看到的這些資源，跟真實硬體沒有差別</li>
+</ul>
+</li>
+<li>虛擬機走完整的開機流程<ul>
+<li><code>BIOS</code> &#x2F; <code>UEFI</code> 初始化</li>
+<li>找到 <code>bootloader</code>（例如 GRUB）</li>
+<li>載入 <code>OS kernel</code> 進記憶體</li>
+<li>核心初始化完成後，把基礎系統服務一一拉起來</li>
+<li>例如 <code>systemd</code>、網路管理、時間同步、日誌服務等</li>
+</ul>
+</li>
+<li>最後才輪到你的應用程式<ul>
+<li><code>Nginx</code>、<code>Node.js</code>、<code>MySQL</code> 這類服務，全都是在整套 OS 就緒後才啟動的</li>
+</ul>
+</li>
+</ul>
+<p>這代表 <code>VM</code> 先把「那台電腦」完整活起來。app 只是這台機器上眾多住戶的其中一個，開機流程根本不在意它</p></div><div class="tab-item-content" id="vm-vs-docker-container-3"><p><code>Container</code> 的核心概念是：<strong>不用重開一台電腦，直接切一塊隔離的執行空間給程式跑</strong>。</p>
+<p>它的啟動流程比 VM 短得多：</p>
+<ul>
+<li>執行 <code>docker run</code>，告訴 Docker daemon：我要一個隔離的執行環境</li>
+<li>Docker 從 <code>image</code> 取出應用所需的所有東西<ul>
+<li>包含 app 本身、<code>library</code>、執行環境設定</li>
+<li>用 <code>overlay filesystem</code> 疊成容器看到的完整檔案系統視圖</li>
+</ul>
+</li>
+<li><code>Linux kernel</code> 用 <code>namespace</code> 切出隔離空間<ul>
+<li>讓容器有自己的行程視角、網路介面、掛載點、<code>hostname</code></li>
+<li>容器內部感覺像是一個獨立環境，但其實共用同一個 <code>kernel</code></li>
+</ul>
+</li>
+<li>用 <code>cgroup</code> 設定資源上限<ul>
+<li>限制這個容器最多能用多少 <code>CPU</code>、<code>RAM</code>、<code>IO</code>、<code>PIDs</code></li>
+<li>防止某個容器失控，把整台 Host 的資源吃光</li>
+</ul>
+</li>
+<li>直接啟動你指定的主程式<ul>
+<li>容器裡的 <code>PID 1</code> 通常就是你要跑的 app 本身</li>
+<li>整個過程不需要跑完 OS 開機流程</li>
+</ul>
+</li>
+</ul>
+<p>這代表 <code>Container</code> 的設計哲學是 <strong>環境是為程式服務的，程式才是主角</strong>，而不是讓程式去等一台機器開好</p></div><div class="tab-item-content" id="vm-vs-docker-container-4"><p><code>VM</code> 因為要把整套 <code>OS</code> 開起來，每個環節都有成本：<code>BIOS</code> 初始化、<code>kernel</code> 載入、系統服務啟動，每一步都在燒時間和記憶體。</p>
+<p><code>Container</code> 直接借用 <code>Host</code> 的 <code>Linux kernel</code>，只補齊應用需要的隔離空間和相依套件，省掉了整個 OS 開機流程，所以在幾個維度上自然差很多：</p>
+<table>
+<thead>
+<tr>
+<th>維度</th>
+<th>VM</th>
+<th>Container</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>啟動時間</strong></td>
+<td>通常數十秒到數分鐘</td>
+<td>通常不到 1 秒</td>
+</tr>
+<tr>
+<td><strong>記憶體佔用</strong></td>
+<td>每台 VM 需要獨立的 OS 記憶體</td>
+<td>多個容器共用同一個 kernel，記憶體更省</td>
+</tr>
+<tr>
+<td><strong>密度</strong></td>
+<td>一台機器能跑的 VM 數量有限</td>
+<td>同一台機器可以同時跑更多容器</td>
+</tr>
+<tr>
+<td><strong>隔離程度</strong></td>
+<td>強，擁有獨立 kernel，互不干擾</td>
+<td>較弱，共用 kernel，存在逃逸風險</td>
+</tr>
+</tbody></table>
+<p>它們一開始就是針對不同問題設計的，所以在這些維度上的差距，不是其中一個設計得比較差，而是取捨本來就不同。</p></div><div class="tab-item-content" id="vm-vs-docker-container-5"><p><code>Container</code> 本身並沒有一套獨立的 <code>OS</code>，它是靠 <code>Linux kernel</code> 提供的 <code>namespace</code> 機制，讓每個容器「看起來像活在自己的世界裡」。</p>
+<p><code>namespace</code> 的作用是<strong>視角隔離</strong>：讓容器只能看到屬於自己的資源，感知不到同一台主機上的其他容器。</p>
+<table>
+<thead>
+<tr>
+<th>Namespace 類型</th>
+<th>隔離的是什麼</th>
+<th>實際效果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PID</code></td>
+<td>行程編號</td>
+<td>容器只看得到自己內部的行程，看不到 Host 或其他容器的 process</td>
+</tr>
+<tr>
+<td><code>NET</code></td>
+<td>網路介面</td>
+<td>容器有自己的 <code>IP</code>、虛擬網卡、路由表</td>
+</tr>
+<tr>
+<td><code>MNT</code></td>
+<td>掛載點</td>
+<td>容器有自己的檔案系統視圖，不會看到 Host 的其他目錄</td>
+</tr>
+<tr>
+<td><code>UTS</code></td>
+<td>主機名稱</td>
+<td>容器可以有自己獨立的 <code>hostname</code></td>
+</tr>
+<tr>
+<td><code>IPC</code></td>
+<td>行程間通訊</td>
+<td><code>shared memory</code>、<code>semaphore</code> 等資源與外部隔離</td>
+</tr>
+<tr>
+<td><code>USER</code></td>
+<td>使用者身份</td>
+<td>容器內的 <code>UID</code> &#x2F; <code>GID</code> 可以與 Host 不同，增加安全性</td>
+</tr>
+</tbody></table>
+<p>這六種 <code>namespace</code> 加在一起，就構成了容器「感覺像獨立環境」的基礎。但要強調的是：這只是<strong>視角上的隔離</strong>，容器仍然共用同一個 <code>Linux kernel</code>，並不是真正擁有一套自己的 OS。</p></div><div class="tab-item-content" id="vm-vs-docker-container-6"><p><code>namespace</code> 解決的是「看到什麼」，而 <code>cgroup</code>（Control Groups）解決的是「能用多少」。</p>
+<p>就算容器只看得到自己的行程，如果沒有限制，它還是可以把整台 Host 的 <code>CPU</code>、<code>RAM</code> 全部吃掉。<code>cgroup</code> 就是防止這件事發生的機制。</p>
+<table>
+<thead>
+<tr>
+<th>資源類型</th>
+<th>限制說明</th>
+<th>實際用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CPU</code></td>
+<td>最多使用幾顆核心、佔用多少比例</td>
+<td>避免單一容器獨占所有運算資源</td>
+</tr>
+<tr>
+<td><code>Memory</code></td>
+<td>最多使用多少 <code>RAM</code></td>
+<td>超出上限會觸發 <code>OOM Kill</code>，保護 Host 穩定性</td>
+</tr>
+<tr>
+<td><code>IO</code></td>
+<td>磁碟讀寫與網路流量的頻寬上限</td>
+<td>防止 IO 密集容器拖垮整體效能</td>
+</tr>
+<tr>
+<td><code>PIDs</code></td>
+<td>最多能建立幾個行程</td>
+<td>防止容器透過 <code>fork bomb</code> 耗盡系統資源</td>
+</tr>
+</tbody></table>
+<p><code>cgroup</code> 與 <code>namespace</code> 共同構成了容器隔離的兩個核心支柱：一個負責<strong>隔離視角</strong>，一個負責<strong>限制用量</strong>。</p></div><div class="tab-item-content" id="vm-vs-docker-container-7"><p>雖然 <code>VM</code> 和 <code>Container</code> 都在做「隔離」這件事，但它們抽象的層次根本不同：</p>
+<ul>
+<li><p><code>VM</code> 抽象的是「<strong>整台機器</strong>」</p>
+<ul>
+<li>它模擬的是硬體層，讓 <code>OS</code> 以為自己跑在真實的電腦上</li>
+<li>你可以在 VM 裡裝任何 OS、改任何核心設定，完全不受 Host 限制</li>
+<li>每台 VM 都是一個獨立、完整的電腦實體</li>
+</ul>
+</li>
+<li><p><code>Container</code> 抽象的是「<strong>程式執行環境</strong>」</p>
+<ul>
+<li>它不模擬硬體，而是把 <code>OS</code> 以上的那一層打包起來</li>
+<li>包含 <code>library</code>、設定檔、執行環境，但不包含 <code>kernel</code></li>
+<li>多個容器共用同一個 <code>kernel</code>，只是各自看到不同的環境視角</li>
+</ul>
+</li>
+</ul>
+<p>這個抽象層次的差異，決定了它們適合的使用情境、能達到的隔離程度，以及你在操作時感受到的重量差異。</p></div><div class="tab-item-content" id="vm-vs-docker-container-8"><p>假設你有一套老系統，只能跑在特定版本的 <code>Ubuntu</code>，甚至需要特定的 <code>kernel module</code> 才能正常運作。</p>
+<p>這種情境用 <code>VM</code> 比較合理，原因是：</p>
+<ul>
+<li>你需要的不只是「跑一個 app」，而是<strong>完整的 OS 控制權</strong></li>
+<li><code>VM</code> 可以讓你自由指定 <code>OS</code> 版本、安裝客製化 <code>kernel</code>、調整底層系統行為</li>
+<li>整套環境可以打包成 <code>VM image</code>，原封不動搬到另一台機器上，就像複製一台伺服器</li>
+</ul>
+<p>如果改用 <code>Container</code> 會遇到根本性的限制：</p>
+<blockquote>
+<p><code>Container</code> 共用 <code>Host</code> 的 <code>Linux kernel</code>，你沒辦法在容器裡換 <code>kernel</code>、載入特定 <code>kernel module</code>，或是改變底層 OS 行為。這些需求 <code>Container</code> 天生就做不到。</p>
+</blockquote>
+<p>所以當你的需求涉及「我需要掌控整個作業系統」而不只是「我需要跑這個程式」，<code>VM</code> 才是正確答案。</p></div><div class="tab-item-content" id="vm-vs-docker-container-9"><p>假設你今天做了一個 <code>Node.js</code> API，需要在本機開發、測試環境、預備環境、正式環境都能跑，而且行為要完全一致。</p>
+<p>這種情境用 <code>Container</code> 非常適合，因為你可以用 <code>Dockerfile</code> 把這三樣東西一起封進 <code>image</code>：</p>
+<ul>
+<li>程式碼本身</li>
+<li>執行環境（<code>Node.js</code> 版本、runtime 設定）</li>
+<li>所有相依套件（<code>npm install</code> 的結果）</li>
+</ul>
+<p>打包成 <code>image</code> 之後，不管在哪台機器、哪個環境執行 <code>docker run</code>，跑起來的結果都是一樣的。這就是「<strong>環境一致性</strong>」，也是 <code>Container</code> 最核心的價值之一。</p>
+<p>如果改用 <code>VM</code> 來做同樣的事：</p>
+<blockquote>
+<p>你得在每台機器上分別安裝 OS、設定 <code>Node.js</code> 版本、執行 <code>npm install</code>、維護系統更新。每次部署都是一次完整的環境準備，交付會變重，速度也慢很多。</p>
+</blockquote>
+<p><code>Container</code> 把「環境」變成了可攜帶的產出物，讓你的部署流程從「裝環境再跑程式」變成「直接跑已經準備好的環境」。</p></div><div class="tab-item-content" id="vm-vs-docker-container-10"><p><code>Container</code> 的優勢很明顯：啟動快、資源省、部署方便。但這些優勢建立在「共用 <code>kernel</code>」這個前提上，而這個前提本身就帶來了限制。</p>
+<p>以下情境仍然適合用 <code>VM</code>，而不是 <code>Container</code>：</p>
+<ul>
+<li><p><strong>強依賴特定 <code>kernel</code> 行為的系統</strong></p>
+<ul>
+<li>例如需要載入特定 <code>kernel module</code>、調整 <code>kernel parameter</code>，或依賴特定版本 OS 的底層行為</li>
+<li><code>Container</code> 共用 <code>Host kernel</code>，無法替換或客製化</li>
+</ul>
+</li>
+<li><p><strong>需要完整 OS 控制權的場景</strong></p>
+<ul>
+<li>例如跑 Windows 應用程式、需要 GUI 環境、或要模擬完整的網路拓撲</li>
+<li><code>Container</code> 在 Linux Host 上只能跑 Linux 容器，無法跨 OS</li>
+</ul>
+</li>
+<li><p><strong>對隔離要求非常高的任務</strong></p>
+<ul>
+<li>例如多租戶環境中執行不信任的程式碼，或金融、醫療等對安全隔離有法規要求的場景</li>
+<li><code>Container</code> 的隔離是軟體層級，<code>kernel</code> 漏洞可能造成逃逸；<code>VM</code> 的 <code>Hypervisor</code> 隔離更為強固</li>
+</ul>
+</li>
+</ul>
+<p>選擇工具要從需求出發，而不是從工具的特性反推需求。</p></div><div class="tab-item-content" id="vm-vs-docker-container-11"><p><code>VM</code> 是先把舞台整個蓋好才讓演員上場，<code>Container</code> 是先清一塊位置就直接開演。</p>
+<p>這個差異直接決定了平常最有感的兩件事：<strong>啟動速度</strong> 跟 <strong>操作重量</strong>。</p>
+<p>今天如果只是想跑一個 <code>Nginx</code>，去看 <code>VM</code> 那套 <code>BIOS</code>、<code>bootloader</code>、<code>systemd</code> 的流程，就會理解它為什麼慢。因為它根本不是「啟動一個程式」，而是在「啟動一台機器」，程式只是裡面的住戶之一</p>
+<p><code>Container</code> 先快點把你的 app 拉起來，其他的都是服務它的</p>
+<p>最後一個思考框架：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>VM</code></th>
+<th><code>Container</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>抽象層次</strong></td>
+<td>整台機器</td>
+<td>程式執行環境</td>
+</tr>
+<tr>
+<td><strong>隔離機制</strong></td>
+<td><code>Hypervisor</code> 硬體虛擬化</td>
+<td><code>namespace</code> + <code>cgroup</code></td>
+</tr>
+<tr>
+<td><strong>啟動成本</strong></td>
+<td>高（需要跑完整 OS）</td>
+<td>低（直接跑 app）</td>
+</tr>
+<tr>
+<td><strong>適合情境</strong></td>
+<td>需要完整 OS 控制、強隔離</td>
+<td>部署一致、快速擴展</td>
+</tr>
+</tbody></table></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/03/31/DeepType-Docker-VM-vs-Docker-Container/">https://allenlin000.github.io.git/2026/03/31/DeepType-Docker-VM-vs-Docker-Container/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Docker/">Docker</a></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2026/03/15/DeepType-Cache-shopping-cart-2/" title="shopping-cart-2"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/1_landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">shopping-cart-2</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/01/04/DeepType-Docker-Docker-file/" title="Dockerfile"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-04</div><div class="title">Dockerfile</div></div></a></div><div><a href="/2026/01/11/DeepType-Docker-Command/" title="Cammand"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-11</div><div class="title">Cammand</div></div></a></div><div><a href="/2026/01/03/DeepType-Docker-Image-Layer/" title="Image Layer"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-03</div><div class="title">Image Layer</div></div></a></div><div><a href="/2025/12/25/DeepType-Docker-container/" title="Container"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-25</div><div class="title">Container</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">219</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/03/31/DeepType-Docker-VM-vs-Docker-Container/" title="VM vs Docker Container"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="VM vs Docker Container"/></a><div class="content"><a class="title" href="/2026/03/31/DeepType-Docker-VM-vs-Docker-Container/" title="VM vs Docker Container">VM vs Docker Container</a><time datetime="2026-03-31T00:24:05.000Z" title="Created 2026-03-31 08:24:05">2026-03-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/15/DeepType-Cache-shopping-cart-2/" title="shopping-cart-2"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="shopping-cart-2"/></a><div class="content"><a class="title" href="/2026/03/15/DeepType-Cache-shopping-cart-2/" title="shopping-cart-2">shopping-cart-2</a><time datetime="2026-03-15T00:25:03.000Z" title="Created 2026-03-15 08:25:03">2026-03-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/15/DeepType-Cache-shopping-cart/" title="shopping-cart"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="shopping-cart"/></a><div class="content"><a class="title" href="/2026/03/15/DeepType-Cache-shopping-cart/" title="shopping-cart">shopping-cart</a><time datetime="2026-03-15T00:25:03.000Z" title="Created 2026-03-15 08:25:03">2026-03-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/14/DeepType-Cache-Cache-%E6%9C%89%E6%95%88%E6%9C%9F%E9%99%90/" title="Time To Live"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/TTL/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Time To Live"/></a><div class="content"><a class="title" href="/2026/03/14/DeepType-Cache-Cache-%E6%9C%89%E6%95%88%E6%9C%9F%E9%99%90/" title="Time To Live">Time To Live</a><time datetime="2026-03-14T06:02:03.000Z" title="Created 2026-03-14 14:02:03">2026-03-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis 的存取控制（Authentication 與 ACL）"/></a><div class="content"><a class="title" href="/2026/01/17/DeepType-Cache-redis-auth/" title="Redis 的存取控制（Authentication 與 ACL）">Redis 的存取控制（Authentication 與 ACL）</a><time datetime="2026-01-17T03:19:50.000Z" title="Created 2026-01-17 11:19:50">2026-01-17</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
