@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Expected Value | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="在不確定的世界裡，把「每種結果的可能性」轉換成一個「長期平均下來你大概會拿到多少」的可比較數字，讓你能做理性的選擇，而不是靠感覺賭，不是在算「會不會發生」，而是在算「如果一直重複，值不值得」 先列出所有可能發生的結果，每一個「狀態」都要列清楚，不能只挑你喜歡的 幫每個結果標一個數值（好或壞），這個數值是你「實際在意的東西」，可能是錢、分數、時間、風險成本 幫每個結果標一個發生機率，不用百分之百準，">
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Expected Value | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="本質簡單計算衝裝備St. Petersburg paradox（聖彼得堡悖論）現實 - 期望值的侷限在不確定的世界裡，把「每種結果的可能性」轉換成一個「長期平均下來你大概會拿到多少」的可比較數字，讓你能做理性的選擇，而不是靠感覺賭，這是在算「如果一直重複，值不值得」  先列出所有可能發生的結果，每一個「狀態」都要列清楚 幫每個結果標一個數值（好或壞），這個數值是你「實際在意的東西」，可能是錢、分數">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Expected Value">
 <meta property="og:url" content="https://allenlin000.github.io.git/2026/01/02/DeepType-ThinkingMind-%E6%9C%9F%E6%9C%9B%E5%80%BC/">
 <meta property="og:site_name" content="平屋慢生活">
-<meta property="og:description" content="在不確定的世界裡，把「每種結果的可能性」轉換成一個「長期平均下來你大概會拿到多少」的可比較數字，讓你能做理性的選擇，而不是靠感覺賭，不是在算「會不會發生」，而是在算「如果一直重複，值不值得」 先列出所有可能發生的結果，每一個「狀態」都要列清楚，不能只挑你喜歡的 幫每個結果標一個數值（好或壞），這個數值是你「實際在意的東西」，可能是錢、分數、時間、風險成本 幫每個結果標一個發生機率，不用百分之百準，">
+<meta property="og:description" content="本質簡單計算衝裝備St. Petersburg paradox（聖彼得堡悖論）現實 - 期望值的侷限在不確定的世界裡，把「每種結果的可能性」轉換成一個「長期平均下來你大概會拿到多少」的可比較數字，讓你能做理性的選擇，而不是靠感覺賭，這是在算「如果一直重複，值不值得」  先列出所有可能發生的結果，每一個「狀態」都要列清楚 幫每個結果標一個數值（好或壞），這個數值是你「實際在意的東西」，可能是錢、分數">
 <meta property="og:locale">
 <meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true">
 <meta property="article:published_time" content="2026-01-02T13:37:03.000Z">
-<meta property="article:modified_time" content="2026-02-17T05:30:19.381Z">
+<meta property="article:modified_time" content="2026-04-20T00:53:18.460Z">
 <meta property="article:author" content="Allen">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/01/02/DeepType-ThinkingMind-%E6%9C%9F%E6%9C%9B%E5%80%BC/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
@@ -55,7 +55,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: false,
-  postUpdate: '2026-02-17 13:30:19'
+  postUpdate: '2026-04-20 08:53:18'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -152,30 +152,86 @@
         }
       }
       detectApple()
-    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">227</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Expected Value</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-01-02T13:37:03.000Z" title="Created 2026-01-02 21:37:03">2026-01-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-02-17T05:30:19.381Z" title="Updated 2026-02-17 13:30:19">2026-02-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Expected Value"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>在不確定的世界裡，把「每種結果的可能性」轉換成一個「長期平均下來你大概會拿到多少」的可比較數字，讓你能做理性的選擇，而不是靠感覺賭，不是在算「會不會發生」，而是在算「如果一直重複，值不值得」</p>
-<p>先列出所有可能發生的結果，每一個「狀態」都要列清楚，不能只挑你喜歡的</p>
-<p>幫每個結果標一個數值（好或壞），這個數值是你「實際在意的東西」，可能是錢、分數、時間、風險成本</p>
-<p>幫每個結果標一個發生機率，不用百分之百準，但一定要「相對合理」</p>
-<p>每個結果數值 × 機率，代表這個結果「對長期平均的貢獻」</p>
-<p>全部加起來 &#x3D; 期望值<br>這個總和就是如果你一直做這件事，平均下來會發生什麼事</p>
-<p>名字其實有點誤導。不是「你期待會發生的結果」是「長期平均你應該接受的結果」</p>
-<p>3️⃣ 一個反直覺但很重要的例子</p>
-<p>假設一個遊戲：</p>
-<p>99% 機率：你賠 1 元</p>
-<p>1% 機率：你賺 200 元</p>
-<p>期望值 &#x3D;<br>0.99 × (-1) + 0.01 × 200<br>&#x3D; +1.01 元</p>
-<p>👉 絕大多數時候你都在輸<br>👉 但長期來看你是贏的</p>
-<p>這就是期望值和「直覺感受」常常衝突的地方</p>
-<p>幫你避免「只看最好結果」</p>
-<p>也避免「只被恐懼主導」</p>
-<p>本質上是一種結構化思考</p>
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">227</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Expected Value</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-01-02T13:37:03.000Z" title="Created 2026-01-02 21:37:03">2026-01-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-04-20T00:53:18.460Z" title="Updated 2026-04-20 08:53:18">2026-04-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Expected Value"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="expected-value"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="expected-value-1">本質</button><button type="button" class="tab " data-href="expected-value-2">簡單計算</button><button type="button" class="tab " data-href="expected-value-3">衝裝備</button><button type="button" class="tab " data-href="expected-value-4">St. Petersburg paradox（聖彼得堡悖論）</button><button type="button" class="tab " data-href="expected-value-5">現實 - 期望值的侷限</button></ul><div class="tab-contents"><div class="tab-item-content active" id="expected-value-1"><p>在不確定的世界裡，把「每種結果的可能性」轉換成一個「長期平均下來你大概會拿到多少」的可比較數字，讓你能做理性的選擇，而不是靠感覺賭，這是在算「如果一直重複，值不值得」</p>
+<ol>
+<li>先列出所有可能發生的結果，每一個「狀態」都要列清楚</li>
+<li>幫每個結果標一個數值（好或壞），這個數值是你「實際在意的東西」，可能是錢、分數、時間、風險成本</li>
+<li>幫每個結果標一個發生機率，要「相對合理」</li>
+<li>每個結果數值 × 機率，代表這個結果「對長期平均的貢獻」</li>
+<li>全部加起來 &#x3D; 期望值，這個總和就是如果一直做這件事，平均下來會發生什麼事</li>
+</ol>
+<p>名字其實有點誤導。不是「你期待會發生的結果」是「長期平均你應該接受的結果」</p></div><div class="tab-item-content" id="expected-value-2"><p>99% 機率：你賠 1 元<br>1% 機率：你賺 200 元</p>
+<p>期望值 &#x3D;0.99 × (-1) + 0.01 × 200 &#x3D; +1.01 元</p>
+<p>其實絕大多數時候你都在輸，但長期來看你是贏的，這是期望值和「直覺感受」奇異的地方，也是他最為一個工具的價值所在，幫我們避免「只看最好結果」、「只被恐懼主導」</p></div><div class="tab-item-content" id="expected-value-3"><p>假設我今天要購買一個 + 4 攻剩兩次衝卷軸機會的裝備來轉賣，我想評估應該要花多少錢來買它，期望值才能維持是正的，而手上看到的素材如下</p>
+<ul>
+<li>手攻 60 % 卷軸 每張 150 萬，也就是成功率 60 %，每成功一次 + 2 攻</li>
+<li><ul>
+<li>8 攻手套 1100 萬</li>
+</ul>
+</li>
+<li><ul>
+<li>6 攻手套  450 萬</li>
+</ul>
+</li>
+<li><ul>
+<li>4 攻手套 100 萬</li>
+</ul>
+</li>
+</ul>
+<p>盤點可能的情況有:</p>
+<ul>
+<li><ul>
+<li>8 攻，兩張都成功，機率是 0.6 x 0.6 &#x3D; 0.36</li>
+</ul>
+</li>
+<li><ul>
+<li>6 攻，成功一張、失敗一張 0.6 x 0.4 x 2 &#x3D; 0.48</li>
+</ul>
+</li>
+<li><ul>
+<li>4 攻，全失敗，機率 0.4 x 0.4 &#x3D; 0.16</li>
+</ul>
+</li>
+</ul>
+<p>因此期望值是</p>
+<ul>
+<li>0.36 x 1100 萬 &#x3D; 396 萬</li>
+<li>0.48 x 450 萬 &#x3D; 216 萬</li>
+<li>0.16 x 100 萬 &#x3D; 16 萬</li>
+</ul>
+<p>396 + 216 + 16 &#x3D; 628 萬</p>
+<p>但要花 300 萬買卷軸因此 628 - 300 &#x3D; 328 萬</p>
+<p>結論是 : 工地手套 + 4 攻只剩兩卷，如果買超過 328 萬，則期望值開始變負</p></div><div class="tab-item-content" id="expected-value-4"><p>擲一枚公平硬幣，第一次出現正面就停止</p>
+<p>如果第 1 次就正面 → 得 2 元<br>第 2 次才正面 → 得 4 元<br>第 3 次才正面 → 得 8 元<br>第 n 次才正面 → 得 2ⁿ 元</p>
+<p>問期望值是多少？</p>
+<p>期望值這樣算：</p>
+<p>第 n 次才第一次出現正面 的機率是 </p>
+<p>$$<br>\left(\frac{1}{2}\right)^n<br>$$</p>
+<p>而這種情況下的獎金是</p>
+<p>$$<br>2^n<br>$$</p>
+<p>所以期望值是</p>
+<p>$$<br>E &#x3D; \sum_{n&#x3D;1}^{\infty} \left(\frac{1}{2}\right)^n \cdot 2^n<br>$$</p>
+<p>每一項都會變成</p>
+<p>$$<br>\left(\frac{1}{2}\right)^n \cdot 2^n &#x3D; 1<br>$$</p>
+<p>因此</p>
+<p>$$<br>E &#x3D; \sum_{n&#x3D;1}^{\infty} 1 &#x3D; \infty<br>$$</p>
+<p>所以答案是：期望值是無限大</p>
+<p>也就是說，如果只看期望值，這遊戲理論上願意付多少入場費都值得，但現實中沒有人真的願意付天價參加，這個悖論想講的是期望值不一定等於人真正願意支付的價格。因為現實世界還有這些東西</p>
+<ul>
+<li>人的財富有限</li>
+<li>風險承受有限</li>
+<li>極小機率的大獎，雖然把期望值撐到無限大，但幾乎永遠碰不到</li>
+</ul></div><div class="tab-item-content" id="expected-value-5"><p>期望值只能告訴你平均會發生什麼，卻無法讓你知道，在我們走到那個平均之前，要先扛住多少波動、虧損和心理壓力，看期望值像是在看終點分數，但真正會不會走到終點，往往是被中途的連續虧損和情緒壓力決定的</p>
 <p>期望值只描述「平均結果」，但完全忽略「過程中你會承受什麼」。</p>
 <p>波動性不同</p>
-<p>A：每次都小輸小贏</p>
-<p>B：大多數時間慘輸，少數時間暴賺</p>
-<p>承受能力有限</p>
-<p>人不是無限資本、無限耐心</p>
-<p>你可能在「期望值發揮前」就先破產或放棄</p>
+<p>A 是每次都小輸小贏，代表結果起伏小，比較容易撐<br>B 是大部分時間都在慘輸，只有少數時候暴賺，代表你得先熬過很長一段難受期</p>
+<p>一個策略就算期望值再好，只要中途太容易讓你爆掉、停損、放棄，那它對你來說就不算真正可行。<br>也就是說，能不能活下來，比帳面上的平均報酬更先決。</p>
+<p>假設有兩種投資方式：</p>
+<p>A 方案：每個月可能賺 3%，也可能虧 2%，整體小幅波動，長期平均是賺錢的<br>B 方案：有 9 個月都在虧錢，每次都虧不少，但第 10 個月可能一次大賺，把前面的虧損全補回來，甚至還有盈餘，長期平均也是賺錢的</p>
+<p>表面上看，A 和 B 的期望值可能差不多，現實中，大部分人根本撐不到 B 的那次暴賺</p>
+<p>資金可能先被連續虧損吃掉，人會開始懷疑策略是不是失效，壓力一大，就容易在最差的時候退出，一退出，後面那次關鍵暴賺就跟你沒關係了</p>
+<p>所以選方法時還要評估「我撐不撐得住它賺錢之前的那段路」</p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+
 </article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/01/02/DeepType-ThinkingMind-%E6%9C%9F%E6%9C%9B%E5%80%BC/">https://allenlin000.github.io.git/2026/01/02/DeepType-ThinkingMind-%E6%9C%9F%E6%9C%9B%E5%80%BC/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/01/02/DeepType-ThinkingMind-Bulls-and-Cows/" title=""><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info"></div></div></a></div><div class="next-post pull-right"><a href="/2026/01/03/DeepType-Docker-Image-Layer/" title="Image Layer"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Image Layer</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">227</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">30</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/04/19/DeepType-Cache-INCR/" title="INCR / DECR"><img src="https://github.com/CHI-KEKE/pics/blob/main/Cache/CacheSql.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="INCR / DECR"/></a><div class="content"><a class="title" href="/2026/04/19/DeepType-Cache-INCR/" title="INCR / DECR">INCR / DECR</a><time datetime="2026-04-19T00:32:11.000Z" title="Created 2026-04-19 08:32:11">2026-04-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/04/10/DeepType-Cyber-WAF/" title="WAF"><img src="https://github.com/CHI-KEKE/pics/blob/main/Security/wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="WAF"/></a><div class="content"><a class="title" href="/2026/04/10/DeepType-Cyber-WAF/" title="WAF">WAF</a><time datetime="2026-04-09T23:59:11.000Z" title="Created 2026-04-10 07:59:11">2026-04-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/04/08/DeepType-Docker-case-1-react/" title="Case 1 - Build a REACT APP Image"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Case 1 - Build a REACT APP Image"/></a><div class="content"><a class="title" href="/2026/04/08/DeepType-Docker-case-1-react/" title="Case 1 - Build a REACT APP Image">Case 1 - Build a REACT APP Image</a><time datetime="2026-04-07T23:32:05.000Z" title="Created 2026-04-08 07:32:05">2026-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/04/06/DeepType-Docker-docker-daemon/" title="docker-daemon、docker engine、runc、containerd"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="docker-daemon、docker engine、runc、containerd"/></a><div class="content"><a class="title" href="/2026/04/06/DeepType-Docker-docker-daemon/" title="docker-daemon、docker engine、runc、containerd">docker-daemon、docker engine、runc、containerd</a><time datetime="2026-04-06T00:06:05.000Z" title="Created 2026-04-06 08:06:05">2026-04-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/04/04/DeepType-Docker-go/" title="Go"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Go"/></a><div class="content"><a class="title" href="/2026/04/04/DeepType-Docker-go/" title="Go">Go</a><time datetime="2026-04-04T00:54:05.000Z" title="Created 2026-04-04 08:54:05">2026-04-04</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
   const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
   if ($mermaid.length === 0) return
