@@ -1,0 +1,235 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>資料庫存 UTC 嗎 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="策略 : 資料存 UTC, 顯示才轉時區夏令時間 DST 的陷阱Unix Timestamp資料庫存的是「世界上真正發生的那一刻」，畫面顯示才是「這個使用者看到的當地時間」 假設有一個訂單建立時間：2026-05-04 10:00:00，若我們直接存「台灣時間 10:00」，問題是資料庫只看到：2026-05-04 10:00:00，它不知道這是台灣時間、日本時間、紐約時間，還是倫敦時間，因此實際">
+<meta property="og:type" content="article">
+<meta property="og:title" content="資料庫存 UTC 嗎">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/05/04/DeepType-Time-db/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="策略 : 資料存 UTC, 顯示才轉時區夏令時間 DST 的陷阱Unix Timestamp資料庫存的是「世界上真正發生的那一刻」，畫面顯示才是「這個使用者看到的當地時間」 假設有一個訂單建立時間：2026-05-04 10:00:00，若我們直接存「台灣時間 10:00」，問題是資料庫只看到：2026-05-04 10:00:00，它不知道這是台灣時間、日本時間、紐約時間，還是倫敦時間，因此實際">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true">
+<meta property="article:published_time" content="2026-05-04T02:03:03.000Z">
+<meta property="article:modified_time" content="2026-05-04T02:57:18.156Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/05/04/DeepType-Time-db/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '資料庫存 UTC 嗎',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-05-04 10:57:18'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">233</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">34</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">資料庫存 UTC 嗎</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-05-04T02:03:03.000Z" title="Created 2026-05-04 10:03:03">2026-05-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-05-04T02:57:18.156Z" title="Updated 2026-05-04 10:57:18">2026-05-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Time/">Time</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="資料庫存 UTC 嗎"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="資料庫存-utc"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="資料庫存-utc-1">策略 : 資料存 UTC, 顯示才轉時區</button><button type="button" class="tab " data-href="資料庫存-utc-2">夏令時間 DST 的陷阱</button><button type="button" class="tab " data-href="資料庫存-utc-3">Unix Timestamp</button></ul><div class="tab-contents"><div class="tab-item-content active" id="資料庫存-utc-1"><p>資料庫存的是「世界上真正發生的那一刻」，畫面顯示才是「這個使用者看到的當地時間」</p>
+<p>假設有一個訂單建立時間：<strong>2026-05-04 10:00:00</strong>，若我們直接存「台灣時間 10:00」，問題是資料庫只看到：<strong>2026-05-04 10:00:00</strong>，它不知道這是台灣時間、日本時間、紐約時間，還是倫敦時間，因此實際我們會這樣設計</p>
+<ol>
+<li>使用者在台灣建立訂單，時間 2026-05-04 10:00:00 GMT+8</li>
+<li>轉成 UTC 2026-05-04 02:00:00 UTC</li>
+<li>資料庫存 created_at &#x3D; 2026-05-04T02:00:00Z，其中 Z 代表 UTC</li>
+<li>美國使用者查看這筆訂單，假設他在紐約，當地時間是 UTC-4，資料庫拿出 2026-05-04T02:00:00Z</li>
+<li>前端轉成紐約時間 2026-05-03 22:00:00</li>
+<li>台灣使用者看到 2026-05-04 10:00，而紐約使用者看到 2026-05-03 22:00，兩個人看到的時間不同，但指向的是同一個真實事件發生時間</li>
+</ol>
+<p>而會建議在前端轉，不是後端是因為後端通常不知道使用者真正想用哪個時區看時間，而前端是最接近使用者的，使用者可能人在台灣，但瀏覽器語系是英文，也可能人在日本，但帳號設定想看台灣時間，<br>還可能使用手機跨國旅行，另外後端太早把時間轉掉，後面的人就失去彈性，也容易重複轉換出錯，API 最好回傳標準 UTC 字串，讓前端明確知道這是一個可轉換的時間點</p></div><div class="tab-item-content" id="資料庫存-utc-2"><p>夏令時間（DST, Daylight Saving Time）是在一年中的某段時間，把時鐘「人為往前調一小時」。人類把時鐘往前撥，讓作息看起來更早，藉此多用白天少開燈</p>
+<p>有些國家的時間不是固定加幾小時，直接存本地時間很容易撞到不存在或重複的時間，例如美國有夏令時間。</p>
+<p>例如，某一天凌晨 2 點可能直接跳到 3 點，代表 02:30 這個時間在當地根本不存在。</p>
+<p>另一種情況是時間往回調，凌晨 1 點會出現兩次，所以如果只存 2026-11-01 01:30:00，這可能導致不知道它第一次 1:30，還是第二次 1:30</p>
+<h2 id="IANA-時區"><a href="#IANA-時區" class="headerlink" title="IANA 時區"></a>IANA 時區</h2><p>IANA 時區不是單純的 UTC+8，而是一整套會變動的時間規則，例如</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Asia/Taipei</span><br><span class="line">America/New_York</span><br><span class="line">Europe/Berlin</span><br></pre></td></tr></table></figure>
+
+<p>這些不是固定 offset，而是包含</p>
+<ul>
+<li>DST 規則</li>
+<li>歷史變動</li>
+<li>未來政策更新</li>
+</ul>
+<p>所以不能只存 UTC-5</p>
+<p>因為它無法表達夏天 UTC-4 OR 冬天 UTC-5</p>
+<p>遇到這情況等於是需要存 09:00 + America&#x2F;New_Yor，如此一來，系統會自動跟著 DST 調整</p></div><div class="tab-item-content" id="資料庫存-utc-3"><p>Unix Timestamp（Unix 時間戳）是當我們只在乎「時間先後與計算」，不在乎「人類怎麼看時間」，就用 Unix timestamp，而 Unix timestamp &#x3D; 從 1970-01-01 00:00:00 UTC 到現在過了幾秒</p>
+<h2 id="登入過期時間"><a href="#登入過期時間" class="headerlink" title="登入過期時間"></a>登入過期時間</h2><p>現在時間：1777896000，設定 token 1 小時後過期 expire_at &#x3D; now + 3600，因此我們僅需驗證 <code>if (now &gt; expire_at)</code> → 過期，完全不用管時區、DST、格式</p>
+<h2 id="排序資料"><a href="#排序資料" class="headerlink" title="排序資料"></a>排序資料</h2><p>效能考量存成這樣</p>
+<p>1777896000<br>1777899600<br>1777903200</p>
+<p>直接 numeric sort，比字串或日期快很多</p>
+<h2 id="倒數計時"><a href="#倒數計時" class="headerlink" title="倒數計時"></a>倒數計時</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> remain = expireAt - now;</span><br></pre></td></tr></table></figure>
+
+<p>可以直接算剩幾秒</p>
+<p>使用時機是，只要是「機器邏輯」在用的時間，就該用 timestamp</p>
+<ul>
+<li>token 過期</li>
+<li>cache TTL</li>
+<li>log 記錄</li>
+<li>事件排序</li>
+<li>效能敏感系統</li>
+</ul></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/05/04/DeepType-Time-db/">https://allenlin000.github.io.git/2026/05/04/DeepType-Time-db/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2026/05/03/DeepType-DI-DAModule/" title="Autofac - 舊框架注入使用案例"><img class="cover" src="https://i.imgur.com/xAbpKgd.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Autofac - 舊框架注入使用案例</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">233</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">34</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IANA-%E6%99%82%E5%8D%80"><span class="toc-number">1.</span> <span class="toc-text">IANA 時區</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%99%BB%E5%85%A5%E9%81%8E%E6%9C%9F%E6%99%82%E9%96%93"><span class="toc-number">2.</span> <span class="toc-text">登入過期時間</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%92%E5%BA%8F%E8%B3%87%E6%96%99"><span class="toc-number">3.</span> <span class="toc-text">排序資料</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%80%92%E6%95%B8%E8%A8%88%E6%99%82"><span class="toc-number">4.</span> <span class="toc-text">倒數計時</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/04/DeepType-Time-db/" title="資料庫存 UTC 嗎"><img src="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="資料庫存 UTC 嗎"/></a><div class="content"><a class="title" href="/2026/05/04/DeepType-Time-db/" title="資料庫存 UTC 嗎">資料庫存 UTC 嗎</a><time datetime="2026-05-04T02:03:03.000Z" title="Created 2026-05-04 10:03:03">2026-05-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/03/DeepType-DI-DAModule/" title="Autofac - 舊框架注入使用案例"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Autofac - 舊框架注入使用案例"/></a><div class="content"><a class="title" href="/2026/05/03/DeepType-DI-DAModule/" title="Autofac - 舊框架注入使用案例">Autofac - 舊框架注入使用案例</a><time datetime="2026-05-03T00:26:05.000Z" title="Created 2026-05-03 08:26:05">2026-05-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/01/DeepType-ThinkingMind-Tree/" title="Tree"><img src="https://github.com/CHI-KEKE/pics/blob/main/Probability/tree/landing.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Tree"/></a><div class="content"><a class="title" href="/2026/05/01/DeepType-ThinkingMind-Tree/" title="Tree">Tree</a><time datetime="2026-05-01T12:54:03.000Z" title="Created 2026-05-01 20:54:03">2026-05-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/01/DeepType-Framework-Build/" title="編譯"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Framework/Build/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="編譯"/></a><div class="content"><a class="title" href="/2026/05/01/DeepType-Framework-Build/" title="編譯">編譯</a><time datetime="2026-05-01T00:28:05.000Z" title="Created 2026-05-01 08:28:05">2026-05-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/04/27/DeepType-Docker-container-is-env/" title="Container is environment"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Container is environment"/></a><div class="content"><a class="title" href="/2026/04/27/DeepType-Docker-container-is-env/" title="Container is environment">Container is environment</a><time datetime="2026-04-27T02:14:05.000Z" title="Created 2026-04-27 10:14:05">2026-04-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

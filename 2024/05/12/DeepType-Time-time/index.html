@@ -1,0 +1,231 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>DateTimeOffset | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="煩惱DateTime.Now and DateTime.UtcNowDateTime.Kind時區轉換日期轉字串字串轉 DateTimeDateTimeOffset會議邀約實作練習工作上時不時就會碰到時間的處理 DB 該存甚麼時間?  部署到不同環境會不會有時區問題? 收發推播會不會因為時間處理不周導致收發有問題?首先我們先簡單確認一下這兩者在我們台灣的本機執行會印出什麼時間: 1234DateT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DateTimeOffset">
+<meta property="og:url" content="https://allenlin000.github.io.git/2024/05/12/DeepType-Time-time/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="煩惱DateTime.Now and DateTime.UtcNowDateTime.Kind時區轉換日期轉字串字串轉 DateTimeDateTimeOffset會議邀約實作練習工作上時不時就會碰到時間的處理 DB 該存甚麼時間?  部署到不同環境會不會有時區問題? 收發推播會不會因為時間處理不周導致收發有問題?首先我們先簡單確認一下這兩者在我們台灣的本機執行會印出什麼時間: 1234DateT">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true">
+<meta property="article:published_time" content="2024-05-12T13:23:05.000Z">
+<meta property="article:modified_time" content="2026-05-04T02:57:12.800Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2024/05/12/DeepType-Time-time/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'DateTimeOffset',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-05-04 10:57:12'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">233</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">34</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">DateTimeOffset</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-05-12T13:23:05.000Z" title="Created 2024-05-12 21:23:05">2024-05-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-05-04T02:57:12.800Z" title="Updated 2026-05-04 10:57:12">2026-05-04</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="DateTimeOffset"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="資料庫存-utc"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="資料庫存-utc-1">煩惱</button><button type="button" class="tab " data-href="資料庫存-utc-2">DateTime.Now and DateTime.UtcNow</button><button type="button" class="tab " data-href="資料庫存-utc-3">DateTime.Kind</button><button type="button" class="tab " data-href="資料庫存-utc-4">時區轉換</button><button type="button" class="tab " data-href="資料庫存-utc-5">日期轉字串</button><button type="button" class="tab " data-href="資料庫存-utc-6">字串轉 DateTime</button><button type="button" class="tab " data-href="資料庫存-utc-7">DateTimeOffset</button><button type="button" class="tab " data-href="資料庫存-utc-8">會議邀約</button><button type="button" class="tab " data-href="資料庫存-utc-9">實作練習</button></ul><div class="tab-contents"><div class="tab-item-content active" id="資料庫存-utc-1"><p>工作上時不時就會碰到時間的處理</p>
+<p>DB 該存甚麼時間? </p>
+<p>部署到不同環境會不會有時區問題?</p>
+<p>收發推播會不會因為時間處理不周導致收發有問題?</p></div><div class="tab-item-content" id="資料庫存-utc-2"><p>首先我們先簡單確認一下這兩者在我們台灣的本機執行會印出什麼時間:</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">DateTime.Now.Dump();   <span class="comment"><span class="doctag">///</span>/ 5/12/2024 9:16:01 PM</span></span><br><span class="line">DateTime.UtcNow.Dump(); <span class="comment"><span class="doctag">///</span>/ 5/12/2024 1:16:01 PM</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>DateTime.Now 給的是那台機器的 Local Time，所以我在我的本機執行，抬頭看看時鐘，嗯嗯一模一樣</p>
+<p>(我曾經有在 Code 裡面看到 DateTime.Now.ToLocalTime() 的寫法..)</p>
+<p>DateTime.UtcNow 給的是目前的世界標準時間，而台灣、香港都比標準時間所在的位置快了 8 個小時，所以會得到比時鐘少 8 小時的結果</p></div><div class="tab-item-content" id="資料庫存-utc-3"><p>承襲上一段，雖然好像理所當然，但假如這個時間在程式碼中經歷了百般轉折傳到你的 Service 時，你要怎麼判斷他是 UTC 還是 LocalTime 呢</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> time1 = DateTime.Now.Dump();   <span class="comment"><span class="doctag">///</span>/ 5/12/2024 9:16:01 PM</span></span><br><span class="line"><span class="keyword">var</span> time2 = DateTime.UtcNow.Dump(); <span class="comment"><span class="doctag">///</span>/ 5/12/2024 1:16:01 PM</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">time1.Kind.Dump(); <span class="comment">// Local</span></span><br><span class="line">time2.Kind.Dump(); <span class="comment">// Utc</span></span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="資料庫存-utc-4"><p>假如，今天我們與前端溝通好，優惠券傳過來的時間格式一率使用 Utc 時間，到我們的 API 時，我想要檢查這檔優惠券設定的過期時間是否合理，我們應該要統一時區做比較</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> expiredTimeJson = JsonConvert.SerializeObject(DateTime.Today.AddDays(<span class="number">-1</span>).ToUniversalTime());</span><br><span class="line"><span class="keyword">var</span> expiredTime = JsonConvert.DeserializeObject&lt;DateTime&gt;(expiredTimeJson);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(expiredTime.ToUniversalTime() &lt; DateTime.Now.ToUniversalTime())</span><br><span class="line">&#123;</span><br><span class="line">	<span class="string">&quot;過期時間不得小於現在，請重新設定!&quot;</span>.Dump();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="string">&quot;設定成功&quot;</span>.Dump();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="資料庫存-utc-5"><p>舉個例子，當我們想在 return message 註記一個明確的時間格式，很常看到的做法就是 ToString()</p>
+<p>參考 : <a target="_blank" rel="noopener" href="https://www.c-sharpcorner.com/blogs/date-and-time-format-in-c-sharp-programming1">https://www.c-sharpcorner.com/blogs/date-and-time-format-in-c-sharp-programming1</a><br><img src="https://i.imgur.com/lKsjXni.png" alt="Image"></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> message = <span class="string">$&quot; 訂單更新時間 : <span class="subst">&#123;result.OrderUpdatedDateTime.ToString(<span class="string">&quot;yyyy/MM/dd HH:mm:ss&quot;</span>)&#125;</span>&quot;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>值得注意的是，如果單純 ToString() 而不指定格式，會使用當下執行續的 CultureInfo (文化特性)</p>
+<p>不同的 CultureInfo 會得到甚麼結果</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> date = DateTime.Now;</span><br><span class="line">date.ToString().Dump(); <span class="comment">// 5/12/2024 11:06:46 PM (應該是我系統語言調成英文)</span></span><br><span class="line">date.ToString(<span class="keyword">new</span> CultureInfo(<span class="string">&quot;en-us&quot;</span>)).Dump(); <span class="comment">// 5/12/2024 11:06:15 PM</span></span><br><span class="line">date.ToString(<span class="keyword">new</span> CultureInfo(<span class="string">&quot;zh-tw&quot;</span>)).Dump(); <span class="comment">// 2024/5/12 下午 11:06:15</span></span><br><span class="line">date.ToString(<span class="keyword">new</span> CultureInfo(<span class="string">&quot;zh-hk&quot;</span>)).Dump(); <span class="comment">// 12/5/2024 下午 11:06:15</span></span><br><span class="line">date.ToString(<span class="keyword">new</span> CultureInfo(<span class="string">&quot;ms-MY&quot;</span>)).Dump(); <span class="comment">// 12/05/2024 11:06:15 PTG</span></span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="資料庫存-utc-6"><p>有兩種模式，DateTime.Parse &amp; DateTime.ParseExact，通常建議使用後者較好除錯</p>
+<p>ParseExact 指定特定的時間格式</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">string</span> externalDateString = <span class="string">&quot;2024/05/12&quot;</span>;</span><br><span class="line">	<span class="built_in">string</span> externalDateString2 = <span class="string">&quot;2024-05-12&quot;</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="comment"><span class="doctag">///</span>/ ParseExact</span></span><br><span class="line">	DateTime parsedDate = ParseExternalDate(externalDateString);</span><br><span class="line">	Console.WriteLine(parsedDate); <span class="comment">// 輸出: 5/12/2024 12:00:00 AM</span></span><br><span class="line"></span><br><span class="line">	DateTime parsedDate2 = ParseExternalDate(externalDateString2); <span class="comment">// FormatException : String &#x27;2024-05-12&#x27; was not recognized as a valid DateTime.</span></span><br><span class="line">	Console.WriteLine(parsedDate2);</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	<span class="comment"><span class="doctag">///</span>/ Parse (格式不一樣也給過，較容易有預期之外的結果)</span></span><br><span class="line">	DateTime parseDate3 = DateTime.Parse(externalDateString2);</span><br><span class="line">	Console.WriteLine(parseDate3); <span class="comment">// 輸出: 5/12/2024 12:00:00 AM</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> DateTime <span class="title">ParseExternalDate</span>(<span class="params"><span class="built_in">string</span> dateString</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">string</span> format = <span class="string">&quot;yyyy/MM/dd&quot;</span>;</span><br><span class="line">	DateTime parsedDate = DateTime.ParseExact(dateString, format, CultureInfo.InvariantCulture);</span><br><span class="line">	<span class="keyword">return</span> parsedDate;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="資料庫存-utc-7"><p>最後談到 DateTimeOffset，必須要推薦一篇串文</p>
+<p>參考文章 : <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/4331189/datetime-vs-datetimeoffset">https://stackoverflow.com/questions/4331189/datetime-vs-datetimeoffset</a></p>
+<p>講者生動地做了一個 DateTime vs DateTimeOffset 的比喻，感覺應該是個滿好的 mentor</p>
+<p>我這裡也帶來一個故事試著說明，DateTimeOffset 這個工具解決了甚麼問題</p>
+<p>從前有一跨國公司，他們有一個困擾了很久的問題：如何讓分佈在不同時區的員工準確地參與國際會議。</p></div><div class="tab-item-content" id="資料庫存-utc-8"><h3 id="第一場會議邀約"><a href="#第一場會議邀約" class="headerlink" title="第一場會議邀約"></a>第一場會議邀約</h3><p>某天，公司的總部（位於倫敦，UTC 時區）安排了一場重要的全球會議，時間定為 1 月 1 日下午 3 點。他們通知了所有分公司的負責人，但問題就這麼來了 ——</p>
+<p>Tokyo 分公司（UTC+9）的員工收到通知後，系統只記錄了「1 月 1 日下午 3 點」，並且沒有時區信息。東京的負責人猜測這是他們本地時間，但實際上應該是 倫敦時間。<br>NewYork 分公司（UTC-5）的員工，也以為這是紐約當地時間，結果晚了整整 5 小時才參加。<br>Australia 分公司（UTC+11）的員工認為這是他們的時間，結果早到了 8 小時。<br>最終，這場會議變成了一場災難，沒有人能準時參加！ @_________@</p>
+<h3 id="第二場會議邀約"><a href="#第二場會議邀約" class="headerlink" title="第二場會議邀約"></a>第二場會議邀約</h3><p>為了解決這個問題，IT 部門決定使用 DateTime 記錄會議時間。他們為每個分公司分別記錄了當地時間，並通知各地負責人。</p>
+<p>倫敦總部記錄的會議時間：2025-01-01 15:00:00<br>東京分公司：2025-01-01 23:00:00<br>紐約分公司：2025-01-01 10:00:00<br>悉尼分公司：2025-01-02 01:00:00<br>看似解決了問題，但實際上他們發現：</p>
+<p>這些時間並沒有包含時區資訊，無法確定它們是 UTC 時間 還是當地時間。<br>如果一個員工從紐約飛到倫敦，他需要手動計算當地時間。<br>夏令時間（DST）改變時，部分地區的時間錯誤變得更加頻繁。<br>IT 部門的主管感到非常頭痛，因為 DateTime 缺乏對時區的準確支持。</p>
+<h3 id="第三次的會議…不能再錯了"><a href="#第三次的會議…不能再錯了" class="headerlink" title="第三次的會議…不能再錯了!"></a>第三次的會議…不能再錯了!</h3><p>他們引入了 DateTimeOffset，這個神奇的類型能夠同時記錄「日期時間」和「與 UTC 的偏移量」。系統重新設計後，會議時間的記錄變成了這樣：</p>
+<p>倫敦總部：2025-01-01 15:00:00+00:00（UTC 時間偏移量為 +0）<br>東京分公司：2025-01-01 23:00:00+09:00（UTC+9）<br>紐約分公司：2025-01-01 10:00:00-05:00（UTC-5）<br>悉尼分公司：2025-01-02 01:00:00+11:00（UTC+11）<br>現在，無論員工在哪裡，他們的系統都可以自動轉換會議時間為當地時間。例如：</p>
+<p>紐約的一名員工飛到了倫敦，系統會自動將會議時間從 2025-01-01 10:00:00-05:00 轉換為 2025-01-01 15:00:00+00:00，確保他知道倫敦的實際時間。<br>悉尼的員工再也不需要手動計算時差，因為系統已經知道偏移量。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 1. 定義會議的 UTC 時間</span></span><br><span class="line">DateTimeOffset meetingUtcTime = <span class="keyword">new</span> DateTimeOffset(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">15</span>, <span class="number">0</span>, <span class="number">0</span>, TimeSpan.Zero); <span class="comment">// UTC+0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 定義參與者的時區資訊</span></span><br><span class="line"><span class="keyword">var</span> participants = <span class="keyword">new</span> List&lt;Participant&gt;</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">new</span> Participant(<span class="string">&quot;倫敦總部&quot;</span>, TimeZoneInfo.FindSystemTimeZoneById(<span class="string">&quot;GMT Standard Time&quot;</span>)),</span><br><span class="line">	<span class="keyword">new</span> Participant(<span class="string">&quot;Tokyo 分公司&quot;</span>, TimeZoneInfo.FindSystemTimeZoneById(<span class="string">&quot;Tokyo Standard Time&quot;</span>)),</span><br><span class="line">	<span class="keyword">new</span> Participant(<span class="string">&quot;Eastern 分公司&quot;</span>, TimeZoneInfo.FindSystemTimeZoneById(<span class="string">&quot;Eastern Standard Time&quot;</span>)),</span><br><span class="line">	<span class="keyword">new</span> Participant(<span class="string">&quot;AUS 分公司&quot;</span>, TimeZoneInfo.FindSystemTimeZoneById(<span class="string">&quot;AUS Eastern Standard Time&quot;</span>))</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 計算每個參與者的本地時間</span></span><br><span class="line">Console.WriteLine(<span class="string">&quot;國際會議安排（各地本地時間）：&quot;</span>);</span><br><span class="line"><span class="keyword">foreach</span> (<span class="keyword">var</span> participant <span class="keyword">in</span> participants)</span><br><span class="line">&#123;</span><br><span class="line">	DateTimeOffset localMeetingTime = TimeZoneInfo.ConvertTime(meetingUtcTime, participant.TimeZone);</span><br><span class="line">	Console.WriteLine(<span class="string">$&quot;<span class="subst">&#123;participant.Name&#125;</span>: <span class="subst">&#123;localMeetingTime.ToString(<span class="string">&quot;yyyy-MM-dd HH:mm:ss zzz&quot;</span>, CultureInfo.InvariantCulture)&#125;</span>&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 驗證時間比較，確認會議時間一致</span></span><br><span class="line">Console.WriteLine(<span class="string">&quot;\n驗證：所有人使用 UTC 時間參加會議&quot;</span>);</span><br><span class="line"><span class="keyword">foreach</span> (<span class="keyword">var</span> participant <span class="keyword">in</span> participants)</span><br><span class="line">&#123;</span><br><span class="line">	Console.WriteLine(<span class="string">$&quot;<span class="subst">&#123;participant.Name&#125;</span> 將準時參加會議於 UTC 時間: <span class="subst">&#123;meetingUtcTime&#125;</span>&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//國際會議安排（各地本地時間）：</span></span><br><span class="line"><span class="comment">//倫敦總部: 2025-01-01 15:00:00 +00:00</span></span><br><span class="line"><span class="comment">//Tokyo 分公司: 2025-01-01 23:00:00 +09:00</span></span><br><span class="line"><span class="comment">//Eastern 分公司: 2025-01-01 10:00:00 -05:00</span></span><br><span class="line"><span class="comment">//AUS 分公司: 2025-01-02 02:00:00 +11:00</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//驗證：所有人使用 UTC 時間參加會議</span></span><br><span class="line"><span class="comment">//倫敦總部 將準時參加會議於 UTC 時間: 2025-01-01 15:00:00 +00:00</span></span><br><span class="line"><span class="comment">//Tokyo 分公司 將準時參加會議於 UTC 時間: 2025-01-01 15:00:00 +00:00</span></span><br><span class="line"><span class="comment">//Eastern 分公司 將準時參加會議於 UTC 時間: 2025-01-01 15:00:00 +00:00</span></span><br><span class="line"><span class="comment">//AUS 分公司 將準時參加會議於 UTC 時間: 2025-01-01 15:00:00 +00:00</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="資料庫存-utc-9"><p>使用 DateTimeOffset 的好處在於，我今天拿到一個時間，我有了更多的判斷依據，先來看看怎麼組裝一個 DateTimeOffset</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 組裝</span></span><br><span class="line">TimeSpan utcOffset = TimeSpan.FromHours(<span class="number">8</span>); <span class="comment"><span class="doctag">///</span>/ 8 hr</span></span><br><span class="line">DateTimeOffset dateTimeOffset = <span class="keyword">new</span> DateTimeOffset(DateTime.Now, utcOffset);</span><br><span class="line">dateTimeOffset.Dump(); <span class="comment"><span class="doctag">///</span>/ 5/14/2024 4:31:59 PM +08:00</span></span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="doctag">///</span>/ 直接取得現在時間</span></span><br><span class="line">DateTimeOffset.Now.Dump(); <span class="comment"><span class="doctag">///</span>/ 5/14/2024 4:31:59 PM +08:00</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>簡單來說就是時間跟時區偏移量組起來啦!</p>
+<p>在做時間比對時，會發現，DateTimeOffset 會把時區考慮進來，而 DateTime 只會比較值</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">DateTime utcTime = <span class="keyword">new</span> DateTime(<span class="number">2024</span>, <span class="number">5</span>, <span class="number">14</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, DateTimeKind.Utc);</span><br><span class="line">DateTime localTime = <span class="keyword">new</span> DateTime(<span class="number">2024</span>, <span class="number">5</span>, <span class="number">14</span>, <span class="number">8</span>, <span class="number">0</span>, <span class="number">0</span>, DateTimeKind.Local);</span><br><span class="line"></span><br><span class="line">Console.WriteLine(utcTime.ToString(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>)); <span class="comment">// 輸出: 2024-05-14 00:00:00</span></span><br><span class="line">Console.WriteLine(localTime.ToString(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>)); <span class="comment">// 輸出: 2024-05-14 08:00:00</span></span><br><span class="line"></span><br><span class="line">Console.WriteLine(utcTime == localTime); <span class="comment">// 輸出: False</span></span><br><span class="line"></span><br><span class="line">DateTimeOffset utcTime2 = <span class="keyword">new</span> DateTimeOffset(<span class="number">2024</span>, <span class="number">5</span>, <span class="number">14</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, TimeSpan.Zero);</span><br><span class="line">DateTimeOffset localTime2 = <span class="keyword">new</span> DateTimeOffset(<span class="number">2024</span>, <span class="number">5</span>, <span class="number">14</span>, <span class="number">8</span>, <span class="number">0</span>, <span class="number">0</span>, TimeSpan.FromHours(<span class="number">8</span>));</span><br><span class="line"></span><br><span class="line">Console.WriteLine(utcTime2.ToString(<span class="string">&quot;yyyy-MM-dd HH:mm:ss zzz&quot;</span>)); <span class="comment">// 輸出: 2024-05-14 00:00:00 +00:00</span></span><br><span class="line">Console.WriteLine(localTime2.ToString(<span class="string">&quot;yyyy-MM-dd HH:mm:ss zzz&quot;</span>)); <span class="comment">// 輸出: 2024-05-14 08:00:00 +08:00</span></span><br><span class="line"></span><br><span class="line">Console.WriteLine(utcTime2 == localTime2); <span class="comment">// 輸出: True</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>這個結果會非常好用，例如我要比較哪一個時間比較早時，我不用去擔心現在是本地還是 Utc 時間，更不用去統一時間格式</p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2024/05/12/DeepType-Time-time/">https://allenlin000.github.io.git/2024/05/12/DeepType-Time-time/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/05/07/DeepType-Async-2-Asynchronous-%E7%AC%AC%E4%B8%80%E7%AB%A0-%E9%9B%B2%E7%AB%AF%E4%B8%AD%E7%9A%84%E6%9C%AA%E7%AB%9F%E4%B9%8B%E4%BA%8B/" title="Asynchronous - 第一章:雲端中的未竟之事"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Async/async-1/1_landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Asynchronous - 第一章:雲端中的未竟之事</div></div></a></div><div class="next-post pull-right"><a href="/2024/05/20/HttpClient-BaseAddress/" title="BaseAddress - 那一撇，決定了命運的方向"><img class="cover" src="https://i.imgur.com/hZWviQz.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">BaseAddress - 那一撇，決定了命運的方向</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">233</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">34</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E5%A0%B4%E6%9C%83%E8%AD%B0%E9%82%80%E7%B4%84"><span class="toc-number">1.</span> <span class="toc-text">第一場會議邀約</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%A0%B4%E6%9C%83%E8%AD%B0%E9%82%80%E7%B4%84"><span class="toc-number">2.</span> <span class="toc-text">第二場會議邀約</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E6%AC%A1%E7%9A%84%E6%9C%83%E8%AD%B0%E2%80%A6%E4%B8%8D%E8%83%BD%E5%86%8D%E9%8C%AF%E4%BA%86"><span class="toc-number">3.</span> <span class="toc-text">第三次的會議…不能再錯了!</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/04/DeepType-Time-db/" title="資料庫存 UTC 嗎"><img src="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="資料庫存 UTC 嗎"/></a><div class="content"><a class="title" href="/2026/05/04/DeepType-Time-db/" title="資料庫存 UTC 嗎">資料庫存 UTC 嗎</a><time datetime="2026-05-04T02:03:03.000Z" title="Created 2026-05-04 10:03:03">2026-05-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/03/DeepType-DI-DAModule/" title="Autofac - 舊框架注入使用案例"><img src="https://i.imgur.com/xAbpKgd.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Autofac - 舊框架注入使用案例"/></a><div class="content"><a class="title" href="/2026/05/03/DeepType-DI-DAModule/" title="Autofac - 舊框架注入使用案例">Autofac - 舊框架注入使用案例</a><time datetime="2026-05-03T00:26:05.000Z" title="Created 2026-05-03 08:26:05">2026-05-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/01/DeepType-ThinkingMind-Tree/" title="Tree"><img src="https://github.com/CHI-KEKE/pics/blob/main/Probability/tree/landing.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Tree"/></a><div class="content"><a class="title" href="/2026/05/01/DeepType-ThinkingMind-Tree/" title="Tree">Tree</a><time datetime="2026-05-01T12:54:03.000Z" title="Created 2026-05-01 20:54:03">2026-05-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/01/DeepType-Framework-Build/" title="編譯"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Framework/Build/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="編譯"/></a><div class="content"><a class="title" href="/2026/05/01/DeepType-Framework-Build/" title="編譯">編譯</a><time datetime="2026-05-01T00:28:05.000Z" title="Created 2026-05-01 08:28:05">2026-05-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/04/27/DeepType-Docker-container-is-env/" title="Container is environment"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Container is environment"/></a><div class="content"><a class="title" href="/2026/04/27/DeepType-Docker-container-is-env/" title="Container is environment">Container is environment</a><time datetime="2026-04-27T02:14:05.000Z" title="Created 2026-04-27 10:14:05">2026-04-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
