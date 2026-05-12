@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Helm | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Helmhelm 實例Helm 與 KubernetesHelm chartvalues.yamltemplateshelm upgrade --installkubectl apply整條 pipelineSummaryHelm 是 Kubernetes 的「部署打包工具」，它把一堆 Kubernetes YAML 模板，加上環境的設定值，組成真正可以部署的 Kubernetes 資源。也就是，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Helm">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/05/09/DeepType-CICD-Helm/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="Helmhelm 實例Helm 與 KubernetesHelm chartvalues.yamltemplateshelm upgrade --installkubectl apply整條 pipelineSummaryHelm 是 Kubernetes 的「部署打包工具」，它把一堆 Kubernetes YAML 模板，加上環境的設定值，組成真正可以部署的 Kubernetes 資源。也就是，">
+<meta property="og:locale">
+<meta property="og:image" content="https://github.com/CHI-KEKE/pics/blob/main/CICD/feather.png?raw=true">
+<meta property="article:published_time" content="2026-05-09T09:25:00.000Z">
+<meta property="article:modified_time" content="2026-05-12T22:33:22.889Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/CHI-KEKE/pics/blob/main/CICD/feather.png?raw=true"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/05/09/DeepType-CICD-Helm/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Helm',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-05-13 06:33:22'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">238</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">49</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">38</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://github.com/CHI-KEKE/pics/blob/main/CICD/feather.png?raw=true')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Helm</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-05-09T09:25:00.000Z" title="Created 2026-05-09 17:25:00">2026-05-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-05-12T22:33:22.889Z" title="Updated 2026-05-13 06:33:22">2026-05-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/CI-CD/">CI / CD</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Helm"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="helm"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="helm-1">Helm</button><button type="button" class="tab " data-href="helm-2">helm 實例</button><button type="button" class="tab " data-href="helm-3">Helm 與 Kubernetes</button><button type="button" class="tab " data-href="helm-4">Helm chart</button><button type="button" class="tab " data-href="helm-5">values.yaml</button><button type="button" class="tab " data-href="helm-6">templates</button><button type="button" class="tab " data-href="helm-7">helm upgrade --install</button><button type="button" class="tab " data-href="helm-8">kubectl apply</button><button type="button" class="tab " data-href="helm-9">整條 pipeline</button><button type="button" class="tab " data-href="helm-10">Summary</button></ul><div class="tab-contents"><div class="tab-item-content active" id="helm-1"><p>Helm 是 Kubernetes 的「部署打包工具」，它把一堆 Kubernetes YAML 模板，加上環境的設定值，組成真正可以部署的 Kubernetes 資源。也就是，Kubernetes 真正看得懂的是 Deployment、Service、Ingress、ConfigMap 這些 YAML，而 Helm 幫我們產生這些 YAML</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/Helm/2_what_is_helm_for.png?raw=true" alt="F"></p>
+<p>Helm 是為了避免每個環境都手刻一大堆 Kubernetes YAML；它讓你用同一套部署模板，搭配不同 values，部署到 QA、Prod、TW、HK 等不同地方。可以把 Helm 想成 <code>template + values = Kubernetes YAML</code>，也就是說 <code>部署模板 + 環境設定 = 真正要丟給 Kubernetes 的部署檔</code></p>
+<p>假設沒有 Helm，要部署一個 API 到 Kubernetes，可能要自己寫很多檔案，而且 QA 一份、Prod 一份、TW 一份、HK 一份</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">deployment.yaml</span><br><span class="line">service.yaml</span><br><span class="line">ingress.yaml</span><br><span class="line">configmap.yaml</span><br><span class="line">secret.yaml</span><br><span class="line">canary.yaml</span><br></pre></td></tr></table></figure>
+
+<p>久了會變成</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">deployment-tw-qa.yaml</span><br><span class="line">service-tw-qa.yaml</span><br><span class="line">ingress-tw-qa.yaml</span><br><span class="line"></span><br><span class="line">deployment-tw-prod.yaml</span><br><span class="line">service-tw-prod.yaml</span><br><span class="line">ingress-tw-prod.yaml</span><br><span class="line"></span><br><span class="line">deployment-hk-qa.yaml</span><br><span class="line">service-hk-qa.yaml</span><br><span class="line">ingress-hk-qa.yaml</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/Helm/1_duplicated_job.png?raw=true" alt="F"></p>
+<p>Helm 的做法是把它拆成兩種東西</p>
+<ol>
+<li>templates - 固定的部署模板</li>
+<li>values.yaml - 每個環境不同的設定值</li>
+</ol>
+<p>例如 template 裡可能寫</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">image:</span> <span class="string">&quot;<span class="template-variable">&#123;&#123; .Values.image.repository &#125;&#125;</span>:<span class="template-variable">&#123;&#123; .Values.image.tag &#125;&#125;</span>&quot;</span></span><br><span class="line"><span class="attr">namespace:</span> <span class="string">&quot;<span class="template-variable">&#123;&#123; .Values.namespace &#125;&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>但這不是 Kubernetes 最終 YAML，只是 Helm template</p>
+<p>然後 values 裡寫</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">namespace:</span> <span class="string">qa-ai-code-review</span></span><br><span class="line"><span class="attr">image:</span></span><br><span class="line">  <span class="attr">repository:</span> <span class="string">docker-dev.build.91app.io/91app/nine1-ai-code-review-api</span></span><br><span class="line">  <span class="attr">tag:</span> <span class="string">vLATEST-p-e5cceccd-dev-b20260510-1435</span></span><br></pre></td></tr></table></figure>
+
+
+<p>Helm 會把它們合在一起，變成 Kubernetes 看得懂的樣子</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">image:</span> <span class="string">&quot;docker-dev.build.91app.io/91app/nine1-ai-code-review-api:vLATEST-p-e5cceccd-dev-b20260510-1435&quot;</span></span><br><span class="line"><span class="attr">namespace:</span> <span class="string">&quot;qa-ai-code-review&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>所以 Helm 在做的事情是把有變數的部署模板，變成真正的 Kubernetes YAML，然後部署到 Kubernetes</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/Helm/3_helm_chart.png?raw=true" alt="F"></p></div><div class="tab-item-content" id="helm-2"><p><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/Helm/5_flow.png?raw=true" alt="F"></p>
+<p>例如 pipeline 前期會做 build 並產生 Docker image：vLATEST-p-e5cceccd-dev-b20260510-1435</p>
+<p>接著 deploy job 會拿到這些資訊</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">namespace: qa-ai-code-review</span><br><span class="line">release name: nine1-ai-code-review-api</span><br><span class="line">image tag: vLATEST-p-e5cceccd-dev-b20260510-1435</span><br><span class="line">values file: values-tw-qa.yaml</span><br><span class="line">APP_ROLE: api</span><br></pre></td></tr></table></figure>
+
+<p>然後 pipeline 會拿公司共用的 API 部署模板複製到你我們的 charts&#x2F;nine1-ai-code-review-api 裡</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> -r n1_pipelines/assets/helmcharts/api/templates charts/nine1-ai-code-review-api</span><br></pre></td></tr></table></figure>
+
+
+<p>接著 Helm 出場，他拿這些資訊組出 Kubernetes YAML</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">charts/nine1-ai-code-review-api/templates</span><br><span class="line"></span><br><span class="line">+</span><br><span class="line"></span><br><span class="line">charts/nine1-ai-code-review-api/values-tw-qa.yaml</span><br><span class="line"></span><br><span class="line">+</span><br><span class="line"></span><br><span class="line">APP_VERSION / CONFIG_VERSION / RELEASE_NAME</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>最後執行 helm upgrade</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">helm upgrade --install nine1-ai-code-review-api ./charts/nine1-ai-code-review-api \</span><br><span class="line">  -n qa-ai-code-review \</span><br><span class="line">  -f values-tw-qa.yaml</span><br></pre></td></tr></table></figure>
+
+<p>這邊意思是請 Helm 部署 <strong>nine1-ai-code-review-api</strong>，如果 Kubernetes 裡已經有這個 release，就更新它。如果還沒有，就第一次安裝它。這次部署到 <strong>qa-ai-code-review namespace</strong>，而這次使用 <strong>values-tw-qa.yaml</strong> 的設定。</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/Helm/6_upgrade_install.png?raw=true" alt="F"></p></div><div class="tab-item-content" id="helm-3"><p>Kubernetes 是真正跑服務的地方，Helm 是整理和送出部署檔的工具</p>
+<p>Docker image → 你的程式被包成可以執行的 image</p>
+<p>Kubernetes → 負責把 image 跑起來，變成 Pod &#x2F; Service &#x2F; Ingress</p>
+<p>Helm → 負責產生 Kubernetes YAML，並送去 Kubernetes</p>
+<p>所以真正跑 API 的是 Kubernetes 裡面的 Pod</p>
+<p><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/Helm/4_docker_helm_k8s.png?raw=true" alt="F"></p></div><div class="tab-item-content" id="helm-4"><p>Helm chart 就是一包部署模板，裡面放著 Chart.yaml、values.yaml、templates。一個 Helm chart 大概長這樣，Helm 就是拿這包 chart 去部署</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">charts/nine1-ai-code-review-api/</span></span><br><span class="line">  <span class="string">Chart.yaml</span> <span class="comment">## 這包 Helm chart 的基本資料</span></span><br><span class="line">  <span class="string">values-tw-qa.yaml</span> <span class="comment">## TW QA 這次部署要用的設定值</span></span><br><span class="line">  <span class="string">templates/</span> <span class="comment">## Kubernetes YAML 模板</span></span><br><span class="line">    <span class="string">deployment.yaml</span></span><br><span class="line">    <span class="string">service.yaml</span></span><br><span class="line">    <span class="string">ingress.yaml</span></span><br><span class="line">    <span class="string">canary.yaml</span></span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="helm-5"><p>values.yaml 是這次部署的變數表，它決定同一套 template 在不同環境會長成什麼樣。例如 QA 跟 Prod 都用同一套 template，但 values 不同</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## QA</span></span><br><span class="line"></span><br><span class="line">namespace = qa-ai-code-review</span><br><span class="line">replicas = 1</span><br><span class="line">image tag = dev 版本</span><br><span class="line">domain = qa.91dev.tw</span><br><span class="line"></span><br><span class="line"><span class="comment">## Prod</span></span><br><span class="line"></span><br><span class="line">namespace = prod-ai-code-review</span><br><span class="line">replicas = 3</span><br><span class="line">image tag = release 版本</span><br><span class="line">domain = 正式站 domain</span><br></pre></td></tr></table></figure>
+
+<p>所以不用複製兩份 deployment.yaml，只要換 values</p></div><div class="tab-item-content" id="helm-6"><p>templates 是還沒填值的 Kubernetes YAML，Helm 會把 values 塞進去，template 可能長這樣</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> &#123;&#123; <span class="string">.Values.fullnameOverride</span> &#125;&#125;</span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> &#123;&#123; <span class="string">.Values.app.name</span> &#125;&#125;</span><br><span class="line">          <span class="attr">image:</span> <span class="string">&quot;<span class="template-variable">&#123;&#123; .Values.image.repository &#125;&#125;</span>:<span class="template-variable">&#123;&#123; .Values.image.tag &#125;&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>它裡面的 <code>.Values.xxx</code> 就是等 Helm 填值的地方</p></div><div class="tab-item-content" id="helm-7"><h2 id="upgrade"><a href="#upgrade" class="headerlink" title="upgrade"></a>upgrade</h2><p>upgrade 是把已經存在的 Helm release 更新成新的 chart &#x2F; values &#x2F; image 版本，例如原本 Kubernetes 跑的是 image tag &#x3D; v1 這次 pipeline build 出  image tag &#x3D; v2，helm upgrade 就會把 Deployment 更新成 v2</p>
+<h2 id="–install"><a href="#–install" class="headerlink" title="–install"></a>–install</h2><p>–install 是補保險，如果 release 不存在，就不要報錯，直接幫我建立新的，如果只跑</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm upgrade nine1-ai-code-review-api ./charts/nine1-ai-code-review-api</span><br></pre></td></tr></table></figure>
+
+<p>但這個 release 第一次部署，還不存在，Helm 會失敗。</p>
+<p>加上 <code>--install</code> 就變成第一次部署也可以跑、第 N 次部署也可以跑</p></div><div class="tab-item-content" id="helm-8"><p><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/Helm/7_kubectl_apply.png?raw=true" alt="F"></p>
+<p>kubectl apply 是直接套 Kubernetes YAML，而 helm upgrade –install 是先用 chart + values 產生 YAML，再幫我們管理版本。Helm 多了幾個能力</p>
+<ul>
+<li>template render</li>
+<li>values 管理</li>
+<li>release name</li>
+<li>revision</li>
+<li>rollback</li>
+<li>upgrade history</li>
+</ul>
+<p>所以 log 會看到 REVISION: 8 這是 Helm 記的部署版本</p>
+<p>helm upgrade –install 就是讓 Helm 幫你把 chart + values 變成 Kubernetes YAML，然後部署到 K8s，release 存在就更新，不存在就建立</p></div><div class="tab-item-content" id="helm-9"><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">GitLab Pipeline</span><br><span class="line">│</span><br><span class="line">├─ pipeline-requirements:prepare</span><br><span class="line">│   └─ 下載公司共用 pipeline：n1_pipelines</span><br><span class="line">│</span><br><span class="line">├─ version:prepare</span><br><span class="line">│   └─ 產生版本資訊：</span><br><span class="line">│      - service version = LATEST-p-1da13d95</span><br><span class="line">│      - config version = LATEST-p-1da13d95</span><br><span class="line">│      - build <span class="built_in">id</span> = 20260508-0622</span><br><span class="line">│</span><br><span class="line">├─ qa:config:build</span><br><span class="line">│   └─ 產生 QA config artifact</span><br><span class="line">│</span><br><span class="line">├─ qa:config:validate</span><br><span class="line">│   └─ 驗證 config，發現缺 Dify，但 job 仍成功</span><br><span class="line">│</span><br><span class="line">├─ dev:build</span><br><span class="line">│   └─ build application image：</span><br><span class="line">│      docker-dev.build.91app.io/91app/nine1-ai-code-review-api:vLATEST-p-1da13d95-dev-b20260508-0622</span><br><span class="line">│</span><br><span class="line">├─ dev:prepare-deploy</span><br><span class="line">│   └─ 產生 Helm deploy job：</span><br><span class="line">│      tw-qa:nine1-ai-code-review-api:deploy</span><br><span class="line">│      extends .dev:helm-deploy</span><br><span class="line">│      variables:</span><br><span class="line">│        - NAMESPACE = qa-ai-code-review</span><br><span class="line">│        - HELM_VALUES_FILE_NAME = values-tw-qa</span><br><span class="line">│        - APP_ROLE = api</span><br><span class="line">│        - APP_VERSION = vLATEST-p-1da13d95-dev-b20260508-0622</span><br><span class="line">│        - CONFIG_VERSION = LATEST-p-1da13d95</span><br><span class="line">│        - RELEASE_NAME = nine1-ai-code-review-api</span><br><span class="line">│</span><br><span class="line">└─ 下一步：</span><br><span class="line">    tw-qa:nine1-ai-code-review-api:deploy</span><br><span class="line">    └─ 真正開始：</span><br><span class="line">       - 使用 kubectl-helm image</span><br><span class="line">       - 複製 Helm templates</span><br><span class="line">       - 補 Chart.yaml</span><br><span class="line">       - 讀 values-tw-qa.yaml</span><br><span class="line">       - 執行 helm upgrade/install</span><br><span class="line">       - Canary 檢查</span><br><span class="line"></span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="helm-10"><p><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/Helm/helm.png?raw=true" alt="F"></p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/05/09/DeepType-CICD-Helm/">https://allenlin000.github.io.git/2026/05/09/DeepType-CICD-Helm/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://github.com/CHI-KEKE/pics/blob/main/CICD/feather.png?raw=true" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/05/07/DeepType-SQL-NMQ-Race-Condition-OrderSlave-Lost/" title="NMQ 並發 Race Condition 導致訂單子單轉單遺失分析"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">NMQ 並發 Race Condition 導致訂單子單轉單遺失分析</div></div></a></div><div class="next-post pull-right"><a href="/2026/05/12/DeepType-CICD-Artifact/" title="Artifact"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Artifact</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">238</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">49</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">38</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#upgrade"><span class="toc-number">1.</span> <span class="toc-text">upgrade</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%80%93install"><span class="toc-number">2.</span> <span class="toc-text">–install</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/12/DeepType-Docker-%E5%8C%85-NET-%E7%B5%A6-PO-%E4%BD%BF%E7%94%A8/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/05/12/DeepType-Docker-%E5%8C%85-NET-%E7%B5%A6-PO-%E4%BD%BF%E7%94%A8/" title="Untitled">Untitled</a><time datetime="2026-05-12T15:20:29.672Z" title="Created 2026-05-12 23:20:29">2026-05-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/12/DeepType-CICD-Artifact/" title="Artifact"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Artifact"/></a><div class="content"><a class="title" href="/2026/05/12/DeepType-CICD-Artifact/" title="Artifact">Artifact</a><time datetime="2026-05-12T00:38:00.000Z" title="Created 2026-05-12 08:38:00">2026-05-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/09/DeepType-CICD-Helm/" title="Helm"><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/feather.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Helm"/></a><div class="content"><a class="title" href="/2026/05/09/DeepType-CICD-Helm/" title="Helm">Helm</a><time datetime="2026-05-09T09:25:00.000Z" title="Created 2026-05-09 17:25:00">2026-05-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/07/DeepType-SQL-NMQ-Race-Condition-OrderSlave-Lost/" title="NMQ 並發 Race Condition 導致訂單子單轉單遺失分析"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="NMQ 並發 Race Condition 導致訂單子單轉單遺失分析"/></a><div class="content"><a class="title" href="/2026/05/07/DeepType-SQL-NMQ-Race-Condition-OrderSlave-Lost/" title="NMQ 並發 Race Condition 導致訂單子單轉單遺失分析">NMQ 並發 Race Condition 導致訂單子單轉單遺失分析</a><time datetime="2026-05-06T16:00:00.000Z" title="Created 2026-05-07 00:00:00">2026-05-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/04/DeepType-Time-db/" title="資料庫存 UTC 嗎"><img src="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Time/clock-wolf.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="資料庫存 UTC 嗎"/></a><div class="content"><a class="title" href="/2026/05/04/DeepType-Time-db/" title="資料庫存 UTC 嗎">資料庫存 UTC 嗎</a><time datetime="2026-05-04T02:03:03.000Z" title="Created 2026-05-04 10:03:03">2026-05-04</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
