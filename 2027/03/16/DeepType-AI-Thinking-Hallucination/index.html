@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Hallucination | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="什麼是 AI 幻覺不知道要求它說明依據把問題改成「可驗證」的形式列出不確定性評級提供實測方法AI 產生了看起來合理、語氣很肯定，但其實不正確、沒有根據，或與事實不一致的內容，更精確來說，生成式 AI 在缺乏可靠依據、理解錯誤、推理失準或資料不足的情況下，產生錯誤、虛構、誤導性或無法驗證的輸出 例如  編出不存在的論文、書籍、網址 說某個 API 有某個參數，但其實文件裡沒有 把兩個相似概念混在一起">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hallucination">
+<meta property="og:url" content="https://allenlin000.github.io.git/2027/03/16/DeepType-AI-Thinking-Hallucination/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="什麼是 AI 幻覺不知道要求它說明依據把問題改成「可驗證」的形式列出不確定性評級提供實測方法AI 產生了看起來合理、語氣很肯定，但其實不正確、沒有根據，或與事實不一致的內容，更精確來說，生成式 AI 在缺乏可靠依據、理解錯誤、推理失準或資料不足的情況下，產生錯誤、虛構、誤導性或無法驗證的輸出 例如  編出不存在的論文、書籍、網址 說某個 API 有某個參數，但其實文件裡沒有 把兩個相似概念混在一起">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/1_landing.png">
+<meta property="article:published_time" content="2027-03-16T03:10:11.000Z">
+<meta property="article:modified_time" content="2026-05-17T00:33:44.862Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/1_landing.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2027/03/16/DeepType-AI-Thinking-Hallucination/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Hallucination',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-05-17 08:33:44'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">241</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">49</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/1_landing.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Hallucination</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-05-17T00:33:44.862Z" title="Updated 2026-05-17 08:33:44">2026-05-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Hallucination"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="hallucination"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="hallucination-1">什麼是 AI 幻覺</button><button type="button" class="tab " data-href="hallucination-2">不知道</button><button type="button" class="tab " data-href="hallucination-3">要求它說明依據</button><button type="button" class="tab " data-href="hallucination-4">把問題改成「可驗證」的形式</button><button type="button" class="tab " data-href="hallucination-5">列出不確定性評級</button><button type="button" class="tab " data-href="hallucination-6">提供實測方法</button></ul><div class="tab-contents"><div class="tab-item-content active" id="hallucination-1"><p>AI 產生了看起來合理、語氣很肯定，但其實不正確、沒有根據，或與事實不一致的內容，更精確來說，生成式 AI 在缺乏可靠依據、理解錯誤、推理失準或資料不足的情況下，產生錯誤、虛構、誤導性或無法驗證的輸出</p>
+<p>例如</p>
+<ul>
+<li>編出不存在的論文、書籍、網址</li>
+<li>說某個 API 有某個參數，但其實文件裡沒有</li>
+<li>把兩個相似概念混在一起</li>
+<li>明明不知道，卻用很肯定的語氣回答</li>
+<li>對你的程式碼做出錯誤判斷</li>
+<li>引用不存在的法律、規格、版本資訊</li>
+<li>把「可能」講成「一定」</li>
+</ul>
+<p>但現在的 AI 沒有聰明到可以「故意說謊」，事實上是模型在「預測下一段最像答案的文字」時，產生了形式上像答案、實質上卻錯誤的結果，大型語言模型的核心能力是根據上下文，預測接下來最合理的文字，但「最合理的文字」不等於「最真實的文字」，這就像一個人很會接話、很會寫文章、很會模仿專業語氣，但他其實他，一定真的知道答案</p>
+<p>所以本質上它比較像是看過大量文字後，學會「什麼樣的問題通常會接什麼樣的回答」，當它不知道答案時，可能會根據語言模式補出一個「看起來合理」的答案</p>
+<p>例如你問某某冷門 C# 套件的最新 API 怎麼用？</p>
+<p>若模型記憶中沒有準確資料(因為這可能是你本地開發的東西)，它可能會根據其他類似套件的寫法，生出一段「很像官方用法」但其實不存在的程式碼</p>
+<p>你問他：「XX 餐廳是不是米其林一星？」，他沒有查資料，但他看過很多美食文章，於是很自然地回答「是，它在 2023 年獲得米其林一星。」其實完全是編的</p></div><div class="tab-item-content" id="hallucination-2"><p>就像某些情況人的行為一樣，他可能缺乏「不知道」本能，正常情況下如果不知道，通常會說我不確定，我查一下，而不是不懂裝懂，以人類來說，這可能出於某種情境下的壓力導致需要說謊，但 AI 的訓練是另外一回事，他就像從小被教導說，你出生的目標是要「給出有幫助的回答」，所以它有時會傾向變成補完答案，而不是停下來承認不確定</p>
+<p>這也是為什麼 AI 幻覺很危險，很吃使用者的判斷能力</p></div><div class="tab-item-content" id="hallucination-3"><p>當我們接收到一些資訊時，可以請他說明依據</p>
+<p>所以 prompt 我們可以追問</p>
+<ul>
+<li>你這個判斷的依據是什麼？</li>
+<li>哪一段資訊支持這個結論？</li>
+<li>這是你推論的，還是有明確來源？</li>
+<li>你不確定的地方有哪些？</li>
+</ul>
+<p>而這就是 AI 相對於人類的優勢之一，你不需要考慮他的感受，<strong>他不會因為覺得自己被質疑而暴躁氣餒</strong>，例如說 AI 原本說這個 API 支援 includeDetails&#x3D;true</p>
+<p>我們可以追問</p>
+<p>這個參數是官方文件明確寫的嗎？<br>還是你根據類似 API 推測的？</p>
+<p>如果它開始說「可能」、「通常」、「類似情境下」，那就代表這其實只是不確定的事</p></div><div class="tab-item-content" id="hallucination-4"><p>有時候 AI 幻覺，是因為問題太大、太抽象，例如我們問</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">這段程式是不是有問題？</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>因為問題比較泛化，因此 AI 可能會從不同的面相猜測</p>
+<p>我們會說比較好的問法是</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">這段 C<span class="comment"># 程式在 user == null 時會不會拋 NullReferenceException？請逐行分析，不確定的地方要標出來，不要假設我沒提供的程式碼</span></span><br></pre></td></tr></table></figure>
+
+<p>這樣它比較不容易亂補</p></div><div class="tab-item-content" id="hallucination-5"><p>我們可以要求 AI 回答時時分成「確定」、「推測」，以供我們對資訊的判斷先有初步的認知</p>
+<p>例如</p>
+<h2 id="確定"><a href="#確定" class="headerlink" title="確定"></a>確定</h2><p>…</p>
+<h2 id="推測"><a href="#推測" class="headerlink" title="推測"></a>推測</h2><p>…</p>
+<p>因為很多時候 AI 的價值不是直接給答案，而是幫你整理哪些是已知事實、哪些是合理猜測、下一步該查什麼</p></div><div class="tab-item-content" id="hallucination-6"><p>如果是程式問題，最好的方式是讓答案可以被測試，不要烙費時間跟他辯論</p>
+<p>例如</p>
+<ul>
+<li>寫 unit test</li>
+<li>寫最小重現範例</li>
+<li>查官方 source code</li>
+<li>跑一次 command</li>
+<li>打 API 看實際 response</li>
+<li>查 log &#x2F; DB &#x2F; trace</li>
+<li>比對 package version</li>
+</ul>
+<p>我們可以把 AI 當作幫你設計驗證方法的人，例如問它</p>
+<ul>
+<li>你剛剛的說法要怎麼驗證？</li>
+<li>請給我一個最小可重現範例</li>
+<li>請列出我應該查哪些 log 欄位</li>
+<li>請給我 SQL &#x2F; curl &#x2F; unit test 來驗證</li>
+</ul>
+<p>這會比單純問「你確定嗎」更有效</p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2027/03/16/DeepType-AI-Thinking-Hallucination/">https://allenlin000.github.io.git/2027/03/16/DeepType-AI-Thinking-Hallucination/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/1_landing.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2026/05/16/DeepType-Docker-process/" title="Process test"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Process test</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">241</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">49</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A2%BA%E5%AE%9A"><span class="toc-number">1.</span> <span class="toc-text">確定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A8%E6%B8%AC"><span class="toc-number">2.</span> <span class="toc-text">推測</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/1_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/16/DeepType-Docker-process/" title="Process test"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Random/Whale.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Process test"/></a><div class="content"><a class="title" href="/2026/05/16/DeepType-Docker-process/" title="Process test">Process test</a><time datetime="2026-05-16T02:57:05.000Z" title="Created 2026-05-16 10:57:05">2026-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/15/DeepType-ThinkingMind-Bijection/" title="Bijection"><img src="https://github.com/CHI-KEKE/pics/blob/main/%E6%80%9D%E7%B4%A2%E6%97%A5%E5%92%8C/Stamp.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Bijection"/></a><div class="content"><a class="title" href="/2026/05/15/DeepType-ThinkingMind-Bijection/" title="Bijection">Bijection</a><time datetime="2026-05-15T08:30:05.000Z" title="Created 2026-05-15 16:30:05">2026-05-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/12/DeepType-CICD-Artifact/" title="Artifact"><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/feather.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Artifact"/></a><div class="content"><a class="title" href="/2026/05/12/DeepType-CICD-Artifact/" title="Artifact">Artifact</a><time datetime="2026-05-12T00:38:00.000Z" title="Created 2026-05-12 08:38:00">2026-05-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/09/DeepType-CICD-Helm/" title="Helm"><img src="https://github.com/CHI-KEKE/pics/blob/main/CICD/feather.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Helm"/></a><div class="content"><a class="title" href="/2026/05/09/DeepType-CICD-Helm/" title="Helm">Helm</a><time datetime="2026-05-09T09:25:00.000Z" title="Created 2026-05-09 17:25:00">2026-05-09</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
