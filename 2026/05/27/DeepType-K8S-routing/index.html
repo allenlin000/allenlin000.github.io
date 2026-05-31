@@ -7,7 +7,7 @@
 <meta property="og:locale">
 <meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/k8s2.png">
 <meta property="article:published_time" content="2026-05-27T00:40:00.000Z">
-<meta property="article:modified_time" content="2026-05-31T00:31:46.656Z">
+<meta property="article:modified_time" content="2026-05-31T00:39:00.548Z">
 <meta property="article:author" content="Allen">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/k8s2.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/05/27/DeepType-K8S-routing/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
@@ -55,7 +55,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2026-05-31 08:31:46'
+  postUpdate: '2026-05-31 08:39:00'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -152,12 +152,26 @@
         }
       }
       detectApple()
-    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">236</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">46</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">36</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/k8s2.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Routing</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-05-27T00:40:00.000Z" title="Created 2026-05-27 08:40:00">2026-05-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-05-31T00:31:46.656Z" title="Updated 2026-05-31 08:31:46">2026-05-31</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/kubernetes/">kubernetes</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Routing"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="routing"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="routing-1">背景</button><button type="button" class="tab " data-href="routing-2">架構全貌</button><button type="button" class="tab " data-href="routing-3">Layer 1：Pod 層</button><button type="button" class="tab " data-href="routing-4">Flagger Canary 層</button><button type="button" class="tab " data-href="routing-5">Layer 3：Ingress 層</button><button type="button" class="tab " data-href="routing-6">Layer 2 : Service / Endpoints 層</button><button type="button" class="tab " data-href="routing-7">Layer 4：Nginx + AWS ALB 層</button><button type="button" class="tab " data-href="routing-8">table</button></ul><div class="tab-contents"><div class="tab-item-content active" id="routing-1"><p>服務部署到 K8s 後，Pod 內部健康檢查（<code>/_hc</code>）回傳 200，但從外部網路呼叫 API 時，全部回傳：</p>
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">236</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">46</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">36</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/k8s2.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Routing</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-05-27T00:40:00.000Z" title="Created 2026-05-27 08:40:00">2026-05-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-05-31T00:39:00.548Z" title="Updated 2026-05-31 08:39:00">2026-05-31</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/kubernetes/">kubernetes</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Routing"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="routing"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="routing-1">背景</button><button type="button" class="tab " data-href="routing-2">架構全貌</button><button type="button" class="tab " data-href="routing-3">Layer 1：Pod 層</button><button type="button" class="tab " data-href="routing-4">Flagger Canary 層</button><button type="button" class="tab " data-href="routing-5">Layer 3：Ingress 層</button><button type="button" class="tab " data-href="routing-6">Layer 2 : Service / Endpoints 層</button><button type="button" class="tab " data-href="routing-7">Layer 4：Nginx + AWS ALB 層</button><button type="button" class="tab " data-href="routing-8">table</button></ul><div class="tab-contents"><div class="tab-item-content active" id="routing-1"><p>服務部署到 K8s 後，Pod 內部健康檢查（<code>/_hc</code>）回傳 200，但從外部網路呼叫 API 時，全部回傳：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HTTP/2 403</span><br><span class="line">Routing error</span><br></pre></td></tr></table></figure>
 
 <p>本次記錄如何一層一層排查，最終找到真正的根本原因</p>
 <p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/routing/1_scenerio.png" alt="2"></p></div><div class="tab-item-content" id="routing-2"><p>外部請求從前到後經過以下每一層</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">外部使用者 / Bitbucket Webhook</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">    AWS ALB（公用）                ← Layer 5：最外層</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">  Nginx Ingress Controller         ← Layer 4</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">  K8s Ingress 物件                 ← Layer 3</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">  K8s Service（Apex / Canary）     ← Layer 2</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">      Pod（App 程式）              ← Layer 1：最內層</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart TD
+    U["👤 外部使用者 / Bitbucket Webhook"]
+    ALB["☁️ AWS ALB（公用）\nLayer 5：最外層"]
+    NGINX["🔀 Nginx Ingress Controller\nLayer 4"]
+    ING["📋 K8s Ingress 物件\nLayer 3"]
+    SVC["🔌 K8s Service（Apex / Canary）\nLayer 2"]
+    POD["📦 Pod（App 程式）\nLayer 1：最內層"]
+
+    U --> ALB --> NGINX --> ING --> SVC --> POD
+
+    style ALB fill:#F5A623,color:#fff
+    style NGINX fill:#7B68EE,color:#fff
+    style ING fill:#4A90D9,color:#fff
+    style SVC fill:#5BA85B,color:#fff
+    style POD fill:#555,color:#fff</pre>
 
 <p>排查方向：<strong>從最內層（Pod）往外一層一層確認，直到找到第一個異常層</strong></p>
 <p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/routing/2_traffic_building.png" alt="2"></p></div><div class="tab-item-content" id="routing-3"><h2 id="Pod-YAML"><a href="#Pod-YAML" class="headerlink" title="Pod YAML"></a>Pod YAML</h2><p>提供 Pod YAML，確認以下關鍵 status</p>
@@ -170,24 +184,92 @@
 <p>✅ <strong>Pod 正常</strong>。程式有在跑、Port 設定正確、無重啟 → 問題不在程式本身，往外查</p>
 <p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/routing/3_pod.png" alt="2"></p>
 <h2 id="K8s-Probe"><a href="#K8s-Probe" class="headerlink" title="K8s Probe"></a>K8s Probe</h2><p>Kubernetes 有三種 Probe（健康探針），由 kubelet 定期對 Pod 發 HTTP 請求來判斷容器狀態：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────┬──────────────────────┬────────────────────────────────────────────────────────┐</span><br><span class="line">│ Probe 類型          │ 用途                 │ 失敗後行為                                             │</span><br><span class="line">├─────────────────────┼──────────────────────┼────────────────────────────────────────────────────────┤</span><br><span class="line">│ Startup Probe       │ 程式啟動完成了嗎？   │ 在成功前，其他 probe 不會啟動；失敗超過閾值 → 重啟 Pod │</span><br><span class="line">├─────────────────────┼──────────────────────┼────────────────────────────────────────────────────────┤</span><br><span class="line">│ Liveness Probe      │ 程式還活著嗎？       │ 失敗 → 重啟 Pod                                        │</span><br><span class="line">├─────────────────────┼──────────────────────┼────────────────────────────────────────────────────────┤</span><br><span class="line">│ Readiness Probe     │ 程式準備好接流量嗎？ │ 失敗 → 從 Service 移除，不送流量                       │</span><br><span class="line">└─────────────────────┴──────────────────────┴────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-
+<table>
+<thead>
+<tr>
+<th align="left">Probe 類型</th>
+<th align="left">用途</th>
+<th align="left">失敗後行為</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Startup Probe</strong></td>
+<td align="left">程式啟動完成了嗎？</td>
+<td align="left">在成功前，其他 probe 不會啟動；失敗超過閾值 → 重啟 Pod</td>
+</tr>
+<tr>
+<td align="left"><strong>Liveness Probe</strong></td>
+<td align="left">程式還活著嗎？</td>
+<td align="left">失敗 → 重啟 Pod</td>
+</tr>
+<tr>
+<td align="left"><strong>Readiness Probe</strong></td>
+<td align="left">程式準備好接流量嗎？</td>
+<td align="left">失敗 → 從 Service 移除，不送流量</td>
+</tr>
+</tbody></table>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">env:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">ASPNETCORE_URLS</span></span><br><span class="line">    <span class="attr">value:</span> <span class="string">http://+:5566</span>    <span class="comment"># ← 程式監聽的 port 與 K8s probe 一致</span></span><br></pre></td></tr></table></figure>
 
 <p>K8s manifest 裡的 probe 設定大概長這樣</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">livenessProbe:</span></span><br><span class="line"><span class="attr">httpGet:</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">/_hc</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">5566</span></span><br></pre></td></tr></table></figure>
 
 <p>Probe 的運作流程</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">每 N 秒</span><br><span class="line">kubelet → HTTP GET http://&#123;Pod IP&#125;:5566/_hc → 200 OK → 正常</span><br><span class="line">                                            → 失敗    → 重啟 Pod</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart LR
+    K["⚙️ kubelet\n每 N 秒"]
+    K -->|"HTTP GET /_hc"| HC{回應？}
+    HC -->|"✅ 200 OK"| OK["🟢 正常運行"]
+    HC -->|"❌ 失敗"| RESTART["🔄 重啟 Pod"]
+
+    style K fill:#5BA85B,color:#fff
+    style OK fill:#5BA85B,color:#fff
+    style RESTART fill:#D9534F,color:#fff</pre>
 
 <p>Port 不一致的後果就是 Startup probe failed: Get “<a target="_blank" rel="noopener" href="http://10.x.x.x:5566/_hc/startup">http://10.x.x.x:5566/_hc/startup</a>“: connection refused</p>
 <p>其中，原因就是 App 實際監聽 8080，但 Probe 打 5566 → 永遠連不到 → Pod 不斷重啟，所以 <code>ASPNETCORE_URLS=http://+:5566</code> 的作用就是強制 App 監聽 5566，與 K8s probe 的 target port 對齊</p>
 <p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/routing/4_probes.png" alt="2"></p>
 <h2 id="kubelet"><a href="#kubelet" class="headerlink" title="kubelet"></a>kubelet</h2><p>kubelet 是每台 K8s Node（實體&#x2F;虛擬機）上都會跑的一個 agent 程式</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">K8s Cluster</span><br><span class="line">├── Master Node（Control Plane）</span><br><span class="line">│   └── API Server、Scheduler、Controller Manager...</span><br><span class="line">│</span><br><span class="line">└── Worker Node ×N</span><br><span class="line">    └── kubelet  ← 就是這個</span><br><span class="line">        └── 管理這台機器上的所有 Pod</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">graph TD
+    CLUSTER["🏗️ K8s Cluster"]
+    MASTER["🎛️ Master Node（Control Plane）\nAPI Server、Scheduler、Controller Manager"]
+    WORKER["🖥️ Worker Node ×N"]
+    KL["⚙️ kubelet"]
+    PODS["📦 管理這台機器上的所有 Pod"]
 
-<p>┌────────────────┬───────────────────────────────────────────────────────────────────────────────┐<br>│ 職責           │ 說明                                                                          │<br>├────────────────┼───────────────────────────────────────────────────────────────────────────────┤<br>│ 啟動 Pod       │ 接收 API Server 的指令，叫 container runtime（Docker&#x2F;containerd）把容器跑起來 │<br>├────────────────┼───────────────────────────────────────────────────────────────────────────────┤<br>│ 執行 Probe     │ 每隔幾秒對 Pod 發健康檢查請求                                                 │<br>├────────────────┼───────────────────────────────────────────────────────────────────────────────┤<br>│ 回報狀態       │ 把 Pod 狀態（Running&#x2F;Failed&#x2F;Restarting）回報給 API Server                     │<br>├────────────────┼───────────────────────────────────────────────────────────────────────────────┤<br>│ 重啟 Pod       │ Probe 失敗超過閾值時，直接重啟容器                                            │<br>└────────────────┴───────────────────────────────────────────────────────────────────────────────┘</p></div><div class="tab-item-content" id="routing-4"><p>我們 Pipeline 使用 <strong>Flagger</strong> 進行金絲雀部署（Canary Deployment）。Flagger 會：</p>
+    CLUSTER --> MASTER
+    CLUSTER --> WORKER
+    WORKER --> KL
+    KL --> PODS
+
+    style CLUSTER fill:#4A90D9,color:#fff
+    style MASTER fill:#7B68EE,color:#fff
+    style WORKER fill:#F5A623,color:#fff
+    style KL fill:#5BA85B,color:#fff
+    style PODS fill:#555,color:#fff</pre>
+
+<table>
+<thead>
+<tr>
+<th align="left">職責</th>
+<th align="left">說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>啟動 Pod</strong></td>
+<td align="left">接收 API Server 的指令，叫 container runtime（Docker&#x2F;containerd）把容器跑起來</td>
+</tr>
+<tr>
+<td align="left"><strong>執行 Probe</strong></td>
+<td align="left">每隔幾秒對 Pod 發健康檢查請求</td>
+</tr>
+<tr>
+<td align="left"><strong>回報狀態</strong></td>
+<td align="left">把 Pod 狀態（Running&#x2F;Failed&#x2F;Restarting）回報給 API Server</td>
+</tr>
+<tr>
+<td align="left"><strong>重啟 Pod</strong></td>
+<td align="left">Probe 失敗超過閾值時，直接重啟容器</td>
+</tr>
+</tbody></table></div><div class="tab-item-content" id="routing-4"><p>我們 Pipeline 使用 <strong>Flagger</strong> 進行金絲雀部署（Canary Deployment）。Flagger 會：</p>
 <ol>
 <li>建立一個 <strong>Primary Deployment</strong>（穩定版本）</li>
 <li>建立一個 <strong>Canary Deployment</strong>（新版本）</li>
@@ -200,18 +282,72 @@
 
 <h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>✅ <strong>Flagger Canary 正常，最新部署已成功 Promote</strong>。  → 不是 Canary Failed 造成的問題，往外查</p>
 <h2 id="Canary-部署"><a href="#Canary-部署" class="headerlink" title="Canary 部署"></a>Canary 部署</h2><p>Canary deployment（金絲雀部署） 是一種漸進式發布策略：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">舊版本 (Primary)  ← 90% 流量</span><br><span class="line">新版本 (Canary)   ← 10% 流量  → 觀察是否正常 → 正常就逐步加量 → 最終 100%</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart LR
+    USER["👤 使用者流量"]
+    P["🟢 Primary（舊版本）\n← 90% 流量"]
+    C["🐤 Canary（新版本）\n← 10% 流量"]
+    OBS["🔍 觀察是否正常"]
+    UP["📈 逐步加量\n→ 最終 100%"]
+
+    USER -->|"90%"| P
+    USER -->|"10%"| C
+    C --> OBS
+    OBS -->|"正常"| UP
+
+    style P fill:#5BA85B,color:#fff
+    style C fill:#F5A623,color:#fff
+    style OBS fill:#7B68EE,color:#fff
+    style UP fill:#4A90D9,color:#fff</pre>
 
 <p>名字來自「礦工帶金絲雀下礦坑偵測毒氣」——先用小流量測試新版本，有問題就馬上 rollback</p>
 <h2 id="Flagger"><a href="#Flagger" class="headerlink" title="Flagger"></a>Flagger</h2><p>Flagger 是一個 K8s 的 Controller（控制器），它自動化 Canary 部署的整個流程</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">你只需要 push 新版本</span><br><span class="line">    ↓</span><br><span class="line">Flagger 自動：</span><br><span class="line">  1. 建立 Canary Pod（新版本）</span><br><span class="line">  2. 讓 Primary Pod（舊版本）繼續跑</span><br><span class="line">  3. 把 5% → 10% → 50% → 100% 的流量逐步導給 Canary</span><br><span class="line">  4. 每一步都檢查 health / metrics</span><br><span class="line">  5a. 全部健康 → Promote（新版變 Primary）✅</span><br><span class="line">  5b. 有問題  → Rollback（流量全回舊版）❌ Phase: Failed</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart TD
+    PUSH["🚀 你只需要 push 新版本"]
+    C1["1️⃣ 建立 Canary Pod（新版本）"]
+    C2["2️⃣ Primary Pod（舊版本）繼續跑"]
+    C3["3️⃣ 逐步導流\n5% → 10% → 50% → 100%"]
+    C4["4️⃣ 每步檢查 health / metrics"]
+    CA["✅ 全部健康\nPromote（新版變 Primary）"]
+    CB["❌ 有問題\nRollback（流量全回舊版）\nPhase: Failed"]
+
+    PUSH --> C1 --> C2 --> C3 --> C4
+    C4 --> CA
+    C4 --> CB
+
+    style PUSH fill:#F5A623,color:#fff
+    style C4 fill:#4A90D9,color:#fff
+    style CA fill:#5BA85B,color:#fff
+    style CB fill:#D9534F,color:#fff</pre>
 
 
 <p>對應文件裡的實際狀態</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">status:</span></span><br><span class="line">  <span class="attr">phase:</span> <span class="string">Succeeded</span>          <span class="comment"># 部署成功</span></span><br><span class="line">  <span class="attr">lastAppliedSpec:</span> <span class="string">bc57db7d4</span></span><br><span class="line">  <span class="attr">lastPromotedSpec:</span> <span class="string">bc57db7d4</span>  <span class="comment"># 兩個相同 = 新版已完全取代舊版</span></span><br><span class="line">  <span class="attr">failedChecks:</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
 
 
-<p>┌──────────────────────┬───────────────────────────────────┐<br>│ Flagger 建立的東西   │ 用途                              │<br>├──────────────────────┼───────────────────────────────────┤<br>│ Primary Deployment   │ 跑穩定版本的 Pod                  │<br>├──────────────────────┼───────────────────────────────────┤<br>│ Canary Deployment    │ 跑新版本的 Pod（部署中）          │<br>├──────────────────────┼───────────────────────────────────┤<br>│ Primary Ingress      │ 承接 100% 正常流量                │<br>├──────────────────────┼───────────────────────────────────┤<br>│ Canary Ingress       │ 部署期間分流用（結束後 weight&#x3D;0） │<br>└──────────────────────┴───────────────────────────────────┘</p>
+<table>
+<thead>
+<tr>
+<th align="left">Flagger 建立的東西</th>
+<th align="left">用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Primary Deployment</strong></td>
+<td align="left">跑穩定版本的 Pod</td>
+</tr>
+<tr>
+<td align="left"><strong>Canary Deployment</strong></td>
+<td align="left">跑新版本的 Pod（部署中）</td>
+</tr>
+<tr>
+<td align="left"><strong>Primary Ingress</strong></td>
+<td align="left">承接 100% 正常流量</td>
+</tr>
+<tr>
+<td align="left"><strong>Canary Ingress</strong></td>
+<td align="left">部署期間分流用（結束後 weight&#x3D;0）</td>
+</tr>
+</tbody></table>
 <p>Flagger 就是讓我們「不用停機、不用手動切流量」就能安全升版的自動化工具</p>
 <p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/routing/6_flagger.png" alt="2"></p></div><div class="tab-item-content" id="routing-5"><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>Flagger 會管理<strong>兩個</strong> Ingress：</p>
 <table>
@@ -240,13 +376,56 @@
 <h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>✅ <strong>兩個 Ingress 都存在，設定正確</strong> → 不是 Primary Ingress 遺失造成的問題，往外查</p>
 <h2 id="Ingress"><a href="#Ingress" class="headerlink" title="Ingress"></a>Ingress</h2><p>Ingress 是 K8s 裡的<strong>「反向代理規則設定檔」</strong>，它定義「外部流量進來之後，要怎麼分發到哪個 Service」</p>
 <p>流量路徑全圖</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">使用者 (瀏覽器 / API 呼叫)</span><br><span class="line">        ↓ HTTPS</span><br><span class="line">  AWS ALB（公網 Load Balancer）</span><br><span class="line">        ↓ 依 hostname 轉發</span><br><span class="line">  Nginx Ingress Controller        ← 讀取 Ingress 規則</span><br><span class="line">        ↓ 依 Ingress 規則路由</span><br><span class="line">  K8s Service</span><br><span class="line">        ↓ 依 selector 選 Pod</span><br><span class="line">  Pod（你的 App）</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart TD
+    U["👤 使用者\n（瀏覽器 / API 呼叫）"]
+    ALB["☁️ AWS ALB\n（公網 Load Balancer）"]
+    NGINX["🔀 Nginx Ingress Controller\n讀取 Ingress 規則"]
+    SVC["🔌 K8s Service\n依 selector 選 Pod"]
+    POD["📦 Pod（你的 App）"]
+
+    U -->|"HTTPS"| ALB
+    ALB -->|"依 hostname 轉發"| NGINX
+    NGINX -->|"依 Ingress 規則路由"| SVC
+    SVC -->|"依 selector 選 Pod"| POD
+
+    style ALB fill:#F5A623,color:#fff
+    style NGINX fill:#7B68EE,color:#fff
+    style SVC fill:#5BA85B,color:#fff
+    style POD fill:#555,color:#fff</pre>
 
 <p>Ingress 就在 Nginx 那一層 — 它是 Nginx 要讀的「路由設定」</p>
 <h2 id="Ingress-長什麼樣"><a href="#Ingress-長什麼樣" class="headerlink" title="Ingress 長什麼樣"></a>Ingress 長什麼樣</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">ai-code-review-service-io.qa.91dev.tw</span></span><br><span class="line">      <span class="attr">http:</span></span><br><span class="line">        <span class="attr">paths:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">backend:</span></span><br><span class="line">              <span class="attr">service:</span></span><br><span class="line">                <span class="attr">name:</span> <span class="string">nine1-ai-code-review-api</span>   <span class="comment"># 送去這個 Service</span></span><br><span class="line">                <span class="attr">port:</span></span><br><span class="line">                  <span class="attr">number:</span> <span class="number">5566</span></span><br></pre></td></tr></table></figure>
 
 <p>凡是打來 ai-code-review-service-io.qa.91dev.tw 的請求，轉給 nine1-ai-code-review-api 這個 Service 的 5566 port」</p>
-<p>┌─────────────┬────────────────┬──────────────────────────────────────┐<br>│ 元件        │ 類比           │ 職責                                 │<br>├─────────────┼────────────────┼──────────────────────────────────────┤<br>│ AWS ALB     │ 大樓門衛       │ 「這棟樓有你嗎？」沒有 → 403         │<br>├─────────────┼────────────────┼──────────────────────────────────────┤<br>│ Ingress     │ 樓層指引牌     │ 「這個域名去 3F，那個域名去 7F」     │<br>├─────────────┼────────────────┼──────────────────────────────────────┤<br>│ K8s Service │ 樓層接待       │ 找到這層裡健康的 Pod                 │<br>├─────────────┼────────────────┼──────────────────────────────────────┤<br>│ Pod         │ 真正的辦公室   │ 處理請求                             │<br>└─────────────┴────────────────┴──────────────────────────────────────┘</p>
+<table>
+<thead>
+<tr>
+<th align="left">元件</th>
+<th align="left">類比</th>
+<th align="left">職責</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>AWS ALB</strong></td>
+<td align="left">大樓門衛</td>
+<td align="left">「這棟樓有你嗎？」沒有 → 403</td>
+</tr>
+<tr>
+<td align="left"><strong>Ingress</strong></td>
+<td align="left">樓層指引牌</td>
+<td align="left">「這個域名去 3F，那個域名去 7F」</td>
+</tr>
+<tr>
+<td align="left"><strong>K8s Service</strong></td>
+<td align="left">樓層接待</td>
+<td align="left">找到這層裡健康的 Pod</td>
+</tr>
+<tr>
+<td align="left"><strong>Pod</strong></td>
+<td align="left">真正的辦公室</td>
+<td align="left">處理請求</td>
+</tr>
+</tbody></table>
 <p>Ingress YAML 自己不會動，它只是存在 K8s API Server 裡的</p>
 <p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/routing/7_ingress.png" alt="2"></p></div><div class="tab-item-content" id="routing-6"><p>K8s Service 透過 <strong>selector（Label Selector）</strong> 決定要把流量送給哪些 Pod。如果 selector 和 Pod label 不匹配，<code>Endpoints</code> 就會是空的（<code>&lt;none&gt;</code>），流量進得來但沒地方送，造成 502&#x2F;503。</p>
 <p>Flagger 在部署時會把 Pod 加上 <code>instance=nine1-ai-code-review-api-primary</code> 的 label，Apex Service 的 selector 也需要對應到這個 label。</p>
@@ -277,7 +456,27 @@
 
 
 <p>K8s 會自動把符合 selector 的 Pod IP 收集成 Endpoints：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Selector: app=my-api</span><br><span class="line">    ↓ 掃描全部 Pod</span><br><span class="line">找到 Pod A（10.0.0.1）✅ 有 app=my-api</span><br><span class="line">找到 Pod B（10.0.0.2）✅ 有 app=my-api</span><br><span class="line">找到 Pod C（10.0.0.3）❌ 沒有這個 label → 排除</span><br><span class="line"></span><br><span class="line">→ Endpoints = [10.0.0.1, 10.0.0.2]</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart TD
+    SEL["🎯 Service Selector\napp=my-api"]
+    A["📦 Pod A（10.0.0.1）\napp=my-api ✅"]
+    B["📦 Pod B（10.0.0.2）\napp=my-api ✅"]
+    C["📦 Pod C（10.0.0.3）\n❌ 無此 label"]
+    EP["✅ Endpoints\n10.0.0.1, 10.0.0.2"]
+    EX["❌ 排除"]
+
+    SEL -->|"符合"| A
+    SEL -->|"符合"| B
+    SEL -->|"不符合"| C
+    A --> EP
+    B --> EP
+    C --> EX
+
+    style SEL fill:#4A90D9,color:#fff
+    style A fill:#5BA85B,color:#fff
+    style B fill:#5BA85B,color:#fff
+    style C fill:#D9534F,color:#fff
+    style EP fill:#5BA85B,color:#fff
+    style EX fill:#D9534F,color:#fff</pre>
 
 
 <p>不匹配時的問題</p>
@@ -301,7 +500,26 @@
 <p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/routing/8_alb.png" alt="2"></p>
 <h2 id="根本原因"><a href="#根本原因" class="headerlink" title="根本原因"></a>根本原因</h2><p>這個 ALB 使用 <strong>Listener Rules（監聽規則）</strong> 來決定哪個 hostname 的流量要轉發給哪個 Target Group（Nginx Ingress）</p>
 <p>但 <strong>新服務</strong>的 hostname 在 ALB Listener Rules 裡<strong>沒有對應的規則</strong>！  </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ALB Listener Rules（示意）</span><br><span class="line">─────────────────────────────────────────────────</span><br><span class="line">IF host = 91app-live-io.qa.91dev.tw         → Nginx Ingress TG ✅</span><br><span class="line">IF host = shopping-io.qa.91dev.tw           → Nginx Ingress TG ✅</span><br><span class="line">IF host = ai-code-review-service-io.qa...   → (不存在！)       ❌</span><br><span class="line">DEFAULT                                     → 403 Routing error</span><br><span class="line">─────────────────────────────────────────────────</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart LR
+    REQ["📨 請求進入 ALB"]
+    CHK["🔍 比對 Listener Rules"]
+    R1["✅ 91app-live-io\n.qa.91dev.tw\n→ Nginx Ingress TG"]
+    R2["✅ shopping-io\n.qa.91dev.tw\n→ Nginx Ingress TG"]
+    R3["❌ ai-code-review-service-io\n.qa.91dev.tw\n→ 規則不存在！"]
+    DEF["🚫 DEFAULT\n→ 403 Routing error"]
+
+    REQ --> CHK
+    CHK --> R1
+    CHK --> R2
+    CHK --> R3
+    CHK --> DEF
+
+    style REQ fill:#F5A623,color:#fff
+    style CHK fill:#4A90D9,color:#fff
+    style R1 fill:#5BA85B,color:#fff
+    style R2 fill:#5BA85B,color:#fff
+    style R3 fill:#D9534F,color:#fff
+    style DEF fill:#D9534F,color:#fff</pre>
 
 <h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>❌ <strong>問題在 AWS ALB Listener Rules 未設定此 hostname 的轉發規則。</strong></p>
 <h2 id="Hostname"><a href="#Hostname" class="headerlink" title="Hostname"></a>Hostname</h2><p>打 API 時網址裡的網域名稱：<a target="_blank" rel="noopener" href="https://ai-code-review-service-io.qa.91dev.tw/_hc">https://ai-code-review-service-io.qa.91dev.tw/_hc</a> 這整段就是 hostname，ALB 收到請求時，會看 HTTP Header 裡的 Host 欄位：Host: ai-code-review-service-io.qa.91dev.tw 用這個值來決定「這個請求要丟給誰處理」</p>
