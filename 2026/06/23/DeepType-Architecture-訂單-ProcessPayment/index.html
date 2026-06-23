@@ -1,0 +1,486 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ProcessPayment | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="大局觀ProcessPayment 四種回應路徑Cache 橋接設計ProcessPayment Fail 的取消流程設計解析付款流程分為三個階段，本文聚焦 Phase 2：ProcessPayment flowchart TD     P1[&quot;Phase 1\nCreateTradesOrderProcessor\n建單時決定初始狀態\nGroup A → 直接進 Phase 2\nGroup">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ProcessPayment">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-ProcessPayment/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="大局觀ProcessPayment 四種回應路徑Cache 橋接設計ProcessPayment Fail 的取消流程設計解析付款流程分為三個階段，本文聚焦 Phase 2：ProcessPayment flowchart TD     P1[&quot;Phase 1\nCreateTradesOrderProcessor\n建單時決定初始狀態\nGroup A → 直接進 Phase 2\nGroup">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png">
+<meta property="article:published_time" content="2026-06-23T06:45:00.000Z">
+<meta property="article:modified_time" content="2026-06-23T08:01:18.248Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="訂單">
+<meta property="article:tag" content="金流">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-ProcessPayment/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ProcessPayment',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-23 16:01:18'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">239</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">48</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">36</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">ProcessPayment</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-06-23T06:45:00.000Z" title="Created 2026-06-23 14:45:00">2026-06-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-06-23T08:01:18.248Z" title="Updated 2026-06-23 16:01:18">2026-06-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9E%B6%E6%A7%8B%E3%81%AE%E6%B5%B7%E3%81%AB%E7%81%AF%E3%82%8B%E6%98%9F/">架構の海に灯る星</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ProcessPayment"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="訂單-processpayment"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="訂單-processpayment-1">大局觀</button><button type="button" class="tab " data-href="訂單-processpayment-2">ProcessPayment 四種回應路徑</button><button type="button" class="tab " data-href="訂單-processpayment-3">Cache 橋接設計</button><button type="button" class="tab " data-href="訂單-processpayment-4">ProcessPayment Fail 的取消流程</button><button type="button" class="tab " data-href="訂單-processpayment-5">設計解析</button></ul><div class="tab-contents"><div class="tab-item-content active" id="訂單-processpayment-1"><p>付款流程分為三個階段，本文聚焦 <strong>Phase 2：ProcessPayment</strong></p>
+<pre class="mermaid">flowchart TD
+    P1["Phase 1\nCreateTradesOrderProcessor\n建單時決定初始狀態\nGroup A → 直接進 Phase 2\nGroup B → WaitingToPay 停在這等"]
+    P2["⭐ Phase 2\nProcessPayment\nmweb 在同一 Request 內\n主動呼叫 PaymentMiddleware\n→ 依同步回應決定走哪條路"]
+    P3["Phase 3\nFinishPayment\n非同步 Callback 或 ReCheck Job\n付款最終結果回來時處理"]
+
+    P1 -->|"Group A：同步呼叫"| P2
+    P1 -->|"Group B：直接略過 Phase 2"| P3
+    P2 -->|"Success → 同步完成"| ERP
+    P2 -->|"Fail → 同步取消"| CANCEL
+    P2 -->|"Redirect / Pending\n存 context 到 Cache"| P3
+    P3 -->|Success| ERP["WaitingToTrans\n→ NMQ 轉單 ERP"]
+    P3 -->|"Failed / Expired"| CANCEL["TransToCancel\n→ 退資源 + NMQ 轉單"]
+
+    style P1 fill:#888,color:#fff
+    style P2 fill:#4A7CB5,color:#fff
+    style P3 fill:#888,color:#fff
+    style ERP fill:#5BA85B,color:#fff
+    style CANCEL fill:#D9534F,color:#fff</pre>
+
+<h2 id="Phase-2-在整個流程中扮演什麼角色？"><a href="#Phase-2-在整個流程中扮演什麼角色？" class="headerlink" title="Phase 2 在整個流程中扮演什麼角色？"></a>Phase 2 在整個流程中扮演什麼角色？</h2><blockquote>
+<p>Phase 2 是<strong>付款流程的第一次決策點</strong> — mweb 在使用者按下結帳後，立刻向 PaymentMiddleware 發出付款請求，依據同步回應決定訂單要「就地完成」、「等待使用者跳頁」還是「直接取消」</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">階段</th>
+<th align="left">入口</th>
+<th align="center">觸發者</th>
+<th align="left">時機</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Phase 1</td>
+<td align="left"><code>CreateTradesOrderProcessor.cs</code></td>
+<td align="center">使用者按下結帳</td>
+<td align="left">同步，在同一 Request Pipeline 內</td>
+</tr>
+<tr>
+<td align="center"><strong>⭐ Phase 2</strong></td>
+<td align="left"><code>TradesOrderPaymentService.ProcessPayment()</code></td>
+<td align="center">mweb 前台</td>
+<td align="left">緊接在建單 Pipeline 之後，同步呼叫 PaymentMiddleware</td>
+</tr>
+<tr>
+<td align="center">Phase 3</td>
+<td align="left"><code>TradesOrderPaymentService.FinishPayment()</code></td>
+<td align="center">PayChannelReturn（前台）或 ReCheck Job（背景）</td>
+<td align="left">使用者在外部金流完成操作後，或 Job 主動查詢</td>
+</tr>
+</tbody></table>
+<p><strong>哪些金流會進入 Phase 2？</strong></p>
+<ul>
+<li><strong>Group A（同步付款型）</strong>：信用卡、ApplePay、Stripe、CheckoutDotCom — 建單後立刻進入 Phase 2，這裡是付款確認的主戰場</li>
+<li><strong>Group B（非同步導頁型）</strong>：LinePay、Razer 系列、AsiaPay 系列 — Phase 2 對這類金流通常只是「登記等待」，Phase 3 才是真正的付款確認入口</li>
+</ul></div><div class="tab-item-content" id="訂單-processpayment-2"><p>mweb 建單後，在同一個 Request Pipeline 內呼叫 <code>PaymentMiddleware.PaymentRequest()</code>，依同步回應結果更新 <code>OrderSlaveFlow</code></p>
+<blockquote>
+<p>ProcessPayment 是付款流程的<strong>第一次與金流的對話</strong>。對非同步金流（Group B），這裡通常只是登記「等待付款」；對同步金流（Group A），這裡可能直接完成</p>
+</blockquote>
+<h2 id="四種回應路徑全覽"><a href="#四種回應路徑全覽" class="headerlink" title="四種回應路徑全覽"></a>四種回應路徑全覽</h2><pre class="mermaid">flowchart TD
+    PP["PaymentMiddleware\n.PaymentRequest()"] --> R{PaymentResult.Status}
+
+    R -->|Success| S1["DoActionOnDirectSuccess()\n直接完成，走 success flow\n不由 ProcessPayment 更新狀態"]
+    R -->|Fail| S2["CancelTradesOrderGroup()\n取消訂單\nStatusDef = WaitingToTrans* / TransToCancel\nForSCM = Hide / ForUser = Hide"]
+    R -->|Redirect| S3["儲存 context 到 Cache\n使用者被導到外部金流頁面\nIs3DSecure ?\n→ WaitingTo3DAuth\n→ WaitingToPay\n+ ForSCM=Hide / ForUser=WaitingToPay"]
+    R -->|Pending| S4["儲存 context 到 Cache\nPSP 非同步處理中\n→ WaitingToPay\n+ ForSCM=Hide / ForUser=WaitingToPay"]
+
+    style S1 fill:#5BA85B,color:#fff
+    style S2 fill:#D9534F,color:#fff
+    style S3 fill:#4A7CB5,color:#fff
+    style S4 fill:#4A7CB5,color:#fff</pre>
+
+<h2 id="四種狀態更新摘要"><a href="#四種狀態更新摘要" class="headerlink" title="四種狀態更新摘要"></a>四種狀態更新摘要</h2><table>
+<thead>
+<tr>
+<th align="center">回應</th>
+<th align="center">StatusDef</th>
+<th align="center">StatusForSCM</th>
+<th align="center">StatusForUser</th>
+<th align="center">CanCancel</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>Success</strong></td>
+<td align="center">不在 ProcessPayment 更新</td>
+<td align="center">—</td>
+<td align="center">—</td>
+<td align="center">—</td>
+</tr>
+<tr>
+<td align="center"><strong>Fail</strong></td>
+<td align="center"><code>WaitingToTrans</code>* &#x2F; <code>TransToCancel</code></td>
+<td align="center"><code>Hide</code></td>
+<td align="center"><code>Hide</code></td>
+<td align="center">false</td>
+</tr>
+<tr>
+<td align="center"><strong>Redirect（3DS）</strong></td>
+<td align="center"><code>WaitingTo3DAuth</code></td>
+<td align="center"><code>Hide</code></td>
+<td align="center"><code>WaitingToPay</code></td>
+<td align="center">true</td>
+</tr>
+<tr>
+<td align="center"><strong>Redirect（一般）</strong></td>
+<td align="center"><code>WaitingToPay</code></td>
+<td align="center"><code>Hide</code></td>
+<td align="center"><code>WaitingToPay</code></td>
+<td align="center">true</td>
+</tr>
+<tr>
+<td align="center"><strong>Pending</strong></td>
+<td align="center"><code>WaitingToPay</code></td>
+<td align="center"><code>Hide</code></td>
+<td align="center"><code>WaitingToPay</code></td>
+<td align="center">true</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>* <code>WaitingToTrans</code> 僅用於 CreditCardOnce_Stripe &#x2F; CreditCardOnce_CheckoutDotCom（歷史原因，程式碼已標記應統一為 TransToCancel）</p>
+</blockquote>
+<h2 id="Redirect-的-Is3DSecure-分支"><a href="#Redirect-的-Is3DSecure-分支" class="headerlink" title="Redirect 的 Is3DSecure 分支"></a>Redirect 的 Is3DSecure 分支</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">OrderSlaveFlowStatusEnum statusDef = context.Is3DSecure == <span class="literal">true</span></span><br><span class="line">    ? OrderSlaveFlowStatusEnum.WaitingTo3DAuth</span><br><span class="line">    : OrderSlaveFlowStatusEnum.WaitingToPay;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="center">context.Is3DSecure</th>
+<th align="center">StatusDef</th>
+<th align="left">情境</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">true</td>
+<td align="center"><code>WaitingTo3DAuth</code></td>
+<td align="left">金流商要求 3DS 驗證，有明確的驗證步驟</td>
+</tr>
+<tr>
+<td align="center">false</td>
+<td align="center"><code>WaitingToPay</code></td>
+<td align="left">一般 OAuth &#x2F; 付款頁轉導，等待使用者操作</td>
+</tr>
+</tbody></table></div><div class="tab-item-content" id="訂單-processpayment-3"><p>Phase 2 (ProcessPayment) 與 Phase 3 (FinishPayment) 之間，有一段跨越 HTTP Request 邊界的空白。<strong>這個空白靠 Cache 來填補</strong></p>
+<h2 id="為什麼需要-Cache？"><a href="#為什麼需要-Cache？" class="headerlink" title="為什麼需要 Cache？"></a>為什麼需要 Cache？</h2><pre class="mermaid">sequenceDiagram
+    participant U as 👤 使用者
+    participant MW as 🖥️ mweb
+    participant PM as 💳 PaymentMiddleware
+
+    MW->>PM: ProcessPayment（Request A）
+    PM-->>MW: Redirect URL
+    MW->>MW: 存 context 到 Redis Cache
+    MW->>U: 導頁到外部金流
+
+    Note over U,PM: ← 跨越了時間與 HTTP Request 邊界 →<br/>使用者在外部金流操作，可能耗時數秒至數分鐘
+
+    U->>MW: Callback（Request B，全新的 Request）
+    MW->>MW: 從 Redis Cache 取回 context
+    MW->>PM: FinishPayment（帶著完整 context）</pre>
+
+<p>HTTP 是無狀態的。ProcessPayment（Request A）結束後，所有的 in-memory 狀態都消失了。FinishPayment（Request B）是一個全新的請求，需要重建付款的上下文（購物車、金流設定、訂單 ID、Is3DSecure 等），Cache 是唯一可行的橋樑</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Redirect 路徑存入 Cache</span></span><br><span class="line">payChannelService.UpdateProcessContextForRedirect(context, paymentResult);</span><br><span class="line"><span class="keyword">this</span>._userDataHelper.Save(PayProcessContextEntity.CacheTypeName, context);</span><br></pre></td></tr></table></figure>
+
+<h2 id="哪些路徑需要存-Cache？"><a href="#哪些路徑需要存-Cache？" class="headerlink" title="哪些路徑需要存 Cache？"></a>哪些路徑需要存 Cache？</h2><table>
+<thead>
+<tr>
+<th align="center">回應路徑</th>
+<th align="center">需要存 Cache？</th>
+<th align="left">原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Success</td>
+<td align="center">❌</td>
+<td align="left">同一 Request 內完成，不需要跨 Request</td>
+</tr>
+<tr>
+<td align="center">Fail</td>
+<td align="center">❌</td>
+<td align="left">同一 Request 內取消，不需要跨 Request</td>
+</tr>
+<tr>
+<td align="center"><strong>Redirect</strong></td>
+<td align="center">✅</td>
+<td align="left">使用者跳頁後 Callback 回來，需要重建 context</td>
+</tr>
+<tr>
+<td align="center"><strong>Pending</strong></td>
+<td align="center">✅</td>
+<td align="left">PSP 非同步處理，完成後 Callback 回來，需要重建 context</td>
+</tr>
+</tbody></table>
+<h2 id="Cache-的設計風險"><a href="#Cache-的設計風險" class="headerlink" title="Cache 的設計風險"></a>Cache 的設計風險</h2><blockquote>
+<p><strong>Cache 是 Phase 2 到 Phase 3 的唯一橋樑，也是整個非同步付款流程的單點失效</strong></p>
+</blockquote>
+<ul>
+<li><strong>Cache TTL 到期</strong> → FinishPayment 時取不到 context → 拋 Exception → 訂單停在 <code>WaitingToPay</code> 永遠不動</li>
+<li><strong>Redis 不可用</strong> → 所有 Redirect&#x2F;Pending 的訂單都卡住，ReCheck Job 同樣需要讀 context，一樣卡</li>
+<li><strong>Cache Key 衝突</strong> → 相同情況</li>
+</ul>
+<p>這個設計在訂單量小時完全不是問題。但隨著金流數量增加、非同步訂單比例上升，Cache 可靠性成了整個付款鏈路的隱形天花板。</p></div><div class="tab-item-content" id="訂單-processpayment-4"><p>ProcessPayment 收到同步 Fail 時（金流明確回傳失敗），在同一個 Request 內立刻完成所有清理，不等任何非同步操作</p>
+<h2 id="完整取消流程"><a href="#完整取消流程" class="headerlink" title="完整取消流程"></a>完整取消流程</h2><pre class="mermaid">flowchart TD
+    FAIL[ProcessPayment → Fail] --> CG[CancelTradesOrderGroup\n更新 StatusDef = WaitingToTrans* or TransToCancel\nForSCM = Hide / ForUser = Hide\nCanCancel = false]
+    CG --> R1[退還外部購物金\nCancelExternalStoreCreditDeduction]
+    R1 --> R2[退還點數\nRefundPoint]
+    R2 --> R3[回收 PromoCode 名額\nRevertPromoCodePoolQuota]
+    R3 --> R4{多券 or 券中心核銷？}
+    R4 -->|是| R5[歸還優惠券\nRevertRedeemCoupon async]
+    R4 -->|否| R6{首購訂單？}
+    R5 --> R6
+    R6 -->|是| R7[歸還首購權益\nResetFirstPurchase]
+    R6 -->|否| NMQ[TransferOrder\nNMQ TransferOrderToERP]
+    R7 --> NMQ
+
+    style FAIL fill:#D9534F,color:#fff
+    style NMQ fill:#4A7CB5,color:#fff</pre>
+
+<blockquote>
+<p>即使是失敗取消，最後仍然會觸發 NMQ <code>TransferOrder</code>。這是因為 ERP 需要知道有一筆訂單被取消了，才能正確處理庫存和帳務。<strong>取消也是一種「轉單」</strong></p>
+</blockquote>
+<h2 id="為什麼同步-Fail-可以直接退，而-Expired-不行？"><a href="#為什麼同步-Fail-可以直接退，而-Expired-不行？" class="headerlink" title="為什麼同步 Fail 可以直接退，而 Expired 不行？"></a>為什麼同步 Fail 可以直接退，而 Expired 不行？</h2><table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">ProcessPayment Fail</th>
+<th align="center">FinishPayment Expired</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>確定性</strong></td>
+<td align="center">✅ 金流商明確說「未付款」</td>
+<td align="center">⚠️ 可能已扣款但系統超時未知</td>
+</tr>
+<tr>
+<td align="center"><strong>退資源方式</strong></td>
+<td align="center">同步在當前 Request 退</td>
+<td align="center">建 <code>CancelRequest(&quot;8&quot;)</code>，等退款確認後退</td>
+</tr>
+<tr>
+<td align="center"><strong>訂單可見性</strong></td>
+<td align="center">StatusForUser &#x3D; <code>Hide</code></td>
+<td align="center">StatusForUser &#x3D; <code>WaitingToPay</code>（讓使用者知道有問題）</td>
+</tr>
+</tbody></table>
+<p>FinishPayment Expired 的詳細設計見 <strong>《FinishPayment — 付款的最終裁決》</strong></p>
+<h2 id="CanCancel-false-空窗期保護"><a href="#CanCancel-false-空窗期保護" class="headerlink" title="CanCancel &#x3D; false 空窗期保護"></a>CanCancel &#x3D; false 空窗期保護</h2><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">付款失敗 → StatusDef = TransToCancel → 建立 NMQ <span class="keyword">Task</span></span><br><span class="line">           ↓ 在 NMQ 執行前（空窗期）</span><br><span class="line">           使用者從前台看到訂單 → 點取消 → 再建一個 NMQ <span class="keyword">Task</span></span><br><span class="line">           → ERP 端收到兩個取消任務 → 重複取消 → 庫存雙重回補</span><br></pre></td></tr></table></figure>
+
+<p>CanCancel&#x3D;false 在 NMQ 空窗期內阻斷這個 double-cancel 場景</p>
+<blockquote>
+<p>風險：NMQ Task 若卡住，訂單 StatusForUser &#x3D; Hide + CanCancel &#x3D; false，使用者看不到、客服也操作不了，唯一出路是工程師直接改 DB</p>
+</blockquote></div><div class="tab-item-content" id="訂單-processpayment-5"><h2 id="ProcessPayment-的核心設計取捨"><a href="#ProcessPayment-的核心設計取捨" class="headerlink" title="ProcessPayment 的核心設計取捨"></a>ProcessPayment 的核心設計取捨</h2><h3 id="DoActionOnDirectSuccess-—-成功路徑的不對稱"><a href="#DoActionOnDirectSuccess-—-成功路徑的不對稱" class="headerlink" title="DoActionOnDirectSuccess — 成功路徑的不對稱"></a>DoActionOnDirectSuccess — 成功路徑的不對稱</h3><pre class="mermaid">graph LR
+    S["ProcessPayment Success"] --> DA["DoActionOnDirectSuccess()\n各金流可 Override"]
+    DA -->|"預設實作"| EMPTY["空方法\n什麼都不做"]
+    DA -->|"Stripe Override"| NMQ["建立 metadata 更新 NMQ"]
+    DA -->|"其他金流"| Q["走 ThirdPartyFinishProcess Pipeline？"]</pre>
+
+<p><code>DoActionOnDirectSuccess()</code> 是一個<strong>語意模糊的擴充點</strong>。預設是空方法，各金流可以 Override 但不是必須。這導致：</p>
+<ul>
+<li>ProcessPayment Success 路徑的後處理，分散在每個金流的 <code>DoActionOnDirectSuccess()</code> 實作中</li>
+<li>FinishPayment Success 路徑的後處理，由 <code>ThirdPartyFinishProcess Processor Pipeline</code> 統一處理</li>
+<li><strong>同樣是「付款成功」，但走了兩條不同的後處理路線</strong> — 未來要新增「付款成功後的動作」，需要確認兩條路線都有覆蓋</li>
+</ul>
+<h3 id="成功路徑-vs-失敗路徑的設計不對稱"><a href="#成功路徑-vs-失敗路徑的設計不對稱" class="headerlink" title="成功路徑 vs 失敗路徑的設計不對稱"></a>成功路徑 vs 失敗路徑的設計不對稱</h3><pre class="mermaid">graph LR
+    S["ProcessPayment Success"] -->|"宣告式\nProcessor Pipeline"| PS["DoActionOnDirectSuccess\n→ 各 Processor 依序執行"]
+    F["ProcessPayment Fail"] -->|"命令式\n直接呼叫"| PF["直接 this.CancelTradesOrderGroup()\nthis.TransferOrder()"]</pre>
+
+<p>成功路徑走 Processor Pipeline（宣告式、可擴充），失敗路徑直接呼叫 Service（命令式、散落在程式碼中）。這個不對稱是歷史演進的結果，成功路徑在多次重構後被整理進 Pipeline，失敗路徑一直沒人整理。</p>
+<h3 id="ProcessPayment-的邊界定義不清"><a href="#ProcessPayment-的邊界定義不清" class="headerlink" title="ProcessPayment 的邊界定義不清"></a>ProcessPayment 的邊界定義不清</h3><p>ProcessPayment 在不同金流下的職責差異很大：</p>
+<table>
+<thead>
+<tr>
+<th align="left">金流類型</th>
+<th align="left">ProcessPayment 的實際工作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">信用卡（一般）</td>
+<td align="left">真正打 API 授權，可能直接完成付款</td>
+</tr>
+<tr>
+<td align="left">LinePay &#x2F; Razer</td>
+<td align="left">只是取得導頁 URL，實際付款在外部</td>
+</tr>
+<tr>
+<td align="left">ATM</td>
+<td align="left">只是取得虛擬帳號，不涉及任何付款</td>
+</tr>
+<tr>
+<td align="left">Stripe Direct</td>
+<td align="left">同步完成付款 + 排 ERP 轉單</td>
+</tr>
+</tbody></table>
+<p>從 ATM 的角度看，ProcessPayment 根本沒有在「處理付款」，只是在「取得付款資訊」。但它們都走同一個 ProcessPayment 入口，造成這個方法的語意非常寬泛。</p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-ProcessPayment/">https://allenlin000.github.io.git/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-ProcessPayment/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%A8%82%E5%96%AE/">訂單</a><a class="post-meta__tags" href="/tags/%E9%87%91%E6%B5%81/">金流</a></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-createTradesOrder/" title="CreateTradesOrderProcessor"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">CreateTradesOrderProcessor</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-FinishPayment/" title="FinishPayment"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">FinishPayment</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-FinishPayment/" title="FinishPayment"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="title">FinishPayment</div></div></a></div><div><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-createTradesOrder/" title="CreateTradesOrderProcessor"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="title">CreateTradesOrderProcessor</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">239</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">48</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">36</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Phase-2-%E5%9C%A8%E6%95%B4%E5%80%8B%E6%B5%81%E7%A8%8B%E4%B8%AD%E6%89%AE%E6%BC%94%E4%BB%80%E9%BA%BC%E8%A7%92%E8%89%B2%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">Phase 2 在整個流程中扮演什麼角色？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E7%A8%AE%E5%9B%9E%E6%87%89%E8%B7%AF%E5%BE%91%E5%85%A8%E8%A6%BD"><span class="toc-number">2.</span> <span class="toc-text">四種回應路徑全覽</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E7%A8%AE%E7%8B%80%E6%85%8B%E6%9B%B4%E6%96%B0%E6%91%98%E8%A6%81"><span class="toc-number">3.</span> <span class="toc-text">四種狀態更新摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redirect-%E7%9A%84-Is3DSecure-%E5%88%86%E6%94%AF"><span class="toc-number">4.</span> <span class="toc-text">Redirect 的 Is3DSecure 分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E9%9C%80%E8%A6%81-Cache%EF%BC%9F"><span class="toc-number">5.</span> <span class="toc-text">為什麼需要 Cache？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%93%AA%E4%BA%9B%E8%B7%AF%E5%BE%91%E9%9C%80%E8%A6%81%E5%AD%98-Cache%EF%BC%9F"><span class="toc-number">6.</span> <span class="toc-text">哪些路徑需要存 Cache？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cache-%E7%9A%84%E8%A8%AD%E8%A8%88%E9%A2%A8%E9%9A%AA"><span class="toc-number">7.</span> <span class="toc-text">Cache 的設計風險</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E5%8F%96%E6%B6%88%E6%B5%81%E7%A8%8B"><span class="toc-number">8.</span> <span class="toc-text">完整取消流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E5%90%8C%E6%AD%A5-Fail-%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E9%80%80%EF%BC%8C%E8%80%8C-Expired-%E4%B8%8D%E8%A1%8C%EF%BC%9F"><span class="toc-number">9.</span> <span class="toc-text">為什麼同步 Fail 可以直接退，而 Expired 不行？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CanCancel-false-%E7%A9%BA%E7%AA%97%E6%9C%9F%E4%BF%9D%E8%AD%B7"><span class="toc-number">10.</span> <span class="toc-text">CanCancel &#x3D; false 空窗期保護</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ProcessPayment-%E7%9A%84%E6%A0%B8%E5%BF%83%E8%A8%AD%E8%A8%88%E5%8F%96%E6%8D%A8"><span class="toc-number">11.</span> <span class="toc-text">ProcessPayment 的核心設計取捨</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DoActionOnDirectSuccess-%E2%80%94-%E6%88%90%E5%8A%9F%E8%B7%AF%E5%BE%91%E7%9A%84%E4%B8%8D%E5%B0%8D%E7%A8%B1"><span class="toc-number">11.1.</span> <span class="toc-text">DoActionOnDirectSuccess — 成功路徑的不對稱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%90%E5%8A%9F%E8%B7%AF%E5%BE%91-vs-%E5%A4%B1%E6%95%97%E8%B7%AF%E5%BE%91%E7%9A%84%E8%A8%AD%E8%A8%88%E4%B8%8D%E5%B0%8D%E7%A8%B1"><span class="toc-number">11.2.</span> <span class="toc-text">成功路徑 vs 失敗路徑的設計不對稱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ProcessPayment-%E7%9A%84%E9%82%8A%E7%95%8C%E5%AE%9A%E7%BE%A9%E4%B8%8D%E6%B8%85"><span class="toc-number">11.3.</span> <span class="toc-text">ProcessPayment 的邊界定義不清</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-FinishPayment/" title="FinishPayment"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="FinishPayment"/></a><div class="content"><a class="title" href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-FinishPayment/" title="FinishPayment">FinishPayment</a><time datetime="2026-06-23T06:50:00.000Z" title="Created 2026-06-23 14:50:00">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-ProcessPayment/" title="ProcessPayment"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ProcessPayment"/></a><div class="content"><a class="title" href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-ProcessPayment/" title="ProcessPayment">ProcessPayment</a><time datetime="2026-06-23T06:45:00.000Z" title="Created 2026-06-23 14:45:00">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-createTradesOrder/" title="CreateTradesOrderProcessor"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Server/Flash_Sale/1_overview.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CreateTradesOrderProcessor"/></a><div class="content"><a class="title" href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-createTradesOrder/" title="CreateTradesOrderProcessor">CreateTradesOrderProcessor</a><time datetime="2026-06-23T03:15:11.000Z" title="Created 2026-06-23 11:15:11">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/27/DeepType-K8S-routing/" title="Routing"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Devops/k8s/k8s2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Routing"/></a><div class="content"><a class="title" href="/2026/05/27/DeepType-K8S-routing/" title="Routing">Routing</a><time datetime="2026-05-27T00:40:00.000Z" title="Created 2026-05-27 08:40:00">2026-05-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
