@@ -1,0 +1,341 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>PaymentProcessingMethod — 代收付 vs 直收付 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="PaymentProcessingMethod在說什麼？計算時機：ArrangeDataProcessor用哪個 API 帳號資料流向ERP 怎麼用這個欄位？發票、直代收、Stripe 的三角關係 這筆錢，是先流過 91APP 的信託帳戶，還是直接進商家的銀行？  12345678public enum PaymentProcessingMethodEnum&#123;    &#x2F;&#x2F;&#x2F; &lt;su">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PaymentProcessingMethod — 代收付 vs 直收付">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-PaymentProcessingMethod/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="PaymentProcessingMethod在說什麼？計算時機：ArrangeDataProcessor用哪個 API 帳號資料流向ERP 怎麼用這個欄位？發票、直代收、Stripe 的三角關係 這筆錢，是先流過 91APP 的信託帳戶，還是直接進商家的銀行？  12345678public enum PaymentProcessingMethodEnum&#123;    &#x2F;&#x2F;&#x2F; &lt;su">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-06-25T15:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-26T07:49:25.678Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="訂單">
+<meta property="article:tag" content="金流">
+<meta property="article:tag" content="ERP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-PaymentProcessingMethod/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'PaymentProcessingMethod — 代收付 vs 直收付',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-26 15:49:25'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">243</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">36</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">PaymentProcessingMethod — 代收付 vs 直收付</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-06-25T15:00:00.000Z" title="Created 2026-06-25 23:00:00">2026-06-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-06-26T07:49:25.678Z" title="Updated 2026-06-26 15:49:25">2026-06-26</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9E%B6%E6%A7%8B%E3%81%AE%E6%B5%B7%E3%81%AB%E7%81%AF%E3%82%8B%E6%98%9F/">架構の海に灯る星</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="PaymentProcessingMethod — 代收付 vs 直收付"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="金流-paymentprocessingmethod"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="金流-paymentprocessingmethod-1">PaymentProcessingMethod在說什麼？</button><button type="button" class="tab " data-href="金流-paymentprocessingmethod-2">計算時機：ArrangeDataProcessor</button><button type="button" class="tab " data-href="金流-paymentprocessingmethod-3">用哪個 API 帳號</button><button type="button" class="tab " data-href="金流-paymentprocessingmethod-4">資料流向</button><button type="button" class="tab " data-href="金流-paymentprocessingmethod-5">ERP 怎麼用這個欄位？</button><button type="button" class="tab " data-href="金流-paymentprocessingmethod-6">發票、直代收、Stripe 的三角關係</button></ul><div class="tab-contents"><div class="tab-item-content active" id="金流-paymentprocessingmethod-1"><blockquote>
+<p><strong>這筆錢，是先流過 91APP 的信託帳戶，還是直接進商家的銀行？</strong></p>
+</blockquote>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">enum</span> PaymentProcessingMethodEnum</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span>直收付 — 錢直接進商家銀行<span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    DirectToBank,</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span>代收付 — 錢先進 91APP 信託帳戶<span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    ThroughPSP</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個決策影響的不只是金流 API 的選擇，更影響到<strong>發票開立方</strong>、<strong>財務對帳範圍</strong>，以及整個 ERP 的付款單計算邏輯。</p>
+<h2 id="兩條路的核心差異"><a href="#兩條路的核心差異" class="headerlink" title="兩條路的核心差異"></a>兩條路的核心差異</h2><table>
+<thead>
+<tr>
+<th align="left">維度</th>
+<th align="left">ThroughPSP（代收付）</th>
+<th align="left">DirectToBank（直收付）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">錢的流向</td>
+<td align="left">消費者 → 91APP 信託 → 商家</td>
+<td align="left">消費者 → 商家銀行（直接）</td>
+</tr>
+<tr>
+<td align="left">發票開立方</td>
+<td align="left"><strong>91APP 代開</strong></td>
+<td align="left"><strong>商家自行開立</strong></td>
+</tr>
+<tr>
+<td align="left">ERP 付款單</td>
+<td align="left">✅ 納入對帳</td>
+<td align="left">❌ 完全跳過</td>
+</tr>
+<tr>
+<td align="left">退款申請</td>
+<td align="left">91APP 處理</td>
+<td align="left">商家自行處理</td>
+</tr>
+<tr>
+<td align="left">適用場景</td>
+<td align="left">多數電商模式</td>
+<td align="left">商家自有金流（如特定第三方帳號）</td>
+</tr>
+</tbody></table>
+<h2 id="判斷依據：發票開立方式"><a href="#判斷依據：發票開立方式" class="headerlink" title="判斷依據：發票開立方式"></a>判斷依據：發票開立方式</h2><p>核心判斷邏輯在 <code>ArrangeDataProcessor.DetermineDefaultPaymentProcessingMethod()</code>：</p>
+<pre class="mermaid">flowchart TD
+    A["讀取商店設定\nInvoiceIssueTypeDef"] --> B{"發票由誰開？"}
+    B -->|"ShopIssue\n商家自行開立"| C["DirectToBank\n直收付"]
+    B -->|"其他（91APP 代開）"| D["ThroughPSP\n代收付"]
+
+    style C fill:#D4813A,color:#fff
+    style D fill:#4A7CB5,color:#fff</pre>
+
+<p>白話說：<strong>只要發票是 91APP 開的，錢就走 91APP 信託（代收付）</strong>。商家自己開發票代表他們有自己的金流帳號，91APP 就不介入資金流動。</p></div><div class="tab-item-content" id="金流-paymentprocessingmethod-2"><p>在 mweb 建單流程（<code>CompleteForNewCartV2</code>）的 Processor Pipeline 中，<code>ArrangeDataProcessor</code> 負責計算並寫入 context：</p>
+<pre class="mermaid">flowchart LR
+    A["CompleteForNewCartV2"] --> B["ArrangeDataProcessor\nArrangePaymentProcessingMethod()"]
+    B --> C{"信用卡類？\nStripe / 91Payments"}
+    C -->|是| D["先寫 ThroughPSP\n待授權後由\nUpdateTGByMerchantId() 修正"]
+    C -->|否| E["GetPaymentProcessingMethod()\n讀 AppSetting + InvoiceIssueType"]
+    E --> F["context.PaymentProcessingMethod\n= 最終值"]
+    F --> G["TradesOrderGroup_PaymentProcessingMethodDef\n寫入 DB"]
+
+    style B fill:#4A7CB5,color:#fff
+    style D fill:#D4813A,color:#fff
+    style F fill:#5BA85B,color:#fff</pre>
+
+<h2 id="信用卡的特殊兩階段（僅限-91Payments）"><a href="#信用卡的特殊兩階段（僅限-91Payments）" class="headerlink" title="信用卡的特殊兩階段（僅限 91Payments）"></a>信用卡的特殊兩階段（僅限 91Payments）</h2><p><strong>91Payments</strong>（<code>CreditCardOnce</code> &#x2F; <code>CreditCardInstallment</code>）因為授權後才能拿到 <code>MerchantId</code>，所以：</p>
+<ol>
+<li>建單時先填 <code>ThroughPSP</code>（預設）</li>
+<li>授權成功後，<code>AuthorizedService</code> 取得 <code>Authorized_MerchantId</code>，呼叫 <code>PaymentProcessingMethodService.UpdateTGByMerchantId()</code> 根據實際 MerchantId 重新判斷並更新</li>
+</ol></div><div class="tab-item-content" id="金流-paymentprocessingmethod-3"><h2 id="對-LinePay-JKO-EasyWallet-的影響"><a href="#對-LinePay-JKO-EasyWallet-的影響" class="headerlink" title="對 LinePay &#x2F; JKO &#x2F; EasyWallet 的影響"></a>對 LinePay &#x2F; JKO &#x2F; EasyWallet 的影響</h2><p>這三種付款方式依賴 <code>PaymentProcessingMethod</code> 來決定<strong>用哪個 API 帳號</strong>：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 偽碼</span></span><br><span class="line"><span class="keyword">if</span> (paymentProcessingMethod == ThroughPSP)</span><br><span class="line">    apiKey = config.NineYi91AppChannelKey;   <span class="comment">// 91APP 自己的 Channel</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    apiKey = config.ShopOwnChannelKey;       <span class="comment">// 商家自己的 Channel</span></span><br></pre></td></tr></table></figure>
+
+<p>這是整個欄位<strong>在金流 API 呼叫層面最直接的影響</strong>：代收付用 91APP 的 API 帳號，直收付用商家自己的 API 帳號。</p></div><div class="tab-item-content" id="金流-paymentprocessingmethod-4"><h2 id="怎麼流到-ERP？"><a href="#怎麼流到-ERP？" class="headerlink" title="怎麼流到 ERP？"></a>怎麼流到 ERP？</h2><pre class="mermaid">flowchart TD
+    A["mweb\nArrangeDataProcessor\n計算 PaymentProcessingMethod"] --> B["TradesOrderGroup_PaymentProcessingMethodDef\nWebStore DB"]
+    B -->|"NMQ: TransToERPTmpV2Process\ncsp_ImportWebStoreDBTradesOrdersToERPDB\n（Stored Procedure）"| C["SalesOrderGroup_PaymentProcessingMethodDef\nERP DB"]
+    C --> D["SalesOrderGroupPayProfileType_\nPaymentProcessingMethodDef\nERP DB"]
+    C --> E["PaymentSlave_PaymentProcessingMethodDef\nERP DB"]
+    C --> F["PaymentRequest_PaymentProcessingMethodDef\nERP DB"]
+
+    style A fill:#4A7CB5,color:#fff
+    style B fill:#7B5EA7,color:#fff
+    style C fill:#5BA85B,color:#fff</pre>
+
+
+<h2 id="NMQ-搬運機制"><a href="#NMQ-搬運機制" class="headerlink" title="NMQ 搬運機制"></a>NMQ 搬運機制</h2><p>WebStore 的 NMQ（<code>TransToERPTmpV2Process</code>）透過 Stored Procedure <code>csp_ImportWebStoreDBTradesOrdersToERPDBSourceTablesByOrderId_Mall</code> 將 TradesOrder 資料搬到 ERP 暫存表，再由 <code>TransToERPV2</code> Job 寫入正式 ERP DB。</p></div><div class="tab-item-content" id="金流-paymentprocessingmethod-5"><p>ERP 對 <code>PaymentProcessingMethod</code> 的使用集中在<strong>財務邏輯</strong>，有三個核心場景。</p>
+<p>在看程式碼之前，先理解這兩份財務憑證的業務用意：</p>
+<h2 id="付款單（PaymentSlave）—-91APP-撥款給商家的憑證"><a href="#付款單（PaymentSlave）—-91APP-撥款給商家的憑證" class="headerlink" title="付款單（PaymentSlave）— 91APP 撥款給商家的憑證"></a>付款單（PaymentSlave）— 91APP 撥款給商家的憑證</h2><p><strong>情境</strong>：消費者用 LinePay 代收付結帳，錢先進 91APP 信託帳戶。出貨後，91APP 要把這筆錢「還」給商家。</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">消費者 → <span class="number">91</span>APP 信託帳戶（代收）</span><br><span class="line">                  ↓ 出貨確認後</span><br><span class="line">            付款單（PaymentSlave）<span class="operator">=</span> <span class="number">91</span>APP 要撥多少錢給商家的憑證</span><br><span class="line">                  ↓</span><br><span class="line">            商家銀行帳戶（撥款）</span><br></pre></td></tr></table></figure>
+
+<p>付款單本質是<strong>91APP 對商家的應付帳款憑證</strong>，只有 91APP 代收過這筆錢才會產生。</p>
+<h2 id="請款單（PaymentRequest）—-財務對帳的-CSV-報表"><a href="#請款單（PaymentRequest）—-財務對帳的-CSV-報表" class="headerlink" title="請款單（PaymentRequest）— 財務對帳的 CSV 報表"></a>請款單（PaymentRequest）— 財務對帳的 CSV 報表</h2><p><strong>信用卡的「請款」</strong>（Capture）是另一個概念：信用卡授權（Auth）後，銀行只是預留額度，還沒真正扣款；出貨後才向銀行正式<strong>請款</strong>（Capture），錢才真的動。</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">授權（Auth）  →  銀行預留額度，不扣款</span><br><span class="line">請款（Capture）→  正式向銀行請求扣款</span><br><span class="line"></span><br><span class="line">// TapPay / <span class="number">91</span>Payments 設定：-<span class="number">1</span> <span class="operator">=</span> 手動請款（出貨後才 Capture）</span><br><span class="line"><span class="attribute">DelayCaptureDays</span> <span class="operator">=</span> -<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>ERP 的「請款單」是財務匯出的 <strong>CSV 對帳報表</strong>，含括退款申請與請款紀錄，讓財務人員核帳用。</p>
+<h2 id="付款單對帳-—-直收付直接排除"><a href="#付款單對帳-—-直收付直接排除" class="headerlink" title="付款單對帳 — 直收付直接排除"></a>付款單對帳 — 直收付直接排除</h2><p>直收付的錢沒有流過 91APP 信託，91APP 從未持有這筆錢，自然沒有「要還給商家」的義務 → 完全跳過付款單計算。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PaymentManager.cs</span></span><br><span class="line"><span class="keyword">foreach</span> (<span class="keyword">var</span> paymentSlave <span class="keyword">in</span> paymentV2.PaymentSlaveList)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 若直收付則跟付款單無關，略過</span></span><br><span class="line">    <span class="keyword">if</span> (paymentSlave.PaymentSlave_PaymentProcessingMethodDef != <span class="string">&quot;ThroughPSP&quot;</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ... 後續才計入付款單金額</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="請款單-退款申請匯出-—-帶入-CSV-欄位"><a href="#請款單-退款申請匯出-—-帶入-CSV-欄位" class="headerlink" title="請款單 &#x2F; 退款申請匯出 — 帶入 CSV 欄位"></a>請款單 &#x2F; 退款申請匯出 — 帶入 CSV 欄位</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// RefundRequestManager.cs — 退款申請 CSV 匯出</span></span><br><span class="line">PaymentRequest_PaymentProcessingMethodDef = a.PaymentRequest_PaymentProcessingMethodDefDesc</span><br></pre></td></tr></table></figure>
+
+<p>退款申請和請款單的匯出 CSV 最後都有一欄「<strong>代收付&#x2F;直收付</strong>」，讓財務在對帳時清楚知道這筆錢的資金流向，決定要不要跟 91APP 的信託帳戶對帳。</p></div><div class="tab-item-content" id="金流-paymentprocessingmethod-6"><h2 id="Stripe-的特殊性：跳脫這個邏輯"><a href="#Stripe-的特殊性：跳脫這個邏輯" class="headerlink" title="Stripe 的特殊性：跳脫這個邏輯"></a>Stripe 的特殊性：跳脫這個邏輯</h2><p>Stripe（<code>CreditCardOnce_Stripe</code>）完全繞過上述判斷，由 AppSetting 強制指定：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">add</span> <span class="attr">key</span>=<span class="string">&quot;Prod.PayType.DirectToBank&quot;</span></span></span><br><span class="line"><span class="tag">     <span class="attr">value</span>=<span class="string">&quot;CreditCardOnce_Stripe,...&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>不管商店的 <code>InvoiceIssueTypeDef</code> 是什麼，Stripe 永遠是 <code>DirectToBank</code>。</p>
+<h2 id="DirectCharge-vs-DestinationCharge-的發票影響"><a href="#DirectCharge-vs-DestinationCharge-的發票影響" class="headerlink" title="DirectCharge vs DestinationCharge 的發票影響"></a>DirectCharge vs DestinationCharge 的發票影響</h2><table>
+<thead>
+<tr>
+<th align="left">Stripe 帳號類型</th>
+<th align="left">payment_flow</th>
+<th align="left">Charge 建在哪</th>
+<th align="left">發票開立方</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Standard</td>
+<td align="left">DirectCharge</td>
+<td align="left"><strong>商家 Connected Account</strong></td>
+<td align="left">商家自行開立</td>
+</tr>
+<tr>
+<td align="left">Custom</td>
+<td align="left">DestinationCharge</td>
+<td align="left"><strong>91APP Platform</strong>（技術路由）</td>
+<td align="left">商家自行開立</td>
+</tr>
+</tbody></table>
+<p>兩種模式下發票都是商家開，原因如下：</p>
+<ul>
+<li><strong>DirectCharge</strong>：Charge 本身就在商家帳戶，商家是法律上的收款方，自然自開發票。</li>
+<li><strong>DestinationCharge</strong>：雖然 Charge 建在 91APP Platform，但<strong>資金立即 transfer 給商家</strong>，91APP 只收 <code>application_fee</code>（手續費），從未持有貨款。法律上的銷售行為仍屬商家，發票應由商家開立。</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">DestinationCharge</span> 的發票邏輯：</span><br><span class="line"></span><br><span class="line">  誰持有貨款？   → 商家（Connected Account）</span><br><span class="line">  誰是銷售方？   → 商家</span><br><span class="line">  誰開發票？     → 商家</span><br><span class="line">  91APP 角色？   → 平台技術服務提供者（收 application_fee）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三者關係總覽"><a href="#三者關係總覽" class="headerlink" title="三者關係總覽"></a>三者關係總覽</h2><pre class="mermaid">flowchart TD
+    A["InvoiceIssueTypeDef\n商店發票設定"] -->|Issue / OverseaNotIssue| B["ThroughPSP\n91APP 代開發票\n91APP Channel 帳號"]
+    A -->|NotIssue / NoInvoiceRequired| C["DirectToBank\n商家自開發票\n商家 Channel 帳號"]
+
+    D["Stripe\nCreditCardOnce_Stripe"] -->|AppSetting 強制| C
+
+    E["Stripe Standard\nDirectCharge"] --> F["商家 Connected Account\n商家自開發票"]
+    E2["Stripe Custom\nDestinationCharge"] --> G["91APP Platform 路由\n→ 立即 transfer 給商家\n商家自開發票"]
+
+    style B fill:#4A7CB5,color:#fff
+    style C fill:#D4813A,color:#fff
+    style D fill:#7B5EA7,color:#fff
+    style F fill:#5BA85B,color:#fff
+    style G fill:#5BA85B,color:#fff</pre></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-PaymentProcessingMethod/">https://allenlin000.github.io.git/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-PaymentProcessingMethod/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%A8%82%E5%96%AE/">訂單</a><a class="post-meta__tags" href="/tags/%E9%87%91%E6%B5%81/">金流</a><a class="post-meta__tags" href="/tags/ERP/">ERP</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-FlowType/" title="金流 FlowType 決策機制"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/FlowType/landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">金流 FlowType 決策機制</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-message/" title="PMW 金流付款失敗完整流程"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">PMW 金流付款失敗完整流程</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-createTradesOrder/" title="訂單狀態初始化"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/CreateOrder/landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="title">訂單狀態初始化</div></div></a></div><div><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-FinishPayment/" title="FinishPayment"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Order-FinishPayment/landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="title">FinishPayment</div></div></a></div><div><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-ProcessPayment/" title="ProcessPayment"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/OrderProcessPayment/landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="title">ProcessPayment</div></div></a></div><div><a href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-PayProcessContext%E6%8E%A7%E5%88%B6%E6%B5%81%E7%A8%8B/" title="PayProcessContext 流程控制"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-28</div><div class="title">PayProcessContext 流程控制</div></div></a></div><div><a href="/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-FlowType/" title="金流 FlowType 決策機制"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/FlowType/landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-25</div><div class="title">金流 FlowType 決策機制</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">243</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">36</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A9%E6%A2%9D%E8%B7%AF%E7%9A%84%E6%A0%B8%E5%BF%83%E5%B7%AE%E7%95%B0"><span class="toc-number">1.</span> <span class="toc-text">兩條路的核心差異</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A4%E6%96%B7%E4%BE%9D%E6%93%9A%EF%BC%9A%E7%99%BC%E7%A5%A8%E9%96%8B%E7%AB%8B%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">判斷依據：發票開立方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E7%94%A8%E5%8D%A1%E7%9A%84%E7%89%B9%E6%AE%8A%E5%85%A9%E9%9A%8E%E6%AE%B5%EF%BC%88%E5%83%85%E9%99%90-91Payments%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">信用卡的特殊兩階段（僅限 91Payments）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8D-LinePay-JKO-EasyWallet-%E7%9A%84%E5%BD%B1%E9%9F%BF"><span class="toc-number">4.</span> <span class="toc-text">對 LinePay &#x2F; JKO &#x2F; EasyWallet 的影響</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%8E%E9%BA%BC%E6%B5%81%E5%88%B0-ERP%EF%BC%9F"><span class="toc-number">5.</span> <span class="toc-text">怎麼流到 ERP？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NMQ-%E6%90%AC%E9%81%8B%E6%A9%9F%E5%88%B6"><span class="toc-number">6.</span> <span class="toc-text">NMQ 搬運機制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%98%E6%AC%BE%E5%96%AE%EF%BC%88PaymentSlave%EF%BC%89%E2%80%94-91APP-%E6%92%A5%E6%AC%BE%E7%B5%A6%E5%95%86%E5%AE%B6%E7%9A%84%E6%86%91%E8%AD%89"><span class="toc-number">7.</span> <span class="toc-text">付款單（PaymentSlave）— 91APP 撥款給商家的憑證</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AB%8B%E6%AC%BE%E5%96%AE%EF%BC%88PaymentRequest%EF%BC%89%E2%80%94-%E8%B2%A1%E5%8B%99%E5%B0%8D%E5%B8%B3%E7%9A%84-CSV-%E5%A0%B1%E8%A1%A8"><span class="toc-number">8.</span> <span class="toc-text">請款單（PaymentRequest）— 財務對帳的 CSV 報表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%98%E6%AC%BE%E5%96%AE%E5%B0%8D%E5%B8%B3-%E2%80%94-%E7%9B%B4%E6%94%B6%E4%BB%98%E7%9B%B4%E6%8E%A5%E6%8E%92%E9%99%A4"><span class="toc-number">9.</span> <span class="toc-text">付款單對帳 — 直收付直接排除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AB%8B%E6%AC%BE%E5%96%AE-%E9%80%80%E6%AC%BE%E7%94%B3%E8%AB%8B%E5%8C%AF%E5%87%BA-%E2%80%94-%E5%B8%B6%E5%85%A5-CSV-%E6%AC%84%E4%BD%8D"><span class="toc-number">10.</span> <span class="toc-text">請款單 &#x2F; 退款申請匯出 — 帶入 CSV 欄位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stripe-%E7%9A%84%E7%89%B9%E6%AE%8A%E6%80%A7%EF%BC%9A%E8%B7%B3%E8%84%AB%E9%80%99%E5%80%8B%E9%82%8F%E8%BC%AF"><span class="toc-number">11.</span> <span class="toc-text">Stripe 的特殊性：跳脫這個邏輯</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DirectCharge-vs-DestinationCharge-%E7%9A%84%E7%99%BC%E7%A5%A8%E5%BD%B1%E9%9F%BF"><span class="toc-number">12.</span> <span class="toc-text">DirectCharge vs DestinationCharge 的發票影響</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E8%80%85%E9%97%9C%E4%BF%82%E7%B8%BD%E8%A6%BD"><span class="toc-number">13.</span> <span class="toc-text">三者關係總覽</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-PayProcessContext%E6%8E%A7%E5%88%B6%E6%B5%81%E7%A8%8B/" title="PayProcessContext 流程控制"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="PayProcessContext 流程控制"/></a><div class="content"><a class="title" href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-PayProcessContext%E6%8E%A7%E5%88%B6%E6%B5%81%E7%A8%8B/" title="PayProcessContext 流程控制">PayProcessContext 流程控制</a><time datetime="2026-06-28T07:00:00.000Z" title="Created 2026-06-28 15:00:00">2026-06-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-message/" title="PMW 金流付款失敗完整流程"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="PMW 金流付款失敗完整流程"/></a><div class="content"><a class="title" href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-message/" title="PMW 金流付款失敗完整流程">PMW 金流付款失敗完整流程</a><time datetime="2026-06-28T03:00:00.000Z" title="Created 2026-06-28 11:00:00">2026-06-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-PaymentProcessingMethod/" title="PaymentProcessingMethod — 代收付 vs 直收付"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="PaymentProcessingMethod — 代收付 vs 直收付"/></a><div class="content"><a class="title" href="/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-PaymentProcessingMethod/" title="PaymentProcessingMethod — 代收付 vs 直收付">PaymentProcessingMethod — 代收付 vs 直收付</a><time datetime="2026-06-25T15:00:00.000Z" title="Created 2026-06-25 23:00:00">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-FlowType/" title="金流 FlowType 決策機制"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/FlowType/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="金流 FlowType 決策機制"/></a><div class="content"><a class="title" href="/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-FlowType/" title="金流 FlowType 決策機制">金流 FlowType 決策機制</a><time datetime="2026-06-25T09:00:00.000Z" title="Created 2026-06-25 17:00:00">2026-06-25</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
