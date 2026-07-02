@@ -1,0 +1,439 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>QFPay - Pay 設計 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Pay() 是純計算函式 — 整個流程沒有任何網路 IO雙金鑰認證設計 — appcode（公開識別）vs apiKey（私密簽名）雙 Payload String 設計 — Raw（簽名用）vs UrlEncoded（URL 用）Spec與 Cybersource 類似，QFPay 的 Pay 不直接呼叫 API。PMW 只負責組建帶有 SHA256 簽名的付款頁 URL，並回傳 Redirec">
+<meta property="og:type" content="article">
+<meta property="og:title" content="QFPay - Pay 設計">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/07/01/DeepType-Payment-%E9%87%91%E6%B5%81-QFPay-Pay%E6%B5%81%E7%A8%8B%E8%A8%AD%E8%A8%88%E8%A7%80%E5%AF%9F/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="Pay() 是純計算函式 — 整個流程沒有任何網路 IO雙金鑰認證設計 — appcode（公開識別）vs apiKey（私密簽名）雙 Payload String 設計 — Raw（簽名用）vs UrlEncoded（URL 用）Spec與 Cybersource 類似，QFPay 的 Pay 不直接呼叫 API。PMW 只負責組建帶有 SHA256 簽名的付款頁 URL，並回傳 Redirec">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-07-01T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-01T14:55:51.253Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/07/01/DeepType-Payment-%E9%87%91%E6%B5%81-QFPay-Pay%E6%B5%81%E7%A8%8B%E8%A8%AD%E8%A8%88%E8%A7%80%E5%AF%9F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'QFPay - Pay 設計',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-07-01 22:55:51'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">246</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">48</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">QFPay - Pay 設計</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-07-01T08:00:00.000Z" title="Created 2026-07-01 16:00:00">2026-07-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-07-01T14:55:51.253Z" title="Updated 2026-07-01 22:55:51">2026-07-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Payment/">Payment</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="QFPay - Pay 設計"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="qfpay-pay-設計觀察"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="qfpay-pay-設計觀察-1">Pay() 是純計算函式 — 整個流程沒有任何網路 IO</button><button type="button" class="tab " data-href="qfpay-pay-設計觀察-2">雙金鑰認證設計 — appcode（公開識別）vs apiKey（私密簽名）</button><button type="button" class="tab " data-href="qfpay-pay-設計觀察-3">雙 Payload String 設計 — Raw（簽名用）vs UrlEncoded（URL 用）</button><button type="button" class="tab " data-href="qfpay-pay-設計觀察-4">Spec</button></ul><div class="tab-contents"><div class="tab-item-content active" id="qfpay-pay-設計觀察-1"><p>與 Cybersource 類似，QFPay 的 Pay <strong>不直接呼叫 API</strong>。<br>PMW 只負責組建帶有 SHA256 簽名的付款頁 URL，並回傳 <code>Redirect</code> action 讓前台導向。</p>
+<pre class="mermaid">sequenceDiagram
+    participant FE as 前台
+    participant PMW as PMW
+    participant QF as QFPay 付款頁
+
+    FE->>PMW: POST /Pay
+    PMW->>PMW: 組建 QFPay 付款頁 URL（含 SHA256 簽名）
+    PMW-->>FE: Redirect Action（WebPaymentUrl + AppPaymentUrl）
+    FE->>QF: 導向 QFPay 付款頁
+    QF-->>QF: 用戶完成付款
+    alt 成功
+        QF-->>FE: 導向 ReturnUrl
+    else 失敗
+        QF-->>FE: 導向 FailedUrl
+    end
+    QF-->>PMW: 非同步通知 NotifyUrl</pre>
+
+<p>與大多數金流串接不同，QFPay 的 Pay 步驟<strong>完全不走網路</strong>。整個流程就是「收到請求 → 組裝 Entity → 計算簽名 → 拼 URL → 回傳」，全程在記憶體中完成，沒有任何 <code>await</code>：</p>
+<pre class="mermaid">flowchart LR
+    A["POST /Pay"] --> B["組裝\nQFPayCreatePaymentRequestEntity"]
+    B --> C["GetPayloadToDictionary\n反射 + 字母排序 + 空值過濾"]
+    C --> D["SHA256\n純計算"]
+    D --> E["拼 URL"]
+    E --> F["回傳 Redirect Action\n（無任何 await）"]
+
+    style D fill:#4A7CB5,color:#fff
+    style F fill:#5BA85B,color:#fff</pre>
+
+<p>這是 <strong>Hosted Payment Page</strong> 模式的本質：我方後端不初始化交易，只是「組出一個合法的付款入口 URL」，讓瀏覽器帶著這個 URL 跳轉過去，消費者在 QFPay 頁面完成付款。</p>
+<p><strong>這個設計的優點：</strong></p>
+<ul>
+<li>極低延遲：不受 QFPay 服務狀態影響，Pay 永遠快速回應</li>
+<li>無 Timeout 風險：不會因 QFPay API 慢而讓消費者等待</li>
+<li>易測試：Pay 邏輯可以完全 unit test，不需要 mock HTTP</li>
+</ul>
+<p><strong>這個設計的代價：</strong></p>
+<ul>
+<li>失敗無感：Pay 永遠成功（只要能算出 URL）</li>
+<li>錯誤延後：簽名錯誤、參數錯誤要等消費者打開 URL 後才發現（QFPay 頁面回傳 QFSign_Error）</li>
+<li>可觀測性差：無法在 Pay 時期知道 QFPay 是否可用</li>
+</ul>
+<blockquote>
+<p>監控重點因此從「Pay API 成功率」轉移到「付款頁面的 QFSign_Error 發生率」與「QueryPayment 的成功率」。<br>這是與 Stripe、Cybersource 等 API-first 模式金流截然不同的觀測維度。</p>
+</blockquote></div><div class="tab-item-content" id="qfpay-pay-設計觀察-2"><p>QFPay 的認證設計將「身份識別」與「請求完整性驗證」分成兩把 Key，各司其職：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Key</th>
+<th align="left">出現位置</th>
+<th align="left">目的</th>
+<th align="left">可見性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>X-Api-Code</code>（appcode）</td>
+<td align="left">payload 的 <code>appcode</code> 欄位，進入 URL</td>
+<td align="left">識別是哪一個商戶</td>
+<td align="left"><strong>公開</strong>（出現在 URL）</td>
+</tr>
+<tr>
+<td align="left"><code>X-Api-Key</code>（apiKey）</td>
+<td align="left">只用於 SHA256 計算尾端，不進 payload</td>
+<td align="left">防偽造，驗證請求完整性</td>
+<td align="left"><strong>私密</strong>（不出現在 URL）</td>
+</tr>
+</tbody></table>
+<p>QFPay 收到付款頁請求後的驗證邏輯：</p>
+<pre class="mermaid">flowchart TD
+    A["Step 1\n解析 URL 所有 params"] --> B["Step 2\n取出 sign，並從 params 移除"]
+    B --> C["Step 3\n用 appcode 查出對應的 apiKey\n（QFPay 後台存著）"]
+    C --> D["Step 4\n對剩餘 params URL Decode\n→ 字母排序 → key=value& 串接"]
+    D --> E["Step 5\nSHA256(rawPayloadString + apiKey)\n→ lowercase hex"]
+    E --> F{"Step 6\n比對結果與 sign 是否相同"}
+    F -->|相同| G["驗證通過"]
+    F -->|不同| H["驗證失敗"]
+
+    style G fill:#5BA85B,color:#fff
+    style H fill:#D9534F,color:#fff</pre>
+
+<p><strong>appcode 進入 payload 並被簽名的意義</strong>：這樣可以防止「替換 appcode 攻擊」。若攻擊者截取到一個合法 URL，嘗試把 appcode 換成自己的，簽名會立刻失效，因為 sign 是針對「含原始 appcode 的 payload + 原始 apiKey」計算的。</p></div><div class="tab-item-content" id="qfpay-pay-設計觀察-3"><p>程式碼中有一段乍看之下很費解：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> payloadKeyValuePairs       = GetPayloadToDictionary(qfPayPayload);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 組了兩次，只差一個 bool</span></span><br><span class="line"><span class="keyword">var</span> payloadStringWithoutEncode = GetPayloadString(payloadKeyValuePairs, <span class="literal">false</span>); <span class="comment">// Raw</span></span><br><span class="line"><span class="keyword">var</span> payloadString              = GetPayloadString(payloadKeyValuePairs, <span class="literal">true</span>);  <span class="comment">// UrlEncoded</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> signature  = GenerateSha256Signature(payloadStringWithoutEncode, apiKey); <span class="comment">// Raw 算簽名</span></span><br><span class="line"><span class="keyword">var</span> payPageUrl = <span class="string">$&quot;<span class="subst">&#123;payUrl&#125;</span><span class="subst">&#123;payloadString&#125;</span>&amp;sign=<span class="subst">&#123;signature&#125;</span>&quot;</span>;                 <span class="comment">// Encoded 組 URL</span></span><br></pre></td></tr></table></figure>
+
+<p>同樣一份 Payload，為什麼要組兩次？</p>
+<p><strong>這是傳輸空間與計算空間的分離。</strong></p>
+<p>URL 要能被瀏覽器安全傳遞，所有特殊字符（<code>:</code>、<code>/</code>、<code>=</code>、<code>&amp;</code>）都必須被 URL Encode。但簽名計算需要的是原始字符串，不能是 Encoded 過後的版本。兩者的差異如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">Raw String（簽名計算用）</th>
+<th align="left">UrlEncoded String（URL query string 用）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>return_url</code></td>
+<td align="left"><code>https://shop.91dev.tw/V2/...?shopId=2&amp;k=xxx</code></td>
+<td align="left"><code>https%3A%2F%2Fshop.91dev.tw%2FV2%2F...%3FshopId%3D2%26k%3Dxxx</code></td>
+</tr>
+<tr>
+<td align="left"><code>txdtm</code></td>
+<td align="left"><code>2024-06-18 13:00:00</code></td>
+<td align="left"><code>2024-06-18+13%3A00%3A00</code></td>
+</tr>
+<tr>
+<td align="left">特徵</td>
+<td align="left"><code>:</code>、<code>/</code>、空格皆保留原樣</td>
+<td align="left">所有特殊字符皆被編碼</td>
+</tr>
+</tbody></table>
+<pre class="mermaid">flowchart LR
+    A["payloadKeyValuePairs\n（同一份 Dictionary）"] --> B["GetPayloadString(false)\nRaw"]
+    A --> C["GetPayloadString(true)\nUrlEncoded"]
+    B --> D["GenerateSha256Signature\n算出 signature"]
+    C --> E["payPageUrl = payUrl + payloadString\n+ &sign=signature"]
+    D --> E
+
+    style B fill:#4A7CB5,color:#fff
+    style C fill:#7B5EA7,color:#fff</pre>
+
+<p><strong>為什麼 sign 放在最末端、且不進入簽名計算？</strong></p>
+<p>這是避免循環依賴的必要設計：</p>
+<pre class="mermaid">flowchart LR
+    A["若 sign 進入 payload"] --> B["payload = appcode=...&sign=???"]
+    B --> C["signature = SHA256(payload + apiKey)"]
+    C --> D["但 sign 的值 = signature\nsignature 依賴 payload\npayload 又依賴 sign"]
+    D --> E["❌ 無法計算"]
+
+    style E fill:#D9534F,color:#fff</pre>
+
+<p>sign 必須在 payload 排序完成、簽名計算結束之後才能附加。這也意味著 QFPay 在驗證時必須先取出 sign，再對剩餘欄位計算，不能把 sign 也納入驗算。</p>
+<p><strong>隱藏的 UrlEncode 對稱性風險：</strong></p>
+<p>PMW 用 <code>WebUtility.UrlEncode()</code> 編碼，空格會被編碼為 <code>+</code>。QFPay 在驗證時若把 <code>+</code> 解讀為 <code>%20</code>（URL Decode 的標準行為），則能還原成空格，驗簽成功。但若 QFPay 直接把 <code>+</code> 當成 <code>+</code>，Raw 字串就與我方計算的不同，驗簽永遠失敗。這個不對稱問題極難 debug。</p></div><div class="tab-item-content" id="qfpay-pay-設計觀察-4"><h2 id="URL"><a href="#URL" class="headerlink" title="URL"></a>URL</h2><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:<span class="regexp">//</span>openapi-hk.qfapi.com<span class="regexp">/checkstand/</span><span class="comment">#/?&#123;qstring&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Request-Header（所有-REST-API-通用）"><a href="#Request-Header（所有-REST-API-通用）" class="headerlink" title="Request Header（所有 REST API 通用）"></a>Request Header（所有 REST API 通用）</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Content</span>-Type: application/x-www-form-urlencoded</span><br><span class="line">X-QF-APPCODE: &#123;apiCode&#125;         ← 來自 <span class="selector-tag">header</span> X-Api-<span class="selector-tag">Code</span></span><br><span class="line">X-QF-SIGN: &#123;sha256_signature&#125;</span><br><span class="line">X-QF-SIGNTYPE: SHA256</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Pay-Payload-欄位對照"><a href="#Pay-Payload-欄位對照" class="headerlink" title="Pay Payload 欄位對照"></a>Pay Payload 欄位對照</h2><table>
+<thead>
+<tr>
+<th>QFPay 欄位</th>
+<th>說明</th>
+<th>來源</th>
+<th>必填</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>appcode</code></td>
+<td>API 憑證</td>
+<td>header <code>X-Api-Code</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>sign_type</code></td>
+<td>簽名類型，固定 <code>&quot;sha256&quot;</code></td>
+<td>硬碼</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>paysource</code></td>
+<td>付款來源，固定 <code>&quot;91App_checkout&quot;</code></td>
+<td>硬碼</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>txamt</code></td>
+<td>付款金額（× 100 最小單位）</td>
+<td><code>request.Amount * 100</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>txcurrcd</code></td>
+<td>幣別（如 <code>HKD</code>）</td>
+<td><code>request.Currency</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>out_trade_no</code></td>
+<td>外部訂單號（TG Code）</td>
+<td><code>request.TradesOrderGroupCode</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>txdtm</code></td>
+<td>訂單時間（<code>yyyy-MM-dd hh:mm:ss</code>）</td>
+<td><code>ExtendInfo.OrderDateTime</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>return_url</code></td>
+<td>付款成功導向 URL</td>
+<td><code>ExtendInfo.ReturnUrl</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>failed_url</code></td>
+<td>付款失敗導向 URL</td>
+<td><code>ExtendInfo.FailedUrl</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>notify_url</code></td>
+<td>非同步通知 URL</td>
+<td><code>ExtendInfo.NotifyUrl</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>goods_name</code></td>
+<td>商品名稱（最大 64 字，不含特殊字元）</td>
+<td><code>ExtendInfo.GoodsName</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>mchntid</code></td>
+<td>代理商商戶識別碼（最大 16 字元）</td>
+<td><code>ExtendInfo.Mchntid</code></td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>txzone</code></td>
+<td>時區（預設 <code>+0800</code>）</td>
+<td><code>ExtendInfo.TimeZone</code></td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>lang</code></td>
+<td>UI 語言（<code>zh-hk</code>&#x2F;<code>zh-cn</code>&#x2F;<code>en</code>）</td>
+<td><code>ExtendInfo.Lang</code></td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>expired_time</code></td>
+<td>QR Code 到期時間（分鐘，5~120）</td>
+<td><code>ExtendInfo.ExpiredTime</code></td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>checkout_expired_time</code></td>
+<td>客戶端結帳到期時間（毫秒）</td>
+<td><code>ExtendInfo.CheckoutExpiredTime</code></td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<h2 id="Pay-回傳結構"><a href="#Pay-回傳結構" class="headerlink" title="Pay 回傳結構"></a>Pay 回傳結構</h2><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;ReturnCode&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2003&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;ReturnMessage&quot;</span><span class="punctuation">:</span> <span class="string">&quot;付款頁面成功產出&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;TransactionId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Redirect&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;WebPaymentUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;https://o2-hk.qfapi.com/...?appcode=xxx&amp;...&amp;sign=abc123&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;AppPaymentUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;https://o2-hk.qfapi.com/...?appcode=xxx&amp;...&amp;sign=abc123&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;RedirectHttpMethod&quot;</span><span class="punctuation">:</span> <span class="string">&quot;POST&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;ExtendInfo&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;paymantPageUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;https://o2-hk.qfapi.com/...&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/07/01/DeepType-Payment-%E9%87%91%E6%B5%81-QFPay-Pay%E6%B5%81%E7%A8%8B%E8%A8%AD%E8%A8%88%E8%A7%80%E5%AF%9F/">https://allenlin000.github.io.git/2026/07/01/DeepType-Payment-%E9%87%91%E6%B5%81-QFPay-Pay%E6%B5%81%E7%A8%8B%E8%A8%AD%E8%A8%88%E8%A7%80%E5%AF%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/30/DeepType-Payment-%E9%87%91%E6%B5%81-ThirdPartyPaymentReCheck/" title="ThirdPartyPaymentReCheck — 背景補撈 Job"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Payment-RecheckJob/landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">ThirdPartyPaymentReCheck — 背景補撈 Job</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">246</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">48</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#URL"><span class="toc-number">1.</span> <span class="toc-text">URL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Request-Header%EF%BC%88%E6%89%80%E6%9C%89-REST-API-%E9%80%9A%E7%94%A8%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">Request Header（所有 REST API 通用）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pay-Payload-%E6%AC%84%E4%BD%8D%E5%B0%8D%E7%85%A7"><span class="toc-number">3.</span> <span class="toc-text">Pay Payload 欄位對照</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pay-%E5%9B%9E%E5%82%B3%E7%B5%90%E6%A7%8B"><span class="toc-number">4.</span> <span class="toc-text">Pay 回傳結構</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/01/DeepType-Payment-%E9%87%91%E6%B5%81-QFPay-Pay%E6%B5%81%E7%A8%8B%E8%A8%AD%E8%A8%88%E8%A7%80%E5%AF%9F/" title="QFPay - Pay 設計"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="QFPay - Pay 設計"/></a><div class="content"><a class="title" href="/2026/07/01/DeepType-Payment-%E9%87%91%E6%B5%81-QFPay-Pay%E6%B5%81%E7%A8%8B%E8%A8%AD%E8%A8%88%E8%A7%80%E5%AF%9F/" title="QFPay - Pay 設計">QFPay - Pay 設計</a><time datetime="2026-07-01T08:00:00.000Z" title="Created 2026-07-01 16:00:00">2026-07-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/30/DeepType-Payment-%E9%87%91%E6%B5%81-ThirdPartyPaymentReCheck/" title="ThirdPartyPaymentReCheck — 背景補撈 Job"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Payment-RecheckJob/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ThirdPartyPaymentReCheck — 背景補撈 Job"/></a><div class="content"><a class="title" href="/2026/06/30/DeepType-Payment-%E9%87%91%E6%B5%81-ThirdPartyPaymentReCheck/" title="ThirdPartyPaymentReCheck — 背景補撈 Job">ThirdPartyPaymentReCheck — 背景補撈 Job</a><time datetime="2026-06-30T06:00:00.000Z" title="Created 2026-06-30 14:00:00">2026-06-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/29/DeepType-Architecture-%E9%87%91%E6%B5%81-CreditCardGatewayType/" title="CreditCardGatewayType — 信用卡閘道路由機制"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/CreditCardGatewayType/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CreditCardGatewayType — 信用卡閘道路由機制"/></a><div class="content"><a class="title" href="/2026/06/29/DeepType-Architecture-%E9%87%91%E6%B5%81-CreditCardGatewayType/" title="CreditCardGatewayType — 信用卡閘道路由機制">CreditCardGatewayType — 信用卡閘道路由機制</a><time datetime="2026-06-29T13:00:00.000Z" title="Created 2026-06-29 21:00:00">2026-06-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-PayProcessContext%E6%8E%A7%E5%88%B6%E6%B5%81%E7%A8%8B/" title="PayProcessContext 流程控制"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Payment-context/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="PayProcessContext 流程控制"/></a><div class="content"><a class="title" href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-PayProcessContext%E6%8E%A7%E5%88%B6%E6%B5%81%E7%A8%8B/" title="PayProcessContext 流程控制">PayProcessContext 流程控制</a><time datetime="2026-06-28T07:00:00.000Z" title="Created 2026-06-28 15:00:00">2026-06-28</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,444 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>CreditCardGatewayType — 信用卡閘道路由機制 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="CreditCardGatewayType 是什麼？決定邏輯：Cart → mwebPipeline 分流影響PMW（PaymentMiddleWare）的具體行為完整流程總覽設計缺點改善策略CreditCardGatewayType 是一張路由票，決定這筆信用卡訂單要讓哪個 Gateway 執行實際授權。 1234567891011121314public enum PayProcessCred">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CreditCardGatewayType — 信用卡閘道路由機制">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/06/29/DeepType-Architecture-%E9%87%91%E6%B5%81-CreditCardGatewayType/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="CreditCardGatewayType 是什麼？決定邏輯：Cart → mwebPipeline 分流影響PMW（PaymentMiddleWare）的具體行為完整流程總覽設計缺點改善策略CreditCardGatewayType 是一張路由票，決定這筆信用卡訂單要讓哪個 Gateway 執行實際授權。 1234567891011121314public enum PayProcessCred">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/CreditCardGatewayType/landing.png">
+<meta property="article:published_time" content="2026-06-29T13:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-30T00:08:22.429Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="訂單">
+<meta property="article:tag" content="金流">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/CreditCardGatewayType/landing.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/06/29/DeepType-Architecture-%E9%87%91%E6%B5%81-CreditCardGatewayType/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'CreditCardGatewayType — 信用卡閘道路由機制',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-30 08:08:22'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">246</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">48</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/CreditCardGatewayType/landing.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">CreditCardGatewayType — 信用卡閘道路由機制</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-06-29T13:00:00.000Z" title="Created 2026-06-29 21:00:00">2026-06-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-06-30T00:08:22.429Z" title="Updated 2026-06-30 08:08:22">2026-06-30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9E%B6%E6%A7%8B%E3%81%AE%E6%B5%B7%E3%81%AB%E7%81%AF%E3%82%8B%E6%98%9F/">架構の海に灯る星</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="CreditCardGatewayType — 信用卡閘道路由機制"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="creditcardgatewaytype"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="creditcardgatewaytype-1">CreditCardGatewayType 是什麼？</button><button type="button" class="tab " data-href="creditcardgatewaytype-2">決定邏輯：Cart → mweb</button><button type="button" class="tab " data-href="creditcardgatewaytype-3">Pipeline 分流影響</button><button type="button" class="tab " data-href="creditcardgatewaytype-4">PMW（PaymentMiddleWare）的具體行為</button><button type="button" class="tab " data-href="creditcardgatewaytype-5">完整流程總覽</button><button type="button" class="tab " data-href="creditcardgatewaytype-6">設計缺點</button><button type="button" class="tab " data-href="creditcardgatewaytype-7">改善策略</button></ul><div class="tab-contents"><div class="tab-item-content active" id="creditcardgatewaytype-1"><p><code>CreditCardGatewayType</code> 是一張<strong>路由票</strong>，決定這筆信用卡訂單要讓哪個 Gateway 執行實際授權。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">enum</span> PayProcessCreditCardGatewayTypeEnum</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span>聯卡中心（台灣本地信用卡，舊版主流）<span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    NCCC = <span class="number">0</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span>TapPay SDK（帶 Prime Token）<span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    TapPay = <span class="number">1</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span>九一金流（帶 CardToken + IssuerBankCode）<span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    Nine1Payment = <span class="number">2</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span>PMW 跨國金流（Stripe / CheckoutDotCom / KPay...）<span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line">    PaymentMiddleWare = <span class="number">3</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>預設值</strong>：<code>PayProcessContextEntity</code> 初始化時預設 <code>NCCC</code>（context 第 57 行）</p>
+<h2 id="四個-Gateway-各代表什麼？"><a href="#四個-Gateway-各代表什麼？" class="headerlink" title="四個 Gateway 各代表什麼？"></a>四個 Gateway 各代表什麼？</h2><table>
+<thead>
+<tr>
+<th align="left">值</th>
+<th align="left">代表 Gateway</th>
+<th align="left">授權方式</th>
+<th align="left">典型付款方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>NCCC</code></td>
+<td align="left">聯卡中心</td>
+<td align="left">直連 NCCC API</td>
+<td align="left">台灣信用卡一次付清、分期</td>
+</tr>
+<tr>
+<td align="left"><code>TapPay</code></td>
+<td align="left">TapPay SDK</td>
+<td align="left">帶 Prime Token 呼叫 TapPay</td>
+<td align="left">TapPay 刷卡、Apple Pay (TW)</td>
+</tr>
+<tr>
+<td align="left"><code>Nine1Payment</code></td>
+<td align="left">九一金流</td>
+<td align="left">帶 CardToken 呼叫 91Payments</td>
+<td align="left">91Payments 信用卡</td>
+</tr>
+<tr>
+<td align="left"><code>PaymentMiddleWare</code></td>
+<td align="left">PMW 統一代理層</td>
+<td align="left">轉發到 PMW，由 PMW 選 Plugin</td>
+<td align="left">Stripe、CheckoutDotCom、KPay、Razer…</td>
+</tr>
+</tbody></table>
+<h2 id="和-FlowType-的關係"><a href="#和-FlowType-的關係" class="headerlink" title="和 FlowType 的關係"></a>和 FlowType 的關係</h2><p><code>CreditCardGatewayType</code> 是在 <code>FlowType</code> 框架內的<strong>第二層路由</strong>。</p>
+<pre class="mermaid">flowchart TD
+    A["PayProcessFlowType\n第一層路由"] -->|CreditCardProcess| B["CreditCardGatewayType\n第二層路由"]
+    A -->|ThirdPartyProcess| C["PaymentMiddleWare\n（CreditCardGatewayType 固定為 PMW）"]
+    B --> D["NCCC"]
+    B --> E["TapPay"]
+    B --> F["Nine1Payment"]
+
+    style A fill:#4A7CB5,color:#fff
+    style B fill:#7B5EA7,color:#fff
+    style C fill:#5BA85B,color:#fff</pre>
+
+<ul>
+<li><code>ThirdPartyProcess</code>（PMW 金流）→ CreditCardGatewayType 幾乎固定為 <code>PaymentMiddleWare</code></li>
+<li><code>CreditCardProcess</code>（台灣信用卡直連）→ 才需要進一步看是 NCCC &#x2F; TapPay &#x2F; Nine1Payment</li>
+</ul></div><div class="tab-item-content" id="creditcardgatewaytype-2"><p><code>CreditCardGatewayType</code> 由 <strong>Cart 端</strong>的 <code>GetPayDataProcessor</code> 決定，透過 <code>CompleteForNewCartV2</code> POST body 帶給 mweb。</p>
+<pre class="mermaid">flowchart LR
+    A["前端結帳\nCheckoutOrderCompleteRequest"] --> B["Cart\nGetPayDataProcessor"]
+    B --> C{"決定 CreditCardGatewayType"}
+    C --> D["OldPayProcessContext\n（context）"]
+    D -->|POST| E["mweb\nCompleteForNewCartV2"]
+    E --> F["Request.ToTypedObject\n直接還原整個 context"]
+    F --> G["_payProcessService\n.CreateTradesOrder(context)"]
+
+    style B fill:#4A7CB5,color:#fff
+    style E fill:#7B5EA7,color:#fff</pre>
+
+
+<h2 id="Step-1：查-ShopStaticSetting-→-OriginalCreditCardGatewayType"><a href="#Step-1：查-ShopStaticSetting-→-OriginalCreditCardGatewayType" class="headerlink" title="Step 1：查 ShopStaticSetting → OriginalCreditCardGatewayType"></a>Step 1：查 ShopStaticSetting → OriginalCreditCardGatewayType</h2><figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">group:</span> PaymentServiceProvider</span><br><span class="line"><span class="symbol">key:</span>   &lt;PayProfileType&gt;（如 CreditCardOnce_Stripe）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>有值 → Parse 為 enum，設為 <code>OriginalCreditCardGatewayType</code></li>
+<li>無值 → 預設 <code>PaymentMiddleWare</code></li>
+</ul>
+<h2 id="Step-2：決定最終-CreditCardGatewayType"><a href="#Step-2：決定最終-CreditCardGatewayType" class="headerlink" title="Step 2：決定最終 CreditCardGatewayType"></a>Step 2：決定最終 CreditCardGatewayType</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (checkoutContext.Request.CreditCardGatewayType.IsNullOrWhiteSpace())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 前端沒帶 → 使用 Step 1 的值</span></span><br><span class="line">    payProcessContext.CreditCardGatewayType = payProcessContext.OriginalCreditCardGatewayType;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 前端有帶 → 以前端傳入的值為主</span></span><br><span class="line">    payProcessContext.CreditCardGatewayType = (PayProcessCreditCardGatewayTypeEnum)</span><br><span class="line">        Enum.Parse(<span class="keyword">typeof</span>(PayProcessCreditCardGatewayTypeEnum),</span><br><span class="line">                   checkoutContext.Request.CreditCardGatewayType, <span class="literal">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="特殊情境：Apple-Pay-強制-Nine1Payment"><a href="#特殊情境：Apple-Pay-強制-Nine1Payment" class="headerlink" title="特殊情境：Apple Pay 強制 Nine1Payment"></a>特殊情境：Apple Pay 強制 Nine1Payment</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Cart 端直接強制覆蓋</span></span><br><span class="line">payProcessContext.CreditCardGatewayType = PayProcessCreditCardGatewayTypeEnum.Nine1Payment;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="GetCreditCardGateway-優先序"><a href="#GetCreditCardGateway-優先序" class="headerlink" title="GetCreditCardGateway 優先序"></a>GetCreditCardGateway 優先序</h2><figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. ShopStaticSetting (shopId=<span class="number">0</span> 全域)</span><br><span class="line">   <span class="keyword">group</span>: CreditCard / <span class="keyword">key</span>: PaymentServiceProviderSetting</span><br><span class="line">   → IsActive=<span class="literal">true</span> 且 shopId 不在 ExcludeShopIdList</span><br><span class="line">   → 回傳 PaymentServiceProvider</span><br><span class="line"></span><br><span class="line"><span class="number">2</span>. Fallback → ShopDefault</span><br><span class="line">   <span class="keyword">group</span>: CreditCard / <span class="keyword">key</span>: PaymentGatewayType</span><br><span class="line"></span><br><span class="line"><span class="number">3</span>. 若以上皆空 → 預設 NCCC</span><br></pre></td></tr></table></figure></div><div class="tab-item-content" id="creditcardgatewaytype-3"><p><code>CreditCardGatewayType</code> 在 mweb 的 Processor Pipeline 裡共有 <strong>7 個分流點</strong>，每個點的行為完全不同。</p>
+<h2 id="CheckCreditCardProcessor-—-格式驗證"><a href="#CheckCreditCardProcessor-—-格式驗證" class="headerlink" title="CheckCreditCardProcessor — 格式驗證"></a>CheckCreditCardProcessor — 格式驗證</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TapPay / Nine1Payment → 不做 NCCC 格式驗證，直接略過</span></span><br><span class="line"><span class="keyword">if</span> (CreditCardGatewayType == TapPay || CreditCardGatewayType == Nine1Payment)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// NCCC / PaymentMiddleWare → 繼續做卡號格式驗證</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="ArrangeDataProcessor-—-收單行設定"><a href="#ArrangeDataProcessor-—-收單行設定" class="headerlink" title="ArrangeDataProcessor — 收單行設定"></a>ArrangeDataProcessor — 收單行設定</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 僅 TapPay / Nine1Payment 才從卡片資訊取 AcquiringBankCode</span></span><br><span class="line"><span class="keyword">if</span> (PayProcessFlowType == CreditCardProcess</span><br><span class="line">    &amp;&amp; (CreditCardGatewayType == TapPay || CreditCardGatewayType == Nine1Payment)</span><br><span class="line">    &amp;&amp; IsNeedCreditCheck == <span class="literal">false</span>)</span><br><span class="line">&#123;</span><br><span class="line">    AcquiringBankInfo.AcquiringBankCode =</span><br><span class="line">        CreditCardGatewayType == TapPay</span><br><span class="line">            ? TapPayCardInfo.BankId</span><br><span class="line">            : PaymentInfo.CreditCardInfo.IssuerBankCode;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// NCCC / PaymentMiddleWare → 使用預設收單行代號</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="AuthProcessor-—-實際發起授權（核心分流）"><a href="#AuthProcessor-—-實際發起授權（核心分流）" class="headerlink" title="AuthProcessor — 實際發起授權（核心分流）"></a>AuthProcessor — 實際發起授權（核心分流）</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 設定 PaymentServiceProvider 欄位（下游路由依據）</span></span><br><span class="line">paymentRequest.PaymentServiceProvider = context.CreditCardGatewayType.ToString();</span><br><span class="line"></span><br><span class="line"><span class="comment">// NCCC / TapPay → 查 ShopPaymentGateway 取 MerchantId / TerminalId</span></span><br><span class="line"><span class="keyword">if</span> (CreditCardGatewayType == NCCC || CreditCardGatewayType == TapPay)</span><br><span class="line">&#123;</span><br><span class="line">    paymentRequest.GatewayName    = shopPaymentGateway.AcquiringBankCode;</span><br><span class="line">    paymentRequest.MerchantId     = shopPaymentGateway.MerchantId;</span><br><span class="line">    paymentRequest.TerminalId     = shopPaymentGateway.TerminalId;</span><br><span class="line">    paymentRequest.ProxyMerchantId = (CreditCardGatewayType == TapPay)</span><br><span class="line">        ? shopPaymentGateway.ProxyMerchantId : <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Nine1Payment / PaymentMiddleWare → 不查 ShopPaymentGateway</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">switch</span> (CreditCardGatewayType)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">case</span> TapPay:</span><br><span class="line">        → GetPaymentResponseAndProcessAuthDataByTapPay()</span><br><span class="line">    <span class="keyword">case</span> Nine1Payment:</span><br><span class="line">        → GetPaymentResponseAndProcessAuthDataByNine1Payment()</span><br><span class="line">    <span class="literal">default</span>: <span class="comment">// NCCC + PaymentMiddleWare 共用</span></span><br><span class="line">        → PaymentService.CreateAuth(paymentRequest)</span><br><span class="line">        <span class="comment">// paymentRequest.PaymentServiceProvider = &quot;PaymentMiddleWare&quot;</span></span><br><span class="line">        <span class="comment">// 讓下游知道要路由到 PMW</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>PMW 核心</strong>：走 <code>default</code> 分支，<code>paymentRequest.PaymentServiceProvider = &quot;PaymentMiddleWare&quot;</code> 告知下游路由到 PMW，而非 NCCC 直連。</p>
+</blockquote>
+<h2 id="MapToTradesOrderProcessor-—-訂單-Secret-寫入"><a href="#MapToTradesOrderProcessor-—-訂單-Secret-寫入" class="headerlink" title="MapToTradesOrderProcessor — 訂單 Secret 寫入"></a>MapToTradesOrderProcessor — 訂單 Secret 寫入</h2><pre class="mermaid">flowchart TD
+    A["CreditCardGatewayType"] -->|TapPay| B["TapPayCardInfo\n→ LastFour / IdentificationCode"]
+    A -->|Nine1Payment| C["PaymentInfo.CreditCardInfo\n→ FirstSix / LastFour"]
+    A -->|"NCCC / PaymentMiddleWare"| D["不特別寫入卡資料\n（PMW 授權後另外回填 CreditCardInfo）"]
+    A -->|"ApplePay + Nine1Payment 特例"| E["GetCreditCardTradesOrderSecret\n(PaymentInfo.CreditCardInfo)"]
+
+    style B fill:#4A7CB5,color:#fff
+    style C fill:#7B5EA7,color:#fff
+    style D fill:#888,color:#fff
+    style E fill:#D4813A,color:#fff</pre>
+
+
+<h2 id="AfterOrderProcessor-—-快速結帳卡資訊組裝"><a href="#AfterOrderProcessor-—-快速結帳卡資訊組裝" class="headerlink" title="AfterOrderProcessor — 快速結帳卡資訊組裝"></a>AfterOrderProcessor — 快速結帳卡資訊組裝</h2><p>訂單成立後，組 <code>PayTypeExpressCreditCardEntity</code> 的資料來源因 Gateway 不同而完全不同：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (CreditCardGatewayType)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">case</span> TapPay:</span><br><span class="line">    <span class="keyword">case</span> NCCC:</span><br><span class="line">        → TapPayCardInfo.LastFour / IdentificationCode / BankId</span><br><span class="line"></span><br><span class="line">    <span class="keyword">case</span> Nine1Payment:</span><br><span class="line">        → PaymentInfo.CreditCardInfo.FirstSix + LastFour + ExpiryDate</span><br><span class="line"></span><br><span class="line">    <span class="keyword">case</span> PaymentMiddleWare:</span><br><span class="line">        → context.CreditCardInfo.Brand          <span class="comment">// 卡組織（Visa / MasterCard...）</span></span><br><span class="line">          context.CreditCardInfo.CreditCardNo   <span class="comment">// 遮罩卡號</span></span><br><span class="line">          context.CreditCardInfo.CreditCardDate <span class="comment">// 效期</span></span><br><span class="line"></span><br><span class="line">    <span class="literal">default</span>:</span><br><span class="line">        → 空資料</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="CreateRegularOrderProcessor-—-定期購-Token-記錄"><a href="#CreateRegularOrderProcessor-—-定期購-Token-記錄" class="headerlink" title="CreateRegularOrderProcessor — 定期購 Token 記錄"></a>CreateRegularOrderProcessor — 定期購 Token 記錄</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (CreditCardGatewayType)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">case</span> TapPay:</span><br><span class="line">    <span class="keyword">case</span> NCCC:</span><br><span class="line">        → TapPayCardInfo.CreditCardToken / CreditCardKey / IdentificationCode</span><br><span class="line"></span><br><span class="line">    <span class="keyword">case</span> Nine1Payment:</span><br><span class="line">        → PaymentInfo.CreditCardInfo.CardToken + IssuerBankCode + FirstSix + LastFour</span><br><span class="line">        <span class="comment">// Nine1Payment 額外記錄 bank_code / first_six / last_four</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// PaymentMiddleWare → 無 case</span></span><br><span class="line">    <span class="comment">// 定期購目前不支援 PMW</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="分流影響總覽"><a href="#分流影響總覽" class="headerlink" title="分流影響總覽"></a>分流影響總覽</h2><table>
+<thead>
+<tr>
+<th align="left">Processor</th>
+<th align="center">NCCC</th>
+<th align="center">TapPay</th>
+<th align="center">Nine1Payment</th>
+<th align="center">PaymentMiddleWare</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>CheckCreditCardProcessor</code></td>
+<td align="center">✅ 驗證格式</td>
+<td align="center">❌ 跳過</td>
+<td align="center">❌ 跳過</td>
+<td align="center">✅ 驗證格式</td>
+</tr>
+<tr>
+<td align="left"><code>ArrangeDataProcessor</code>（收單行）</td>
+<td align="center">❌ 不設定</td>
+<td align="center">✅ 從 TapPayCardInfo 取</td>
+<td align="center">✅ 從 CreditCardInfo 取</td>
+<td align="center">❌ 不設定</td>
+</tr>
+<tr>
+<td align="left"><code>AuthProcessor</code>（查 ShopGateway）</td>
+<td align="center">✅ 查 MerchantId</td>
+<td align="center">✅ 查 MerchantId</td>
+<td align="center">❌ 不查</td>
+<td align="center">❌ 不查</td>
+</tr>
+<tr>
+<td align="left"><code>AuthProcessor</code>（授權方法）</td>
+<td align="center"><code>CreateAuth</code> (default)</td>
+<td align="center"><code>ByTapPay</code></td>
+<td align="center"><code>ByNine1Payment</code></td>
+<td align="center"><code>CreateAuth</code> (default)</td>
+</tr>
+<tr>
+<td align="left"><code>MapToTradesOrderProcessor</code></td>
+<td align="center">❌ 不寫卡資料</td>
+<td align="center">✅ TapPayCardInfo</td>
+<td align="center">✅ CreditCardInfo</td>
+<td align="center">❌ 不寫（PMW 另回填）</td>
+</tr>
+<tr>
+<td align="left"><code>AfterOrderProcessor</code>（卡資訊來源）</td>
+<td align="center">TapPayCardInfo</td>
+<td align="center">TapPayCardInfo</td>
+<td align="center">CreditCardInfo</td>
+<td align="center"><strong>context.CreditCardInfo</strong></td>
+</tr>
+<tr>
+<td align="left"><code>CreateRegularOrderProcessor</code></td>
+<td align="center">✅ TapPay Token</td>
+<td align="center">✅ TapPay Token</td>
+<td align="center">✅ Nine1Payment Token</td>
+<td align="center">❌ 不支援</td>
+</tr>
+</tbody></table></div><div class="tab-item-content" id="creditcardgatewaytype-4"><p><code>PaymentMiddleWare</code> 是四個 Gateway 中<strong>設計最不一樣</strong>的一個</p>
+<h2 id="PMW-授權後的特殊回填：context-CreditCardInfo"><a href="#PMW-授權後的特殊回填：context-CreditCardInfo" class="headerlink" title="PMW 授權後的特殊回填：context.CreditCardInfo"></a>PMW 授權後的特殊回填：context.CreditCardInfo</h2><p>NCCC &#x2F; TapPay &#x2F; Nine1Payment 在建單前就知道卡資訊（帶進 context），但 <strong>PMW 的卡資訊是授權後才由 PMW 回傳</strong>。</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">NCCC / TapPay / Nine1Payment：</span><br><span class="line">  前端 → 帶卡資訊進 <span class="built_in">context</span> → 建單 → 授權</span><br><span class="line">  （建單前就有卡號）</span><br><span class="line"></span><br><span class="line">PaymentMiddleWare：</span><br><span class="line">  前端 → 帶卡資訊進 <span class="built_in">context</span> → 建單 → 呼叫 PMW 授權 → PMW 回傳卡資訊</span><br><span class="line">  → 授權成功後回填 <span class="built_in">context</span>.CreditCardInfo</span><br><span class="line">  （建單前卡資料尚未確認）</span><br></pre></td></tr></table></figure>
+
+<p>因此 <code>AfterOrderProcessor</code> 對 PMW 要從 <strong><code>context.CreditCardInfo</code></strong> 取資料，而非 <code>TapPayCardInfo</code> 或 <code>PaymentInfo.CreditCardInfo</code>。</p></div><div class="tab-item-content" id="creditcardgatewaytype-5"><pre class="mermaid">flowchart TD
+    A["用戶選擇付款方式\n（PayProfileType）"] --> B["Cart\nGetPayDataProcessor\n決定 CreditCardGatewayType"]
+
+    B -->|"CreditCardOnce\nCreditCardInstallment"| C["查 ShopStaticSetting\nCreditCard/GatewayType"]
+    C --> D{"有值？"}
+    D -->|是| E["Parse → NCCC / TapPay / Nine1Payment"]
+    D -->|否| F["預設 NCCC"]
+
+    B -->|"Stripe / CheckoutDotCom\nKPay / Razer ..."| G["查 ShopStaticSetting\nPaymentServiceProvider"]
+    G --> H{"有值？"}
+    H -->|是| I["Parse → 通常為 PaymentMiddleWare"]
+    H -->|否| J["預設 PaymentMiddleWare"]
+
+    B -->|"ApplePay（特殊）"| K["強制 Nine1Payment"]
+
+    E --> L["context 帶著值\nPOST → mweb"]
+    F --> L
+    I --> L
+    J --> L
+    K --> L
+
+    L --> M["mweb CompleteForNewCartV2\nGetPayProcessDataProcessor 重新計算"]
+    M --> N["Pipeline 分流\n（7 個分流點）"]
+
+    style B fill:#4A7CB5,color:#fff
+    style M fill:#7B5EA7,color:#fff
+    style N fill:#5BA85B,color:#fff</pre></div><div class="tab-item-content" id="creditcardgatewaytype-6"><h2 id="🔴-純-Enum-無行為封裝-—-違反-OCP"><a href="#🔴-純-Enum-無行為封裝-—-違反-OCP" class="headerlink" title="🔴 純 Enum 無行為封裝 — 違反 OCP"></a>🔴 純 Enum 無行為封裝 — 違反 OCP</h2><p><code>PayProcessCreditCardGatewayTypeEnum</code> 是純 int enum，所有分流邏輯散落在 7 個 Processor 的 <code>if</code> &#x2F; <code>switch</code> 中。新增第 5 個 Gateway 時，<strong>每個 Processor 都要同時修改</strong>：</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CheckCreditCardProcessor.<span class="keyword">cs</span>   → <span class="keyword">if</span> TapPay || Nine1Payment</span><br><span class="line">ArrangeDataProcessor.<span class="keyword">cs</span>       → <span class="keyword">if</span> TapPay || Nine1Payment</span><br><span class="line">AuthProcessor.<span class="keyword">cs</span>              → <span class="keyword">if</span> NCCC || TapPay</span><br><span class="line">AfterOrderProcessor.<span class="keyword">cs</span>        → 3 個獨立 switch</span><br><span class="line">CreateRegularOrderProcessor.<span class="keyword">cs</span> → switch</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="🔴-default-分支靜默吸收未知-GatewayType"><a href="#🔴-default-分支靜默吸收未知-GatewayType" class="headerlink" title="🔴 default 分支靜默吸收未知 GatewayType"></a>🔴 <code>default</code> 分支靜默吸收未知 GatewayType</h2><p><code>AuthProcessor</code> 的 <code>default</code> 同時涵蓋 NCCC 和 PaymentMiddleWare，未來新增 Gateway 若忘記加 case，**不會有編譯錯誤，會靜默走 <code>CreateAuth</code>**：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (context.CreditCardGatewayType)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">case</span> TapPay:       ...</span><br><span class="line">    <span class="keyword">case</span> Nine1Payment: ...</span><br><span class="line">    <span class="literal">default</span>:           <span class="comment">// NCCC + PMW 都走這裡，第 5 個也會靜默進來</span></span><br><span class="line">        paymentResponse = <span class="keyword">this</span>.PaymentService.CreateAuth(paymentRequest);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="🟠-Enum-預設值-0-NCCC-的隱形陷阱"><a href="#🟠-Enum-預設值-0-NCCC-的隱形陷阱" class="headerlink" title="🟠 Enum 預設值 0 &#x3D; NCCC 的隱形陷阱"></a>🟠 Enum 預設值 0 &#x3D; NCCC 的隱形陷阱</h2><p>未初始化或 JSON 反序列化時欄位缺失，int 預設值 0 靜默對應 NCCC。若跨版本部署時 context cache 結構不一致，PMW 訂單可能靜默降級走 NCCC 授權路徑。</p>
+<h2 id="🟠-前端可竄改-GatewayType-—-缺乏服務端驗證"><a href="#🟠-前端可竄改-GatewayType-—-缺乏服務端驗證" class="headerlink" title="🟠 前端可竄改 GatewayType — 缺乏服務端驗證"></a>🟠 前端可竄改 GatewayType — 缺乏服務端驗證</h2><p>Cart 端若前端帶入 <code>CreditCardGatewayType</code>，mweb 直接 Parse 使用，<strong>沒有驗證該值是否與商店的 PayProfileType 設定相符</strong>，存在惡意繞過授權路徑的風險。</p></div><div class="tab-item-content" id="creditcardgatewaytype-7"><h2 id="改善方向：Gateway-策略介面"><a href="#改善方向：Gateway-策略介面" class="headerlink" title="改善方向：Gateway 策略介面"></a>改善方向：Gateway 策略介面</h2><p>將每個 Gateway 的差異行為抽成實作同一介面的策略類別，Processor 只依賴介面，不再散落 switch。</p>
+<h2 id="介面設計"><a href="#介面設計" class="headerlink" title="介面設計"></a>介面設計</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">ICreditCardGatewayStrategy</span></span><br><span class="line">&#123;</span><br><span class="line">    PayProcessCreditCardGatewayTypeEnum GatewayType &#123; <span class="keyword">get</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// CheckCreditCardProcessor</span></span><br><span class="line">    <span class="function"><span class="built_in">bool</span> <span class="title">ShouldSkipCardFormatValidation</span>()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ArrangeDataProcessor</span></span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">GetAcquiringBankCode</span>(<span class="params">PayProcessContextEntity context</span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">ArrangeRegularOrderCreditCardInfo</span>(<span class="params">PayProcessContextEntity context</span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// AuthProcessor</span></span><br><span class="line">    <span class="function"><span class="built_in">bool</span> <span class="title">ShouldQueryShopPaymentGateway</span>()</span>;</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">GetProxyMerchantId</span>(<span class="params">ShopPaymentGatewayEntity shopPaymentGateway</span>)</span>;</span><br><span class="line">    <span class="function">PaymentResponseEntity <span class="title">Authorize</span>(<span class="params">PayProcessContextEntity context, PaymentRequestEntity request</span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// AfterOrderProcessor</span></span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">GetMemberExpressCreditCardJson</span>(<span class="params">PayProcessContextEntity context</span>)</span>;</span><br><span class="line">    <span class="function"><span class="title">PayTypeExpressCreditCardEntity</span>&lt;<span class="title">T</span>&gt; <span class="title">GetPayTypeExpressCreditCardData</span>&lt;<span class="title">T</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">        PayProcessContextEntity context,</span></span></span><br><span class="line"><span class="params"><span class="function">        Func&lt;PayProfileTypeDefEnum, <span class="built_in">string</span>, <span class="built_in">string</span>&gt; maskFunc</span>)</span>;</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">GetCreditCardIssuer</span>(<span class="params">PayProcessContextEntity context</span>)</span>;</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">GetCreditCardBrand</span>(<span class="params">PayProcessContextEntity context</span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// CreateRegularOrderProcessor（不支援定期購時回傳 null）</span></span><br><span class="line">    RegularOrderCreditCardData? GetRegularOrderCreditCardData(PayProcessContextEntity context);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="工廠：讓未知型別拋例外而非靜默"><a href="#工廠：讓未知型別拋例外而非靜默" class="headerlink" title="工廠：讓未知型別拋例外而非靜默"></a>工廠：讓未知型別拋例外而非靜默</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CreditCardGatewayStrategyFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IReadOnlyDictionary&lt;PayProcessCreditCardGatewayTypeEnum,</span><br><span class="line">                                         ICreditCardGatewayStrategy&gt; _map;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CreditCardGatewayStrategyFactory</span>(<span class="params">IEnumerable&lt;ICreditCardGatewayStrategy&gt; strategies</span>)</span></span><br><span class="line">        =&gt; _map = strategies.ToDictionary(s =&gt; s.GatewayType);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ICreditCardGatewayStrategy <span class="title">Get</span>(<span class="params">PayProcessCreditCardGatewayTypeEnum type</span>)</span></span><br><span class="line">        =&gt; _map.TryGetValue(type, <span class="keyword">out</span> <span class="keyword">var</span> s) ? s</span><br><span class="line">           : <span class="keyword">throw</span> <span class="keyword">new</span> NotSupportedException(<span class="string">$&quot;不支援的 CreditCardGatewayType: <span class="subst">&#123;type&#125;</span>&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Processor-改寫示意"><a href="#Processor-改寫示意" class="headerlink" title="Processor 改寫示意"></a>Processor 改寫示意</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CheckCreditCardProcessor — Before</span></span><br><span class="line"><span class="keyword">if</span> (context.CreditCardGatewayType == TapPay || context.CreditCardGatewayType == Nine1Payment)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"><span class="keyword">this</span>.Validator.ValidateAndThrow(context.CreditCardInfo);</span><br><span class="line"></span><br><span class="line"><span class="comment">// CheckCreditCardProcessor — After</span></span><br><span class="line"><span class="keyword">var</span> strategy = _factory.Get(context.CreditCardGatewayType);</span><br><span class="line"><span class="keyword">if</span> (!strategy.ShouldSkipCardFormatValidation())</span><br><span class="line">    <span class="keyword">this</span>.Validator.ValidateAndThrow(context.CreditCardInfo);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AuthProcessor — Before</span></span><br><span class="line"><span class="keyword">if</span> (context.CreditCardGatewayType == NCCC || context.CreditCardGatewayType == TapPay)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> gw = GetShopPaymentGateway(context);</span><br><span class="line">    paymentRequest.MerchantId      = gw.MerchantId;</span><br><span class="line">    paymentRequest.ProxyMerchantId = context.CreditCardGatewayType == TapPay</span><br><span class="line">                                     ? gw.ProxyMerchantId : <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">switch</span> (context.CreditCardGatewayType)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">case</span> TapPay:       paymentResponse = ByTapPay(...);       <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> Nine1Payment: paymentResponse = ByNine1Payment(...); <span class="keyword">break</span>;</span><br><span class="line">    <span class="literal">default</span>:           paymentResponse = CreateAuth(...);     <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// AuthProcessor — After</span></span><br><span class="line"><span class="keyword">var</span> strategy = _factory.Get(context.CreditCardGatewayType);</span><br><span class="line"><span class="keyword">if</span> (strategy.ShouldQueryShopPaymentGateway())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> gw = GetShopPaymentGateway(context);</span><br><span class="line">    paymentRequest.MerchantId      = gw.MerchantId;</span><br><span class="line">    paymentRequest.ProxyMerchantId = strategy.GetProxyMerchantId(gw);</span><br><span class="line">&#125;</span><br><span class="line">paymentResponse = strategy.Authorize(context, paymentRequest);</span><br></pre></td></tr></table></figure>
+
+<h3 id="改善效果"><a href="#改善效果" class="headerlink" title="改善效果"></a>改善效果</h3><table>
+<thead>
+<tr>
+<th align="left">面向</th>
+<th align="left">改前</th>
+<th align="left">改後</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">新增第 5 個 Gateway</td>
+<td align="left">改 7 個 Processor</td>
+<td align="left">新增 1 個策略類別</td>
+</tr>
+<tr>
+<td align="left">PMW issuer 靜默回空</td>
+<td align="left">bug 存在</td>
+<td align="left">介面強制實作，顯式處理</td>
+</tr>
+<tr>
+<td align="left">未知 GatewayType</td>
+<td align="left"><code>default</code> 靜默吸收</td>
+<td align="left">Factory 拋出 <code>NotSupportedException</code></td>
+</tr>
+<tr>
+<td align="left">NCCC + TapPay 語意混用</td>
+<td align="left">共用 case 導致混淆</td>
+<td align="left">各自獨立實作</td>
+</tr>
+<tr>
+<td align="left">PMW 定期購不支援</td>
+<td align="left">靠缺少 case 隱性排除</td>
+<td align="left"><code>return null</code> 明確表達</td>
+</tr>
+</tbody></table></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/06/29/DeepType-Architecture-%E9%87%91%E6%B5%81-CreditCardGatewayType/">https://allenlin000.github.io.git/2026/06/29/DeepType-Architecture-%E9%87%91%E6%B5%81-CreditCardGatewayType/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%A8%82%E5%96%AE/">訂單</a><a class="post-meta__tags" href="/tags/%E9%87%91%E6%B5%81/">金流</a></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/CreditCardGatewayType/landing.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-PayProcessContext%E6%8E%A7%E5%88%B6%E6%B5%81%E7%A8%8B/" title="PayProcessContext 流程控制"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Payment-context/landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">PayProcessContext 流程控制</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/30/DeepType-Payment-%E9%87%91%E6%B5%81-ThirdPartyPaymentReCheck/" title="ThirdPartyPaymentReCheck — 背景補撈 Job"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Payment-RecheckJob/landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">ThirdPartyPaymentReCheck — 背景補撈 Job</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-FinishPayment/" title="FinishPayment"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Order-FinishPayment/landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="title">FinishPayment</div></div></a></div><div><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-ProcessPayment/" title="ProcessPayment"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/OrderProcessPayment/landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="title">ProcessPayment</div></div></a></div><div><a href="/2026/06/25/DeepType-Architecture-%E9%87%91%E6%B5%81-FlowType/" title="金流 FlowType 決策機制"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Payment-Flowtype/landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-25</div><div class="title">金流 FlowType 決策機制</div></div></a></div><div><a href="/2026/06/23/DeepType-Architecture-%E8%A8%82%E5%96%AE-createTradesOrder/" title="訂單狀態初始化"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/CreateOrder/landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-23</div><div class="title">訂單狀態初始化</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">246</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">48</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E5%80%8B-Gateway-%E5%90%84%E4%BB%A3%E8%A1%A8%E4%BB%80%E9%BA%BC%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">四個 Gateway 各代表什麼？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%92%8C-FlowType-%E7%9A%84%E9%97%9C%E4%BF%82"><span class="toc-number">2.</span> <span class="toc-text">和 FlowType 的關係</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-1%EF%BC%9A%E6%9F%A5-ShopStaticSetting-%E2%86%92-OriginalCreditCardGatewayType"><span class="toc-number">3.</span> <span class="toc-text">Step 1：查 ShopStaticSetting → OriginalCreditCardGatewayType</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-2%EF%BC%9A%E6%B1%BA%E5%AE%9A%E6%9C%80%E7%B5%82-CreditCardGatewayType"><span class="toc-number">4.</span> <span class="toc-text">Step 2：決定最終 CreditCardGatewayType</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E6%83%85%E5%A2%83%EF%BC%9AApple-Pay-%E5%BC%B7%E5%88%B6-Nine1Payment"><span class="toc-number">5.</span> <span class="toc-text">特殊情境：Apple Pay 強制 Nine1Payment</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GetCreditCardGateway-%E5%84%AA%E5%85%88%E5%BA%8F"><span class="toc-number">6.</span> <span class="toc-text">GetCreditCardGateway 優先序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CheckCreditCardProcessor-%E2%80%94-%E6%A0%BC%E5%BC%8F%E9%A9%97%E8%AD%89"><span class="toc-number">7.</span> <span class="toc-text">CheckCreditCardProcessor — 格式驗證</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ArrangeDataProcessor-%E2%80%94-%E6%94%B6%E5%96%AE%E8%A1%8C%E8%A8%AD%E5%AE%9A"><span class="toc-number">8.</span> <span class="toc-text">ArrangeDataProcessor — 收單行設定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AuthProcessor-%E2%80%94-%E5%AF%A6%E9%9A%9B%E7%99%BC%E8%B5%B7%E6%8E%88%E6%AC%8A%EF%BC%88%E6%A0%B8%E5%BF%83%E5%88%86%E6%B5%81%EF%BC%89"><span class="toc-number">9.</span> <span class="toc-text">AuthProcessor — 實際發起授權（核心分流）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MapToTradesOrderProcessor-%E2%80%94-%E8%A8%82%E5%96%AE-Secret-%E5%AF%AB%E5%85%A5"><span class="toc-number">10.</span> <span class="toc-text">MapToTradesOrderProcessor — 訂單 Secret 寫入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AfterOrderProcessor-%E2%80%94-%E5%BF%AB%E9%80%9F%E7%B5%90%E5%B8%B3%E5%8D%A1%E8%B3%87%E8%A8%8A%E7%B5%84%E8%A3%9D"><span class="toc-number">11.</span> <span class="toc-text">AfterOrderProcessor — 快速結帳卡資訊組裝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CreateRegularOrderProcessor-%E2%80%94-%E5%AE%9A%E6%9C%9F%E8%B3%BC-Token-%E8%A8%98%E9%8C%84"><span class="toc-number">12.</span> <span class="toc-text">CreateRegularOrderProcessor — 定期購 Token 記錄</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%B5%81%E5%BD%B1%E9%9F%BF%E7%B8%BD%E8%A6%BD"><span class="toc-number">13.</span> <span class="toc-text">分流影響總覽</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PMW-%E6%8E%88%E6%AC%8A%E5%BE%8C%E7%9A%84%E7%89%B9%E6%AE%8A%E5%9B%9E%E5%A1%AB%EF%BC%9Acontext-CreditCardInfo"><span class="toc-number">14.</span> <span class="toc-text">PMW 授權後的特殊回填：context.CreditCardInfo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B4-%E7%B4%94-Enum-%E7%84%A1%E8%A1%8C%E7%82%BA%E5%B0%81%E8%A3%9D-%E2%80%94-%E9%81%95%E5%8F%8D-OCP"><span class="toc-number">15.</span> <span class="toc-text">🔴 純 Enum 無行為封裝 — 違反 OCP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%B4-default-%E5%88%86%E6%94%AF%E9%9D%9C%E9%BB%98%E5%90%B8%E6%94%B6%E6%9C%AA%E7%9F%A5-GatewayType"><span class="toc-number">16.</span> <span class="toc-text">🔴 default 分支靜默吸收未知 GatewayType</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9F%A0-Enum-%E9%A0%90%E8%A8%AD%E5%80%BC-0-NCCC-%E7%9A%84%E9%9A%B1%E5%BD%A2%E9%99%B7%E9%98%B1"><span class="toc-number">17.</span> <span class="toc-text">🟠 Enum 預設值 0 &#x3D; NCCC 的隱形陷阱</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9F%A0-%E5%89%8D%E7%AB%AF%E5%8F%AF%E7%AB%84%E6%94%B9-GatewayType-%E2%80%94-%E7%BC%BA%E4%B9%8F%E6%9C%8D%E5%8B%99%E7%AB%AF%E9%A9%97%E8%AD%89"><span class="toc-number">18.</span> <span class="toc-text">🟠 前端可竄改 GatewayType — 缺乏服務端驗證</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%B9%E5%96%84%E6%96%B9%E5%90%91%EF%BC%9AGateway-%E7%AD%96%E7%95%A5%E4%BB%8B%E9%9D%A2"><span class="toc-number">19.</span> <span class="toc-text">改善方向：Gateway 策略介面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E9%9D%A2%E8%A8%AD%E8%A8%88"><span class="toc-number">20.</span> <span class="toc-text">介面設計</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E5%BB%A0%EF%BC%9A%E8%AE%93%E6%9C%AA%E7%9F%A5%E5%9E%8B%E5%88%A5%E6%8B%8B%E4%BE%8B%E5%A4%96%E8%80%8C%E9%9D%9E%E9%9D%9C%E9%BB%98"><span class="toc-number">21.</span> <span class="toc-text">工廠：讓未知型別拋例外而非靜默</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Processor-%E6%94%B9%E5%AF%AB%E7%A4%BA%E6%84%8F"><span class="toc-number">22.</span> <span class="toc-text">Processor 改寫示意</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%B9%E5%96%84%E6%95%88%E6%9E%9C"><span class="toc-number">22.1.</span> <span class="toc-text">改善效果</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/01/DeepType-Payment-%E9%87%91%E6%B5%81-QFPay-Pay%E6%B5%81%E7%A8%8B%E8%A8%AD%E8%A8%88%E8%A7%80%E5%AF%9F/" title="QFPay - Pay 設計"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="QFPay - Pay 設計"/></a><div class="content"><a class="title" href="/2026/07/01/DeepType-Payment-%E9%87%91%E6%B5%81-QFPay-Pay%E6%B5%81%E7%A8%8B%E8%A8%AD%E8%A8%88%E8%A7%80%E5%AF%9F/" title="QFPay - Pay 設計">QFPay - Pay 設計</a><time datetime="2026-07-01T08:00:00.000Z" title="Created 2026-07-01 16:00:00">2026-07-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/30/DeepType-Payment-%E9%87%91%E6%B5%81-ThirdPartyPaymentReCheck/" title="ThirdPartyPaymentReCheck — 背景補撈 Job"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Payment-RecheckJob/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ThirdPartyPaymentReCheck — 背景補撈 Job"/></a><div class="content"><a class="title" href="/2026/06/30/DeepType-Payment-%E9%87%91%E6%B5%81-ThirdPartyPaymentReCheck/" title="ThirdPartyPaymentReCheck — 背景補撈 Job">ThirdPartyPaymentReCheck — 背景補撈 Job</a><time datetime="2026-06-30T06:00:00.000Z" title="Created 2026-06-30 14:00:00">2026-06-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/29/DeepType-Architecture-%E9%87%91%E6%B5%81-CreditCardGatewayType/" title="CreditCardGatewayType — 信用卡閘道路由機制"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/CreditCardGatewayType/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CreditCardGatewayType — 信用卡閘道路由機制"/></a><div class="content"><a class="title" href="/2026/06/29/DeepType-Architecture-%E9%87%91%E6%B5%81-CreditCardGatewayType/" title="CreditCardGatewayType — 信用卡閘道路由機制">CreditCardGatewayType — 信用卡閘道路由機制</a><time datetime="2026-06-29T13:00:00.000Z" title="Created 2026-06-29 21:00:00">2026-06-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-PayProcessContext%E6%8E%A7%E5%88%B6%E6%B5%81%E7%A8%8B/" title="PayProcessContext 流程控制"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Codesss/Arch/ecom/Payment-context/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="PayProcessContext 流程控制"/></a><div class="content"><a class="title" href="/2026/06/28/DeepType-Architecture-%E9%87%91%E6%B5%81-PayProcessContext%E6%8E%A7%E5%88%B6%E6%B5%81%E7%A8%8B/" title="PayProcessContext 流程控制">PayProcessContext 流程控制</a><time datetime="2026-06-28T07:00:00.000Z" title="Created 2026-06-28 15:00:00">2026-06-28</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
