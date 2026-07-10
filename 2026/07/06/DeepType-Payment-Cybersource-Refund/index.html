@@ -1,0 +1,533 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Cybersource-Refund | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="整體流程PaymentMiddleWareRefundRequestGroupingProcessFinish JobCybersource PaymentMiddleware API退款狀態機（整體視角）序列圖（完整鏈路 End-to-End）ReturnCode 綜合對照表已知風險 &#x2F; 異常情境Polling Queue拆成「Grouping Job」與「Finish Job」兩階段Finis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cybersource-Refund">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/07/06/DeepType-Payment-Cybersource-Refund/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="整體流程PaymentMiddleWareRefundRequestGroupingProcessFinish JobCybersource PaymentMiddleware API退款狀態機（整體視角）序列圖（完整鏈路 End-to-End）ReturnCode 綜合對照表已知風險 &#x2F; 異常情境Polling Queue拆成「Grouping Job」與「Finish Job」兩階段Finis">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-07-06T09:51:00.000Z">
+<meta property="article:modified_time" content="2026-07-10T01:45:44.638Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/07/06/DeepType-Payment-Cybersource-Refund/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Cybersource-Refund',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-07-10 09:45:44'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">251</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">50</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Cybersource-Refund</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-07-06T09:51:00.000Z" title="Created 2026-07-06 17:51:00">2026-07-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-07-10T01:45:44.638Z" title="Updated 2026-07-10 09:45:44">2026-07-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Payment/">Payment</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Cybersource-Refund"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="cybersource-refund"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="cybersource-refund-1">整體流程</button><button type="button" class="tab " data-href="cybersource-refund-2">PaymentMiddleWareRefundRequestGroupingProcess</button><button type="button" class="tab " data-href="cybersource-refund-3">Finish Job</button><button type="button" class="tab " data-href="cybersource-refund-4">Cybersource PaymentMiddleware API</button><button type="button" class="tab " data-href="cybersource-refund-5">退款狀態機（整體視角）</button><button type="button" class="tab " data-href="cybersource-refund-6">序列圖（完整鏈路 End-to-End）</button><button type="button" class="tab " data-href="cybersource-refund-7">ReturnCode 綜合對照表</button><button type="button" class="tab " data-href="cybersource-refund-8">已知風險 / 異常情境</button><button type="button" class="tab " data-href="cybersource-refund-9">Polling Queue</button><button type="button" class="tab " data-href="cybersource-refund-10">拆成「Grouping Job」與「Finish Job」兩階段</button><button type="button" class="tab " data-href="cybersource-refund-11">Finish Job</button></ul><div class="tab-contents"><div class="tab-item-content active" id="cybersource-refund-1"><p>每小時 02 分，SQL Job 排程往 NMQV2 的 Task 表塞入一筆「退款分群」任務 → NMQ 撈出所有狀態為 RefundRequestProcessing 的退款單並依 TGCode 分群 → 針對 Cybersource（CreditCardOnce_Cybersource）逐筆建立 Finish Task → Finish Job 呼叫 PaymentMiddleware 執行 Refund（首次退款）或 RefundQuery（查詢退款結果），再依回應 ReturnCode 更新退款單狀態與訂單大表</p>
+<pre class="mermaid">flowchart TD
+    A["⏰ SQL Server 排程<br/>NMQV2_GeneratePaymentMiddleWareRefundRequestGrouping<br/>每小時 :02 分觸發"] -->|"cfn_GetJobWhetherToPerform('readwrite',1) IN ('ALL')"| B{"NMQV2DB.dbo.Job<br/>是否存在<br/>PaymentMiddleWareRefundRequestGrouping ?"}
+    B -- 不存在 --> Z1["結束，不做事"]
+    B -- 存在 --> C["INSERT INTO NMQV2DB.dbo.Task<br/>Task_Status = Ready<br/>Task_JobId = @jobId"]
+    C --> D["NMQ Worker 撈取 Ready Task 執行<br/>PaymentMiddleWareRefundRequestGroupingProcess.DoJob()"]
+    D --> E["PaymentMiddleWareRefundRequestService.CreateRefundRequestFinish()"]
+
+    E --> F["GetRefundRequestData()<br/>撈 28 種付款方式中狀態=RefundRequestProcessing 的退款單<br/>+ 各 PayChannel Redo 重試清單"]
+    F --> G["GroupBy(TradesOrderGroupId)<br/>依 TGCode 分群"]
+    G --> H["UpdateRefundRequestStatus → RefundRequestGrouping<br/>（鎖定，防止重複撈取）"]
+    H --> I["依付款方式建立對應 NMQ Task<br/>Cybersource → CreditCardOnceCybersourceRefundRequestFinish"]
+    I --> J["RefundTaskBookingTime()<br/>Cybersource：回傳 null → 不限速"]
+
+    J --> K["⏱ NMQ Task 到點觸發<br/>DoRefundRequestFinish(taskData)"]
+    K --> L{"CanGroupingRefund() ?<br/>Cybersource = false"}
+    L -- "true（僅 Razer）" --> M["RefundByGroupingAmount<br/>合併同 TransactionId 金額後退款"]
+    L -- "false（Cybersource 走此路）" --> N["RefundByRequestId<br/>逐筆退款 / 查詢"]
+
+    N --> O{"IsQueryRefund(refundRequest)<br/>= RefundRequest_TransactionId 是否有值？"}
+    O -- "無值 → 新退款" --> P["呼叫 PaymentMiddleware<br/>POST /Refund/Cybersource"]
+    O -- "有值 → 查詢既有退款" --> Q["呼叫 PaymentMiddleware<br/>GET 對應 /RefundQuery/Cybersource"]
+
+    P --> R["PaymentMiddleware 組裝 HTTP Signature<br/>POST pts/v2/payments/{transactionId}/refunds/"]
+    Q --> S["PaymentMiddleware 組裝 HTTP Signature<br/>GET tss/v2/transactions/{RefundRequestTransactionId}"]
+
+    R --> T["Cybersource 回應 status"]
+    S --> U["Cybersource 回應 applicationInformation.status/reasonCode"]
+
+    T --> V["解析並轉換 ReturnCode<br/>PENDING→RefundPending / 500,DECLINED→RefundFailed"]
+    U --> W["解析並轉換 ReturnCode<br/>PENDING→RefundPending / TRANSMITTED→Success / reasonCode=100→RefundPending / 其他→RefundRejected"]
+
+    V --> X["ChangeRefundRequestStatus + RefundDelay()（空實作）"]
+    W --> X
+    X --> Y["UpdateRefundRequest 更新退款單狀態<br/>+ UpdateOrderSlaveFlow 更新訂單大表<br/>（運費退款不更新大表）"]
+    Y --> AA{"ReturnCode = Success(00) ?"}
+    AA -- 是 --> AB["Finish 結案<br/>IsClosed=true，寫入 ConfirmDate"]
+    AA -- "RefundPending / RefundRejected 未結案" --> AC["維持 RefundRequestProcessing<br/>等待下次 :02 分排程再次撈取（RefundQuery）"]</pre></div><div class="tab-item-content" id="cybersource-refund-2"><p>入口類別：<code>PaymentMiddleWareRefundRequestGroupingProcess : ThirdPartyPaymentRefundRequestGroupingProcess</code>，以 <code>ThirdPartyPaymentTypeDefEnum.PaymentMiddleWare</code> 作為分類，代表本 Job 統一處理<strong>所有透過 PaymentMiddleware 串接的 28 種付款方式</strong>（含 Cybersource）。</p>
+<table>
+<thead>
+<tr>
+<th>步驟</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Step 1</strong> <code>GetRefundRequestData()</code></td>
+<td>對每個 payType（含 <code>CreditCardOnce_Cybersource</code>）撈出 <code>RefundRequestProcessing</code> 狀態退款單，並額外呼叫 <code>payChannelService.GetRedoRefundRequestList(payType)</code> 撈重試清單（Cybersource 目前回傳 <code>null</code>，<strong>尚未實作 Redo</strong>）</td>
+</tr>
+<tr>
+<td><strong>Step 2</strong> <code>GroupBy(TradesOrderGroupId)</code></td>
+<td>依購物車（TGCode）分群，方便後續 Razer 合併退款；Cybersource 雖不合併金額，仍共用同一個分群&#x2F;Task 建立流程</td>
+</tr>
+<tr>
+<td><strong>Step 3</strong> <code>UpdateRefundRequestStatus → RefundRequestGrouping</code></td>
+<td>鎖定退款單狀態，避免下次 :02 分排程重複撈取同一批</td>
+</tr>
+<tr>
+<td><strong>Step 4</strong> 建立 NMQ Task</td>
+<td>Cybersource 對應 JobName：**<code>CreditCardOnceCybersourceRefundRequestFinish</code>**</td>
+</tr>
+<tr>
+<td><strong>Step 5</strong> <code>RefundTaskBookingTime()</code></td>
+<td>Cybersource 覆寫回傳 <code>null</code> → 不做限速排程，Task 立即可執行</td>
+</tr>
+</tbody></table></div><div class="tab-item-content" id="cybersource-refund-3"><h3 id="3-3-Phase-2：Finish-Job（DoRefundRequestFinish）-—-Cybersource-走-RefundByRequestId"><a href="#3-3-Phase-2：Finish-Job（DoRefundRequestFinish）-—-Cybersource-走-RefundByRequestId" class="headerlink" title="3.3 Phase 2：Finish Job（DoRefundRequestFinish） — Cybersource 走 RefundByRequestId"></a>3.3 Phase 2：Finish Job（<code>DoRefundRequestFinish</code>） — Cybersource 走 <code>RefundByRequestId</code></h3><p>Cybersource 的 <code>CanGroupingRefund()</code>（繼承 <code>AbstractPayChannelService</code> 預設值）為 <strong><code>false</code><strong>，因此必定走</strong>逐筆退款</strong>路線，不會像 Razer 一樣合併同 TGCode 金額。</p>
+<pre class="mermaid">flowchart LR
+    A["取出待處理 RefundRequest"] --> B{"IsQueryRefund(refundRequest)"}
+    B -->|"RefundRequest_TransactionId 為空"| C["IsRefund = true（預設）<br/>→ 呼叫 Refund API"]
+    B -->|"RefundRequest_TransactionId 有值"| D["→ 呼叫 RefundQuery API"]
+    C --> E["ChangeRefundRequestStatus"]
+    D --> E
+    E --> F["RefundDelay()（Cybersource 空實作，不延遲）"]
+    F --> G["UpdateRefundRequest + UpdateOrderSlaveFlow"]</pre>
+
+<ul>
+<li><code>IsQueryRefund</code>：<code>CybersourcePayChannelService.IsQueryRefund()</code> 判斷 <code>RefundRequest_TransactionId</code> 是否已有值 —— <strong>第一次退款時為空 → 呼叫 Refund</strong>；<strong>Refund 回應 PENDING 後，TransactionId 已寫回退款單 → 下次排程改呼叫 RefundQuery</strong>。</li>
+<li><code>IsRefund</code>：Cybersource 未覆寫，預設為 <code>true</code>。</li>
+<li><code>GetRefundExtendInfo</code> &#x2F; <code>GetRefundQueryExtendInfo</code>：由 <code>CybersourcePayChannelService</code> 提供，分別帶入 <code>TradesOrderGroupCode</code> 與 <code>RefundRequestTransactionId</code>。</li>
+</ul></div><div class="tab-item-content" id="cybersource-refund-4"><h3 id="4-1-認證：HTTP-Signature（Refund-RefundQuery-共用）"><a href="#4-1-認證：HTTP-Signature（Refund-RefundQuery-共用）" class="headerlink" title="4.1 認證：HTTP Signature（Refund &#x2F; RefundQuery 共用）"></a>4.1 認證：HTTP Signature（Refund &#x2F; RefundQuery 共用）</h3><p>Headers 來源：<code>ShopSecret</code> 的 <code>Cybersource</code> group，共 6 組憑證（後 3 組供其他用途／預留，實際簽章使用前 3 組）：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">x</span>-merchant-id         Cybersource_MerchantId</span><br><span class="line"><span class="keyword">x</span>-secret-key          Cybersource_SecretKey</span><br><span class="line"><span class="keyword">x</span>-merchant-key-id     Cybersource_MerchantKeyId</span><br><span class="line"><span class="keyword">x</span>-profile-id          Cybersource_ProfileId</span><br><span class="line"><span class="keyword">x</span>-profile-access-key  Cybersource_ProfileAccessKey</span><br><span class="line"><span class="keyword">x</span>-profile-secret      Cybersource_ProfileSecret</span><br></pre></td></tr></table></figure>
+
+<p>由 <code>HttpSignatureHelper.GenerateHttpSignatureHeaders()</code> 產生實際簽章 Header。</p>
+<h3 id="4-2-Refund（新退款）"><a href="#4-2-Refund（新退款）" class="headerlink" title="4.2 Refund（新退款）"></a>4.2 Refund（新退款）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">POST pts/v2/payments/&#123;transactionId&#125;/refunds/</span><br><span class="line">Authorization: HTTP_SIGNATURE</span><br><span class="line">Content-Type: application/json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;clientReferenceInformation&quot;</span>: &#123; <span class="string">&quot;code&quot;</span>: <span class="string">&quot;&#123;TradesOrderGroupCode&#125;&quot;</span> &#125;,</span><br><span class="line">  <span class="string">&quot;orderInformation&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;amountDetails&quot;</span>: &#123; <span class="string">&quot;totalAmount&quot;</span>: <span class="string">&quot;&#123;Amount&#125;&quot;</span>, <span class="string">&quot;currency&quot;</span>: <span class="string">&quot;&#123;Currency&#125;&quot;</span> &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>欄位</th>
+<th>來源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>transactionId</code>（URL）</td>
+<td>付款時 Cybersource 回傳的 transaction ID</td>
+</tr>
+<tr>
+<td><code>clientReferenceInformation.code</code></td>
+<td><code>RefundRequestExtendInfo.TradesOrderGroupCode</code></td>
+</tr>
+<tr>
+<td><code>orderInformation.amountDetails.totalAmount</code></td>
+<td><code>request.Amount</code></td>
+</tr>
+<tr>
+<td><code>orderInformation.amountDetails.currency</code></td>
+<td><code>request.Currency</code></td>
+</tr>
+</tbody></table>
+<p><strong>特殊設計 — HTTP 錯誤不拋出：</strong></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> <span class="keyword">base</span>.PostJsonAsync&lt;CybersourceRefundResponseEntity&gt;(url, body, authHeaders);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (FlurlHttpException ex)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> ex.GetResponseJsonAsync&lt;CybersourceRefundResponseEntity&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>即使 HTTP 非 2xx（如 DECLINED 案例常見的 4xx&#x2F;5xx），也會捕捉例外並改為解析 response body 的 <code>errorInformation</code>，確保不因 HTTP 狀態碼而遺失錯誤細節。</p>
+<p><strong>Status → ReturnCode：</strong></p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>ReturnCode</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PENDING</code></td>
+<td><code>RefundPending</code></td>
+<td>受理中，需後續 RefundQuery</td>
+</tr>
+<tr>
+<td><code>500</code></td>
+<td><code>RefundFailed</code></td>
+<td>系統錯誤，含 <code>errorInformation</code></td>
+</tr>
+<tr>
+<td><code>DECLINED</code></td>
+<td><code>RefundFailed</code></td>
+<td>發卡行拒絕，含 <code>errorInformation</code></td>
+</tr>
+<tr>
+<td>其他未知值</td>
+<td>⚠️ <code>throw NotImplementedException</code></td>
+<td>Cybersource 若新增狀態需修改程式碼</td>
+</tr>
+</tbody></table>
+<h3 id="4-3-RefundQuery（查詢既有退款）"><a href="#4-3-RefundQuery（查詢既有退款）" class="headerlink" title="4.3 RefundQuery（查詢既有退款）"></a>4.3 RefundQuery（查詢既有退款）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET tss/v2/transactions/&#123;RefundRequestTransactionId&#125;</span><br><span class="line">Authorization: HTTP_SIGNATURE</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：URL 帶入的是<strong>退款動作</strong>回傳的 transaction ID，非原始付款 transaction ID。</p>
+</blockquote>
+<p><strong>Status&#x2F;ReasonCode → ReturnCode：</strong></p>
+<table>
+<thead>
+<tr>
+<th><code>applicationInformation.status</code></th>
+<th>reasonCode</th>
+<th>ReturnCode</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PENDING</code></td>
+<td>任意</td>
+<td><code>RefundPending</code></td>
+<td>Cybersource 僅受理，尚未送出</td>
+</tr>
+<tr>
+<td><code>TRANSMITTED</code></td>
+<td>任意</td>
+<td><code>Success</code></td>
+<td>已傳送至發卡行，視為退款完成</td>
+</tr>
+<tr>
+<td>其他</td>
+<td><code>100</code></td>
+<td><code>RefundPending</code></td>
+<td>Fallback：reasonCode 成功但狀態非預期，仍視為處理中</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>非 <code>100</code></td>
+<td><code>RefundRejected</code></td>
+<td>退款最終被拒絕</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>為何 <code>TRANSMITTED</code> 才算成功而非 <code>PENDING</code>？</strong><br>Cybersource 退款生命週期為：<code>PENDING</code>（受理）→ <code>TRANSMITTED</code>（送出至發卡行）→ 最終到帳。<code>PENDING</code> 僅代表系統收到請求，尚未真正動作。</p>
+</blockquote></div><div class="tab-item-content" id="cybersource-refund-5"><h2 id="5-退款狀態機（整體視角）"><a href="#5-退款狀態機（整體視角）" class="headerlink" title="5. 退款狀態機（整體視角）"></a>5. 退款狀態機（整體視角）</h2><pre class="mermaid">stateDiagram-v2
+    [*] --> RefundRequestProcessing: 建立退款單
+    RefundRequestProcessing --> RefundRequestGrouping: SQL排程:02分\n撈取並鎖定
+    RefundRequestGrouping --> CallingRefund: TransactionId為空\n→呼叫 Refund API
+    RefundRequestGrouping --> CallingRefundQuery: TransactionId已存在\n→呼叫 RefundQuery API
+
+    CallingRefund --> RefundRequestProcessing: status=PENDING\n(寫入TransactionId)\nReturnCode=RefundPending
+    CallingRefund --> RefundRequestFail: status=500/DECLINED\nReturnCode=RefundFailed
+
+    CallingRefundQuery --> RefundRequestProcessing: status=PENDING 或\nreasonCode=100(fallback)\nReturnCode=RefundPending
+    CallingRefundQuery --> Finish: status=TRANSMITTED\nReturnCode=Success
+    CallingRefundQuery --> RefundRequestFail: 其他status且reasonCode≠100\nReturnCode=RefundRejected
+
+    RefundRequestFail --> RefundRequestProcessing: 符合重試條件\n(3天內+可重試錯誤碼)\n→ 改回Processing重新嘗試
+    RefundRequestFail --> [*]: 逾3天/不可重試\n人工介入
+    Finish --> [*]: IsClosed=true\n寫入ConfirmDate\nUpdateOrderSlaveFlow</pre>
+
+<blockquote>
+<p>⚠️ <strong>Cybersource 目前 <code>GetRedoRefundRequestList()</code> 回傳 <code>null</code>（TODO 待補），代表 Cybersource 沒有自動化失敗重試機制</strong>，與 Razer&#x2F;KPay（有 <code>PR020</code>&#x2F;<code>PR015</code>&#x2F;<code>29523</code> 可重試錯誤碼）不同，<code>RefundFailed</code> 後需人工介入處理。</p>
+</blockquote></div><div class="tab-item-content" id="cybersource-refund-6"><pre class="mermaid">sequenceDiagram
+    participant SQL as SQL Agent 排程
+    participant NMQDB as NMQV2DB.Task
+    participant Grouping as GroupingProcess<br/>(PaymentMiddleWareRefundRequestGroupingProcess)
+    participant Service as PaymentMiddleWareRefundRequestService
+    participant PayChSvc as CybersourcePayChannelService
+    participant Finish as FinishJob<br/>(DoRefundRequestFinish)
+    participant PMW as PaymentMiddleware
+    participant CS as Cybersource API
+
+    SQL->>NMQDB: INSERT Task(Ready, JobId=PaymentMiddleWareRefundRequestGrouping)
+    NMQDB-->>Grouping: NMQ Worker 撈取 Ready Task
+    Grouping->>Service: CreateRefundRequestFinish()
+    Service->>Service: GetRefundRequestData()（含 Cybersource）
+    Service->>PayChSvc: GetRedoRefundRequestList("CreditCardOnce_Cybersource")
+    PayChSvc-->>Service: null（無 redo 機制）
+    Service->>Service: GroupBy(TradesOrderGroupId)
+    Service->>Service: UpdateRefundRequestStatus → RefundRequestGrouping
+    Service->>NMQDB: 建立 Task(CreditCardOnceCybersourceRefundRequestFinish)
+
+    NMQDB-->>Finish: Task 到點觸發
+    Finish->>PayChSvc: CanGroupingRefund()
+    PayChSvc-->>Finish: false → 走 RefundByRequestId
+    Finish->>PayChSvc: IsQueryRefund(refundRequest)
+
+    alt TransactionId 為空（首次退款）
+        PayChSvc-->>Finish: false
+        Finish->>PMW: POST /Refund/Cybersource（TradesOrderGroupCode, Amount, Currency）
+        PMW->>CS: POST pts/v2/payments/{transactionId}/refunds/
+        CS-->>PMW: status = PENDING / DECLINED / 500
+        PMW-->>Finish: ReturnCode = RefundPending / RefundFailed
+    else TransactionId 已存在（查詢中）
+        PayChSvc-->>Finish: true
+        Finish->>PMW: GET /RefundQuery/Cybersource（RefundRequestTransactionId）
+        PMW->>CS: GET tss/v2/transactions/{RefundRequestTransactionId}
+        CS-->>PMW: applicationInformation.status / reasonCode
+        PMW-->>Finish: ReturnCode = RefundPending / Success / RefundRejected
+    end
+
+    Finish->>Finish: ChangeRefundRequestStatus + RefundDelay()（空實作）
+    Finish->>Service: UpdateRefundRequest + UpdateOrderSlaveFlow
+    Note over Service: Success → Finish結案(IsClosed=true)<br/>Pending → 維持Processing，等下次:02分再次撈取<br/>Rejected/Failed → RefundRequestFail</pre></div><div class="tab-item-content" id="cybersource-refund-7"><table>
+<thead>
+<tr>
+<th>階段</th>
+<th>ReturnCode</th>
+<th>對應退款單狀態</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Refund</td>
+<td><code>RefundPending</code></td>
+<td><code>RefundRequestProcessing</code>（保留）</td>
+<td>已受理，寫回 <code>RefundRequest_TransactionId</code>，下次改走 RefundQuery</td>
+</tr>
+<tr>
+<td>Refund</td>
+<td><code>RefundFailed</code></td>
+<td><code>RefundRequestFail</code></td>
+<td>HTTP 500 或發卡行 DECLINED</td>
+</tr>
+<tr>
+<td>RefundQuery</td>
+<td><code>RefundPending</code></td>
+<td><code>RefundRequestProcessing</code>（保留）</td>
+<td>仍在處理中，下次繼續 Query</td>
+</tr>
+<tr>
+<td>RefundQuery</td>
+<td><code>Success</code></td>
+<td><code>Finish</code>（結案）</td>
+<td><code>TRANSMITTED</code>，寫入 <code>ConfirmDate</code>，<code>IsClosed=true</code></td>
+</tr>
+<tr>
+<td>RefundQuery</td>
+<td><code>RefundRejected</code></td>
+<td><code>RefundRequestFail</code></td>
+<td>最終被拒絕</td>
+</tr>
+<tr>
+<td>Grouping共通</td>
+<td><code>00</code></td>
+<td><code>Finish</code></td>
+<td>成功結案</td>
+</tr>
+<tr>
+<td>Grouping共通</td>
+<td><code>PR016</code></td>
+<td><code>RefundRequestProcessing</code></td>
+<td>超過退款期限，<code>TypeDef</code> 改為 <code>Remittance</code>（改走匯款）</td>
+</tr>
+<tr>
+<td>Grouping共通</td>
+<td><code>PR021</code></td>
+<td><code>RefundRequestProcessing</code></td>
+<td>Pending，等待中</td>
+</tr>
+</tbody></table></div><div class="tab-item-content" id="cybersource-refund-8"><ol>
+<li><strong>未知 Status 會拋例外</strong>：Refund 回應若出現非 <code>PENDING/500/DECLINED</code> 的新狀態，<code>NotImplementedException</code> 會中斷處理，需持續留意 Cybersource 是否新增狀態值。</li>
+<li><strong>無 Redo 重試機制</strong>：<code>GetRedoRefundRequestList()</code> 回傳 <code>null</code>（TODO），<code>RefundFailed</code> 之後不會自動重試，須靠其他機制（人工&#x2F;其他排程）補救。</li>
+<li><strong>RefundQuery 長時間 PENDING</strong>：Cybersource 查詢回應可能長達數小時停留在 <code>PENDING</code>，若系統邏輯有 timeout 中斷，最後一次查詢結果可能被誤判為 <code>RefundPending (4003)</code>，需靠下次排程 Redo 才能拿到最終 <code>TRANSMITTED</code>。</li>
+<li><strong>運費退款不更新大表</strong>：<code>SourceDef == SalesOrderFee</code> 時，Finish 階段不會呼叫 <code>UpdateOrderSlaveFlow</code>，只更新退款單本身。</li>
+<li><strong>多付款方式（IsMultiPayment）</strong>：Cybersource 若涉及多付款方式退款，Finish 完成後不直接更新大表，改建立 <code>SyncRefundRequestFinishJob</code>，待所有退款單皆完成後統一更新。</li>
+</ol></div><div class="tab-item-content" id="cybersource-refund-9"><blockquote>
+<p>使用者在後台按下退款時，系統<strong>不會</strong>馬上呼叫 Cybersource API，而是先寫一筆 <code>RefundRequestProcessing</code> 退款單，等下一次 :02 分排程才真正發送。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>面向</th>
+<th>好處</th>
+<th>壞處</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>非同步解耦</strong></td>
+<td>後台退款操作可以立即回應使用者（不用等第三方 API），退款單建立與實際扣款動作分離，避免 UI 因外部 API 緩慢而卡住</td>
+<td>使用者按下退款後<strong>最多要等將近 1 小時</strong>才會真正送出（若剛好錯過 :02 分），退款體感速度慢，客服&#x2F;客戶容易誤以為系統沒反應</td>
+</tr>
+<tr>
+<td><strong>批次處理 &#x2F; 削峰填谷</strong></td>
+<td>大量退款單可以一次性批次撈取、統一分群處理，避免尖峰時段瞬間大量獨立 API 呼叫打爆 PaymentMiddleware 或第三方金流</td>
+<td>排程頻率固定（每小時一次），無法針對急件做即時處理；若當次排程處理量過大，反而可能拖慢單筆退款的實際處理時間</td>
+</tr>
+<tr>
+<td><strong>與主服務解耦（不同 Process&#x2F;Server）</strong></td>
+<td>SQL Job 只負責「通知」，實際運算在 NMQ Worker 進程執行，避免退款邏輯佔用 Web&#x2F;API 主服務資源，也方便獨立擴展 Worker</td>
+<td>多一層基礎設施（SQL Agent + NMQV2DB.Task + NMQ Worker），架構複雜度提高，除錯時要橫跨 DB 排程、Task 表、Worker Log 三個地方才能還原全貌</td>
+</tr>
+<tr>
+<td><strong>防呆機制</strong>（<code>cfn_GetJobWhetherToPerform</code> 判斷讀寫角色）</td>
+<td>避免在 DR &#x2F; 唯讀複本上誤觸發寫入動作，保護資料一致性</td>
+<td>多一層條件判斷，維運人員需理解 <code>readwrite</code> 語意才能排查「為什麼排程沒有觸發」</td>
+</tr>
+</tbody></table>
+<p><strong>核心設計哲學</strong>：這是典型的 <strong>「Polling Queue」模式</strong>，用 DB 當作簡易 Message Queue（<code>Task</code> 表 + <code>Task_Status</code>），優點是實作簡單、不需要額外導入 Kafka&#x2F;RabbitMQ 等中介軟體，缺點是<strong>輪詢間隔即是延遲上限</strong>，且 DB 本身成為隱性瓶頸（大量 Task 堆積時，讀寫壓力都在同一個 DB）。</p></div><div class="tab-item-content" id="cybersource-refund-10"></div><div class="tab-item-content" id="cybersource-refund-11"></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/07/06/DeepType-Payment-Cybersource-Refund/">https://allenlin000.github.io.git/2026/07/06/DeepType-Payment-Cybersource-Refund/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/07/03/DeepType-Payment-Cybersource-Query/" title="Cybersource-Query"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Query/landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Cybersource-Query</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">251</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">50</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Phase-2%EF%BC%9AFinish-Job%EF%BC%88DoRefundRequestFinish%EF%BC%89-%E2%80%94-Cybersource-%E8%B5%B0-RefundByRequestId"><span class="toc-number">1.</span> <span class="toc-text">3.3 Phase 2：Finish Job（DoRefundRequestFinish） — Cybersource 走 RefundByRequestId</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E8%AA%8D%E8%AD%89%EF%BC%9AHTTP-Signature%EF%BC%88Refund-RefundQuery-%E5%85%B1%E7%94%A8%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">4.1 認證：HTTP Signature（Refund &#x2F; RefundQuery 共用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Refund%EF%BC%88%E6%96%B0%E9%80%80%E6%AC%BE%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">4.2 Refund（新退款）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-RefundQuery%EF%BC%88%E6%9F%A5%E8%A9%A2%E6%97%A2%E6%9C%89%E9%80%80%E6%AC%BE%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">4.3 RefundQuery（查詢既有退款）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%80%80%E6%AC%BE%E7%8B%80%E6%85%8B%E6%A9%9F%EF%BC%88%E6%95%B4%E9%AB%94%E8%A6%96%E8%A7%92%EF%BC%89"><span class="toc-number"></span> <span class="toc-text">5. 退款狀態機（整體視角）</span></a></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/06/DeepType-Payment-Cybersource-Refund/" title="Cybersource-Refund"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cybersource-Refund"/></a><div class="content"><a class="title" href="/2026/07/06/DeepType-Payment-Cybersource-Refund/" title="Cybersource-Refund">Cybersource-Refund</a><time datetime="2026-07-06T09:51:00.000Z" title="Created 2026-07-06 17:51:00">2026-07-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/03/DeepType-Payment-Cybersource-Query/" title="Cybersource-Query"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Query/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cybersource-Query"/></a><div class="content"><a class="title" href="/2026/07/03/DeepType-Payment-Cybersource-Query/" title="Cybersource-Query">Cybersource-Query</a><time datetime="2026-07-03T02:44:00.000Z" title="Created 2026-07-03 10:44:00">2026-07-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/02/DeepType-Payment-Cybersource-Pay/" title="Cybersource-Pay"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Pay/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cybersource-Pay"/></a><div class="content"><a class="title" href="/2026/07/02/DeepType-Payment-Cybersource-Pay/" title="Cybersource-Pay">Cybersource-Pay</a><time datetime="2026-07-02T10:19:00.000Z" title="Created 2026-07-02 18:19:00">2026-07-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/02/DeepType-Payment-2C2P-Refund/" title="2C2P-Refund"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Pay/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="2C2P-Refund"/></a><div class="content"><a class="title" href="/2026/07/02/DeepType-Payment-2C2P-Refund/" title="2C2P-Refund">2C2P-Refund</a><time datetime="2026-07-02T10:19:00.000Z" title="Created 2026-07-02 18:19:00">2026-07-02</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
