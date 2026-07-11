@@ -1,0 +1,568 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Stripe-Fee | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content=".pf-hero { background: linear-gradient(135deg, #4a3fb0, #635bff 70%); color: #fff; padding: 34px 32px 28px; border-radius: 16px; margin: 0 0 26px; } .pf-hero .pf-hero-eyebrow { font-size: 0.78rem; le">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stripe-Fee">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/07/10/DeepType-Payment-Stripe-fee/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content=".pf-hero { background: linear-gradient(135deg, #4a3fb0, #635bff 70%); color: #fff; padding: 34px 32px 28px; border-radius: 16px; margin: 0 0 26px; } .pf-hero .pf-hero-eyebrow { font-size: 0.78rem; le">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png">
+<meta property="article:published_time" content="2026-07-10T03:09:00.000Z">
+<meta property="article:modified_time" content="2026-07-11T14:45:13.013Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/07/10/DeepType-Payment-Stripe-fee/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Stripe-Fee',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-07-11 22:45:13'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">252</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Stripe-Fee</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-07-10T03:09:00.000Z" title="Created 2026-07-10 11:09:00">2026-07-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-07-11T14:45:13.013Z" title="Updated 2026-07-11 22:45:13">2026-07-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Payment/">Payment</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Stripe-Fee"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><style>
+.pf-hero {
+background: linear-gradient(135deg, #4a3fb0, #635bff 70%); color: #fff;
+padding: 34px 32px 28px; border-radius: 16px; margin: 0 0 26px;
+}
+.pf-hero .pf-hero-eyebrow {
+font-size: 0.78rem; letter-spacing: 3px; text-transform: uppercase; opacity: 0.85;
+display: flex; align-items: center; gap: 8px;
+}
+.pf-hero .pf-hero-mark {
+display: inline-flex; align-items: center; justify-content: center;
+width: 20px; height: 20px; border-radius: 6px; background: #fff; color: #635bff;
+font-weight: 800; font-size: 0.72rem; font-family: Consolas, monospace; letter-spacing: 0;
+}
+.pf-hero h1 { margin: 10px 0 8px; font-size: 1.5rem; color: #fff; }
+.pf-hero p { margin: 0; opacity: 0.95; max-width: 760px; line-height: 1.8; font-size: 0.92rem; }
+.pf-hero-meta { display: flex; gap: 22px; margin-top: 18px; flex-wrap: wrap; font-size: 0.82rem; opacity: 0.92; }
+.pf-hero-meta span strong { display: block; font-size: 0.68rem; opacity: 0.75; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }
+.pf-hero-meta code { background: rgba(255,255,255,0.18); color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 0.9em; }
+
+.pf-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+.pf-badge.ok { background: #e7f7ee; color: #1f8a52; }
+.pf-badge.wait { background: #fdf3dd; color: #b7791f; }
+.pf-badge.fail { background: #fdecea; color: #c0392b; }
+.pf-badge.info { background: #e8f1fb; color: #2563a8; }
+
+.pf-api-chip {
+display: inline-flex; align-items: center; gap: 8px; background: #2b2a3a; color: #fff;
+padding: 6px 12px; border-radius: 8px; font-family: Consolas, monospace; font-size: 0.82rem; margin: 6px 0;
+}
+.pf-api-chip .pf-api-method {
+background: #635bff; color: #fff; font-weight: 700; padding: 1px 8px; border-radius: 4px; font-size: 0.74rem; font-family: inherit;
+}
+
+.pf-card-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 18px; }
+.pf-card-chip {
+display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px;
+font-size: 0.8rem; font-weight: 600; border: 1px solid #e3e0f5; background: #fff; color: #2b2a3a;
+}
+.pf-card-chip .pf-cc-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.pf-card-chip.visa .pf-cc-dot { background: #1a1f71; }
+.pf-card-chip.mc .pf-cc-dot { background: #eb001b; }
+.pf-card-chip.jcb .pf-cc-dot { background: #0e7c3a; }
+.pf-card-chip.amex .pf-cc-dot { background: #2563a8; }
+.pf-card-chip.unknown { border-style: dashed; color: #5c5a72; }
+.pf-card-chip.unknown .pf-cc-dot { background: #b0aec7; }
+</style>
+
+
+<div class="tabs" id="stripe_fee"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="stripe_fee-1">費用機制總覽</button><button type="button" class="tab " data-href="stripe_fee-2">ArrangePayTypeExpressInfoProcessor</button><button type="button" class="tab " data-href="stripe_fee-3">GetOrderProcessingFeeProcessor</button><button type="button" class="tab " data-href="stripe_fee-4">全新卡的 Brand/Country 從哪來</button><button type="button" class="tab " data-href="stripe_fee-5">費率怎麼實際計算系統使用費</button><button type="button" class="tab " data-href="stripe_fee-6">付款成功後：費用資料如何存下來、如何交給 ERP</button><button type="button" class="tab " data-href="stripe_fee-7">費用資料流向全圖</button></ul><div class="tab-contents"><div class="tab-item-content active" id="stripe_fee-1"><style>
+.pf-note {
+border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 0.9rem;
+border-left: 4px solid #2563a8; background: #e8f1fb; color: #1c3f63; line-height: 1.8;
+}
+.pf-note .pf-n-label { font-weight: 700; margin-bottom: 4px; display: block; }
+.pf-note code { background: #eeecff; color: #4a3fb0; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+.pf-note.warn { border-left-color: #b7791f; background: #fdf3dd; color: #6b4c10; }
+.pf-note.danger { border-left-color: #c0392b; background: #fdecea; color: #7d281d; }
+.pf-note.ok { border-left-color: #1f8a52; background: #e7f7ee; color: #155c3a; }
+
+.pf-table-wrap { display: inline-block; max-width: 100%; overflow-x: auto; margin: 14px 0 22px; border: 1px solid #e3e0f5; border-radius: 10px; }
+.pf-table-wrap table { width: auto; border-collapse: collapse; font-size: 0.88rem; margin: 0 !important; }
+.pf-table-wrap thead th { background: #4a3fb0; color: #fff; text-align: left; padding: 10px 14px; font-weight: 600; }
+.pf-table-wrap tbody td { padding: 9px 14px; border-top: 1px solid #e3e0f5; vertical-align: top; color: #2b2a3a; }
+.pf-table-wrap tbody tr:nth-child(even) { background: #faf9ff; }
+.pf-table-wrap code { background: #eeecff; color: #4a3fb0; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+.pf-table-wrap .pf-cell-sub { display: block; font-size: 0.78rem; color: #5c5a72; margin-top: 2px; }
+
+.pf-flow-diagram { background: #fff; border: 1px solid #e3e0f5; border-radius: 12px; padding: 22px 24px; margin: 16px 0 24px; }
+.pf-flow-step {
+display: flex; align-items: flex-start; gap: 14px; padding: 10px 4px;
+border-left: 2px dashed #e3e0f5; margin-left: 14px; padding-left: 20px; position: relative;
+}
+.pf-flow-step::before {
+content: ""; position: absolute; left: -7px; top: 18px; width: 12px; height: 12px;
+border-radius: 50%; background: #635bff; border: 2px solid #fff; box-shadow: 0 0 0 2px #635bff;
+}
+.pf-flow-step.branch::before { background: #b7791f; box-shadow: 0 0 0 2px #b7791f; }
+.pf-flow-step.end::before { background: #1f8a52; box-shadow: 0 0 0 2px #1f8a52; }
+.pf-flow-step .pf-fs-body { font-size: 0.92rem; color: #2b2a3a; }
+.pf-flow-step .pf-fs-tag {
+display: inline-block; font-size: 0.68rem; letter-spacing: 1px; font-weight: 700;
+background: #eeecff; color: #4a3fb0; padding: 2px 8px; border-radius: 20px; margin-bottom: 4px;
+}
+.pf-flow-step .pf-fs-tag.branch { background: #fdf3dd; color: #b7791f; }
+.pf-flow-step .pf-fs-tag.end { background: #e7f7ee; color: #1f8a52; }
+.pf-flow-step code { background: #eeecff; color: #4a3fb0; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+
+.pf-fee-flow { background: #fff; border: 1px solid #e3e0f5; border-radius: 12px; padding: 20px; margin: 16px 0 24px; }
+.pf-fee-box { border: 1px solid #e3e0f5; border-radius: 8px; padding: 12px 14px; margin: 8px 0; font-size: 0.87rem; background: #fcfcff; color: #2b2a3a; line-height: 1.7; }
+.pf-fee-box .pf-fb-title { font-weight: 700; color: #4a3fb0; margin-bottom: 4px; display: block; }
+.pf-fee-box code { background: #eeecff; color: #4a3fb0; padding: 1px 6px; border-radius: 4px; }
+.pf-fee-box.final { background: #eeecff; border-color: #635bff; }
+.pf-fee-arrow { text-align: center; color: #635bff; font-size: 1.1rem; margin: 2px 0; }
+
+.pf-stage-grid { display: flex; gap: 18px; margin: 16px 0 22px; flex-wrap: wrap; }
+.pf-stage-card { flex: 1; min-width: 260px; background: #fff; border: 1px solid #e3e0f5; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(70,60,150,0.06); }
+.pf-stage-card .pf-stage-head { background: #4a3fb0; color: #fff; padding: 10px 16px; font-weight: 700; font-size: 0.92rem; }
+.pf-stage-card .pf-stage-head .pf-stage-sub { display: block; font-weight: 400; font-size: 0.72rem; opacity: 0.85; margin-top: 2px; letter-spacing: 0.5px; }
+.pf-stage-card .pf-stage-body { padding: 14px 16px 16px; font-size: 0.88rem; color: #2b2a3a; }
+.pf-stage-card .pf-stage-body ul, .pf-stage-card .pf-stage-body ol { margin: 8px 0; padding-left: 20px; }
+.pf-stage-card .pf-stage-body li { margin: 4px 0; line-height: 1.7; }
+.pf-stage-card code { background: #eeecff; color: #4a3fb0; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+
+.pf-branch-grid { display: flex; gap: 16px; margin: 16px 0 22px; flex-wrap: wrap; }
+.pf-branch-card { flex: 1; min-width: 200px; border-radius: 10px; padding: 12px 14px; font-size: 0.86rem; border: 1px solid #e3e0f5; background: #fcfcff; color: #2b2a3a; }
+.pf-branch-card .pf-bc-code { font-family: Consolas, monospace; font-weight: 700; font-size: 0.92rem; color: #4a3fb0; display: block; margin-bottom: 4px; }
+.pf-branch-card.muted { background: #f5f4fb; border-color: #dedbf0; color: #5c5a72; }
+.pf-branch-card.warn { background: #fdf3dd; border-color: #f0dba8; color: #6b4c10; }
+.pf-branch-card.warn .pf-bc-code { color: #b7791f; }
+.pf-branch-card code { background: #eeecff; color: #4a3fb0; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+
+.pf-term { background: #221f36; color: #dcd9f5; border-radius: 12px; padding: 18px 22px 22px; margin: 16px 0 24px; box-shadow: 0 6px 20px rgba(40,32,90,0.22); overflow-x: auto; }
+.pf-term .pf-term-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.pf-term .pf-term-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.pf-term .pf-term-dot.r { background: #ff5f56; }
+.pf-term .pf-term-dot.y { background: #ffbd2e; }
+.pf-term .pf-term-dot.g { background: #27c93f; }
+.pf-term .pf-term-title { margin-left: 8px; font-size: 0.74rem; color: #9b96c9; letter-spacing: 0.5px; }
+.pf-term pre.pf-term-pre { margin: 0 !important; background: transparent !important; padding: 0 !important; border: none !important; box-shadow: none !important; font-family: Consolas, monospace !important; font-size: 0.84rem !important; line-height: 1.9 !important; white-space: pre !important; overflow-x: auto !important; color: #f3f1ff !important; text-shadow: none !important; }
+.pf-term .tstep { color: #c7b8ff !important; font-weight: 700; }
+.pf-term .tbadge { color: #ffd166 !important; font-weight: 700; }
+.pf-term .tdb { color: #7fd1ff !important; font-weight: 600; }
+.pf-term .tfinal { color: #7ee8a8 !important; font-weight: 700; }
+.pf-term .tok { color: #ffffff !important; font-weight: 700; }
+.pf-term .tdim { color: #b8b3d9 !important; }
+</style>
+
+<p>Stripe 請款的時候，其實一次要跟商家收兩筆錢：一筆是<strong>平台的系統使用費</strong>，另一筆是<strong>信用卡本身的手續費</strong>。這兩筆錢的費率怎麼查、什麼時候確定、又是怎麼一起送給 Stripe 申報的，就是這篇要拆解的內容</p>
+<h2 id="兩種費用的差別"><a href="#兩種費用的差別" class="headerlink" title="兩種費用的差別"></a>兩種費用的差別</h2><div class="pf-table-wrap">
+<table>
+<thead><tr><th style="width:22%">費用類型</th><th>說明</th></tr></thead>
+<tbody>
+<tr><td><strong>系統使用費</strong><span class="pf-cell-sub"><code>SalesOrder</code></span></td><td>平台向商家收取的服務費，費率與商品分類、供應商有關</td></tr>
+<tr><td><strong>金流手續費</strong><span class="pf-cell-sub"><code>PayProfile</code></span></td><td>Stripe 信用卡交易手續費，費率與「發卡國家＋卡片品牌」的組合有關</td></tr>
+</tbody>
+</table>
+</div>
+
+
+<h2 id="費用取得的時間點（在-Pipeline-中的位置）"><a href="#費用取得的時間點（在-Pipeline-中的位置）" class="headerlink" title="費用取得的時間點（在 Pipeline 中的位置）"></a>費用取得的時間點（在 Pipeline 中的位置）</h2><p>這兩種費率不是一開始就知道，而是隨著下單 Pipeline 一步步往下跑，才逐漸被鎖定、查出來、最後算成金額：</p>
+<div class="pf-flow-diagram">
+<div class="pf-flow-step">
+<div class="pf-fs-body"><span class="pf-fs-tag">Pipeline 第 19 道</span><br><code>ArrangePayTypeExpressInfoProcessor</code> — 設定卡片品牌與發卡國代碼（這兩個值就是後面手續費計算的依據）</div>
+</div>
+<div class="pf-flow-step branch">
+<div class="pf-fs-body"><span class="pf-fs-tag branch">Pipeline 第 26 道</span><br><code>GetOrderProcessingFeeProcessor</code> — 分別載入「系統使用費」與「金流手續費」兩種費率</div>
+</div>
+<div class="pf-flow-step end">
+<div class="pf-fs-body"><span class="pf-fs-tag end">Pipeline 第 30 道</span><br><code>ThirdPartyPayApiProcessor</code> — 呼叫費用計算方法算出最終要向 Stripe 申報的手續費金額，隨請款請求一併送出</div>
+</div>
+</div>
+
+<h3 id="Brand-發卡國代碼的資料來源（依情境不同）"><a href="#Brand-發卡國代碼的資料來源（依情境不同）" class="headerlink" title="Brand &#x2F; 發卡國代碼的資料來源（依情境不同）"></a>Brand &#x2F; 發卡國代碼的資料來源（依情境不同）</h3><p>手續費要算得準，關鍵就在「卡片品牌」與「發卡國家」這兩個值有沒有抓對。金流手續費率正是依「發卡國家＋卡片品牌」的組合去查，常見的卡片品牌如下：</p>
+<div class="pf-card-chips">
+<span class="pf-card-chip visa"><span class="pf-cc-dot"></span>Visa</span>
+<span class="pf-card-chip mc"><span class="pf-cc-dot"></span>Mastercard</span>
+<span class="pf-card-chip jcb"><span class="pf-cc-dot"></span>JCB</span>
+<span class="pf-card-chip amex"><span class="pf-cc-dot"></span>American Express</span>
+<span class="pf-card-chip unknown"><span class="pf-cc-dot"></span>未知（全新卡查詢前）</span>
+</div>
+
+<p>但這兩個值在不同付款情境下，來源完全不一樣：</p>
+<div class="pf-table-wrap">
+<table>
+<thead><tr><th>使用情境</th><th>資料來源</th></tr></thead>
+<tbody>
+<tr><td>記住信用卡（舊卡復用）</td><td>從 <code>PayTypeExpress</code> 資料表讀取後設定</td></tr>
+<tr><td>定期購自動成單</td><td>從既有的定期購結帳資訊解析後設定</td></tr>
+<tr><td>Google Pay / Apple Pay</td><td>即時向 Stripe API 查詢取得</td></tr>
+<tr><td>新信用卡（首次付款）</td><td>付款完成後才能取得，因此計算手續費時暫時視為未知</td></tr>
+</tbody>
+</table>
+</div></div><div class="tab-item-content" id="stripe_fee-2"><p>前面提到 Pipeline 第 19 道會設定卡片品牌與發卡國代碼，但這一步<strong>不是「每次結帳都會設定」</strong>，而是有明確的觸發條件。這個 Processor 真正的角色是：把「使用者選擇的已記住付款工具」還原成付款所需的機敏資料，只有在使用者<strong>明確選擇快速結帳／記住的卡片</strong>時才會動作。</p>
+<div class="pf-note">
+<span class="pf-n-label">💡 一句話定位</span>
+它是 <code>identity</code> → <code>PayTypeExpress</code> 記錄 → 機敏付款資訊的還原器，跟「這次是不是輸入全新卡號」完全無關；有沒有觸發，取決於前端這次結帳有沒有帶 <code>identity</code> 上來。
+</div>
+
+<div class="pf-stage-grid">
+<div class="pf-stage-card">
+<div class="pf-stage-head">組別一：CheckoutDotCom / Stripe / KPay<span class="pf-stage-sub">快速結帳 / 記住信用卡專用</span></div>
+<div class="pf-stage-body">
+<ol>
+<li>前提：<code>context.ThirdPartyPaymentInfo.ExtendInfo</code> 裡必須帶有 <code>identity</code>（代表前端已指定「用第幾張記住的卡」）</li>
+<li>用 <code>identity</code> 查出對應的 <code>PayTypeExpress</code> 記錄，解密還原出機敏付款資訊（如 Stripe 的 <code>customer_id</code> / <code>payment_method</code>）寫回 context</li>
+<li>只有 Stripe 這個分支才會額外多做一件事：把 <code>Brand</code> / <code>IssueCountryCode</code> 一併設進 <code>context.CreditCardInfo</code>，專門為了讓後面第 26 道能查到正確的金流手續費率</li>
+</ol>
+</div>
+</div>
+<div class="pf-stage-card">
+<div class="pf-stage-head">組別二：CreditCardOnce / CreditCardInstallment<span class="pf-stage-sub">本土一次性 / 分期信用卡（限 Nine1Payment 金流）</span></div>
+<div class="pf-stage-body">
+<ol>
+<li>邏輯類似，同樣需要 <code>identity</code> 才會觸發</li>
+<li>從 <code>PayTypeExpress</code> 撈出 <code>CardToken</code> / <code>BankCode</code></li>
+<li>處理的是「發卡行資訊可能過期需要更新」的問題，<strong>跟手續費計算無關</strong>，服務對象也不是 Stripe</li>
+</ol>
+</div>
+</div>
+</div></div><div class="tab-item-content" id="stripe_fee-3"><p><code>GetOrderProcessingFeeProcessor</code> 就是前面提到的 <strong>Pipeline 第 26～27 道</strong>，它唯一的工作是：把「系統使用費」與「金流手續費」這兩種費率查出來，放進 <code>context.ProcessingFeeInfo</code>，讓後面第 30 道 <code>ThirdPartyPayApiProcessor</code> 能直接拿來算 <code>application_fee_amount</code>。它會不會執行、抓到的是不是正確的值，是這篇最值得深挖的地方。</p>
+<div class="pf-note">
+<span class="pf-n-label">💡 一句話定位</span>
+它是「兩種費率的查詢器」，只認 <code>PayProfileType</code> 決定要不要查、以及查哪一種公式，<strong>完全不判斷這次結帳是不是快速結帳、記不記得卡、是不是全新卡</strong>。
+</div>
+
+<h3 id="第一道關卡：只有-HK-環境才會執行-HK-Only"><a href="#第一道關卡：只有-HK-環境才會執行-HK-Only" class="headerlink" title="第一道關卡：只有 HK 環境才會執行 HK Only"></a>第一道關卡：只有 HK 環境才會執行 <span class="pf-badge info">HK Only</span></h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// GetOrderProcessingFeeProcessor.Process()</span></span><br><span class="line"><span class="keyword">if</span> (SettingHelper.DefaultCountry != <span class="string">&quot;HK&quot;</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其他地區的商店，這個 Processor 一進來就直接跳過，<code>context.ProcessingFeeInfo</code> 全程維持空值。</p>
+<h3 id="兩條各自獨立的查詢邏輯"><a href="#兩條各自獨立的查詢邏輯" class="headerlink" title="兩條各自獨立的查詢邏輯"></a>兩條各自獨立的查詢邏輯</h3><div class="pf-stage-grid">
+<div class="pf-stage-card">
+<div class="pf-stage-head">GetSalesOrderProcessingFee<span class="pf-stage-sub">查「系統使用費」→ context.ProcessingFeeInfo.SalesOrder</span></div>
+<div class="pf-stage-body">
+<ol>
+<li><code>CreditCardOnce_Stripe</code> / <code>GooglePay</code> / <code>ApplePay</code> 才會查，其餘付款方式回傳 <code>null</code></li>
+<li>邏輯很單純：拿購物車第一個非贈品的商品分類 <code>SourceCategoryId</code>，查該分類 + 供應商對應的系統使用費率</li>
+<li>這條路徑跟卡片品牌／發卡國完全無關，<strong>不會受全新卡或記住卡影響</strong></li>
+</ol>
+</div>
+</div>
+<div class="pf-stage-card">
+<div class="pf-stage-head">GetPayProfileProcessingFee<span class="pf-stage-sub">查「金流手續費」→ context.ProcessingFeeInfo.PayProfile</span></div>
+<div class="pf-stage-body">
+<ol>
+<li><code>CreditCardOnce_Stripe</code>：直接拿<strong>當下</strong>的 <code>context.CreditCardInfo.Brand</code> / <code>IssueCountryCode</code> 去查——這兩個值是不是正確</li>
+<li><code>GooglePay</code> / <code>ApplePay</code>：呼叫 <code>GetBrandAndCountry()</code>，即時打 Stripe API（<code>RetrievePaymentMethod</code>）用 <code>payment_method</code> 查出<strong>真實</strong>卡片品牌與發卡國</li>
+<li>其餘付款方式回傳 <code>null</code></li>
+</ol>
+<div class="pf-api-chip"><span class="pf-api-method">GET</span> /v1/payment_methods/{id}</div>
+</div>
+</div>
+</div>
+
+<h3 id="三種-PayProfileType-分支對照"><a href="#三種-PayProfileType-分支對照" class="headerlink" title="三種 PayProfileType 分支對照"></a>三種 PayProfileType 分支對照</h3><div class="pf-branch-grid">
+<div class="pf-branch-card">
+<span class="pf-bc-code">CreditCardOnce_Stripe</span> <span class="pf-badge wait">資料待確認</span>
+兩種費率都查。金流手續費用「context 當下的 Brand / Country」，<strong>不會主動去問 Stripe 要真實資料</strong>
+</div>
+<div class="pf-branch-card">
+<span class="pf-bc-code">GooglePay / ApplePay</span> <span class="pf-badge ok">資料最可靠</span>
+兩種費率都查。金流手續費<strong>即時呼叫 Stripe API</strong> 取得真實 Brand / Country，資料最可靠
+</div>
+<div class="pf-branch-card muted">
+<span class="pf-bc-code">其他付款方式</span> <span class="pf-badge fail">不計費</span>
+兩個方法都直接回傳 <code>null</code>，<code>ProcessingFeeInfo</code> 維持空值，後面也不會計入 <code>application_fee_amount</code>
+</div>
+</div></div><div class="tab-item-content" id="stripe_fee-4"><p>前兩個 tab 一直圍繞著一個假設：全新卡（沒有 identity）在後端 Pipeline 裡「查不到」正確的卡片品牌／發卡國。實際追下去才發現，這個假設<strong>只對了一半</strong>——後端的確沒有主動去查，但<strong>前端在送出訂單之前，就已經先把真實資料準備好了</strong>。</p>
+<h2 id="送單前的隱藏一步：CardValidate"><a href="#送單前的隱藏一步：CardValidate" class="headerlink" title="送單前的隱藏一步：CardValidate"></a>送單前的隱藏一步：CardValidate</h2><div class="pf-flow-diagram">
+<div class="pf-flow-step">
+<span class="pf-fs-tag">前端 SubmitOrder()</span>
+<div class="pf-fs-body">判斷條件：<code>!PayProcessData.HasCreditCard</code>（全新卡） <strong>且</strong> <code>PayProfileType === CreditCardOnce_Stripe</code>，才會進入下一步；記住的卡（HasCreditCard = true）不會走這條路</div>
+</div>
+<div class="pf-flow-step branch">
+<span class="pf-fs-tag branch">前端 ValidateService.CardValidate()</span>
+<div class="pf-fs-body">把使用者剛輸入的卡號、到期日、CVC 包成 <code>CardOptions</code>，POST 到後端 <code>/CreditCard/Validate</code></div>
+</div>
+<div class="pf-flow-step branch">
+<span class="pf-fs-tag branch">後端 CreditCardController.Validate → StripeService.CreditCardValidation</span>
+<div class="pf-fs-body">直接拿卡片資料呼叫<strong>真正的 Stripe 官方 API</strong>，換回這張卡真實的 <code>brand</code>、<code>country</code></div>
+<div class="pf-api-chip"><span class="pf-api-method">POST</span> /v1/payment_methods</div>
+</div>
+<div class="pf-flow-step branch">
+<span class="pf-fs-tag branch">前端拿到回應</span>
+<div class="pf-fs-body">驗證成功後寫回 <code>PayProcessData.CreditCardInfo.Brand</code> / <code>IssueCountryCode</code>，這兩個值現在是<strong>真實卡片資訊</strong>，不再是預設值</div>
+</div>
+<div class="pf-flow-step end">
+<span class="pf-fs-tag end">前端 AfterCheck() → Send()</span>
+<div class="pf-fs-body">把整包 <code>PayProcessData</code>（也就是後端的 <code>PayProcessContextEntity</code>）送給 <code>CompleteForNewCartV2</code>，Pipeline 開始跑第 1 道時，<code>context.CreditCardInfo</code> 就已經帶著真實資料進來了</div>
+</div>
+</div></div><div class="tab-item-content" id="stripe_fee-5"><p>拿到兩種費率之後，接下來就是把它們套進公式，算出一個要跟 Stripe 申報的 <code>application_fee_amount</code>。這筆金額由三個部分加總而成：</p>
+<div class="pf-fee-flow">
+<div class="pf-fee-box">
+<span class="pf-fb-title">① 商品系統使用費</span>
+所有商品（實付金額扣除購物金攤提後）× 系統使用費率，加總
+</div>
+<div class="pf-fee-box">
+<span class="pf-fb-title">② 運費系統使用費</span>
+所有運費（實付金額扣除購物金攤提後）× 系統使用費率，加總
+</div>
+<div class="pf-fee-box">
+<span class="pf-fb-title">③ 金流手續費（僅 <code>Custom</code> 帳戶類型才會加上）</span>
+總支付金額 × 金流手續費率 + 金流固定手續費
+</div>
+<div class="pf-fee-arrow">↓</div>
+<div class="pf-fee-box final">
+<span class="pf-fb-title">最終金額 application_fee_amount</span>
+① ＋ ② ＋ ③，四捨五入到小數第 2 位；若計算結果大於 0 但小於 0.01，強制設為 0.01
+</div>
+</div>
+
+<div class="pf-note">
+<span class="pf-n-label">💡 PMW 收到金額後的用途</span>
+PMW 會把算好的手續費金額（換算成最小貨幣單位、取整數）放進 Stripe 的請款請求裡的 <code>application_fee_amount</code> 欄位。Stripe 扣款成功後，這筆金額會直接從交易款項中撥給 91APP 的主帳號，作為平台向商家收取的服務費。
+</div></div><div class="tab-item-content" id="stripe_fee-6"><p>付款成功後，系統會把這次交易用到的費率資訊（付款流程類型、帳戶類型、卡片品牌、發卡國家、各項費率與固定費用）整批序列化，存進這筆訂單的第三方付款紀錄裡，供後續 ERP 轉單時讀取使用。實際負責這件事的是 <code>StripePayChannelService.GetTradesOrderThirdPartyPaymentInfo()</code>，它會把當次交易用到的費率組成一段 JSON，寫進 <code>TradesOrderThirdPartyPayment.Info</code> 欄位：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;PaymentFlow&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DirectCharge|DestinationCharge&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;AccountType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Standard|Custom|Express&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;SubAccount&quot;</span><span class="punctuation">:</span> <span class="string">&quot;acct_xxx&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;CardBrand&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Visa|MasterCard|...&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;CardIssueCountry&quot;</span><span class="punctuation">:</span> <span class="string">&quot;HK|TW|...&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;FeeRate&quot;</span><span class="punctuation">:</span> <span class="number">0.015</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;FixedFee&quot;</span><span class="punctuation">:</span> <span class="number">0.00</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;SourceId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;123&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;SourceType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;...&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;SCMSalesFeeRate&quot;</span><span class="punctuation">:</span> <span class="number">0.05</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;PaymentServiceProvider&quot;</span><span class="punctuation">:</span> <span class="string">&quot;PaymentMiddleware&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<div class="pf-table-wrap">
+<table>
+<thead><tr><th style="width:20%">欄位</th><th>意義</th></tr></thead>
+<tbody>
+<tr><td><code>PaymentFlow</code></td><td>這筆交易走的是 <code>DirectCharge</code> 還是 <code>DestinationCharge</code></td></tr>
+<tr><td><code>AccountType</code></td><td>子帳戶類型：<code>Standard</code> / <code>Custom</code> / <code>Express</code>，決定金流手續費要不要平台自己算</td></tr>
+<tr><td><code>SubAccount</code></td><td>實際收款的 Stripe 子帳戶 ID</td></tr>
+<tr><td><code>CardBrand</code> / <code>CardIssueCountry</code></td><td>這次刷卡用的卡片品牌與發卡國，也就是查金流手續費率的組合鍵</td></tr>
+<tr><td><code>FeeRate</code> / <code>FixedFee</code></td><td><code>PayProfile</code> 查出來的金流手續費率與固定費</td></tr>
+<tr><td><code>SourceId</code> / <code>SourceType</code></td><td>這個費率的來源，<code>SourceId</code> 對應 <code>PayProfileProcessingFee</code> 表的主鍵</td></tr>
+<tr><td><code>SCMSalesFeeRate</code></td><td><code>SalesOrder</code> 查出來的系統使用費率</td></tr>
+<tr><td><code>PaymentServiceProvider</code></td><td>固定為 <code>PaymentMiddleware</code>，標示這筆交易走哪一套金流串接</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="ERP-轉單時的欄位映射"><a href="#ERP-轉單時的欄位映射" class="headerlink" title="ERP 轉單時的欄位映射"></a>ERP 轉單時的欄位映射</h3><p>ERP 轉單 Job 會讀出 <code>TradesOrderThirdPartyPayment.Info</code> 這段 JSON，把它還原成一般會計看得懂的訂單欄位：</p>
+<div class="pf-table-wrap">
+<table>
+<thead><tr><th>Info 欄位</th><th>ERP 目標欄位</th><th>說明</th></tr></thead>
+<tbody>
+<tr><td><code>FeeRate</code></td><td><code>SalesOrderSlave_SCMCreditCardFeeRate</code> /<span class="pf-cell-sub"><code>SCMCreditCardFeeRate2</code></span></td><td>信用卡手續費率</td></tr>
+<tr><td><code>SCMSalesFeeRate</code></td><td><code>SalesOrderSlave_SCMSalesFeeRate</code></td><td>系統使用費率</td></tr>
+<tr><td><code>FixedFee</code></td><td><code>SalesOrderGroup_PaymentFixedFee</code></td><td>付款固定費用</td></tr>
+<tr><td><code>CardBrand</code> / <code>CardIssueCountry</code></td><td><code>SalesOrder</code> 相關欄位</td><td>卡別與國家資訊</td></tr>
+</tbody>
+</table>
+</div></div><div class="tab-item-content" id="stripe_fee-7"><p>把前面幾個 tab 拆解的內容串成一條完整的線，從 Pipeline 第 19 道設定卡片資訊開始，一路走到 ERP 生出費用單為止：</p>
+<div class="pf-term">
+<div class="pf-term-bar"><span class="pf-term-dot r"></span><span class="pf-term-dot y"></span><span class="pf-term-dot g"></span><span class="pf-term-title">費用資料流向全圖</span></div>
+<pre class="pf-term-pre"><span class="tstep">[Step #19]</span> ArrangePayTypeExpressInfoProcessor
+    設定 context.CreditCardInfo.Brand / IssueCountryCode
+         │
+         ▼
+<span class="tstep">[Step #26]</span> GetOrderProcessingFeeProcessor<span class="tbadge">（HK Only）</span>
+    ┌──────────────────────────┐   ┌───────────────────────────────┐
+    │ ProcessingFeeService     │   │ ProcessingFeeService           │
+    │ .GetSalesFeeInfo()       │   │ .GetCreditCardPayProfileFeeInfo│
+    │                          │   │                                │
+    │ <span class="tdb">DB: SupplierContract</span>     │   │ <span class="tdb">DB: csp_GetPayProfileProcessing</span>│
+    │     <span class="tdb">SalesFeeRate 表</span>      │   │     <span class="tdb">Fee SP（WebStoreDB）</span>       │
+    └──────────────────────────┘   └───────────────────────────────┘
+         │                                      │
+         ↓ context.ProcessingFeeInfo.SalesOrder  ↓ context.ProcessingFeeInfo.PayProfile
+         │                                      │
+         └─────────────────┬────────────────────┘
+                           ▼
+<span class="tstep">[Step #30]</span> ThirdPartyPayApiProcessor
+    → PaymentMiddlewareService.PaymentRequest()
+        → StripePayChannelService.GetPayExtendInfo()
+            → GetStripeApplicationFee()
+                ① 商品費 = Σ(商品金額 - 購物金) × SalesOrder.Rate
+                ② 運費費 = Σ(運費 - 購物金) × SalesOrder.Rate
+                ③ Custom Only: + TotalPayment × PayProfile.Rate + PayProfile.FixedFee
+                ─────────────────────────────────────────────
+                → <span class="tok">ExtendInfo["application_fee_amount"] = ①+②+③</span>
+        → HTTP POST PMW /api/v1/Pay/CreditCardOnce_Stripe/{tgCode}
+            (帶 application_fee_amount)
+                 │
+                 ▼
+            Stripe API POST /v1/payment_intents
+                 <span class="tdim">(application_fee_amount * 100 → 整數，送給 Stripe)</span>
+                 │
+                 ▼
+            <span class="tfinal">Stripe 扣款成功</span>
+                 │
+                 ▼
+<span class="tstep">[付款成功後]</span> StripePayChannelService.GetTradesOrderThirdPartyPaymentInfo()
+    → 序列化 FeeRate/SCMSalesFeeRate/FixedFee/CardBrand/CardIssueCountry
+    → 存入 TradesOrderThirdPartyPayment.Info（JSON）
+                 │
+                 ▼
+<span class="tstep">[TransferOrderProcessor → AfterOrderProcessor → ERP Job]</span>
+    csp_TradesOrderTransToSalesOrderWithFlow_Mall
+    → 讀取 ThirdPartyPayment_Info
+    → 更新 SalesOrderSlave_SCMCreditCardFeeRate / SCMSalesFeeRate / PaymentFixedFee
+    → <span class="tfinal">生成 ExpenseOrder（費用單）</span>
+</pre>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/07/10/DeepType-Payment-Stripe-fee/">https://allenlin000.github.io.git/2026/07/10/DeepType-Payment-Stripe-fee/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/07/06/DeepType-Payment-Cybersource-Refund/" title="Cybersource-Refund"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Query/landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Cybersource-Refund</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">252</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A9%E7%A8%AE%E8%B2%BB%E7%94%A8%E7%9A%84%E5%B7%AE%E5%88%A5"><span class="toc-number">1.</span> <span class="toc-text">兩種費用的差別</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B2%BB%E7%94%A8%E5%8F%96%E5%BE%97%E7%9A%84%E6%99%82%E9%96%93%E9%BB%9E%EF%BC%88%E5%9C%A8-Pipeline-%E4%B8%AD%E7%9A%84%E4%BD%8D%E7%BD%AE%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">費用取得的時間點（在 Pipeline 中的位置）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Brand-%E7%99%BC%E5%8D%A1%E5%9C%8B%E4%BB%A3%E7%A2%BC%E7%9A%84%E8%B3%87%E6%96%99%E4%BE%86%E6%BA%90%EF%BC%88%E4%BE%9D%E6%83%85%E5%A2%83%E4%B8%8D%E5%90%8C%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">Brand &#x2F; 發卡國代碼的資料來源（依情境不同）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%81%93%E9%97%9C%E5%8D%A1%EF%BC%9A%E5%8F%AA%E6%9C%89-HK-%E7%92%B0%E5%A2%83%E6%89%8D%E6%9C%83%E5%9F%B7%E8%A1%8C-HK-Only"><span class="toc-number">2.2.</span> <span class="toc-text">第一道關卡：只有 HK 環境才會執行 HK Only</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A9%E6%A2%9D%E5%90%84%E8%87%AA%E7%8D%A8%E7%AB%8B%E7%9A%84%E6%9F%A5%E8%A9%A2%E9%82%8F%E8%BC%AF"><span class="toc-number">2.3.</span> <span class="toc-text">兩條各自獨立的查詢邏輯</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A8%AE-PayProfileType-%E5%88%86%E6%94%AF%E5%B0%8D%E7%85%A7"><span class="toc-number">2.4.</span> <span class="toc-text">三種 PayProfileType 分支對照</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%81%E5%96%AE%E5%89%8D%E7%9A%84%E9%9A%B1%E8%97%8F%E4%B8%80%E6%AD%A5%EF%BC%9ACardValidate"><span class="toc-number">3.</span> <span class="toc-text">送單前的隱藏一步：CardValidate</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ERP-%E8%BD%89%E5%96%AE%E6%99%82%E7%9A%84%E6%AC%84%E4%BD%8D%E6%98%A0%E5%B0%84"><span class="toc-number">3.1.</span> <span class="toc-text">ERP 轉單時的欄位映射</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/10/DeepType-Payment-Stripe-fee/" title="Stripe-Fee"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe-Fee"/></a><div class="content"><a class="title" href="/2026/07/10/DeepType-Payment-Stripe-fee/" title="Stripe-Fee">Stripe-Fee</a><time datetime="2026-07-10T03:09:00.000Z" title="Created 2026-07-10 11:09:00">2026-07-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/06/DeepType-Payment-Cybersource-Refund/" title="Cybersource-Refund"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Query/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cybersource-Refund"/></a><div class="content"><a class="title" href="/2026/07/06/DeepType-Payment-Cybersource-Refund/" title="Cybersource-Refund">Cybersource-Refund</a><time datetime="2026-07-06T09:51:00.000Z" title="Created 2026-07-06 17:51:00">2026-07-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/03/DeepType-Payment-Cybersource-Query/" title="Cybersource-Query"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Query/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cybersource-Query"/></a><div class="content"><a class="title" href="/2026/07/03/DeepType-Payment-Cybersource-Query/" title="Cybersource-Query">Cybersource-Query</a><time datetime="2026-07-03T02:44:00.000Z" title="Created 2026-07-03 10:44:00">2026-07-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/02/DeepType-Payment-Cybersource-Pay/" title="Cybersource-Pay"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Pay/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cybersource-Pay"/></a><div class="content"><a class="title" href="/2026/07/02/DeepType-Payment-Cybersource-Pay/" title="Cybersource-Pay">Cybersource-Pay</a><time datetime="2026-07-02T10:19:00.000Z" title="Created 2026-07-02 18:19:00">2026-07-02</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
