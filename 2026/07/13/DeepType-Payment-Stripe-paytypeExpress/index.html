@@ -1,0 +1,638 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Stripe-Paytype-Express | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="會員在結帳時勾選「記住這張卡」之後，下次結帳畫面上完全看不到卡號輸入框，直接就能一鍵扣款，這個「免輸入卡號」的體驗背後，mweb 前台跟 PaymentMiddleware（以下簡稱 PMW）之間到底怎麼互相配合，才能既讓使用者方便，又不會讓卡片資訊外流。整體會先看 PMW 端 Stripe 外掛怎麼判斷「這次要用哪一種方式扣款」，再往前台看這些關鍵欄位究竟是怎麼被組出來、又是怎麼存回資料庫的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stripe-Paytype-Express">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="會員在結帳時勾選「記住這張卡」之後，下次結帳畫面上完全看不到卡號輸入框，直接就能一鍵扣款，這個「免輸入卡號」的體驗背後，mweb 前台跟 PaymentMiddleware（以下簡稱 PMW）之間到底怎麼互相配合，才能既讓使用者方便，又不會讓卡片資訊外流。整體會先看 PMW 端 Stripe 外掛怎麼判斷「這次要用哪一種方式扣款」，再往前台看這些關鍵欄位究竟是怎麼被組出來、又是怎麼存回資料庫的。">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png">
+<meta property="article:published_time" content="2026-07-13T02:07:00.000Z">
+<meta property="article:modified_time" content="2026-07-13T04:00:51.851Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Stripe-Paytype-Express',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-07-13 12:00:51'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">253</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Stripe-Paytype-Express</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-07-13T02:07:00.000Z" title="Created 2026-07-13 10:07:00">2026-07-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-07-13T04:00:51.851Z" title="Updated 2026-07-13 12:00:51">2026-07-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Payment/">Payment</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Stripe-Paytype-Express"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>會員在結帳時勾選「記住這張卡」之後，下次結帳畫面上完全看不到卡號輸入框，直接就能一鍵扣款，這個「免輸入卡號」的體驗背後，mweb 前台跟 PaymentMiddleware（以下簡稱 PMW）之間到底怎麼互相配合，才能既讓使用者方便，又不會讓卡片資訊外流。整體會先看 PMW 端 Stripe 外掛怎麼判斷「這次要用哪一種方式扣款」，再往前台看這些關鍵欄位究竟是怎麼被組出來、又是怎麼存回資料庫的。</p>
+<div class="tabs" id="stripe_paytypeexpress"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="stripe_paytypeexpress-1">🔀 情境判斷邏輯與三種付款情境</button><button type="button" class="tab " data-href="stripe_paytypeexpress-2">📊 情境比較與 Process 類別解析</button><button type="button" class="tab " data-href="stripe_paytypeexpress-3">🔑 mweb 如何取得 customer_id / payment_method</button><button type="button" class="tab " data-href="stripe_paytypeexpress-4">🗄️ PayTypeExpress 資料表</button><button type="button" class="tab " data-href="stripe_paytypeexpress-5">🧩 PMW 程式碼對照</button></ul><div class="tab-contents"><div class="tab-item-content active" id="stripe_paytypeexpress-1"><style>
+.pte-pill { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.74rem; font-weight: 700; }
+.pte-pill.ok { background: #e7f7ee; color: #1f8a52; }
+.pte-pill.warn { background: #fdf3dd; color: #b7791f; }
+.pte-pill.err { background: #fdecea; color: #c0392b; }
+
+.pte-note { display: flex; gap: 10px; align-items: flex-start; border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 0.9rem; border-left: 4px solid #a78bfa; background: #f3f0fd; color: #4a3f78; line-height: 1.8; }
+.pte-note b { color: #372f5c; }
+.pte-note code { background: #eeecff; color: #4a3fb0; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+.pte-note .pte-note-icon { flex-shrink: 0; font-size: 1.05rem; line-height: 1.8; }
+.pte-note.code { border-left-color: #38bdf8; background: #eaf6ff; color: #1c4e73; }
+.pte-note.code b { color: #0c3a57; }
+.pte-note.code code { background: #dcf0ff; color: #0e6fa8; }
+.pte-note.warn { border-left-color: #f5b042; background: #fdf3dd; color: #6b4a09; }
+.pte-note.warn b { color: #563a05; }
+.pte-note.warn code { background: #fbe4b8; color: #7a520a; }
+
+.pte-legend { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 20px; }
+.pte-legend .pte-lg-item { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; border: 1px solid; }
+.pte-legend .pte-lg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.pte-legend .s1 { background: #e9fbf8; border-color: #3fd6c0; color: #147d6c; }
+.pte-legend .s1 .pte-lg-dot { background: linear-gradient(135deg,#3fd6c0,#8ff0d2); }
+.pte-legend .s2 { background: #fff9ec; border-color: #ffcf5c; color: #92650a; }
+.pte-legend .s2 .pte-lg-dot { background: linear-gradient(135deg,#ffcf5c,#ffe28a); }
+.pte-legend .s3 { background: #f8f2ff; border-color: #c084fc; color: #6b3fa8; }
+.pte-legend .s3 .pte-lg-dot { background: linear-gradient(135deg,#c084fc,#e9d5ff); }
+
+.pte-section-title { display: flex; align-items: center; gap: 10px; margin: 32px 0 14px; }
+.pte-section-title .pte-st-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg,#6ee7ff,#a78bfa); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.pte-section-title h2 { margin: 0; font-size: 1.12rem; border: none; padding: 0; }
+
+.pte-decision { background: #171f30; border-radius: 14px; padding: 22px 24px; margin: 16px 0 22px; box-shadow: 0 6px 20px rgba(20,20,50,0.18); }
+.pte-decision .pte-q { background: #1d2740; border: 1px solid #2b3654; border-radius: 10px; padding: 13px 18px; font-size: 0.88rem; color: #e8ecf6; }
+.pte-decision .pte-q code { background: #0b0f1a; color: #6ee7ff; padding: 1px 6px; border-radius: 5px; }
+.pte-decision .pte-arrow { text-align: center; color: #93a1c2; font-size: 1.2rem; padding: 4px 0; }
+.pte-decision .pte-result { margin: 6px 0 14px 24px; padding: 10px 16px; border-radius: 10px; font-size: 0.86rem; font-weight: 700; }
+.pte-decision .pte-result.s1 { background: rgba(110,231,255,0.12); border: 1px solid rgba(110,231,255,0.4); color: #1f7fa8; }
+.pte-decision .pte-result.s2 { background: rgba(251,191,36,0.14); border: 1px solid rgba(251,191,36,0.45); color: #92650a; }
+.pte-decision .pte-result.s3 { background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.45); color: #5b3fa8; }
+
+.pte-scenario { border-radius: 16px; margin: 0 0 26px; overflow: hidden; border: 1px solid #2b3654; background: #171f30; box-shadow: 0 6px 20px rgba(20,20,50,0.16); }
+.pte-scenario .pte-head { padding: 18px 22px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid #2b3654; flex-wrap: wrap; }
+.pte-scenario .pte-badge { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; color: #0b0f1a; flex-shrink: 0; }
+.pte-scenario.s1 .pte-badge { background: linear-gradient(135deg,#3fd6c0,#8ff0d2); }
+.pte-scenario.s2 .pte-badge { background: linear-gradient(135deg,#ffcf5c,#ffe28a); }
+.pte-scenario.s3 .pte-badge { background: linear-gradient(135deg,#c084fc,#e9d5ff); }
+.pte-scenario .pte-head h3 { margin: 0; font-size: 1.05rem; color: #e8ecf6; }
+.pte-scenario .pte-tag { margin-left: auto; font-size: 0.72rem; color: #93a1c2; background: rgba(255,255,255,0.04); border: 1px solid #2b3654; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+.pte-scenario .pte-body { padding: 20px 22px; }
+.pte-scenario .pte-body h4 { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 1px; color: #93a1c2; margin: 20px 0 10px; }
+.pte-scenario .pte-body h4:first-child { margin-top: 0; }
+
+.pte-trigger-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+.pte-trigger-grid .pte-item { flex: 1; min-width: 190px; background: #0b0f1a; border: 1px solid #2b3654; border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; }
+.pte-trigger-grid .pte-item .pte-k { color: #6ee7ff; font-family: Consolas, monospace; }
+.pte-trigger-grid .pte-item .pte-v { color: #93a1c2; font-size: 0.78rem; margin-top: 2px; }
+
+.pte-pre { background: #0b0f1a; border: 1px solid #2b3654; border-radius: 10px; padding: 16px 18px; margin: 0 0 14px; overflow-x: auto; font-family: Consolas, monospace !important; font-size: 0.82rem !important; line-height: 1.75 !important; white-space: pre !important; color: #d5e2ff !important; text-shadow: none !important; }
+.pte-pre .m { color: #6ee7ff !important; }
+.pte-pre .s { color: #fbbf24 !important; }
+.pte-pre .n { color: #a78bfa !important; }
+.pte-pre .c { color: #6b7a9e !important; }
+
+.pte-table-wrap { display: inline-block; max-width: 100%; overflow-x: auto; margin: 6px 0 18px; border: 1px solid #2b3654; border-radius: 10px; }
+.pte-table-wrap table { width: auto; border-collapse: collapse; font-size: 0.86rem; margin: 0 !important; background: #171f30; color: #e8ecf6; }
+.pte-table-wrap thead th { background: #1d2740; color: #93a1c2; text-align: left; padding: 9px 14px; font-weight: 600; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.pte-table-wrap tbody td { padding: 9px 14px; border-top: 1px solid #2b3654; vertical-align: top; }
+.pte-table-wrap code { background: #0b0f1a; color: #6ee7ff; padding: 1px 6px; border-radius: 5px; font-size: 0.85em; }
+</style>
+
+<p>PMW 收到 mweb 呼叫後，<code>StripePlugin.Pay()</code> 會依照這次請求帶的 <code>ExtendInfo</code> 內容依序判斷要走哪一種付款情境，命中即停，不會同時符合兩種。全文的卡片顏色都對應同一套語意，先認識這三個顏色，後面看圖表會更快上手：</p>
+<div class="pte-legend">
+<div class="pte-lg-item s1"><span class="pte-lg-dot"></span>情境一・單純 Pay</div>
+<div class="pte-lg-item s2"><span class="pte-lg-dot"></span>情境二・首次綁卡</div>
+<div class="pte-lg-item s3"><span class="pte-lg-dot"></span>情境三・舊卡復用</div>
+</div>
+
+<div class="pte-decision">
+<div class="pte-q">ExtendInfo 是否同時有 <code>payment_method</code> AND <code>customer_id</code>？</div>
+<div class="pte-result s3">✔ 是 → 情境三：舊卡復用（ReusePaymentMethodPaymentIntentProcess）</div>
+<div class="pte-arrow">↓ 否，繼續判斷</div>
+<div class="pte-q">ExtendInfo.<code>is_reuse_payment_method</code> == <code>true</code>？</div>
+<div class="pte-result s2">✔ 是 → 情境二：首次綁卡（RememberPaymentMethodProcess）</div>
+<div class="pte-arrow">↓ 否</div>
+<div class="pte-q">以上皆非</div>
+<div class="pte-result s1">→ 情境一：單純 Pay（strategy.Pay()，明碼卡號直接扣款）</div>
+</div>
+
+<div class="pte-note code">
+<span class="pte-note-icon">📄</span>
+<span><b>對應程式碼：</b>StripePlugin.cs <code>Pay()</code> L112-124 — 先檢查 <code>PaymentMethod</code> 與 <code>CustomerId</code> 是否都非空 → 情境三；否則檢查 <code>IsReusePaymentMethod == true</code> → 情境二；都不符合則呼叫 <code>strategy.Pay(request)</code> → 情境一。行動錢包（Apple Pay / Google Pay）在最前面已被攔截，走獨立的 <code>ProcessMobileWalletPayment</code>，不在此三情境之列。</span>
+</div>
+
+<h2 id="💳-三種付款情境詳解"><a href="#💳-三種付款情境詳解" class="headerlink" title="💳 三種付款情境詳解"></a>💳 三種付款情境詳解</h2><div class="pte-scenario s1">
+<div class="pte-head">
+<div class="pte-badge">01</div>
+<h3>情境一：單純 Pay（未綁卡 / 一般結帳）</h3>
+<span class="pte-tag">strategy.Pay()</span>
+</div>
+<div class="pte-body">
+<h4>觸發條件</h4>
+<div class="pte-trigger-grid">
+<div class="pte-item"><div class="pte-k">payment_method</div><div class="pte-v">空（未提供）</div></div>
+<div class="pte-item"><div class="pte-k">customer_id</div><div class="pte-v">空（未提供）</div></div>
+<div class="pte-item"><div class="pte-k">is_reuse_payment_method</div><div class="pte-v">false（預設）</div></div>
+</div>
+
+<h4>DirectCharge 流程（一般商店）</h4>
+<pre class="pte-pre">1. <span class="m">POST</span> /v1/payment_methods          <span class="c">← 明碼卡號，換取 pm_xxx</span>
+2. <span class="m">POST</span> /v1/payment_intents          <span class="c">← 帶 pm_xxx、金額、幣別、confirm=true</span>
+      confirmation_method=automatic
+      confirm=true
+      application_fee_amount=...</pre>
+
+<h4>DestinationCharge 流程（子帳號分潤商店，多一步）</h4>
+<pre class="pte-pre">1. <span class="m">POST</span> /v1/payment_methods          <span class="c">← 用主帳號，不帶 Stripe-Account Header</span>
+2. <span class="m">GET</span>  /v1/accounts/{sub_account}  <span class="c">← 取子帳號 statement_descriptor</span>
+3. <span class="m">POST</span> /v1/payment_intents          <span class="c">← transfer_data[destination]、on_behalf_of</span></pre>
+
+<h4>回應結果</h4>
+<div class="pte-table-wrap">
+<table>
+<tr><th>Stripe status</th><th>PMW ReturnCode</th><th>mweb 行為</th></tr>
+<tr><td><code>succeeded</code></td><td><span class="pte-pill ok">0000</span></td><td>付款成功，訂單繼續走完後續 Processor</td></tr>
+<tr><td><code>requires_action</code></td><td><span class="pte-pill warn">2003</span></td><td>回傳 3D 驗證 URL，訂單進入 WaitingTo3DAuth</td></tr>
+<tr><td>Stripe ApiException（卡被拒等）</td><td><span class="pte-pill err">3000</span></td><td>取消訂單，退還積點 / 券 / 購物金</td></tr>
+</table>
+</div>
+
+<div class="pte-note code"><span class="pte-note-icon">📄</span><span><b>StripePlugin.cs L121-123：</b>兩個 if 都不符合時，直接 <code>response = await strategy.Pay(request)</code>，由 <code>DirectChargePaymentFlowStrategy</code> 或 <code>DestinationChargePaymentFlowStrategy</code> 處理實際 API 呼叫。</span></div>
+</div>
+</div>
+
+<div class="pte-scenario s2">
+<div class="pte-head">
+<div class="pte-badge">02</div>
+<h3>情境二：首次綁卡（記住信用卡）</h3>
+<span class="pte-tag">RememberPaymentMethodProcess</span>
+</div>
+<div class="pte-body">
+<h4>觸發條件</h4>
+<div class="pte-trigger-grid">
+<div class="pte-item"><div class="pte-k">is_reuse_payment_method</div><div class="pte-v">true</div></div>
+<div class="pte-item"><div class="pte-k">payment_method</div><div class="pte-v">空（新卡，尚無 Token）</div></div>
+<div class="pte-item"><div class="pte-k">customer_id</div><div class="pte-v">空</div></div>
+</div>
+
+<h4>API 呼叫序列</h4>
+<pre class="pte-pre"><span class="n">// StripePlugin.ReusePaymentMethod() 先查詢 Customer</span>
+0. <span class="m">GET</span> /v1/customers/search?query=name:"{shop_id}_{member_id}"
+
+<p><span class="n">&#x2F;&#x2F; RememberPaymentMethodProcess.Process()</span></p>
+<ol>
+<li><span class="m">POST</span> &#x2F;v1&#x2F;payment_methods          <span class="c">← 明碼卡號建立 PM</span></li>
+<li><span class="m">POST</span> &#x2F;v1&#x2F;payment_intents          <span class="c">← setup_future_usage&#x3D;off_session（固定帶）</span></li>
+</ol>
+<p><span class="n">若 PaymentIntent.status 為 succeeded 或 requires_action：</span><br>   ├─ customers.data.Count &#x3D;&#x3D; 1（已有 Customer）<br>   │     3a. <span class="m">POST</span> &#x2F;v1&#x2F;payment_methods&#x2F;{id}&#x2F;attach   <span class="c">← 綁到既有 Customer</span><br>   └─ customers.data.Count &#x3D;&#x3D; 0（尚無 Customer）<br>         3b. <span class="m">POST</span> &#x2F;v1&#x2F;customers                <span class="c">← 建立並帶 payment_method 綁定</span><br><span class="n">其他狀態（付款失敗）→ 不執行綁卡，直接回傳</span></pre></p>
+<h4>回應結果</h4>
+<div class="pte-table-wrap">
+<table>
+<tr><th>PaymentIntent status</th><th>綁卡動作</th><th>ReturnCode</th></tr>
+<tr><td><code>succeeded</code></td><td>attach 或 create customer</td><td><span class="pte-pill ok">0000</span></td></tr>
+<tr><td><code>requires_action</code></td><td>attach 或 create customer</td><td><span class="pte-pill warn">2003</span></td></tr>
+<tr><td>其他失敗狀態</td><td>不綁卡</td><td>依失敗結果回傳</td></tr>
+</table>
+</div>
+
+<div class="pte-note code"><span class="pte-note-icon">📄</span><span><b>RememberPaymentMethodProcess.cs L54-70：</b>只有 <code>status is "requires_action" or "succeeded"</code> 才會進入 <code>switch(context.CustomersSearch.data.Count)</code>；Count 為 1 走 <code>AttachMethod</code>，為 0 走 <code>CreateCustomer</code>，其餘（大於 1）視為異常僅記 log 不處理，確保「一會員一 Customer」的資料原則。</span></div>
+</div>
+</div>
+
+<div class="pte-scenario s3">
+<div class="pte-head">
+<div class="pte-badge">03</div>
+<h3>情境三：舊卡復用</h3>
+<span class="pte-tag">ReusePaymentMethodPaymentIntentProcess</span>
+</div>
+<div class="pte-body">
+<h4>觸發條件</h4>
+<div class="pte-trigger-grid">
+<div class="pte-item"><div class="pte-k">payment_method</div><div class="pte-v">必填（已綁定的 PM Token）</div></div>
+<div class="pte-item"><div class="pte-k">customer_id</div><div class="pte-v">必填（既有 Stripe Customer ID）</div></div>
+<div class="pte-item"><div class="pte-k">off_session</div><div class="pte-v">true = 靜默扣款，可能跳過 3D</div></div>
+</div>
+
+<h4>API 呼叫序列</h4>
+<pre class="pte-pre"><span class="n">// StripePlugin.ReusePaymentMethod() 先驗證 Customer</span>
+1. <span class="m">GET</span> /v1/customers/search?query=name:"{shop_id}_{member_id}"
+
+<p><span class="n">&#x2F;&#x2F; ReusePaymentMethodPaymentIntentProcess.Process()</span><br>若 customer_id 存在於 search 結果中：<br>   2. <span class="m">POST</span> &#x2F;v1&#x2F;payment_intents   <span class="c">← 直接帶已存的 payment_method Token</span><br>      customer&#x3D;{customer_id}<br>      off_session&#x3D;true                     <span class="c">← 有帶則嘗試跳過 3D</span><br>否則：<br>   <span class="s">throw new NotSupportedException(“Illegal Customer”)</span>  <span class="c">← HTTP 500</span></pre></p>
+<h4>回應結果</h4>
+<div class="pte-table-wrap">
+<table>
+<tr><th>情況</th><th>行為</th><th>結果</th></tr>
+<tr><td><code>customer_id</code> 存在於 Search 結果</td><td>正常執行 PaymentIntent</td><td>依 status 走 <span class="pte-pill ok">0000</span> / <span class="pte-pill warn">2003</span></td></tr>
+<tr><td><code>customer_id</code> 不存在於 Search 結果</td><td>throw NotSupportedException</td><td><span class="pte-pill err">HTTP 500</span></td></tr>
+<tr><td>Stripe ApiException（Token 失效等）</td><td>捕捉例外</td><td><span class="pte-pill err">3000</span></td></tr>
+</table>
+</div>
+
+<div class="pte-note code"><span class="pte-note-icon">📄</span><span><b>ReusePaymentMethodPaymentIntentProcess.cs L19-28：</b>用 <code>context.CustomersSearch.data.Any(x => x.id == context.CustomerId)</code> 防止使用者竄改 <code>customer_id</code> 冒用他人已綁定的卡；驗證通過才呼叫 <code>Strategy.PaymentIntentAsync(request, null)</code>（不覆寫 setup_future_usage）。</span></div>
+</div>
+</div></div><div class="tab-item-content" id="stripe_paytypeexpress-2"><style>
+.pte-proc-grid { display: flex; gap: 20px; flex-wrap: wrap; margin: 16px 0 22px; }
+.pte-proc-card { flex: 1; min-width: 300px; background: #1d2740; border: 1px solid #2b3654; border-radius: 14px; padding: 20px 22px; color: #e8ecf6; }
+.pte-proc-card .pte-proc-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.pte-proc-card .pte-proc-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.pte-proc-card.p2 .pte-proc-icon { background: linear-gradient(135deg,#ffcf5c,#ffe28a); }
+.pte-proc-card.p3 .pte-proc-icon { background: linear-gradient(135deg,#c084fc,#e9d5ff); }
+.pte-proc-card .pte-name { margin: 0; font-family: Consolas, monospace; font-size: 0.95rem; color: #e8ecf6; }
+.pte-proc-card .pte-role { font-size: 0.76rem; color: #93a1c2; margin-top: 2px; }
+.pte-proc-card p.pte-purpose { font-size: 0.86rem; color: #e8ecf6; margin: 0 0 14px; padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; border-left: 3px solid #6ee7ff; }
+.pte-proc-card ol.pte-steps { margin: 0; padding-left: 20px; font-size: 0.84rem; color: #b9c2dc; }
+.pte-proc-card ol.pte-steps li { margin-bottom: 8px; }
+.pte-proc-card ol.pte-steps li b { color: #e8ecf6; }
+.pte-proc-card ol.pte-steps li code { background: #0b0f1a; color: #6ee7ff; padding: 1px 6px; border-radius: 5px; font-size: 0.8em; }
+.pte-proc-card .pte-why { margin-top: 14px; font-size: 0.8rem; color: #93a1c2; border-top: 1px dashed #2b3654; padding-top: 12px; }
+.pte-proc-card .pte-why b { color: #fbbf24; }
+</style>
+
+<p>三種情境的觸發依據、涉及的 Process 類別與 Stripe API 呼叫次數整理如下：</p>
+<div class="pte-table-wrap">
+<table>
+<tr><th>情境</th><th>決定欄位</th><th>負責類別</th><th>DirectCharge API 數</th><th>DestinationCharge API 數</th></tr>
+<tr><td>① 單純 Pay</td><td>皆空</td><td><code>strategy.Pay()</code></td><td>2</td><td>3</td></tr>
+<tr><td>② 首次綁卡</td><td><code>is_reuse_payment_method=true</code></td><td><code>RememberPaymentMethodProcess</code></td><td>4</td><td>5</td></tr>
+<tr><td>③ 舊卡復用</td><td><code>payment_method</code> + <code>customer_id</code></td><td><code>ReusePaymentMethodPaymentIntentProcess</code></td><td>2</td><td>3</td></tr>
+</table>
+</div>
+
+<p>情境二、情境三命中後，實際扣款與後續動作都委派給對應的 <code>IReusePaymentMethodProcess</code> 實作類別執行，以下說明兩者各自負責的職責與存在原因。</p>
+<div class="pte-proc-grid">
+<div class="pte-proc-card p2">
+<div class="pte-proc-head">
+<div class="pte-proc-icon">💳</div>
+<div>
+<h4 class="pte-name">RememberPaymentMethodProcess</h4>
+<div class="pte-role">情境二・首次綁卡專用</div>
+</div>
+</div>
+<p class="pte-purpose">負責「用明碼卡號完成這一次付款，同時把這張卡的 Token 記到會員的 Stripe Customer 底下」，讓下次結帳可以直接用 Token 免輸入卡號（即情境三的前置準備）。</p>
+<ol class="pte-steps">
+<li><b>建立 PaymentMethod：</b>呼叫 <code>strategy.CreatePaymentMethodAsync()</code>，用使用者這次輸入的明碼卡號向 Stripe 換取一次性的 <code>pm_xxx</code> Token。</li>
+<li><b>建立扣款意圖：</b>呼叫 <code>strategy.PaymentIntentAsync(request, "off_session")</code>，並固定帶入 <code>setup_future_usage=off_session</code>，等於跟 Stripe 講「這張卡之後我還會在使用者不在場的情況下扣款」，Stripe 才會允許之後做靜默扣款。</li>
+<li><b>判斷是否要綁卡：</b>只有 <code>PaymentIntent.status</code> 為 <code>succeeded</code> 或 <code>requires_action</code>（代表這張卡本身有效）時才進行綁定；若付款直接失敗，這張卡不值得留下，直接略過。</li>
+<li><b>依 Customer 是否存在分流：</b>已有 Customer（<code>data.Count == 1</code>）就呼叫 <code>/payment_methods/&#123;id&#125;/attach</code> 把新卡掛到既有 Customer 底下；尚無 Customer（<code>data.Count == 0</code>）就呼叫 <code>/customers</code> 直接建立 Customer 並帶入卡片完成綁定。</li>
+</ol>
+<div class="pte-why"><b>為什麼需要它：</b>把「扣款」與「綁卡」兩件事合而為一次 API 互動完成，同時用 <code>data.Count</code> 保證一個會員在同一子帳號下只會有一個 Stripe Customer，避免重複建立造成之後舊卡復用查詢時出現多筆歧義資料。</div>
+</div>
+
+<div class="pte-proc-card p3">
+<div class="pte-proc-head">
+<div class="pte-proc-icon">🔁</div>
+<div>
+<h4 class="pte-name">ReusePaymentMethodPaymentIntentProcess</h4>
+<div class="pte-role">情境三・舊卡復用專用</div>
+</div>
+</div>
+<p class="pte-purpose">負責「驗證使用者傳入的 <code>customer_id</code> 是否真的屬於自己，通過後才用既有的 <code>payment_method</code> Token 直接扣款」，不再重新輸入卡號、不再重新建立 PaymentMethod。</p>
+<ol class="pte-steps">
+<li><b>合法性檢查（防冒用）：</b>用外層 <code>StripePlugin.ReusePaymentMethod()</code> 事先查好的 <code>CustomersSearch</code> 結果，執行 <code>data.Any(x => x.id == context.CustomerId)</code>，確認前端傳來的 <code>customer_id</code> 確實存在於「這個會員」名下的 Stripe Customer 清單中。</li>
+<li><b>驗證失敗直接擋下：</b>若傳入的 <code>customer_id</code> 對不上，代表可能是竄改請求、冒用他人已綁定的卡，直接 <code>throw NotSupportedException("Illegal Customer")</code>，讓外層拋出 HTTP 500，不會呼叫任何扣款 API。</li>
+<li><b>驗證通過才扣款：</b>呼叫 <code>strategy.PaymentIntentAsync(request, null)</code>（第二參數傳 <code>null</code>，代表不覆寫 <code>setup_future_usage</code>，因為卡片早已在情境二綁定過），直接帶已存的 <code>payment_method</code> Token 與 <code>customer_id</code> 建立並確認 PaymentIntent。</li>
+<li><b>省略建卡流程：</b>與情境一 / 二不同，這裡完全不呼叫 <code>/v1/payment_methods</code>，因為 Token 早就存在，只需一支 <code>/v1/payment_intents</code> API 即可完成扣款。</li>
+</ol>
+<div class="pte-why"><b>為什麼需要它：</b>是「快速結帳 / 記住卡片」體驗的核心安全閘門，讓已綁卡會員不需重新輸入卡號就能扣款，同時透過 Customer 歸屬驗證，避免有心人士竄改 <code>payment_method</code>／<code>customer_id</code> 參數盜用他人已存的信用卡。</div>
+</div>
+</div></div><div class="tab-item-content" id="stripe_paytypeexpress-3"><style>
+.pte-timeline { background: #171f30; border: 1px solid #2b3654; border-radius: 14px; padding: 22px 24px; margin: 16px 0 22px; }
+.pte-step { display: grid; grid-template-columns: 40px 1fr; gap: 16px; }
+.pte-step .pte-dot-col { display: flex; flex-direction: column; align-items: center; }
+.pte-step .pte-dot { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#6ee7ff,#a78bfa); color: #0b0f1a; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pte-step .pte-line { flex: 1; width: 2px; background: #2b3654; margin: 4px 0; }
+.pte-step:last-child .pte-line { display: none; }
+.pte-step .pte-content { padding-bottom: 26px; }
+.pte-step .pte-content .pte-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; color: #e8ecf6; }
+.pte-step .pte-content .pte-title code { font-size: 0.8rem; background: #0b0f1a; color: #6ee7ff; padding: 2px 8px; border-radius: 6px; }
+.pte-step .pte-content .pte-desc-text { font-size: 0.86rem; color: #93a1c2; margin-bottom: 8px; line-height: 1.75; }
+.pte-step .pte-content .pte-loc { font-size: 0.72rem; color: #6b7a9e; margin-top: 6px; }
+</style>
+
+<p>CompleteForNewCartV2 進入 <code>ThirdPartyProcess</code> Pipeline 後，<code>customer_id</code> &#x2F; <code>payment_method</code> 並不是由前端直接送出明碼，而是 mweb 依「快速結帳識別碼 identity」在後端撈出，並在付款完成後把 Stripe 回傳的新 Token 寫回資料庫，形成一個完整的閉環：</p>
+<div class="pte-timeline">
+<div class="pte-step">
+<div class="pte-dot-col"><div class="pte-dot">1</div><div class="pte-line"></div></div>
+<div class="pte-content">
+<div class="pte-title">前端請求只帶「identity」或什麼都不帶　<code>PayTypeExpressProcessor</code></div>
+<div class="pte-desc-text">Pipeline 前段執行。若商店有開啟「記住信用卡」，且使用者這次沒有輸入新卡號，就用 <code>MemberId + ShopId + PayProfileType</code> 查出該會員「預設」的 PayTypeExpress 記錄，把它的 <code>Identity</code> 塞進 <code>context.ThirdPartyPaymentInfo.ExtendInfo["identity"]</code>（此時卡號等機敏資料尚未載入，只有識別碼）。</div>
+<pre class="pte-pre">var payTypeExpressEntity = _payTypeExpressService
+    .GetDefaultPayTypeExpress(memberId, payProfileType, shopId, gatewayType);
+
+<p>extendInfo.Add(“identity”, payTypeExpressEntity.Identity);<br>context.ThirdPartyPaymentInfo.ExtendInfo &#x3D; extendInfo;</pre></p>
+<div class="pte-loc">PayProcesses/Processors/PayTypeExpressProcessor.cs · AssignCreditCardInfo()</div>
+</div>
+</div>
+
+<div class="pte-step">
+<div class="pte-dot-col"><div class="pte-dot">2</div><div class="pte-line"></div></div>
+<div class="pte-content">
+<div class="pte-title">用 identity 撈出真正的 Token　<code>ArrangePayTypeExpressInfoProcessor</code></div>
+<div class="pte-desc-text">緊接著執行。用上一步的 <code>identity</code> 到 <code>PayTypeExpress</code> 資料表查出同一筆記錄，反序列化其 <code>Info</code>（JSON）欄位，取得內含 <code>customer_id</code>／<code>payment_method</code> 的機敏資訊，包成 <code>paytype_express_info</code> 放回 context，準備交給 PMW。</div>
+<pre class="pte-pre">var sameIdentity = payTypeExpressEntity.Single(i => i.Identity == identity);
+var payTypeExpressInfo = _payTypeExpressService.GetPayTypeExpressInfo(sameIdentity);
+
+<p>context.ThirdPartyPaymentInfo.ExtendInfo &#x3D; new Dictionary&lt;string, object&gt;<br>{<br>    { “identity”, sameIdentity.Identity },<br>    { “paytype_express_info”, payTypeExpressInfo.ExtendInfo }   <span class="c">&#x2F;&#x2F; 內含 customer_id &#x2F; payment_method</span><br>};</pre></p>
+<div class="pte-loc">PayProcesses/Processors/ArrangePayTypeExpressInfoProcessor.cs · Process()</div>
+</div>
+</div>
+
+<div class="pte-step">
+<div class="pte-dot-col"><div class="pte-dot">3</div><div class="pte-line"></div></div>
+<div class="pte-content">
+<div class="pte-title">組裝送給 PMW 的 ExtendInfo　<code>StripePayChannelService.GetPayExtendInfo()</code></div>
+<div class="pte-desc-text"><code>ThirdPartyPayApiProcessor</code> 呼叫 <code>TradesOrderPaymentService.ProcessPayment()</code> 時，實際呼叫此方法組出要 POST 給 PMW <code>/api/v1/Pay/CreditCardOnce_Stripe/&#123;tgCode&#125;</code> 的 Body。這裡才是 <code>customer_id</code> / <code>payment_method</code> 真正被放進送往 PMW 請求的地方，來源就是上一步的 <code>paytype_express_info</code>。</div>
+<pre class="pte-pre"><span class="c">// 定期購自動成單：從 RegularOrderCheckoutInfo JSON 取值（另一條路徑）</span>
+extendInfo.Add("customer_id", stripeRegularOrderCheckOurInfo.CustomerId);
+extendInfo.Add("payment_method", stripeRegularOrderCheckOurInfo.PaymentMethod);
+
+<p><span class="c">&#x2F;&#x2F; 一般快速結帳：優先從 paytype_express_info 取值</span><br>var payTypeExpressInfo &#x3D; thirdPartyPaymentInfo[“paytype_express_info”].ObjToDictionary&lt;object&gt;();<br>payTypeExpressInfo.TryGetValue(“customer_id”, out object customerId);<br>payTypeExpressInfo.TryGetValue(“payment_method”, out object paymentMethod);</p>
+<p>extendInfo.Add(“customer_id”, customerId);       <span class="c">&#x2F;&#x2F; → 對應 PMW 情境三判斷欄位</span><br>extendInfo.Add(“payment_method”, paymentMethod); <span class="c">&#x2F;&#x2F; → 對應 PMW 情境三判斷欄位</span></pre></p>
+<div class="pte-desc-text">若查無 <code>paytype_express_info</code>（沒有 identity、沒有存過卡），就不會帶這兩個欄位，PMW 端 <code>StripePlugin.Pay()</code> 判斷落到情境一或情境二。</div>
+<div class="pte-loc">PayChannel/StripePayChannelService.cs · GetPayExtendInfo()</div>
+</div>
+</div>
+
+<div class="pte-step">
+<div class="pte-dot-col"><div class="pte-dot">4</div><div class="pte-line"></div></div>
+<div class="pte-content">
+<div class="pte-title">PMW 回傳新 Token，暫存於 context　<code>ChangeExtendInfoAfterPaymentResult</code></div>
+<div class="pte-desc-text">情境二（首次綁卡）付款完成後，PMW 回應的 <code>ThirdPartyPayResponseEntity</code> 會帶回新建立的 <code>customer_id</code> / <code>payment_method</code>（見前面「情境二」的 attach / create customer 結果）。mweb 收到後先暫存於 <code>context.ThirdPartyPaymentInfo.ExtendInfo</code>，供同一次請求後續 Processor 使用。</div>
+<pre class="pte-pre">if (paymentResult.ExtendInfo["payment_method"] != null && paymentResult.ExtendInfo["customer_id"] != null)
+{
+    context.ThirdPartyPaymentInfo.ExtendInfo = new Dictionary&lt;string, object&gt;
+    {
+        { "payment_method", paymentResult.ExtendInfo["payment_method"] },
+        { "customer_id", paymentResult.ExtendInfo["customer_id"] }
+    };
+}</pre>
+<div class="pte-loc">PayChannel/StripePayChannelService.cs · SetPayTypeExpressInfo()</div>
+</div>
+</div>
+
+<div class="pte-step">
+<div class="pte-dot-col"><div class="pte-dot">5</div></div>
+<div class="pte-content">
+<div class="pte-title">寫回 PayTypeExpress 資料表，供下次結帳使用　<code>AfterOrderProcessor</code></div>
+<div class="pte-desc-text">Pipeline 尾端執行。把暫存的 <code>customer_id</code> / <code>payment_method</code> 包成 <code>PayTypeExpressInfoForStripeEntity</code> 序列化成 JSON，寫入（新增或更新）<code>PayTypeExpress</code> 資料表的 <code>Info</code> 欄位，並清快取。下次結帳時 Step 1、2 就能撈到這筆記錄，形成「首次明碼輸入 → 綁卡 → 之後都用 Token 復用」的閉環。</div>
+<pre class="pte-pre">context.ThirdPartyPaymentInfo.ExtendInfo.TryGetValue("customer_id", out object customer);
+context.ThirdPartyPaymentInfo.ExtendInfo.TryGetValue("payment_method", out object paymentMethod);
+
+<p>stripeData.ExtendInfo &#x3D; new PayTypeExpressInfoForStripeEntity<br>{<br>    Customer &#x3D; customer?.ToString(),<br>    PaymentMethod &#x3D; paymentMethod?.ToString(),<br>    Country &#x3D; context.CreditCardInfo.IssueCountryCode<br>};</p>
+<p>_payTypeExpressService.CreatePayTypeExpress(payTypeExpressCurrent);  <span class="c">&#x2F;&#x2F; 或 UpdatePayTypeExpress()</span><br>_payTypeExpressService.RemovePayTypeExpressCache(memberId, payProfileType, shopId);</pre></p>
+<div class="pte-loc">PayProcesses/Processors/AfterOrderProcessor.cs · UpdatePayTypeExpressData() / GetPayTypeExpressInfo()</div>
+</div>
+</div>
+</div>
+
+<div class="pte-note design"><span class="pte-note-icon">💡</span><span><b>關鍵設計：</b>customer_id / payment_method 全程「不落地到前端」，瀏覽器只知道 <code>identity</code>，真正的 Stripe Token 只存在 mweb 後端資料庫（下一分頁的 <code>PayTypeExpress_Info</code>）與 PMW／Stripe 之間，降低外洩風險，同時讓使用者能用「上次的卡」快速結帳而不必重新輸入卡號。</span></div></div><div class="tab-item-content" id="stripe_paytypeexpress-4"><style>
+.pte-dbtable { margin-top: 10px; border: 1px solid #2b3654; border-radius: 10px; overflow: hidden; background: #171f30; }
+.pte-dbtable .pte-row { display: grid; grid-template-columns: 220px 1fr; border-bottom: 1px solid #2b3654; }
+.pte-dbtable .pte-row:last-child { border-bottom: none; }
+.pte-dbtable .pte-row .pte-cell-k { padding: 10px 14px; background: rgba(255,255,255,0.03); font-family: Consolas, monospace; font-size: 0.78rem; color: #6ee7ff; }
+.pte-dbtable .pte-row .pte-cell-v { padding: 10px 14px; font-size: 0.84rem; color: #e8ecf6; }
+</style>
+
+<p><code>aaa53.png</code> 這張 DB 查詢截圖是 <code>PayTypeExpress</code> 資料表的真實資料，完整欄位定義與 Info 欄位的 JSON 結構整理如下，方便日後查表對照。</p>
+<h2 id="🗂️-資料表完整欄位"><a href="#🗂️-資料表完整欄位" class="headerlink" title="🗂️ 資料表完整欄位"></a>🗂️ 資料表完整欄位</h2><div class="pte-dbtable">
+<div class="pte-row"><div class="pte-cell-k">PayTypeExpress_Id</div><div class="pte-cell-v"><code>bigint</code>，主鍵，流水號</div></div>
+<div class="pte-row"><div class="pte-cell-k">PayTypeExpress_ShopId</div><div class="pte-cell-v"><code>bigint</code>，商店序號</div></div>
+<div class="pte-row"><div class="pte-cell-k">PayTypeExpress_MemberId</div><div class="pte-cell-v"><code>int</code>，會員序號</div></div>
+<div class="pte-row"><div class="pte-cell-k">PayTypeExpress_PayProfileType</div><div class="pte-cell-v"><code>varchar</code>，付款方式類型，Stripe 固定為 <code>CreditCardOnce_Stripe</code></div></div>
+<div class="pte-row"><div class="pte-cell-k">PayTypeExpress_PaymentServiceProvider</div><div class="pte-cell-v"><code>varchar</code>，金流服務商，Stripe 走 PMW 固定為 <code>PaymentMiddleware</code></div></div>
+<div class="pte-row"><div class="pte-cell-k">PayTypeExpress_Identity</div><div class="pte-cell-v"><code>varchar</code>，「這張已存卡」的識別碼（一長串亂碼），前端／Processor 用它指定要用哪張卡，本身不含卡號或 Token</div></div>
+<div class="pte-row"><div class="pte-cell-k">PayTypeExpress_IsDefault</div><div class="pte-cell-v"><code>bit</code>，是否為該會員此金流的預設卡，決定 <code>GetDefaultPayTypeExpress()</code> 撈到哪一筆</div></div>
+<div class="pte-row"><div class="pte-cell-k">PayTypeExpress_Info</div><div class="pte-cell-v"><code>nvarchar</code>，JSON 字串，機敏內容本體，結構見下方</div></div>
+</div>
+
+<div class="pte-note code"><span class="pte-note-icon">📄</span><span>對應 Entity：<b>DA/WebStoreDBV2/Tables/PayTypeExpress.cs</b>（EF 產生的資料表模型）。</span></div>
+
+<h2 id="🧬-Info-欄位-JSON-結構（Stripe）"><a href="#🧬-Info-欄位-JSON-結構（Stripe）" class="headerlink" title="🧬 Info 欄位 JSON 結構（Stripe）"></a>🧬 Info 欄位 JSON 結構（Stripe）</h2><p><code>PayTypeExpress_Info</code> 反序列化為 <code>PayTypeExpressCreditCardEntity&lt;PayTypeExpressInfoForStripeEntity&gt;</code>，外層是卡片顯示用資訊，<code>ExtendInfo</code> 才是真正要帶給 PMW 的付款憑證：</p>
+<pre class="pte-pre">{
+  "Issuer": null,                     <span class="c">// 發卡銀行（Stripe 多為 null）</span>
+  "Association": "Visa",              <span class="c">// 發卡組織：Visa / MasterCard / UnionPay...</span>
+  "No": "************6274",           <span class="c">// 卡號（僅顯示末四碼，其餘遮罩）</span>
+  "Month": "08",                      <span class="c">// 有效月份</span>
+  "Year": "27",                       <span class="c">// 有效年份</span>
+  "ExtendInfo": {
+    "customer_id": "cus_xxxxxxxxxxxx",    <span class="n">// ← 帶給 PMW 情境三判斷欄位</span>
+    "payment_method": "pm_xxxxxxxxxxxx",  <span class="n">// ← 帶給 PMW 情境三判斷欄位</span>
+    "country": "TW"                       <span class="c">// 發卡行國家</span>
+  }
+}</pre>
+
+<div class="pte-note code"><span class="pte-note-icon">📄</span><span>對應 Entity：<b>BE/PayTypeExpress/PayTypeExpressCreditCardEntity.cs</b>（外層 <code>Issuer/Association/No/Month/Year/ExtendInfo</code>）＋ <b>BE/PayTypeExpress/PayTypeExpressInfoForStripeEntity.cs</b>（<code>ExtendInfo</code> 內的 <code>customer_id/payment_method/country</code>，皆以 <code>[JsonProperty]</code> 對應小寫底線命名）。</span></div>
+
+<h2 id="📋-實際資料範例（節錄自-DB-查詢結果）"><a href="#📋-實際資料範例（節錄自-DB-查詢結果）" class="headerlink" title="📋 實際資料範例（節錄自 DB 查詢結果）"></a>📋 實際資料範例（節錄自 DB 查詢結果）</h2><div class="pte-table-wrap">
+<table>
+<tr><th>欄位</th><th>範例值</th></tr>
+<tr><td>PayTypeExpress_Id</td><td><code>189518</code></td></tr>
+<tr><td>PayTypeExpress_ShopId</td><td><code>17</code></td></tr>
+<tr><td>PayTypeExpress_MemberId</td><td><code>1598546</code></td></tr>
+<tr><td>PayTypeExpress_PayProfileType</td><td><code>CreditCardOnce_Stripe</code></td></tr>
+<tr><td>PayTypeExpress_PaymentServiceProvider</td><td><code>PaymentMiddleware</code></td></tr>
+<tr><td>PayTypeExpress_Identity</td><td><code>9E160DB1471373603EF57A8F9455BCD0BEDA2C86DCE77BD31...</code></td></tr>
+<tr><td>PayTypeExpress_IsDefault</td><td><code>1</code></td></tr>
+<tr><td>PayTypeExpress_Info</td><td><code>&#123;"Issuer":null,"Association":"Visa","No":"************6274","Mo...</code>（同上方 JSON 結構，末端截斷）</td></tr>
+</table>
+</div>
+
+<div class="pte-note design"><span class="pte-note-icon">💡</span><span><b>關鍵設計：</b>customer_id / payment_method 全程「不落地到前端」，瀏覽器只知道 <code>identity</code>，真正的 Stripe Token 只存在 mweb 後端資料庫（<code>PayTypeExpress_Info</code>）與 PMW／Stripe 之間，降低外洩風險，同時讓使用者能用「上次的卡」快速結帳而不必重新輸入卡號。</span></div></div><div class="tab-item-content" id="stripe_paytypeexpress-5"><p>情境判斷的核心程式碼，位於 <code>nineyi.payment.middleware</code> → <code>Plugins/NineYi.PaymentMiddleware.Plugins.Stripe/StripePlugin.cs</code>：</p>
+<pre class="pte-pre"><span class="n">public async Task&lt;PaymentResponseEntity...&gt; Pay(request, headers, payMethod)
+{</span>
+    var strategy = GetPaymentFlowStrategy(request.ExtendInfo.StripePaymentFlow);
+
+    <span class="c">// 行動錢包（Apple Pay / Google Pay）另外處理，不屬於三情境</span>
+    if (_mobileWalletMethods.Contains(payMethod))
+        return await strategy.ProcessMobileWalletPayment(request);
+
+    var context = new ReusePaymentMethodEntity { ...Strategy = strategy, Request = request };
+
+    <span class="s">// 情境三：舊卡復用 — payment_method 與 customer_id 都有值</span>
+    if (!string.IsNullOrWhiteSpace(request.ExtendInfo.PaymentMethod) &&
+        !string.IsNullOrWhiteSpace(request.ExtendInfo.CustomerId))
+    {
+        response = await ReusePaymentMethod(context, ReusePaymentMethodPaymentIntent);
+    }
+    <span class="m">// 情境二：首次綁卡 — is_reuse_payment_method == true</span>
+    else if (request.ExtendInfo.IsReusePaymentMethod == true)
+    {
+        response = await ReusePaymentMethod(context, RememberPaymentMethod);
+    }
+    <span class="n">// 情境一：單純 Pay — 兩者皆非</span>
+    else
+    {
+        response = await strategy.Pay(request);
+    }
+    <span class="n">return GetThirdPartyPayResponseEntity(request, response, context);
+}</span></pre>
+
+<div class="pte-note code">
+<span class="pte-note-icon">📄</span>
+<span>程式碼判斷順序固定為「情境三 → 情境二 → 情境一」，且一旦命中即不再往下判斷。<code>ReusePaymentMethod()</code> 內部會先呼叫 <code>CustomersSearchAsync</code> 查出該會員（<code>&#123;shop_id&#125;_&#123;member_id&#125;</code>）在 Stripe 的 Customer 記錄，再交給對應的 <code>IReusePaymentMethodProcess</code>（情境二為 <code>RememberPaymentMethodProcess</code>，情境三為 <code>ReusePaymentMethodPaymentIntentProcess</code>）執行後續動作。</span>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/">https://allenlin000.github.io.git/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/07/10/DeepType-Payment-Stripe-fee/" title="Stripe-Fee"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Stripe-Fee</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">253</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%92%B3-%E4%B8%89%E7%A8%AE%E4%BB%98%E6%AC%BE%E6%83%85%E5%A2%83%E8%A9%B3%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">💳 三種付款情境詳解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.1.</span> <span class="toc-text">情境一：單純 Pay（未綁卡 &#x2F; 一般結帳）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.1.1.</span> <span class="toc-text">觸發條件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.1.2.</span> <span class="toc-text">DirectCharge 流程（一般商店）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.1.3.</span> <span class="toc-text">DestinationCharge 流程（子帳號分潤商店，多一步）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.1.4.</span> <span class="toc-text">回應結果</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.2.</span> <span class="toc-text">情境二：首次綁卡（記住信用卡）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.2.1.</span> <span class="toc-text">觸發條件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.2.2.</span> <span class="toc-text">API 呼叫序列</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.2.3.</span> <span class="toc-text">回應結果</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.3.</span> <span class="toc-text">情境三：舊卡復用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.3.1.</span> <span class="toc-text">觸發條件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.3.2.</span> <span class="toc-text">API 呼叫序列</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-1"><span class="toc-number">1.3.3.</span> <span class="toc-text">回應結果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-2"><span class="toc-number">1.3.4.</span> <span class="toc-text">RememberPaymentMethodProcess</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_paytypeexpress-2"><span class="toc-number">1.3.5.</span> <span class="toc-text">ReusePaymentMethodPaymentIntentProcess</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%97%82%EF%B8%8F-%E8%B3%87%E6%96%99%E8%A1%A8%E5%AE%8C%E6%95%B4%E6%AC%84%E4%BD%8D"><span class="toc-number">2.</span> <span class="toc-text">🗂️ 資料表完整欄位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%A7%AC-Info-%E6%AC%84%E4%BD%8D-JSON-%E7%B5%90%E6%A7%8B%EF%BC%88Stripe%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">🧬 Info 欄位 JSON 結構（Stripe）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8B-%E5%AF%A6%E9%9A%9B%E8%B3%87%E6%96%99%E7%AF%84%E4%BE%8B%EF%BC%88%E7%AF%80%E9%8C%84%E8%87%AA-DB-%E6%9F%A5%E8%A9%A2%E7%B5%90%E6%9E%9C%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">📋 實際資料範例（節錄自 DB 查詢結果）</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/" title="Stripe-Paytype-Express"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe-Paytype-Express"/></a><div class="content"><a class="title" href="/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/" title="Stripe-Paytype-Express">Stripe-Paytype-Express</a><time datetime="2026-07-13T02:07:00.000Z" title="Created 2026-07-13 10:07:00">2026-07-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/10/DeepType-Payment-Stripe-fee/" title="Stripe-Fee"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe-Fee"/></a><div class="content"><a class="title" href="/2026/07/10/DeepType-Payment-Stripe-fee/" title="Stripe-Fee">Stripe-Fee</a><time datetime="2026-07-10T03:09:00.000Z" title="Created 2026-07-10 11:09:00">2026-07-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/06/DeepType-Payment-Cybersource-Refund/" title="Cybersource-Refund"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Query/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cybersource-Refund"/></a><div class="content"><a class="title" href="/2026/07/06/DeepType-Payment-Cybersource-Refund/" title="Cybersource-Refund">Cybersource-Refund</a><time datetime="2026-07-06T09:51:00.000Z" title="Created 2026-07-06 17:51:00">2026-07-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/03/DeepType-Payment-Cybersource-Query/" title="Cybersource-Query"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Query/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cybersource-Query"/></a><div class="content"><a class="title" href="/2026/07/03/DeepType-Payment-Cybersource-Query/" title="Cybersource-Query">Cybersource-Query</a><time datetime="2026-07-03T02:44:00.000Z" title="Created 2026-07-03 10:44:00">2026-07-03</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
