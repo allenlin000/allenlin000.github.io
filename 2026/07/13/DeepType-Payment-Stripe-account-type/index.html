@@ -1,0 +1,1271 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Stripe-Account | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="01｜總覽、帳戶類型與金鑰02｜帳戶類型與 Key 整理03｜商店與 Stripe 帳號的關係04｜帳戶切換與管理05｜PaymentMiddleware 原始碼解析06｜mweb CompleteForNewCartV2 流程07｜OSM(SMS) 後台確認 .pat-hero{ background:linear-gradient(135deg,#4a3fb0,#635bff 72%); co">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stripe-Account">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/07/13/DeepType-Payment-Stripe-account-type/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="01｜總覽、帳戶類型與金鑰02｜帳戶類型與 Key 整理03｜商店與 Stripe 帳號的關係04｜帳戶切換與管理05｜PaymentMiddleware 原始碼解析06｜mweb CompleteForNewCartV2 流程07｜OSM(SMS) 後台確認 .pat-hero{ background:linear-gradient(135deg,#4a3fb0,#635bff 72%); co">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-07-13T02:07:00.000Z">
+<meta property="article:modified_time" content="2026-07-16T00:56:19.525Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/07/13/DeepType-Payment-Stripe-account-type/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Stripe-Account',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-07-16 08:56:19'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">254</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Stripe-Account</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-07-13T02:07:00.000Z" title="Created 2026-07-13 10:07:00">2026-07-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-07-16T00:56:19.525Z" title="Updated 2026-07-16 08:56:19">2026-07-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Payment/">Payment</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Stripe-Account"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="stripe_account"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="stripe_account-1">01｜總覽、帳戶類型與金鑰</button><button type="button" class="tab " data-href="stripe_account-2">02｜帳戶類型與 Key 整理</button><button type="button" class="tab " data-href="stripe_account-3">03｜商店與 Stripe 帳號的關係</button><button type="button" class="tab " data-href="stripe_account-4">04｜帳戶切換與管理</button><button type="button" class="tab " data-href="stripe_account-5">05｜PaymentMiddleware 原始碼解析</button><button type="button" class="tab " data-href="stripe_account-6">06｜mweb CompleteForNewCartV2 流程</button><button type="button" class="tab " data-href="stripe_account-7">07｜OSM(SMS) 後台確認</button></ul><div class="tab-contents"><div class="tab-item-content active" id="stripe_account-1"><style>
+.pat-hero{
+background:linear-gradient(135deg,#4a3fb0,#635bff 72%);
+color:#fff;
+padding:34px 32px 28px;
+border-radius:18px;
+margin:0 0 24px;
+box-shadow:0 10px 28px rgba(74,63,176,.18);
+}
+.pat-hero .pat-eyebrow{
+font-size:.78rem;
+letter-spacing:3px;
+text-transform:uppercase;
+opacity:.84;
+display:flex;
+align-items:center;
+gap:8px;
+}
+.pat-hero .pat-mark{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+width:22px;
+height:22px;
+border-radius:7px;
+background:#fff;
+color:#635bff;
+font-weight:800;
+font-size:.72rem;
+font-family:Consolas,monospace;
+}
+.pat-hero h1{margin:10px 0 8px;color:#fff;font-size:1.6rem;}
+.pat-hero p{margin:0;line-height:1.86;font-size:.93rem;max-width:860px;opacity:.96;}
+.pat-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.pat-badge{
+display:inline-flex;
+align-items:center;
+gap:7px;
+padding:6px 12px;
+border-radius:999px;
+background:rgba(255,255,255,.16);
+border:1px solid rgba(255,255,255,.18);
+font-size:.79rem;
+font-weight:700;
+}
+.pat-kicker{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin:14px 0 18px;
+}
+.pat-kicker span{
+display:inline-flex;
+align-items:center;
+gap:6px;
+padding:6px 12px;
+border-radius:999px;
+border:1px solid #e3e0f5;
+background:#fff;
+color:#2f2c45;
+font-size:.8rem;
+font-weight:700;
+}
+.pat-note{
+border-radius:12px;
+padding:14px 18px;
+margin:16px 0 20px;
+font-size:.91rem;
+line-height:1.82;
+border-left:4px solid #2563a8;
+background:#e8f1fb;
+color:#1c4064;
+}
+.pat-note code,.pat-table-wrap code,.pat-compare-card code,.pat-qa-card code,.pat-key-box code,.pat-stage-card code,.pat-callout code,.pat-mini-card code{
+background:#eeecff;
+color:#4a3fb0;
+padding:1px 6px;
+border-radius:5px;
+font-size:.86em;
+}
+.pat-note.warn{border-left-color:#c9821c;background:#fdf3dd;color:#6a4a0a;}
+.pat-note.danger{border-left-color:#b93d2f;background:#fdecea;color:#7b281d;}
+.pat-note.ok{border-left-color:#1f8a52;background:#e7f7ee;color:#185d3b;}
+.pat-note .pat-n-title{display:block;font-weight:800;margin-bottom:4px;}
+.pat-section-head{
+display:flex;
+align-items:center;
+gap:12px;
+margin:32px 0 14px;
+}
+.pat-section-head .pat-chip{
+width:34px;
+height:34px;
+border-radius:12px;
+background:linear-gradient(135deg,#a78bfa,#635bff);
+color:#fff;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:800;
+box-shadow:0 4px 12px rgba(99,91,255,.18);
+}
+.pat-section-head h2{
+margin:0;
+border:none;
+padding:0;
+font-size:1.18rem;
+}
+.pat-table-wrap{
+display:inline-block;
+max-width:100%;
+overflow-x:auto;
+margin:12px 0 22px;
+border:1px solid #e3e0f5;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(73,62,156,.05);
+}
+.pat-table-wrap table{
+width:auto;
+border-collapse:collapse;
+margin:0 !important;
+font-size:.88rem;
+background:#fff;
+}
+.pat-table-wrap thead th{
+background:#4a3fb0;
+color:#fff;
+text-align:left;
+padding:10px 14px;
+font-weight:700;
+vertical-align:top;
+}
+.pat-table-wrap tbody td{
+padding:10px 14px;
+border-top:1px solid #e8e5f6;
+vertical-align:top;
+color:#2b2a3a;
+}
+.pat-table-wrap tbody tr:nth-child(even) td{background:#faf9ff;}
+.pat-sub{
+display:block;
+font-size:.77rem;
+color:#5f5b78;
+margin-top:2px;
+}
+.pat-compare-grid{
+display:flex;
+gap:16px;
+flex-wrap:wrap;
+margin:14px 0 22px;
+}
+.pat-compare-card{
+flex:1;
+min-width:260px;
+background:#fff;
+border:1px solid #e3e0f5;
+border-radius:14px;
+overflow:hidden;
+box-shadow:0 3px 10px rgba(73,62,156,.06);
+}
+.pat-compare-card .pat-compare-head{
+padding:12px 16px;
+font-weight:800;
+display:flex;
+align-items:center;
+gap:10px;
+color:#fff;
+}
+.pat-compare-card.custom .pat-compare-head{background:linear-gradient(135deg,#4a3fb0,#635bff);}
+.pat-compare-card.standard .pat-compare-head{background:linear-gradient(135deg,#2563a8,#4f8fd8);}
+.pat-compare-card .pat-dot{
+width:10px;
+height:10px;
+border-radius:50%;
+display:inline-block;
+background:#fff;
+opacity:.9;
+}
+.pat-compare-card .pat-compare-body{
+padding:14px 16px 16px;
+font-size:.88rem;
+line-height:1.8;
+color:#2b2a3a;
+}
+.pat-compare-card .pat-compare-body p{margin:0 0 8px;}
+.pat-checklist{
+margin:10px 0 20px;
+padding-left:0;
+list-style:none;
+}
+.pat-checklist li{
+position:relative;
+padding-left:28px;
+margin:8px 0;
+line-height:1.8;
+}
+.pat-checklist li::before{
+content:"✓";
+position:absolute;
+left:0;
+top:1px;
+width:18px;
+height:18px;
+border-radius:50%;
+background:#e7f7ee;
+color:#1f8a52;
+font-size:.78rem;
+font-weight:800;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+.pat-callout{
+display:flex;
+gap:10px;
+align-items:flex-start;
+padding:14px 18px;
+margin:16px 0 20px;
+border-radius:12px;
+border:1px solid #e5dcba;
+background:#fff9ec;
+color:#6b4e0a;
+line-height:1.82;
+}
+.pat-callout .pat-icon{flex-shrink:0;font-size:1rem;line-height:1.6;}
+.pat-callout.info{border-color:#d7e7fb;background:#eef6ff;color:#1d4d73;}
+.pat-callout.warn{border-color:#efd39c;background:#fff6df;color:#6b4a09;}
+.pat-callout.danger{border-color:#efc0b9;background:#fdf0ed;color:#7b281d;}
+.pat-callout.security{border-color:#f1c7cf;background:#fff1f4;color:#8f2034;}
+.pat-flow-pills{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin:12px 0 20px;
+}
+.pat-flow-pills span{
+display:inline-flex;
+align-items:center;
+gap:7px;
+padding:6px 12px;
+border-radius:999px;
+font-size:.8rem;
+font-weight:700;
+}
+.pat-flow-pills .custom{background:#eeecff;color:#4a3fb0;}
+.pat-flow-pills .standard{background:#e8f1fb;color:#2563a8;}
+.pat-flow-pills .danger{background:#fdecea;color:#b93d2f;}
+.pat-flow-pills .ok{background:#e7f7ee;color:#1f8a52;}
+.pat-key-grid{
+display:flex;
+gap:16px;
+flex-wrap:wrap;
+margin:14px 0 22px;
+}
+.pat-key-box{
+flex:1;
+min-width:260px;
+padding:16px 18px;
+border-radius:14px;
+background:#fff;
+border:1px solid #e3e0f5;
+box-shadow:0 3px 10px rgba(73,62,156,.05);
+}
+.pat-key-box h4{margin:0 0 8px;font-size:1rem;}
+.pat-key-box code{display:inline-block;margin-top:6px;}
+.pat-mini-grid{
+display:flex;
+gap:16px;
+flex-wrap:wrap;
+margin:14px 0 22px;
+}
+.pat-mini-card{
+flex:1;
+min-width:220px;
+padding:14px 16px;
+border:1px solid #e3e0f5;
+border-radius:12px;
+background:#fff;
+font-size:.87rem;
+line-height:1.78;
+box-shadow:0 2px 8px rgba(73,62,156,.05);
+}
+.pat-mini-card h4{margin:0 0 8px;font-size:.95rem;}
+.pat-term{
+background:#221f36;
+border-radius:14px;
+padding:18px 22px 22px;
+margin:16px 0 24px;
+box-shadow:0 8px 24px rgba(40,32,90,.2);
+overflow-x:auto;
+}
+.pat-term .pat-term-bar{
+display:flex;
+align-items:center;
+gap:6px;
+margin-bottom:12px;
+}
+.pat-term .pat-term-dot{
+width:10px;
+height:10px;
+border-radius:50%;
+display:inline-block;
+}
+.pat-term .pat-term-dot.r{background:#ff5f56;}
+.pat-term .pat-term-dot.y{background:#ffbd2e;}
+.pat-term .pat-term-dot.g{background:#27c93f;}
+.pat-term .pat-term-title{
+margin-left:8px;
+font-size:.74rem;
+color:#a7a2cf;
+letter-spacing:.5px;
+}
+.pat-term pre.pat-term-pre{
+margin:0 !important;
+background:transparent !important;
+padding:0 !important;
+border:none !important;
+box-shadow:none !important;
+font-family:Consolas,monospace !important;
+font-size:.84rem !important;
+line-height:1.84 !important;
+white-space:pre !important;
+overflow-x:auto !important;
+color:#f3f1ff !important;
+text-shadow:none !important;
+}
+.pat-term .k1{color:#c7b8ff !important;font-weight:700;}
+.pat-term .k2{color:#7fd1ff !important;font-weight:700;}
+.pat-term .k3{color:#ffd479 !important;font-weight:700;}
+.pat-term .k4{color:#87efac !important;font-weight:700;}
+.pat-stage-grid{
+display:flex;
+gap:16px;
+flex-wrap:wrap;
+margin:14px 0 22px;
+}
+.pat-stage-card{
+flex:1;
+min-width:260px;
+background:#fff;
+border:1px solid #e3e0f5;
+border-radius:14px;
+overflow:hidden;
+box-shadow:0 3px 10px rgba(73,62,156,.06);
+}
+.pat-stage-card .pat-stage-head{
+padding:11px 16px;
+background:#4a3fb0;
+color:#fff;
+font-weight:800;
+font-size:.92rem;
+}
+.pat-stage-card.standard .pat-stage-head{background:#2563a8;}
+.pat-stage-card.warn .pat-stage-head{background:#c9821c;}
+.pat-stage-card .pat-stage-body{
+padding:14px 16px 16px;
+font-size:.88rem;
+line-height:1.8;
+color:#2b2a3a;
+}
+.pat-stage-card .pat-stage-body ol,.pat-stage-card .pat-stage-body ul{margin:8px 0 0;padding-left:20px;}
+.pat-stage-card .pat-stage-body li{margin:5px 0;}
+.pat-diff-before{background:#f3f6fb;}
+.pat-diff-after{background:#eef9f0;}
+.pat-question-table td:first-child{white-space:nowrap;}
+</style>
+
+<div class="pat-hero">
+<div class="pat-eyebrow"><span class="pat-mark">SA</span>Payment · Stripe · Account Type</div>
+<h1>帳戶類型與金鑰管理</h1>
+<p>整理 Stripe `Custom` / `Standard` 帳戶架構、API 金鑰對應、設定查詢、執行期切換規則，以及 mweb / PaymentMiddleware / OSM(SMS) 三邊怎麼靠同一組規則把付款流程串起來。這一篇的重點不是單看某個 method，而是把「商店設定 → 執行期判斷 → 送單用哪把 Key → 付款後怎麼查詢與維運」整條鏈路一起對齊。</p>
+<div class="pat-badges">
+<span class="pat-badge">📄 需求規劃簡報</span>
+<span class="pat-badge">🔑 API 金鑰管理</span>
+<span class="pat-badge">🔄 帳戶切換紀錄</span>
+<span class="pat-badge">🗄️ SQL / C# 範例</span>
+</div>
+</div>
+
+<div class="pat-section-head">
+<div class="pat-chip">1</div>
+<h2>技術文件與資源</h2>
+</div>
+
+<h3 id="Stripe-Custom-Account-需求規劃"><a href="#Stripe-Custom-Account-需求規劃" class="headerlink" title="Stripe Custom Account 需求規劃"></a>Stripe Custom Account 需求規劃</h3><div class="pat-table-wrap">
+<table>
+<thead><tr><th>文件類型</th><th>連結</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td><strong>需求規劃簡報</strong></td><td><a href="https://docs.google.com/presentation/d/1rf8MKdV2Vh6ofZq6repFjUd-2DUYjhpv9I2ppT0rSYI/edit?slide=id.p#slide=id.p" target="_blank" rel="noopener">Stripe Custom Account-需求規劃 ↗</a></td><td>Custom Account 的完整需求規劃與技術設計</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pat-section-head">
+<div class="pat-chip">2</div>
+<h2>帳戶類型與金鑰</h2>
+</div>
+
+<h3 id="2-1-帳戶類型對比"><a href="#2-1-帳戶類型對比" class="headerlink" title="2.1 帳戶類型對比"></a>2.1 帳戶類型對比</h3><div class="pat-compare-grid">
+<div class="pat-compare-card custom">
+<div class="pat-compare-head"><span class="pat-dot"></span>Custom</div>
+<div class="pat-compare-body">
+<p><strong>費率設定：</strong>由平台設定統一費率</p>
+<p><strong>適用對象：</strong>小型商店</p>
+<p><strong>範例：</strong>在 OSM 按按鈕即可開設帳戶</p>
+</div>
+</div>
+<div class="pat-compare-card standard">
+<div class="pat-compare-head"><span class="pat-dot"></span>Standard</div>
+<div class="pat-compare-body">
+<p><strong>費率設定：</strong>商店自行與 Stripe 談判</p>
+<p><strong>適用對象：</strong>大型商店</p>
+<p><strong>範例：</strong>SASA 等大型零售商</p>
+</div>
+</div>
+</div>
+
+<h3 id="2-2-系統帳戶類型清單"><a href="#2-2-系統帳戶類型清單" class="headerlink" title="2.2 系統帳戶類型清單"></a>2.2 系統帳戶類型清單</h3><div class="pat-compare-grid">
+<div class="pat-compare-card custom">
+<div class="pat-compare-head"><span class="pat-dot"></span>Custom 系列</div>
+<div class="pat-compare-body">
+<p><code>Custom</code> — Custom 正式環境</p>
+<p><code>CustomTest</code> — Custom 測試環境</p>
+<p><code>CustomUAT</code> — Custom UAT 環境</p>
+<p><code>CustomUATTest</code> — Custom UAT 測試環境</p>
+</div>
+</div>
+<div class="pat-compare-card standard">
+<div class="pat-compare-head"><span class="pat-dot"></span>Standard 系列</div>
+<div class="pat-compare-body">
+<p><code>Standard</code> — Standard 正式環境</p>
+<p><code>StandardUAT</code> — Standard UAT 環境</p>
+</div>
+</div>
+</div>
+
+<h3 id="2-3-帳戶類型查詢"><a href="#2-3-帳戶類型查詢" class="headerlink" title="2.3 帳戶類型查詢"></a>2.3 帳戶類型查詢</h3><h4 id="資料庫查詢語法"><a href="#資料庫查詢語法" class="headerlink" title="資料庫查詢語法"></a>資料庫查詢語法</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查詢商店的 Stripe 帳戶類型</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> ShopDefault (NOLOCK)</span><br><span class="line"><span class="keyword">WHERE</span> ShopDefault_ValidFlag <span class="operator">=</span> <span class="number">1</span></span><br><span class="line">  <span class="keyword">AND</span> ShopDefault_ShopId <span class="operator">=</span> <span class="variable">@shopId</span></span><br><span class="line">  <span class="keyword">AND</span> ShopDefault_Key <span class="operator">=</span> <span class="string">&#x27;StripeAccountType&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">USE WebStoreDB</span><br><span class="line"><span class="comment">-- 查詢商店的 Stripe 帳戶類型</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> ShopDefault (NOLOCK)</span><br><span class="line"><span class="keyword">WHERE</span> ShopDefault_ValidFlag <span class="operator">=</span> <span class="number">1</span></span><br><span class="line">  <span class="keyword">AND</span> ShopDefault_ShopId <span class="operator">=</span> <span class="number">99</span></span><br><span class="line">  <span class="keyword">AND</span> ShopDefault_GroupTypeDef <span class="operator">=</span> <span class="string">&#x27;Stripe&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-系統設定管理"><a href="#2-4-系統設定管理" class="headerlink" title="2.4 系統設定管理"></a>2.4 系統設定管理</h3><h4 id="取得商店-Stripe-設定"><a href="#取得商店-Stripe-設定" class="headerlink" title="取得商店 Stripe 設定"></a>取得商店 Stripe 設定</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> StripeSettingsEntity <span class="title">GetShopStripeSetting</span>(<span class="params"><span class="built_in">long</span> shopId, <span class="built_in">bool</span> cleanCache = <span class="literal">false</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 從資料庫取得 Stripe 相關設定</span></span><br><span class="line">    IEnumerable&lt;ShopDefaultEntity&gt; shopDefault =</span><br><span class="line">        <span class="keyword">this</span>.ShopDefaultRepository.GetShopDefaultListByGroupTypeDef(shopId, <span class="keyword">new</span> List&lt;<span class="built_in">string</span>&gt; &#123; <span class="string">&quot;Stripe&quot;</span> &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> StripeSettingsEntity</span><br><span class="line">    &#123;</span><br><span class="line">        StripeAccountType = shopDefault.SingleOrDefault(x =&gt; x.Key == <span class="string">&quot;StripeAccountType&quot;</span>).NewValue,</span><br><span class="line">        StripeAccountSettingType = shopDefault.SingleOrDefault(x =&gt; x.Key == <span class="string">&quot;StripeAccountSettingType&quot;</span>).NewValue,</span><br><span class="line">        StripeSubAccount = shopDefault.SingleOrDefault(x =&gt; x.Key == <span class="string">&quot;StripeSubAccount&quot;</span>).NewValue,</span><br><span class="line">        StripeCustomSubAccount = shopDefault.SingleOrDefault(x =&gt; x.Key == <span class="string">&quot;StripeCustomSubAccount&quot;</span>).NewValue,</span><br><span class="line">        StripeCustomTestSubAccount = shopDefault.SingleOrDefault(x =&gt; x.Key == <span class="string">&quot;StripeCustomTestSubAccount&quot;</span>).NewValue,</span><br><span class="line">        EnableCustomDate = shopDefault.SingleOrDefault(x =&gt; x.Key == <span class="string">&quot;EnableCustomDate&quot;</span>).NewValue,</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-執行時期帳戶類型邏輯"><a href="#2-5-執行時期帳戶類型邏輯" class="headerlink" title="2.5 執行時期帳戶類型邏輯"></a>2.5 執行時期帳戶類型邏輯</h3><h4 id="動態帳戶類型切換"><a href="#動態帳戶類型切換" class="headerlink" title="動態帳戶類型切換"></a>動態帳戶類型切換</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="built_in">string</span> <span class="title">GetRuntimeAccountType</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 確保 Account Type 不會因為時間差而有所變動</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">string</span>.IsNullOrEmpty(<span class="keyword">this</span>._runtimeStripeAccountType))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>._runtimeStripeAccountType = <span class="keyword">this</span>._stripeAccountType;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Account Type 由 Custom 改為 Standard 的條件</span></span><br><span class="line">        <span class="comment">// 1. EnableCustomDate 未指定時間</span></span><br><span class="line">        <span class="comment">// 2. EnableCustomDate 未達指定時間</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>._runtimeStripeAccountType.StartsWith(StripeAccountTypeConstants.Custom, StringComparison.OrdinalIgnoreCase)</span><br><span class="line">            &amp;&amp; (DateTime.TryParse(<span class="keyword">this</span>.EnableCustomDate, <span class="keyword">out</span> DateTime enableCustomDate) == <span class="literal">false</span></span><br><span class="line">                || enableCustomDate &gt; DateTime.Now))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 將 Custom 替換為 Standard</span></span><br><span class="line">            <span class="keyword">this</span>._runtimeStripeAccountType = <span class="keyword">this</span>._runtimeStripeAccountType.Replace(</span><br><span class="line">                StripeAccountTypeConstants.Custom, StripeAccountTypeConstants.Standard);</span><br><span class="line">            <span class="keyword">this</span>._runtimeStripeAccountType = <span class="keyword">this</span>._runtimeStripeAccountType.Replace(</span><br><span class="line">                StripeAccountTypeConstants.Test, <span class="built_in">string</span>.Empty);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>._runtimeStripeAccountType;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<pre class="mermaid">flowchart TD
+    A["讀取 _stripeAccountType"] --> B{"是否以 Custom 開頭？"}
+    B -->|"否"| C["維持原本帳戶類型"]
+    B -->|"是"| D{"EnableCustomDate<br/>可成功解析且已到指定時間？"}
+    D -->|"是"| E["維持 Custom / CustomTest / CustomUAT / CustomUATTest"]
+    D -->|"否"| F["把 Custom 替換成 Standard"]
+    F --> G["再把 Test 字樣移除"]
+    G --> H["執行期改走 Standard 邏輯"]</pre>
+
+<div class="pat-note warn">
+<span class="pat-n-title">💡 這段邏輯的白話版</span>
+資料庫可以先把商店設成 <code>Custom</code>，但如果 <code>EnableCustomDate</code> 還沒到，程式在執行當下會自動降級成 <code>Standard</code>。這樣可以先布好設定，等日期到了再切換，不用等到當天手動改值。
+</div>
+
+<h3 id="2-6-帳戶類型判斷與設定"><a href="#2-6-帳戶類型判斷與設定" class="headerlink" title="2.6 帳戶類型判斷與設定"></a>2.6 帳戶類型判斷與設定</h3><h4 id="帳戶類型判斷方法"><a href="#帳戶類型判斷方法" class="headerlink" title="帳戶類型判斷方法"></a>帳戶類型判斷方法</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 判斷是否為 Custom 類型帳戶</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">bool</span> <span class="title">IsCustomAccountType</span>()</span> =&gt;</span><br><span class="line">    <span class="keyword">this</span>.StripeAccountType.StartsWith(StripeAccountTypeConstants.Custom, StringComparison.OrdinalIgnoreCase);</span><br></pre></td></tr></table></figure>
+
+<h4 id="付款流程決定"><a href="#付款流程決定" class="headerlink" title="付款流程決定"></a>付款流程決定</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">GetStripePaymentFlow</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Custom 帳戶使用 DestinationCharge，Standard 使用 DirectCharge</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.IsCustomAccountType() ? <span class="string">&quot;DestinationCharge&quot;</span> : <span class="string">&quot;DirectCharge&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<pre class="mermaid">flowchart LR
+    A["讀取 StripeAccountType"] --> B{"IsCustomAccountType()？"}
+    B -->|"是"| C["付款流程 = DestinationCharge"]
+    B -->|"否"| D["付款流程 = DirectCharge"]</pre>
+
+<h4 id="子帳戶選擇"><a href="#子帳戶選擇" class="headerlink" title="子帳戶選擇"></a>子帳戶選擇</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">GetSubAccount</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.IsCustomAccountType())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Custom 帳戶：根據測試模式選擇對應子帳戶</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.IsTestMode() ? <span class="keyword">this</span>.StripeCustomTestSubAccount : <span class="keyword">this</span>.StripeCustomSubAccount;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Standard 帳戶：使用標準子帳戶</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.StripeSubAccount;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-7-API-金鑰管理"><a href="#2-7-API-金鑰管理" class="headerlink" title="2.7 API 金鑰管理"></a>2.7 API 金鑰管理</h3><h4 id="根據帳戶類型取得-API-金鑰"><a href="#根據帳戶類型取得-API-金鑰" class="headerlink" title="根據帳戶類型取得 API 金鑰"></a>根據帳戶類型取得 API 金鑰</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="built_in">string</span> <span class="title">GetStripeApiKey</span>(<span class="params"><span class="built_in">long</span> shopId, <span class="built_in">string</span> accountType</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> accountType <span class="keyword">switch</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Custom 系列</span></span><br><span class="line">        StripeAccountTypeConstants.Custom =&gt;</span><br><span class="line">            <span class="keyword">this</span>._stripeConfigurations.CustomAcctLiveSecretKey,</span><br><span class="line">        StripeAccountTypeConstants.CustomTest =&gt;</span><br><span class="line">            <span class="keyword">this</span>._stripeConfigurations.CustomAcctTestSecretKey,</span><br><span class="line">        StripeAccountTypeConstants.CustomUAT =&gt;</span><br><span class="line">            <span class="keyword">this</span>._stripeConfigurations.CustomUATAcctLiveSecretKey,</span><br><span class="line">        StripeAccountTypeConstants.CustomUATTest =&gt;</span><br><span class="line">            <span class="keyword">this</span>._stripeConfigurations.CustomUATAcctTestSecretKey,</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Standard 系列</span></span><br><span class="line">        StripeAccountTypeConstants.Standard =&gt;</span><br><span class="line">            <span class="keyword">this</span>._stripeConfigurations.StandardAcctLiveSecretKey,</span><br><span class="line">        StripeAccountTypeConstants.StandardUAT =&gt;</span><br><span class="line">            <span class="keyword">this</span>._stripeConfigurations.StandardUATAcctLiveSecretKey,</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 預設使用 Standard Live Key</span></span><br><span class="line">        _ =&gt; <span class="keyword">this</span>._stripeConfigurations.StandardAcctLiveSecretKey</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="API-金鑰對應表"><a href="#API-金鑰對應表" class="headerlink" title="API 金鑰對應表"></a>API 金鑰對應表</h4><div class="pat-table-wrap">
+<table>
+<thead><tr><th>帳戶類型</th><th>對應 API 金鑰</th></tr></thead>
+<tbody>
+<tr><td>Custom</td><td><code>CustomAcctLiveSecretKey</code></td></tr>
+<tr><td>CustomTest</td><td><code>CustomAcctTestSecretKey</code></td></tr>
+<tr><td>CustomUAT</td><td><code>CustomUATAcctLiveSecretKey</code></td></tr>
+<tr><td>CustomUATTest</td><td><code>CustomUATAcctTestSecretKey</code></td></tr>
+<tr><td>Standard</td><td><code>StandardAcctLiveSecretKey</code></td></tr>
+<tr><td>StandardUAT</td><td><code>StandardUATAcctLiveSecretKey</code></td></tr>
+</tbody>
+</table>
+</div></div><div class="tab-item-content" id="stripe_account-2"><div class="pat-section-head">
+<div class="pat-chip">9</div>
+<h2>帳戶類型與 Key 整理</h2>
+</div>
+
+<h3 id="9-1-概述"><a href="#9-1-概述" class="headerlink" title="9.1 概述"></a>9.1 概述</h3><p>本章節提供 Stripe 帳戶類型與 API 金鑰的完整配置管理資訊，包括測試環境設定、金鑰管理和帳戶文件整理。</p>
+<h3 id="9-2-HK-QA-測試商店配置"><a href="#9-2-HK-QA-測試商店配置" class="headerlink" title="9.2 HK QA 測試商店配置"></a>9.2 HK QA 測試商店配置</h3><h4 id="9-2-1-配置管理中心"><a href="#9-2-1-配置管理中心" class="headerlink" title="9.2.1 配置管理中心"></a>9.2.1 配置管理中心</h4><div class="pat-table-wrap">
+<table>
+<thead><tr><th>資源</th><th>連結</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td><strong>Stripe 配置 Notion</strong></td><td><a href="https://www.notion.so/STRIPE-24e558dd52a9800fb4cfefcc627101d9" target="_blank" rel="noopener">STRIPE-24e558dd52a9800fb4cfefcc627101d9 ↗</a></td><td>完整的測試商店配置表</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="9-2-2-測試商店配置內容"><a href="#9-2-2-測試商店配置內容" class="headerlink" title="9.2.2 測試商店配置內容"></a>9.2.2 測試商店配置內容</h4><ul class="pat-checklist">
+<li>各測試商店的帳戶類型設定</li>
+<li>PublishableKey 和 SecretKey 對應關係</li>
+<li>環境別配置差異（QA、UAT、Production）</li>
+<li>Connected Account 設定狀態</li>
+</ul>
+
+<h4 id="9-2-3-配置管理最佳實務"><a href="#9-2-3-配置管理最佳實務" class="headerlink" title="9.2.3 配置管理最佳實務"></a>9.2.3 配置管理最佳實務</h4><div class="pat-table-wrap">
+<table>
+<thead><tr><th>管理項目</th><th>建議作法</th><th>注意事項</th></tr></thead>
+<tbody>
+<tr><td><strong>定期更新</strong></td><td>每月檢查配置狀態</td><td>確保測試環境與正式環境同步</td></tr>
+<tr><td><strong>文件維護</strong></td><td>即時更新 Notion 文件</td><td>變更時同步更新所有相關文件</td></tr>
+<tr><td><strong>存取控制</strong></td><td>限制配置文件存取權限</td><td>僅授權相關開發人員存取</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="9-3-API-金鑰配置管理"><a href="#9-3-API-金鑰配置管理" class="headerlink" title="9.3 API 金鑰配置管理"></a>9.3 API 金鑰配置管理</h3><h4 id="9-3-1-Secret-Key-設定位置"><a href="#9-3-1-Secret-Key-設定位置" class="headerlink" title="9.3.1 Secret Key 設定位置"></a>9.3.1 Secret Key 設定位置</h4><div class="pat-callout info">
+<span class="pat-icon">📁</span>
+<span><strong>設定檔路徑：</strong><code>MachineConfig/Frontend/AppSettings.QA300.config</code></span>
+</div>
+
+<p><strong>檔案結構：</strong></p>
+<div class="pat-table-wrap">
+<table>
+<thead><tr><th>設定項目</th><th>說明</th><th>範例</th></tr></thead>
+<tbody>
+<tr><td><code>CustomAcctLiveSecretKey</code></td><td>Custom 帳戶正式環境金鑰</td><td><code>sk_live_...</code></td></tr>
+<tr><td><code>CustomAcctTestSecretKey</code></td><td>Custom 帳戶測試環境金鑰</td><td><code>sk_test_...</code></td></tr>
+<tr><td><code>StandardAcctLiveSecretKey</code></td><td>Standard 帳戶正式環境金鑰</td><td><code>sk_live_...</code></td></tr>
+</tbody>
+</table>
+</div>
+
+
+
+<h3 id="9-4-帳戶管理文件整理"><a href="#9-4-帳戶管理文件整理" class="headerlink" title="9.4 帳戶管理文件整理"></a>9.4 帳戶管理文件整理</h3><h4 id="9-4-1-主要管理文件"><a href="#9-4-1-主要管理文件" class="headerlink" title="9.4.1 主要管理文件"></a>9.4.1 主要管理文件</h4><div class="pat-table-wrap">
+<table>
+<thead><tr><th>文件</th><th>連結</th><th>內容</th></tr></thead>
+<tbody>
+<tr><td><strong>帳戶配置總表</strong></td><td><a href="https://docs.google.com/spreadsheets/d/1Wc3SB8I2qlHJ5xw2JzrOuXZVUpKAAHs7OsbJAUVeG0A/edit?gid=0#gid=0" target="_blank" rel="noopener">Google Sheets ↗</a></td><td>完整的帳戶類型與金鑰對應表</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="9-4-2-文件管理內容"><a href="#9-4-2-文件管理內容" class="headerlink" title="9.4.2 文件管理內容"></a>9.4.2 文件管理內容</h4><ul class="pat-checklist">
+<li><strong>帳戶類型對照表：</strong>Custom vs Standard 帳戶差異</li>
+<li><strong>金鑰對應關係：</strong>PublishableKey 與 SecretKey 配對</li>
+<li><strong>環境配置：</strong>各環境的設定參數</li>
+<li><strong>商店對應表：</strong>ShopId 與帳戶類型的對應關係</li>
+</ul></div><div class="tab-item-content" id="stripe_account-3"><div class="pat-section-head">
+<div class="pat-chip">13</div>
+<h2>商店與 Stripe 帳號的關係</h2>
+</div>
+
+<h3 id="概念總覽"><a href="#概念總覽" class="headerlink" title="概念總覽"></a>概念總覽</h3><div class="pat-note">
+<span class="pat-n-title">一句話版本</span>
+<strong>91APP 是 Stripe 的「平台帳號」，每間商店在 Stripe 都有自己的「子帳號（Connected Account）」。</strong><br>付款時，91APP 用自己的 Platform Key + 商店的 <code>acct_xxxxx</code>，代替商店向 Stripe 發起交易。
+</div>
+
+<h3 id="帳號結構"><a href="#帳號結構" class="headerlink" title="帳號結構"></a>帳號結構</h3><pre class="mermaid">flowchart TD
+    A["Stripe 世界"] --> B["91APP Platform Account（主帳號）"]
+    B --> C["持有 sk_live_xxxx（平台自己的 Secret Key）"]
+    C --> D["acct_AAA ← 商店 A 的子帳號（Standard）"]
+    C --> E["acct_BBB ← 商店 B 的子帳號（Standard）"]
+    C --> F["acct_CCC ← 商店 C 的子帳號（Custom）"]
+    C --> G["acct_DDD ← 商店 D 的子帳號（Custom）"]</pre>
+
+<p>每間 91APP 商店對應一個 Stripe 子帳號（<code>acct_xxxxx</code>），這個對應關係存在資料庫 <code>ShopDefault</code> 表中。</p>
+<h3 id="兩種帳號類型"><a href="#兩種帳號類型" class="headerlink" title="兩種帳號類型"></a>兩種帳號類型</h3><h4 id="🔵-Standard-帳號（大型商店，例如-SASA）"><a href="#🔵-Standard-帳號（大型商店，例如-SASA）" class="headerlink" title="🔵 Standard 帳號（大型商店，例如 SASA）"></a>🔵 Standard 帳號（大型商店，例如 SASA）</h4><div class="pat-table-wrap">
+<table>
+<thead><tr><th>項目</th><th>說明</th></tr></thead>
+<tbody>
+<tr><td><strong>帳號所有人</strong></td><td>商店自己申請、自己擁有</td></tr>
+<tr><td><strong>費率</strong></td><td>商店自行與 Stripe 談判</td></tr>
+<tr><td><strong>付款流程</strong></td><td><strong>DirectCharge</strong> — 錢直接進商店子帳號</td></tr>
+<tr><td><strong>API Key</strong></td><td>91APP 平台的 <code>StandardAcctLiveSecretKey</code>（所有 Standard 共用）</td></tr>
+<tr><td><strong>商店區分方式</strong></td><td><code>Stripe-Account: acct_xxx</code> Header（每間不同）</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pat-term">
+<div class="pat-term-bar"><span class="pat-term-dot r"></span><span class="pat-term-dot y"></span><span class="pat-term-dot g"></span><span class="pat-term-title">Standard / DirectCharge</span></div>
+<pre class="pat-term-pre">使用者付款
+    → 91APP 平台 Key（Authorization）+ Stripe-Account: acct_商店 Header
+    → 錢直接進 商店子帳號
+    → 91APP 從中收 application_fee</pre>
+</div>
+
+<h4 id="🟠-Custom-帳號（小型商店，由-91APP-在-OSM-代開）"><a href="#🟠-Custom-帳號（小型商店，由-91APP-在-OSM-代開）" class="headerlink" title="🟠 Custom 帳號（小型商店，由 91APP 在 OSM 代開）"></a>🟠 Custom 帳號（小型商店，由 91APP 在 OSM 代開）</h4><div class="pat-table-wrap">
+<table>
+<thead><tr><th>項目</th><th>說明</th></tr></thead>
+<tbody>
+<tr><td><strong>帳號所有人</strong></td><td>91APP 代替商店建立</td></tr>
+<tr><td><strong>費率</strong></td><td>由平台統一設定</td></tr>
+<tr><td><strong>付款流程</strong></td><td><strong>DestinationCharge</strong> — 錢先進平台，再 Transfer 給商店</td></tr>
+<tr><td><strong>API Key</strong></td><td>91APP 平台的 <code>CustomAcctLiveSecretKey</code>（所有 Custom 共用）</td></tr>
+<tr><td><strong>商店區分方式</strong></td><td>Body 的 <code>transfer_data[destination]: acct_xxx</code>（每間不同）</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pat-term">
+<div class="pat-term-bar"><span class="pat-term-dot r"></span><span class="pat-term-dot y"></span><span class="pat-term-dot g"></span><span class="pat-term-title">Custom / DestinationCharge</span></div>
+<pre class="pat-term-pre">使用者付款
+    → 91APP 平台 Key（Authorization）
+    → 錢進 91APP 平台主帳號
+    → Transfer → 商店子帳號（transfer_data[destination]）
+    → 91APP 從中收 application_fee</pre>
+</div>
+
+<h3 id="為什麼-Standard-商店（自己的帳號）也用-91APP-的-Key？"><a href="#為什麼-Standard-商店（自己的帳號）也用-91APP-的-Key？" class="headerlink" title="為什麼 Standard 商店（自己的帳號）也用 91APP 的 Key？"></a>為什麼 Standard 商店（自己的帳號）也用 91APP 的 Key？</h3><h4 id="關鍵：OAuth-授權"><a href="#關鍵：OAuth-授權" class="headerlink" title="關鍵：OAuth 授權"></a>關鍵：OAuth 授權</h4><p>Standard 商店雖然帳號是自己的，但在接入 91APP 結帳前，必須完成一次 <strong>OAuth 授權</strong>：</p>
+<div class="pat-term">
+<div class="pat-term-bar"><span class="pat-term-dot r"></span><span class="pat-term-dot y"></span><span class="pat-term-dot g"></span><span class="pat-term-title">OAuth 流程</span></div>
+<pre class="pat-term-pre">1. 商店登入 OSM 後台
+       ↓
+2. 點擊「連結 Stripe 帳號」
+       ↓
+3. 跳轉 Stripe 官網授權頁面：
+   「是否允許 91APP 平台代為處理你的付款？」
+       ↓
+4. 商店老闆點「同意」
+       ↓
+5. Stripe 回傳 OAuth 結果：
+   {
+     "access_token": "sk_live_商店自己的Key",  ← 91APP 不存這個
+     "stripe_user_id": "acct_xxxxx",           ← 只存這個進 ShopDefault
+     "stripe_publishable_key": "pk_live_..."
+   }
+       ↓
+6. 91APP 只記錄 acct_xxxxx，access_token 直接丟棄</pre>
+</div>
+
+<div class="pat-callout info">
+<span class="pat-icon">ℹ️</span>
+<span>OAuth 完成後，Stripe 內部就記下了：<strong>「<code>acct_xxxxx</code> 這個商店，已授權 91APP 平台帳號代為操作」</strong></span>
+</div>
+
+<h3 id="sk-live-有兩種，長得一樣但身份不同"><a href="#sk-live-有兩種，長得一樣但身份不同" class="headerlink" title="sk_live_... 有兩種，長得一樣但身份不同"></a><code>sk_live_...</code> 有兩種，長得一樣但身份不同</h3><div class="pat-key-grid">
+<div class="pat-key-box">
+<h4>🏢 91APP 平台帳號的 Key</h4>
+<code>sk_live_AbcXXXXXXXXXXXXX</code>
+<p style="margin:8px 0 0;font-size:.85rem;">← config 裡的 <code>StandardAcctLiveSecretKey</code></p>
+</div>
+<div class="pat-key-box">
+<h4>🏪 商店 OAuth 後的 Key</h4>
+<code>sk_live_XyzYYYYYYYYYYYYY</code>
+<p style="margin:8px 0 0;font-size:.85rem;">← OAuth <code>access_token</code>（91APP 不存）</p>
+</div>
+</div>
+
+<div class="pat-callout warn">
+<span class="pat-icon">⚠️</span>
+<span><strong>格式完全相同，但代表不同帳號，意義完全不一樣。</strong></span>
+</div>
+
+<h4 id="config-裡的-StandardAcctLiveSecretKey-是哪一把？"><a href="#config-裡的-StandardAcctLiveSecretKey-是哪一把？" class="headerlink" title="config 裡的 StandardAcctLiveSecretKey 是哪一把？"></a>config 裡的 <code>StandardAcctLiveSecretKey</code> 是哪一把？</h4><div class="pat-callout info">
+<span class="pat-icon">🔑</span>
+<span><strong>是 91APP 自己的 Stripe Platform Account 的 Key，與任何商店無關。</strong>它寫死在 <code>AppSettings.config</code> 裡，所有 Standard 商店的交易都用這同一把 Key。</span>
+</div>
+
+<h3 id="為什麼不直接用商店的-access-token-來打-API？"><a href="#為什麼不直接用商店的-access-token-來打-API？" class="headerlink" title="為什麼不直接用商店的 access_token 來打 API？"></a>為什麼不直接用商店的 <code>access_token</code> 來打 API？</h3><div class="pat-table-wrap">
+<table>
+<thead><tr><th></th><th>用商店自己的 <code>access_token</code></th><th>用平台 Key + Stripe-Account Header（現行做法）</th></tr></thead>
+<tbody>
+<tr><td><strong>需要存什麼</strong></td><td>每間商店各存一把 <code>sk_live_...</code></td><td>只存 <code>acct_xxxxx</code>（簡單字串）</td></tr>
+<tr><td><strong>管理複雜度</strong></td><td>高（N 間商店 = N 把 Key，還需處理 refresh）</td><td>低（一把 Key 管全部）</td></tr>
+<tr><td><strong>Key 洩漏風險</strong></td><td>高（影響單一商店）</td><td>相對集中管理</td></tr>
+<tr><td><strong>91APP 的選擇</strong></td><td>❌</td><td>✅</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="付款時-Stripe-的驗證邏輯"><a href="#付款時-Stripe-的驗證邏輯" class="headerlink" title="付款時 Stripe 的驗證邏輯"></a>付款時 Stripe 的驗證邏輯</h3><div class="pat-term">
+<div class="pat-term-bar"><span class="pat-term-dot r"></span><span class="pat-term-dot y"></span><span class="pat-term-dot g"></span><span class="pat-term-title">Stripe 驗證</span></div>
+<pre class="pat-term-pre">91APP 打 API：
+  Authorization: ******   → 「我是 91APP 平台」
+  Stripe-Account: acct_商店xxxxx          → 「我要代表這間商店操作」
+          ↓
+Stripe 驗證：
+  1. sk_live_平台Key 是否合法？ → ✅
+  2. acct_商店xxxxx 是否已授權給這個平台？ → ✅（OAuth 時已同意）
+          ↓
+  放行，錢進 acct_商店xxxxx</pre>
+</div>
+
+<h3 id="DB-設定對應（ShopDefault-表）"><a href="#DB-設定對應（ShopDefault-表）" class="headerlink" title="DB 設定對應（ShopDefault 表）"></a>DB 設定對應（ShopDefault 表）</h3><div class="pat-table-wrap">
+<table>
+<thead><tr><th>DB Key</th><th>說明</th><th>哪種帳號使用</th></tr></thead>
+<tbody>
+<tr><td><code>StripeAccountType</code></td><td><code>Standard</code> 或 <code>Custom</code></td><td>決定走哪條流程</td></tr>
+<tr><td><code>StripeSubAccount</code></td><td>Standard 子帳號 <code>acct_xxx</code></td><td>Standard</td></tr>
+<tr><td><code>StripeCustomSubAccount</code></td><td>Custom 子帳號 <code>acct_xxx</code>（正式）</td><td>Custom</td></tr>
+<tr><td><code>StripeCustomTestSubAccount</code></td><td>Custom 子帳號 <code>acct_xxx</code>（測試）</td><td>Custom</td></tr>
+<tr><td><code>EnableCustomDate</code></td><td>Custom 帳號啟用日期，未到則降級為 Standard 流程</td><td>Custom</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="查詢語法"><a href="#查詢語法" class="headerlink" title="查詢語法"></a>查詢語法</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> ShopDefault_Key, ShopDefault_NewValue</span><br><span class="line"><span class="keyword">FROM</span> ShopDefault (NOLOCK)</span><br><span class="line"><span class="keyword">WHERE</span> ShopDefault_ValidFlag <span class="operator">=</span> <span class="number">1</span></span><br><span class="line">  <span class="keyword">AND</span> ShopDefault_ShopId <span class="operator">=</span> <span class="variable">@shopId</span></span><br><span class="line">  <span class="keyword">AND</span> ShopDefault_Key <span class="keyword">IN</span> (</span><br><span class="line">    <span class="string">&#x27;StripeAccountType&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;StripeSubAccount&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;StripeCustomSubAccount&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;EnableCustomDate&#x27;</span></span><br><span class="line">  )</span><br></pre></td></tr></table></figure>
+
+<h3 id="EnableCustomDate-降級機制"><a href="#EnableCustomDate-降級機制" class="headerlink" title="EnableCustomDate 降級機制"></a>EnableCustomDate 降級機制</h3><p>商店 DB 設定 <code>StripeAccountType = Custom</code>，但若 <code>EnableCustomDate</code> 尚未到達，系統執行期<strong>自動降級為 Standard</strong>：</p>
+<pre class="mermaid">flowchart TD
+    A["DB：StripeAccountType = Custom<br/>EnableCustomDate = 2025-06-01"] --> B{"今天是否已到<br/>2025-06-01？"}
+    B -->|"否，例如 2025-05-01"| C["執行期實際值 = Standard"]
+    C --> D["payment_flow = DirectCharge"]
+    B -->|"是"| E["維持 Custom"]
+    E --> F["payment_flow = DestinationCharge"]</pre>
+
+<div class="pat-callout info">
+<span class="pat-icon">💡</span>
+<span><strong>用途：</strong>讓商店可以提前在 DB 設定好 Custom 帳號資訊，到指定日期才自動切換，不需要當天手動改 DB。</span>
+</div>
+
+<h3 id="完整關係圖"><a href="#完整關係圖" class="headerlink" title="完整關係圖"></a>完整關係圖</h3><pre class="mermaid">flowchart TD
+    A["ShopId（91APP 內部編號）"] --> B["GetShopStripeSetting(shopId)"]
+    B --> C["ShopDefault 表"]
+    C --> C1["StripeAccountType = Standard or Custom"]
+    C --> C2["StripeSubAccount = acct_xxxxx（Standard 用）"]
+    C --> C3["StripeCustomSubAccount = acct_yyyyy（Custom 用）"]
+    C --> C4["EnableCustomDate = YYYY-MM-DD"]
+    C --> D["StripeSettingsEntity"]
+    D --> D1["GetSubAccount() → acct_xxxxx（依類型選擇）"]
+    D --> D2["GetStripePaymentFlow() → DirectCharge or DestinationCharge"]
+    D2 -->|"Standard"| E["Authorization：sk_live_平台StandardKey<br/>Stripe-Account: acct_xxxxx<br/>→ 錢直接進商店子帳號"]
+    D2 -->|"Custom"| F["Authorization：sk_live_平台CustomKey<br/>Body：transfer_data[destination] = acct_yyyyy<br/>→ 錢進平台 → Transfer → 商店子帳號"]</pre></div><div class="tab-item-content" id="stripe_account-4"><div class="pat-section-head">
+<div class="pat-chip">14</div>
+<h2>帳戶切換與管理</h2>
+</div>
+
+<h3 id="14-1-概述"><a href="#14-1-概述" class="headerlink" title="14.1 概述"></a>14.1 概述</h3><p>帳戶切換功能允許系統在不同的 Stripe 帳戶間進行切換，以支援多環境部署、商店遷移和帳戶升級等需求。</p>
+<h3 id="14-2-HK-QA-125-美金站帳戶異動"><a href="#14-2-HK-QA-125-美金站帳戶異動" class="headerlink" title="14.2 HK QA 125 美金站帳戶異動"></a>14.2 HK QA 125 美金站帳戶異動</h3><h4 id="14-2-1-異動概述"><a href="#14-2-1-異動概述" class="headerlink" title="14.2.1 異動概述"></a>14.2.1 異動概述</h4><div class="pat-callout warn">
+<span class="pat-icon">⚠️</span>
+<span><strong>背景：</strong>HK QA 環境中 125 號商店（美金站）進行 Stripe 帳戶切換。<br><strong>異動時間：</strong>根據業務需求進行的帳戶變更。</span>
+</div>
+
+<h4 id="14-2-2-帳戶變更詳情"><a href="#14-2-2-帳戶變更詳情" class="headerlink" title="14.2.2 帳戶變更詳情"></a>14.2.2 帳戶變更詳情</h4><div class="pat-table-wrap">
+<table>
+<thead><tr><th>項目</th><th>異動前</th><th>異動後</th></tr></thead>
+<tbody>
+<tr><td><strong>StripeSubAccount</strong></td><td class="pat-diff-before">acct_1OINwsHK7varnAps</td><td class="pat-diff-after">acct_1Q7SPiFGfUIK2bE1</td></tr>
+<tr><td><strong>適用環境</strong></td><td class="pat-diff-before">HK QA</td><td class="pat-diff-after">HK QA</td></tr>
+<tr><td><strong>影響商店</strong></td><td class="pat-diff-before">125（美金站）</td><td class="pat-diff-after">125（美金站）</td></tr>
+<tr><td><strong>帳戶類型</strong></td><td class="pat-diff-before">Stripe SubAccount</td><td class="pat-diff-after">Stripe SubAccount</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="14-2-3-異動影響範圍"><a href="#14-2-3-異動影響範圍" class="headerlink" title="14.2.3 異動影響範圍"></a>14.2.3 異動影響範圍</h4><div class="pat-compare-grid">
+<div class="pat-compare-card standard">
+<div class="pat-compare-head"><span class="pat-dot"></span>技術影響</div>
+<div class="pat-compare-body">
+<p>SubAccount ID 變更</p>
+<p>Connected Account 連結更新</p>
+<p>相關設定檔更新</p>
+</div>
+</div>
+<div class="pat-compare-card custom">
+<div class="pat-compare-head"><span class="pat-dot"></span>業務影響</div>
+<div class="pat-compare-body">
+<p>交易處理帳戶變更</p>
+<p>資金流向調整</p>
+<p>報表資料源更新</p>
+</div>
+</div>
+</div>
+
+<h3 id="14-3-帳戶切換流程"><a href="#14-3-帳戶切換流程" class="headerlink" title="14.3 帳戶切換流程"></a>14.3 帳戶切換流程</h3><h4 id="14-3-1-切換前準備（檢查清單）"><a href="#14-3-1-切換前準備（檢查清單）" class="headerlink" title="14.3.1 切換前準備（檢查清單）"></a>14.3.1 切換前準備（檢查清單）</h4><ul class="pat-checklist">
+<li>確認新帳戶設定完成</li>
+<li>備份原帳戶設定資料</li>
+<li>準備回滾計畫</li>
+<li>通知相關團隊</li>
+</ul>
+
+<h4 id="14-3-2-設定更新步驟"><a href="#14-3-2-設定更新步驟" class="headerlink" title="14.3.2 設定更新步驟"></a>14.3.2 設定更新步驟</h4><div class="pat-table-wrap">
+<table>
+<thead><tr><th>步驟</th><th>動作</th><th>負責人</th><th>驗證方式</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td>更新 ShopDefault 設定</td><td>開發團隊</td><td>資料庫查詢確認</td></tr>
+<tr><td><strong>2</strong></td><td>更新設定檔</td><td>系統管理員</td><td>設定檔內容檢查</td></tr>
+<tr><td><strong>3</strong></td><td>重新部署應用程式</td><td>DevOps</td><td>部署成功確認</td></tr>
+<tr><td><strong>4</strong></td><td>功能測試</td><td>測試團隊</td><td>交易流程驗證</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4 id="14-3-3-切換後驗證"><a href="#14-3-3-切換後驗證" class="headerlink" title="14.3.3 切換後驗證"></a>14.3.3 切換後驗證</h4><ul class="pat-checklist">
+<li>付款流程正常運作</li>
+<li>帳戶連結狀態正確</li>
+<li>交易資料正確記錄</li>
+<li>報表資料正常產生</li>
+</ul></div><div class="tab-item-content" id="stripe_account-5"><div class="pat-section-head">
+<div class="pat-chip">15</div>
+<h2>PaymentMiddleware 原始碼解析：DirectCharge vs DestinationCharge</h2>
+</div>
+
+<p>本章節基於 <code>nineyi.payment.middleware</code> 專案中 <code>NineYi.PaymentMiddleware.Plugins.Stripe</code> 的實際程式碼，拆解 Standard（DirectCharge）與 Custom（DestinationCharge）兩條付款路徑在程式碼層級的具體差異。</p>
+<h3 id="15-1-策略模式（Strategy-Pattern）總覽"><a href="#15-1-策略模式（Strategy-Pattern）總覽" class="headerlink" title="15.1 策略模式（Strategy Pattern）總覽"></a>15.1 策略模式（Strategy Pattern）總覽</h3><p>PaymentMiddleware 用 <strong>Strategy Pattern</strong> 把兩種收款方式封裝成獨立策略類別，執行期依 <code>StripePaymentFlowEnum</code> 動態選擇：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">enum</span> StripePaymentFlowEnum</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment"><span class="doctag">///</span> Direct Charge on Sub-Account</span></span><br><span class="line">    DirectCharge,</span><br><span class="line"></span><br><span class="line">    <span class="comment"><span class="doctag">///</span> Charge on Platform and Transfer to Sub-Account</span></span><br><span class="line">    DestinationCharge</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> IStripePaymentFlowStrategy <span class="title">GetPaymentFlowStrategy</span>(<span class="params">StripePaymentFlowEnum flow</span>)</span> =&gt; flow <span class="keyword">switch</span></span><br><span class="line">&#123;</span><br><span class="line">    StripePaymentFlowEnum.DirectCharge =&gt; <span class="keyword">this</span>._serviceProvider.GetRequiredService&lt;DirectChargePaymentFlowStrategy&gt;(),</span><br><span class="line">    StripePaymentFlowEnum.DestinationCharge =&gt; <span class="keyword">this</span>._serviceProvider.GetRequiredService&lt;DestinationChargePaymentFlowStrategy&gt;(),</span><br><span class="line">    _ =&gt; <span class="keyword">throw</span> <span class="keyword">new</span> NotSupportedException()</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>兩個策略都實作 <code>IStripePaymentFlowStrategy</code>，提供相同的四個方法，但內部組出的 Stripe API 參數完全不同：</p>
+<div class="pat-term">
+<div class="pat-term-bar"><span class="pat-term-dot r"></span><span class="pat-term-dot y"></span><span class="pat-term-dot g"></span><span class="pat-term-title">IStripePaymentFlowStrategy</span></div>
+<pre class="pat-term-pre">IStripePaymentFlowStrategy
+    ├── Pay()                      建立卡片付款（含建立 payment_method）
+    ├── ProcessMobileWalletPayment() Apple/Google Pay 付款
+    ├── PaymentIntentAsync()       用既有 payment_method 建立 PaymentIntent（記憶卡 / Token 付款）
+    └── CreatePaymentMethodAsync() 建立 payment_method
+
+<pre><code>├── DirectChargePaymentFlowStrategy      ← Standard 帳號
+└── DestinationChargePaymentFlowStrategy ← Custom 帳號&lt;/pre&gt;
+</code></pre>
+</div>
+
+<h3 id="15-2-建立付款：Pay-方法程式碼比對"><a href="#15-2-建立付款：Pay-方法程式碼比對" class="headerlink" title="15.2 建立付款：Pay() 方法程式碼比對"></a>15.2 建立付款：<code>Pay()</code> 方法程式碼比對</h3><p>兩者都會先呼叫 <code>/v1/payment_methods</code> 建立卡片，再呼叫 <code>/v1/payment_intents</code> 建立付款意圖，差異在 <strong>API 呼叫時帶的參數與 Header</strong>。</p>
+<h4 id="🔵-DirectChargePaymentFlowStrategy-Pay"><a href="#🔵-DirectChargePaymentFlowStrategy-Pay" class="headerlink" title="🔵 DirectChargePaymentFlowStrategy.Pay()"></a>🔵 <code>DirectChargePaymentFlowStrategy.Pay()</code></h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">PaymentMethodResponseEntity paymentMethod =</span><br><span class="line">    <span class="keyword">await</span> _stripeHttpClient.CreatePaymentMethodAsync(</span><br><span class="line">        body, <span class="comment">// request.ExtendInfo.SubAccount</span></span><br><span class="line">        request.ExtendInfo.SubAccount);</span><br><span class="line"></span><br><span class="line">IDictionary&lt;<span class="built_in">string</span>, <span class="built_in">object</span>&gt; paymentIntentRequest = <span class="keyword">new</span>()</span><br><span class="line">&#123;</span><br><span class="line">    &#123; <span class="string">&quot;payment_method&quot;</span>, paymentMethod.id &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;amount&quot;</span>, amount &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;currency&quot;</span>, request.Currency &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;application_fee_amount&quot;</span>, applicationFeeAmount &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;return_url&quot;</span>, request.ExtendInfo.ReturnUrl &#125;</span><br><span class="line">    <span class="comment">// 沒有 transfer_data / on_behalf_of</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="keyword">await</span> _stripeHttpClient.CreatePaymentIntentAsync(</span><br><span class="line">    paymentIntentRequest,</span><br><span class="line">    request.ExtendInfo.SubAccount); <span class="comment">// ← Stripe-Account Header</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="🟠-DestinationChargePaymentFlowStrategy-Pay"><a href="#🟠-DestinationChargePaymentFlowStrategy-Pay" class="headerlink" title="🟠 DestinationChargePaymentFlowStrategy.Pay()"></a>🟠 <code>DestinationChargePaymentFlowStrategy.Pay()</code></h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">PaymentMethodResponseEntity paymentMethod =</span><br><span class="line">    <span class="keyword">await</span> _stripeHttpClient.CreatePaymentMethodAsync(body);</span><br><span class="line">    <span class="comment">// ← 不帶 subAccount，卡片建立在平台帳號下</span></span><br><span class="line"></span><br><span class="line">IDictionary&lt;<span class="built_in">string</span>, <span class="built_in">object</span>&gt; paymentIntentRequest = <span class="keyword">new</span>()</span><br><span class="line">&#123;</span><br><span class="line">    &#123; <span class="string">&quot;transfer_data[destination]&quot;</span>, subAccount &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;on_behalf_of&quot;</span>, subAccount &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;payment_method&quot;</span>, paymentMethod.id &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;amount&quot;</span>, amount &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;currency&quot;</span>, request.Currency &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;application_fee_amount&quot;</span>, applicationFeeAmount &#125;,</span><br><span class="line">    &#123; <span class="string">&quot;return_url&quot;</span>, request.ExtendInfo.ReturnUrl &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">await</span> AppendStatementDescriptorAsync(subAccount, paymentIntentRequest);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="keyword">await</span> _stripeHttpClient.CreatePaymentIntentAsync(paymentIntentRequest);</span><br><span class="line"><span class="comment">// ← 不帶 Stripe-Account Header，用平台帳號身分呼叫</span></span><br></pre></td></tr></table></figure>
+
+<div class="pat-callout info">
+<span class="pat-icon">🔍</span>
+<span><strong>DestinationCharge 多做一步：</strong><code>AppendStatementDescriptorAsync()</code> 會呼叫 <code>GET /v1/accounts/&#123;subAccount&#125;</code> 取得子帳號的 <code>statement_descriptor</code>，塞進 PaymentIntent，讓使用者信用卡帳單上顯示的是「商店名稱」而非「91APP」。因為 DestinationCharge 錢會先入平台帳號，若不特別設定，帳單摘要預設會顯示平台資訊。</span>
+</div>
+
+<h3 id="15-3-Stripe-Account-Header-的關鍵開關"><a href="#15-3-Stripe-Account-Header-的關鍵開關" class="headerlink" title="15.3 Stripe-Account Header 的關鍵開關"></a>15.3 <code>Stripe-Account Header</code> 的關鍵開關</h3><p>整個 SDK 呼叫的核心差異，其實只在於 <strong>要不要帶 <code>Stripe-Account</code> 這個 HTTP Header</strong>。<code>IStripeHttpClient</code>（Refit 介面）所有 API 都定義了這個可選 Header：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">Post(<span class="string">&quot;/v1/payment_intents&quot;</span>)</span>]</span><br><span class="line"><span class="function">Task&lt;PaymentIntentResponseEntity&gt; <span class="title">CreatePaymentIntentAsync</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">    [Body] IDictionary&lt;<span class="built_in">string</span>, <span class="built_in">object</span>&gt; body,</span></span></span><br><span class="line"><span class="params"><span class="function">    [Header(<span class="string">&quot;Stripe-Account&quot;</span></span>)] <span class="built_in">string</span> subAcct</span> = <span class="literal">null</span> <span class="comment">// ← DirectCharge 才會帶值</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>StripePlugin.cs</code> 的 Refund &#x2F; QueryPayment &#x2F; Cancel 三個流程中，都用同一行邏輯決定要不要帶 <code>subAcct</code>：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> subAcct = request.ExtendInfo.StripePaymentFlow == StripePaymentFlowEnum.DirectCharge</span><br><span class="line">    ? request.ExtendInfo.SubAccount   <span class="comment">// DirectCharge → 帶 Stripe-Account Header</span></span><br><span class="line">    : <span class="literal">null</span>;                        <span class="comment">// DestinationCharge → 不帶，直接用平台身分查詢</span></span><br></pre></td></tr></table></figure>
+
+<div class="pat-callout warn">
+<span class="pat-icon">💡</span>
+<span>這正好呼應第 13 章「商店與 Stripe 帳號的關係」：DirectCharge 的資源（PaymentIntent / Refund / Charge）建立在<strong>子帳號</strong>底下，之後任何查詢 / 退款 / 取消都要用 <code>Stripe-Account Header</code> 表明「我要操作哪間子帳號」；DestinationCharge 的資源建立在<strong>平台帳號</strong>底下，因此後續操作完全不需要這個 Header。</span>
+</div>
+
+<h3 id="15-4-退款流程：多出的-Transfer-Reversal-步驟"><a href="#15-4-退款流程：多出的-Transfer-Reversal-步驟" class="headerlink" title="15.4 退款流程：多出的 Transfer Reversal 步驟"></a>15.4 退款流程：多出的 <code>Transfer Reversal</code> 步驟</h3><p>DestinationCharge 退款時，因為錢已經 Transfer 給商店子帳號，平台必須額外執行 <strong>Transfer Reversal（撤銷轉帳）</strong>，把錢從子帳號的餘額中收回：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (request.ExtendInfo.StripePaymentFlow == StripePaymentFlowEnum.DestinationCharge)</span><br><span class="line">&#123;</span><br><span class="line">    IDictionary&lt;<span class="built_in">string</span>, <span class="built_in">object</span>&gt; transferReversalsRequestBody = <span class="keyword">new</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        [<span class="string">&quot;amount&quot;</span>] = refundAmount</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 從子帳號收回已 Transfer 的資金</span></span><br><span class="line">    <span class="keyword">await</span> _stripeHttpClient.CreateTransferReversalsAsync(charge.Transfer, transferReversalsRequestBody);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 兩種流程都會走的一般退款請求</span></span><br><span class="line">RefundResponseEntity response = <span class="keyword">await</span> _stripeHttpClient.CreateRefundsAsync(refundRequestBody, subAcct);</span><br></pre></td></tr></table></figure>
+
+<pre class="mermaid">flowchart TD
+    A["發起退款"] --> B{"付款流程是 DirectCharge 還是 DestinationCharge？"}
+    B -->|"DirectCharge / Standard"| C["直接 CreateRefundsAsync()<br/>退款子帳號上的 charge"]
+    B -->|"DestinationCharge / Custom"| D["先 Refund Application Fee"]
+    D --> E["再 CreateTransferReversalsAsync()<br/>把已轉給商店的錢收回"]
+    E --> F["最後 CreateRefundsAsync()<br/>退款平台帳號上的 charge"]</pre>
+
+<h3 id="15-5-關鍵差異總表"><a href="#15-5-關鍵差異總表" class="headerlink" title="15.5 關鍵差異總表"></a>15.5 關鍵差異總表</h3><div class="pat-table-wrap">
+<table>
+<thead><tr><th>比較項目</th><th>DirectCharge（Standard）</th><th>DestinationCharge（Custom）</th></tr></thead>
+<tbody>
+<tr><td><strong>策略類別</strong></td><td><code>DirectChargePaymentFlowStrategy</code></td><td><code>DestinationChargePaymentFlowStrategy</code></td></tr>
+<tr><td><strong>建立 <code>payment_method</code></strong></td><td>帶 <code>Stripe-Account: acct_xxx</code></td><td>不帶 Header，建立在平台帳號</td></tr>
+<tr><td><strong>PaymentIntent 參數</strong></td><td>無 <code>transfer_data</code> / <code>on_behalf_of</code></td><td>需帶 <code>transfer_data[destination]</code>、<code>on_behalf_of</code></td></tr>
+<tr><td><strong><code>Stripe-Account</code> Header</strong></td><td>建立 / 查詢 / 取消都需帶子帳號</td><td>全程不帶，皆用平台身分操作</td></tr>
+<tr><td><strong><code>statement_descriptor</code></strong></td><td>不需額外處理（本就在子帳號下）</td><td>需另呼叫 <code>GetAccountAsync</code> 補上，帳單才會顯示商店名稱</td></tr>
+<tr><td><strong>退款流程</strong></td><td>單純 <code>CreateRefundsAsync</code></td><td>多一步 <code>CreateTransferReversalsAsync</code> 收回轉帳</td></tr>
+<tr><td><strong>資金流向</strong></td><td>使用者 → 商店子帳號（直接扣 <code>application_fee</code>）</td><td>使用者 → 平台帳號 → Transfer → 商店子帳號</td></tr>
+<tr><td><strong>錯誤 / 例外處理</strong></td><td>共用同一套 <code>try/catch ApiException</code> 邏輯</td><td>另加 <code>GetAccountAsync</code> 失敗時記 Warning 並回傳 null，不中斷付款</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="15-6-完整程式碼呼叫鏈"><a href="#15-6-完整程式碼呼叫鏈" class="headerlink" title="15.6 完整程式碼呼叫鏈"></a>15.6 完整程式碼呼叫鏈</h3><pre class="mermaid">flowchart TD
+    A["StripePlugin.Pay(request)"] --> B["GetPaymentFlowStrategy(request.ExtendInfo.StripePaymentFlow)"]
+    B -->|"DirectCharge"| C["DirectChargePaymentFlowStrategy"]
+    B -->|"DestinationCharge"| D["DestinationChargePaymentFlowStrategy"]
+    C --> C1["CreatePaymentMethodAsync(body, subAccount)<br/>Header：Stripe-Account"]
+    C1 --> C2["CreatePaymentIntentAsync(body, subAccount)<br/>Header：Stripe-Account"]
+    D --> D1["CreatePaymentMethodAsync(body)<br/>無 Header"]
+    D1 --> D2["AppendStatementDescriptorAsync(subAccount, body)"]
+    D2 --> D3["CreatePaymentIntentAsync(body)<br/>Body 帶 transfer_data / on_behalf_of"]
+    A --> E["Refund / QueryPayment / Cancel"]
+    E --> F{"DirectCharge？"}
+    F -->|"是"| G["subAcct = request.ExtendInfo.SubAccount"]
+    F -->|"否"| H["subAcct = null"]
+    H --> I["退款時額外執行 CreateTransferReversalsAsync()"]</pre></div><div class="tab-item-content" id="stripe_account-6"><div class="pat-section-head">
+<div class="pat-chip">16</div>
+<h2>mweb 站台 CompleteForNewCartV2 流程解析：DirectCharge vs DestinationCharge</h2>
+</div>
+
+<p>本章節基於 <code>nineyi.webstore.mobilewebmall</code>（mweb 前台）的實際程式碼，追蹤使用者按下「送出訂單」後，走到 <code>CompleteForNewCartV2</code> 的完整結帳流程，並聚焦 Stripe <strong>Standard（DirectCharge）</strong>與 <strong>Custom（DestinationCharge）</strong>兩種帳號類型在 mweb 端造成的程式邏輯差異。</p>
+<h3 id="16-1-整體呼叫鏈"><a href="#16-1-整體呼叫鏈" class="headerlink" title="16.1 整體呼叫鏈"></a>16.1 整體呼叫鏈</h3><div class="pat-term">
+<div class="pat-term-bar"><span class="pat-term-dot r"></span><span class="pat-term-dot y"></span><span class="pat-term-dot g"></span><span class="pat-term-title">CompleteForNewCartV2</span></div>
+<pre class="pat-term-pre">TradesOrderLiteController.CompleteForNewCartV2()
+    │  Request.ToTypedObject&lt;PayProcessContextEntity&gt;()
+    ▼
+CreateTradesOrder(context)
+    │  驗證會員 / 驗證 UniqueKey 防重複送單
+    ▼
+_payProcessService.CreateTradesOrder(context)
+    │  建立訂單 → 呼叫對應金流的 PayChannelService
+    ▼
+PaymentMiddlewareService.PaymentRequest(context)
+    ├─ payChannelService.GetHeader(context)        → X-Secret（依帳號類型選金鑰）
+    ├─ payChannelService.GetPayExtendInfo(context)  → payment_flow / stripe_account / application_fee_amount ...
+    ▼
+_paymentMiddlewareHttpClient.Pay(requestEntity, paymentPath, tgCode, headers)
+    ▼
+NineYi.Payment.Middleware（PaymentMiddleware 站台）
+    ▼
+StripePlugin → DirectChargePaymentFlowStrategy / DestinationChargePaymentFlowStrategy
+    ▼
+Stripe API</pre>
+</div>
+
+<p>其中 <code>StripePayChannelService</code>（<span class="pat-sub"><code>WebStore/Frontend/BLV2/PayChannel/StripePayChannelService.cs</code></span>）是 mweb 端組裝 Stripe 請求的核心，關鍵差異集中在下列 4 個方法。</p>
+<h3 id="16-2-GetHeader-：依帳號類型選擇-API-金鑰"><a href="#16-2-GetHeader-：依帳號類型選擇-API-金鑰" class="headerlink" title="16.2 GetHeader()：依帳號類型選擇 API 金鑰"></a>16.2 <code>GetHeader()</code>：依帳號類型選擇 API 金鑰</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> IDictionary&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt; <span class="title">GetHeader</span>(<span class="params">PayProcessContextEntity context</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> headers = <span class="keyword">new</span> Dictionary&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;();</span><br><span class="line">    StripeSettingsEntity settings = _shopDefaultService.GetShopStripeSetting(context.ShoppingCartV2.ShopId);</span><br><span class="line">    headers.Add(<span class="string">&quot;X-Secret&quot;</span>, <span class="keyword">this</span>.GetStripeApiKey(context.ShoppingCartV2.ShopId, settings.StripeAccountType));</span><br><span class="line">    <span class="keyword">return</span> headers;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<div class="pat-callout info">
+<span class="pat-icon">🔑</span>
+<span><strong>這把 <code>X-Secret</code> 不是「額外驗證用」的密鑰，而是 mweb 幫 PaymentMiddleware 決定好的 Stripe Secret Key 本尊。</strong>PaymentMiddleware 的 <code>StripeModule.cs</code> 會把它原封不動當成 <code>Authorization: Bearer</code> 轉送給 Stripe：</span>
+</div>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PaymentMiddleware: StripeModule.cs</span></span><br><span class="line">AuthorizationHeaderValueGetter = () =&gt; Task.Run(() =&gt;</span><br><span class="line">    <span class="string">$&quot;<span class="subst">&#123;provider.GetRequiredService&lt;IPaymentMiddlewareRequestContext&gt;().GetHeader(<span class="string">&quot;X-Secret&quot;</span>)&#125;</span>&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>也就是說，<strong>Standard 或 Custom 用哪一把金鑰，決定權完全在 mweb 這一端</strong>，PaymentMiddleware 本身不判斷帳號類型、只單純轉發：</p>
+<div class="pat-table-wrap">
+<table>
+<thead><tr><th>帳號類型</th><th>使用的 Config Key</th></tr></thead>
+<tbody>
+<tr><td>Standard</td><td><code>StandardAcctLiveSecretKey</code>（所有 Standard 商店共用）</td></tr>
+<tr><td>StandardUAT</td><td><code>StandardUATAcctLiveSecretKey</code></td></tr>
+<tr><td>Custom</td><td><code>CustomAcctLiveSecretKey</code>（所有 Custom 商店共用）</td></tr>
+<tr><td>CustomTest / CustomUAT / CustomUATTest</td><td>對應的測試 / UAT 金鑰</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="16-3-GetPayExtendInfo-：組裝送給-PaymentMiddleware-的付款參數"><a href="#16-3-GetPayExtendInfo-：組裝送給-PaymentMiddleware-的付款參數" class="headerlink" title="16.3 GetPayExtendInfo()：組裝送給 PaymentMiddleware 的付款參數"></a>16.3 <code>GetPayExtendInfo()</code>：組裝送給 PaymentMiddleware 的付款參數</h3><p>此方法建構要送到 PaymentMiddleware 的 <code>ExtendInfo</code>，關鍵的兩個欄位由 <code>StripeSettingsEntity</code> 依帳號類型計算出來，且欄位名稱與 PaymentMiddleware 的 <code>BaseRequestExtendInfo</code> 完全對應。</p>
+<h4 id="🔵-Standard（DirectCharge）"><a href="#🔵-Standard（DirectCharge）" class="headerlink" title="🔵 Standard（DirectCharge）"></a>🔵 Standard（DirectCharge）</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">extendInfo.Add(<span class="string">&quot;payment_flow&quot;</span>, <span class="string">&quot;DirectCharge&quot;</span>);</span><br><span class="line">extendInfo.Add(<span class="string">&quot;stripe_account&quot;</span>,</span><br><span class="line">    settings.StripeSubAccount);</span><br><span class="line"><span class="comment">// 子帳號就是商店自己 OAuth</span></span><br><span class="line"><span class="comment">// 授權過的 acct_xxxxx</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="🟠-Custom（DestinationCharge）"><a href="#🟠-Custom（DestinationCharge）" class="headerlink" title="🟠 Custom（DestinationCharge）"></a>🟠 Custom（DestinationCharge）</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">extendInfo.Add(<span class="string">&quot;payment_flow&quot;</span>, <span class="string">&quot;DestinationCharge&quot;</span>);</span><br><span class="line">extendInfo.Add(<span class="string">&quot;stripe_account&quot;</span>,</span><br><span class="line">    settings.IsTestMode()</span><br><span class="line">        ? settings.StripeCustomTestSubAccount</span><br><span class="line">        : settings.StripeCustomSubAccount);</span><br><span class="line"><span class="comment">// 子帳號是 91APP 在 OSM 代開的</span></span><br><span class="line"><span class="comment">// acct_xxxxx</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">JsonPropertyName(<span class="string">&quot;payment_flow&quot;</span>)</span>]</span><br><span class="line"><span class="keyword">public</span> StripePaymentFlowEnum StripePaymentFlow &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">JsonPropertyName(<span class="string">&quot;stripe_account&quot;</span>)</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="built_in">string</span> SubAccount &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>兩者實際上都呼叫同一段邏輯（<code>StripeSettingsEntity.GetStripePaymentFlow()</code> &#x2F; <code>GetSubAccount()</code>），內容與第 2、13 章介紹的邏輯一致 —— mweb 端與 PaymentMiddleware 端各自維護一份相同規則的判斷程式碼（並非共用套件），這也是為什麼第 15 章能在 PaymentMiddleware 裡看到幾乎一模一樣的 <code>IsCustomAccountType()</code> &#x2F; <code>GetRuntimeAccountType()</code> 實作。</p>
+<h3 id="16-4-GetStripeApplicationFee-：手續費計算的關鍵分歧"><a href="#16-4-GetStripeApplicationFee-：手續費計算的關鍵分歧" class="headerlink" title="16.4 GetStripeApplicationFee()：手續費計算的關鍵分歧"></a>16.4 <code>GetStripeApplicationFee()</code>：手續費計算的關鍵分歧</h3><p>這是 Standard 和 Custom <strong>邏輯真正分岔的地方</strong>。兩者都會計算「TS 系統使用費」（商品 + 運費的抽成），但 <strong>只有 Custom 帳號會額外加上「金流手續費」</strong>：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="built_in">decimal</span> <span class="title">GetStripeApplicationFee</span>(<span class="params">PayProcessContextEntity context, StripeSettingsEntity stripeSetting</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 兩種帳號類型都會計算：商品 TS 使用費 + 運費 TS 使用費</span></span><br><span class="line">    <span class="keyword">var</span> applicationFee = salePageAndFeePriceList.Sum(x =&gt; CalculateFee(x, salesProcessingFee.Rate));</span><br><span class="line">    applicationFee += feePriceList.Sum(x =&gt; CalculateFee(x, salesProcessingFee.Rate));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (stripeSetting.IsCustomAccountType() == <span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// ★ 只有 Custom 帳號才需要另外收「金流手續費」，</span></span><br><span class="line">        <span class="comment">//   並疊加進 application_fee_amount 一併從平台代收</span></span><br><span class="line">        ProcessingFeeEntity payProfileProcessingFee = context.ProcessingFeeInfo.PayProfile;</span><br><span class="line">        applicationFee += (CalculateFee(context.GetTotalPaymentWithoutMultiPayment(), payProfileProcessingFee.Rate)</span><br><span class="line">                            + payProfileProcessingFee.FixedFee);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> applicationFee;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<div class="pat-callout warn">
+<span class="pat-icon">💡</span>
+<span><strong>為什麼只有 Custom 需要多收金流手續費？</strong>對照第 2、13 章：Standard 帳號的商店與 Stripe <strong>自行談判費率</strong>，Stripe 在撥款給商店子帳號前就已扣掉信用卡手續費，91APP 只需抽 <code>application_fee</code> 作為平台使用費即可；Custom 帳號的費率則<strong>由平台統一設定</strong>，商店沒有自己跟 Stripe 談過費率，因此 91APP 必須把「金流手續費」也計進 <code>application_fee_amount</code>，才能讓平台先代墊、再從 Transfer 給商店的金額中扣回。</span>
+</div>
+
+<h3 id="16-5-訂單建立後：查詢-取消-對帳的資訊留存"><a href="#16-5-訂單建立後：查詢-取消-對帳的資訊留存" class="headerlink" title="16.5 訂單建立後：查詢 &#x2F; 取消 &#x2F; 對帳的資訊留存"></a>16.5 訂單建立後：查詢 &#x2F; 取消 &#x2F; 對帳的資訊留存</h3><p>付款成功後，mweb 會把當下使用的帳號類型與流程「凍結」寫入訂單的第三方支付資訊（<code>TradesOrderThirdPartyPayment_Info</code>），日後查詢、取消、對帳都以這筆存檔資料為準，<strong>不會重新讀取商店當下的設定</strong>：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">StripeTradesOrderThirdPartyPaymentInfoEntity info = <span class="keyword">new</span>()</span><br><span class="line">&#123;</span><br><span class="line">    PaymentFlow = settings.GetStripePaymentFlow(),   <span class="comment">// DirectCharge / DestinationCharge</span></span><br><span class="line">    AccountType = settings.StripeAccountType,        <span class="comment">// Standard / Custom / ...</span></span><br><span class="line">    SubAccount = subAccount,                         <span class="comment">// acct_xxxxx</span></span><br><span class="line">    FeeRate = payProfileProcessingFee.Rate,</span><br><span class="line">    FixedFee = payProfileProcessingFee.FixedFee,</span><br><span class="line">    SCMSalesFeeRate = salesProcessingFee.Rate,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<div class="pat-callout info">
+<span class="pat-icon">🛡️</span>
+<span><strong>為什麼要凍結存檔？</strong>因為 <code>EnableCustomDate</code>（第 2.5 / 13 章的降級機制）可能讓商店在訂單成立「之後」從 Custom 切換成 Standard（或反過來）。若查詢 / 取消時重新讀取商店最新設定，可能拿到跟下單當下不同的 <code>payment_flow</code>，導致 <code>Stripe-Account Header</code> 帶錯、查不到交易。因此 <code>GetRequestExtendInfoForQueryCancel()</code> 優先讀取訂單存檔的 <code>TradesOrderThirdPartyPayment_Info</code>，只有查無存檔時才 fallback 用商店目前設定（並預設為 <code>DirectCharge</code>）。</span>
+</div>
+
+<h3 id="16-6-完整差異總表"><a href="#16-6-完整差異總表" class="headerlink" title="16.6 完整差異總表"></a>16.6 完整差異總表</h3><div class="pat-table-wrap">
+<table>
+<thead><tr><th>比較項目</th><th>Standard（DirectCharge）</th><th>Custom（DestinationCharge）</th></tr></thead>
+<tbody>
+<tr><td><strong>X-Secret 金鑰</strong></td><td><code>StandardAcctLiveSecretKey</code> 等 Standard 系列</td><td><code>CustomAcctLiveSecretKey</code> 等 Custom 系列</td></tr>
+<tr><td><strong>payment_flow</strong></td><td><code>DirectCharge</code></td><td><code>DestinationCharge</code></td></tr>
+<tr><td><strong>stripe_account 來源</strong></td><td><code>StripeSubAccount</code>（商店 OAuth 授權的帳號）</td><td><code>StripeCustomSubAccount</code> / <code>StripeCustomTestSubAccount</code>（91APP 代開的帳號）</td></tr>
+<tr><td><strong>application_fee_amount</strong></td><td>僅含 TS 系統使用費（商品 + 運費抽成）</td><td>TS 系統使用費 <strong>+ 金流手續費</strong>（另加信用卡處理費 Rate + FixedFee）</td></tr>
+<tr><td><strong>子帳號授權方式</strong></td><td>商店自行完成 Stripe OAuth 授權</td><td>91APP 在 OSM 後台代為建立</td></tr>
+<tr><td><strong>查詢 / 取消時是否需要 Stripe-Account Header</strong></td><td>需要（於 PaymentMiddleware 端組出）</td><td>不需要（PaymentMiddleware 端會忽略 subAcct）</td></tr>
+<tr><td><strong>是否受 EnableCustomDate 降級機制影響</strong></td><td>不受影響（本身就是 Standard）</td><td>受影響：未達日期會在 <code>GetRuntimeAccountType()</code> 被降級為 Standard 邏輯</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="16-7-小結：一張圖看懂分岔點"><a href="#16-7-小結：一張圖看懂分岔點" class="headerlink" title="16.7 小結：一張圖看懂分岔點"></a>16.7 小結：一張圖看懂分岔點</h3><pre class="mermaid">flowchart TD
+    A["CompleteForNewCartV2 → CreateTradesOrder → PaymentMiddlewareService.PaymentRequest"] --> B["StripePayChannelService 讀取 ShopDefault.StripeAccountType"]
+    B --> C["GetHeader() 選 X-Secret 金鑰"]
+    B --> D["GetPayExtendInfo() 組 payment_flow / stripe_account"]
+    B --> E["GetStripeApplicationFee() 計算 application_fee_amount"]
+    D --> F{"帳戶類型是 Standard 還是 Custom？"}
+    F -->|"Standard"| G["payment_flow = DirectCharge<br/>stripe_account = StripeSubAccount"]
+    F -->|"Custom"| H["payment_flow = DestinationCharge<br/>stripe_account = StripeCustomSubAccount 或 StripeCustomTestSubAccount"]
+    E --> I{"帳戶類型是 Standard 還是 Custom？"}
+    I -->|"Standard"| J["只算 TS 系統使用費"]
+    I -->|"Custom"| K["TS 系統使用費 + 金流手續費"]
+    C --> L["把 X-Secret 傳給 PaymentMiddleware"]
+    G --> M["PaymentMiddleware 端走 DirectChargePaymentFlowStrategy"]
+    H --> N["PaymentMiddleware 端走 DestinationChargePaymentFlowStrategy"]
+    M --> O["付款成功後把 AccountType / PaymentFlow / SubAccount 凍結寫入訂單"]
+    N --> O</pre></div><div class="tab-item-content" id="stripe_account-7"><div class="pat-section-head">
+<div class="pat-chip">17</div>
+<h2>OSM(SMS) 後台確認：Standard 帳號真的共用 91APP 統一 Key 嗎？</h2>
+</div>
+
+<div class="pat-note">
+<span class="pat-n-title">結論先講</span>
+是的。不論商店是 <code>Standard</code> 或 <code>Custom</code>，結帳當下打 Stripe API 用的 <code>Authorization</code> 金鑰，永遠是 <strong>91APP 平台自己的那幾把 Key</strong>（<code>StandardAcctLiveSecretKey</code> / <code>CustomAcctLiveSecretKey</code> 等），從未使用「商店自己的 Key」。OAuth 機制的目的<strong>不是要換到商店的 Key</strong>，而是讓 Stripe 知道「這個子帳號已同意讓 91APP 平台代操作」——換句話說，OAuth 換回來的 <code>access_token</code>（商店自己的 <code>sk_live</code>）在本專案中<strong>完全沒有被儲存或使用</strong>，唯一留下的只有 <code>acct_xxxxx</code>（子帳號 ID）。本章節逐行檢視 <code>NineYi.Sms</code>（OSM/SMS 後台）與 <code>nineyi.webstore.mobilewebmall</code> 的原始碼佐證這個結論。
+</div>
+
+<h3 id="17-1-端到端起點：OAuth-到底從哪裡被觸發？（91APP-官方-PDF-實證）"><a href="#17-1-端到端起點：OAuth-到底從哪裡被觸發？（91APP-官方-PDF-實證）" class="headerlink" title="17.1 端到端起點：OAuth 到底從哪裡被觸發？（91APP 官方 PDF 實證）"></a>17.1 端到端起點：OAuth 到底從哪裡被觸發？（91APP 官方 PDF 實證）</h3><p>先前追查程式碼發現，<code>webstore.mobilewebmall</code> 與 <code>NineYi.Sms</code> 兩個 repo 裡<strong>完全沒有任何一行程式碼會組出 Stripe 的 OAuth 授權網址</strong>（搜尋 <code>client_id</code>、<code>oauth/authorize</code>、<code>connect.stripe.com</code>、<code>redirect_uri</code> 皆無結果）。真正的答案在 91APP 提供給商店的官方操作手冊 <strong>《Stripe 主子帳號串接流程說明.pdf》</strong> 裡——這份文件證實了整個 OAuth 流程的起點是一個<strong>寫死、靜態的連結</strong>，並非任何系統即時產生：</p>
+<div class="pat-term">
+<div class="pat-term-bar"><span class="pat-term-dot r"></span><span class="pat-term-dot y"></span><span class="pat-term-dot g"></span><span class="pat-term-title">Stripe 子帳號申請與綁定流程.pdf</span></div>
+<pre class="pat-term-pre">步驟一　點擊固定連結（91APP 事先申請好的 Stripe Connect 應用程式）
+  https://connect.stripe.com/oauth/authorize?response_type=code
+    &amp;client_id=ca_FATj1hhoWn5hUpNgj9zafWQG4NNWOmRK&amp;scope=read_write
+
+<p>步驟二　填寫帳戶資訊（＊尚未有 Stripe 帳號時才需要）<br>步驟三　選擇要綁定的帳戶，點擊「連結我的 Stripe 帳戶」<br>步驟四　頁面轉導並顯示綁定成功<br>步驟五　確認授權 91APP Limited<br>步驟六　複製 acct_ ID，貼到 OSM「功能設定 ≫ 第三方金物流資料設定」完成開通</pre></p>
+</div>
+
+<div class="pat-callout warn">
+<span class="pat-icon">🧩</span>
+<span><strong>兩個關鍵線索：</strong><br>1️⃣ <code>client_id=ca_FATj1hhoWn5hUpNgj9zafWQG4NNWOmRK</code> 是 <strong>91APP 在 Stripe 註冊的 Connect 應用程式識別碼</strong>，全平台共用同一組，並非依商店動態產生——這也解釋了為什麼程式碼裡找不到組網址的邏輯：因為它從來就不是程式碼組出來的，而是 PDF 裡直接寫死給商家貼上瀏覽器用的。<br>2️⃣ 網址裡<strong>沒有帶 <code>redirect_uri</code> 參數</strong>——代表 Stripe 導回的目的地，是這個 Connect App 在 <strong>Stripe Dashboard 後台預先設定好的 Default OAuth redirect URI</strong>（對應 <code>StripeOAuthController</code> 所在的 mweb 前台網域），而不是 91APP 系統每次請求時動態指定的。</span>
+</div>
+
+<p>因此，「OAuth 為什麼會導到前台 mobilewebmall，而不是後台 OSM」的疑惑，答案就是：<strong>Stripe Connect 的 <code>redirect_uri</code> 必須是公開對外網域（依 Stripe 規範，OAuth 導回頁面必須可公開存取），OSM&#x2F;SMS 是內部後台網域不符資格，所以只能設定成商店的前台網域 mweb 來接收。</strong>OSM(SMS) 後台自始至終沒有、也不需要任何「連接 Stripe」的按鈕或程式邏輯——它只提供步驟六要用的手動輸入欄位。</p>
+<div class="pat-callout info">
+<span class="pat-icon">🧭</span>
+<span><strong>端到端總結：</strong>觸發者是<strong>商店老闆／窗口本人</strong>，依照 91APP 提供的 PDF 手動點擊一組固定連結 → 在 Stripe 官網完成授權 → Stripe 導回 mweb 的 <code>StripeOAuthController</code>（91APP 程式碼首次介入，僅換 token 寫 Log）→ 商店或維運人員把 <code>acct_xxxxx</code> 抄到 OSM 後台欄位。<strong>整條 OAuth 授權路徑，91APP 自己的系統只負責「接收 callback」這一小段，「發起」完全是文件驅動的人工流程，不存在於任何一個 repo 的程式碼中。</strong></span>
+</div>
+
+<h3 id="17-2-OAuth-換金鑰的真相：只換到-Log，不落地存檔"><a href="#17-2-OAuth-換金鑰的真相：只換到-Log，不落地存檔" class="headerlink" title="17.2 OAuth 換金鑰的真相：只換到 Log，不落地存檔"></a>17.2 OAuth 換金鑰的真相：只換到 Log，不落地存檔</h3><p>OAuth 導頁與換權杖（token exchange）程式碼其實不在 SMS（OSM 後台）裡，而是掛在 <strong>Webstore 前台（mobilewebmall）</strong>的一個獨立 Controller，作為 Stripe OAuth 完成後的 redirect callback：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">Route(<span class="string">&quot;StripeOAuth&quot;</span>)</span>]</span><br><span class="line">[<span class="meta">Route(<span class="string">&quot;StripeOAuth/&#123;accountType&#125;&quot;</span>)</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> JsonResult <span class="title">Index</span>(<span class="params"><span class="built_in">string</span> accountType = StripeAccountTypeConstants.Standard</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> code = Request.QueryString[<span class="string">&quot;code&quot;</span>];  <span class="comment">// Stripe 導頁回來帶的一次性授權碼</span></span><br><span class="line">    <span class="keyword">this</span>._stripeService.OAuth(accountType, code);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.Json(<span class="string">&quot;Authorized success&quot;</span>, JsonRequestBehavior.AllowGet);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OAuth</span>(<span class="params"><span class="built_in">string</span> accountType, <span class="built_in">string</span> code</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> secret = <span class="keyword">this</span>.GetStripeApiKey(accountType);  <span class="comment">// ← 91APP 平台自己的 client_secret</span></span><br><span class="line">    <span class="keyword">var</span> uri =</span><br><span class="line">        <span class="string">$&quot;https://connect.stripe.com/oauth/token?client_secret=<span class="subst">&#123;secret&#125;</span>&amp;code=<span class="subst">&#123;code&#125;</span>&amp;grant_type=authorization_code&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> response = Encoding.UTF8.GetString(client.UploadValues(uri, <span class="string">&quot;post&quot;</span>, <span class="keyword">new</span> NameValueCollection()));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 關鍵：整支方法唯一的動作，就是把 Stripe 回傳的整包 JSON 寫進 Log</span></span><br><span class="line">    <span class="comment">//   （回傳內容含 access_token、stripe_user_id、stripe_publishable_key）</span></span><br><span class="line">    <span class="comment">//   完全沒有任何一行程式碼把這些欄位解析出來、存進 ShopDefault 或任何 DB！</span></span><br><span class="line">    <span class="keyword">this</span>._logger.Info(<span class="string">$&quot;Stripe OAuth Response is <span class="subst">&#123;response&#125;</span>&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<div class="pat-callout danger">
+<span class="pat-icon">🔍</span>
+<span><strong>程式碼比對結果：</strong>全專案（<code>webstore.mobilewebmall</code> + <code>NineYi.Sms</code>）搜尋 <code>stripe_user_id</code> 字樣，<strong>沒有任何一處</strong>解析或儲存這個欄位。也就是說 OAuth API 呼叫完成後，Stripe 回傳的 <code>acct_xxxxx</code> 並不會被系統自動寫入 <code>ShopDefault</code> 表，而是只留在應用程式 Log 裡。</span>
+</div>
+
+<h3 id="17-3-那-acct-xxxxx-最終怎麼進到系統？——OSM-SMS-後台手動輸入"><a href="#17-3-那-acct-xxxxx-最終怎麼進到系統？——OSM-SMS-後台手動輸入" class="headerlink" title="17.3 那 acct_xxxxx 最終怎麼進到系統？——OSM(SMS) 後台手動輸入"></a>17.3 那 <code>acct_xxxxx</code> 最終怎麼進到系統？——OSM(SMS) 後台手動輸入</h3><p>答案在 <code>NineYi.Sms</code>（OSM&#x2F;SMS 後台）的第三方服務設定模組：<code>CreditCardOnceStripePaymentMethodSetting.cs</code>。Standard 帳號的 <code>StripeSubAccount</code> 是一個<strong>後台人員手動填寫的文字欄位</strong>，不是系統自動帶入：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ThirdPartyServiceSettingDetailsInfoEntity <span class="title">GetSettingDetails</span>(<span class="params"><span class="built_in">long</span> shopId, StripeSettingsEntity settings</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Custom 帳號：不顯示可編輯欄位（因為子帳號由 91APP 在 OSM 內部代開）</span></span><br><span class="line">    <span class="keyword">if</span> (settings.IsCustomAccountSettingType() == <span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        result.Properties = <span class="keyword">new</span>[] &#123; isNewPopupFormProperty &#125;;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Standard 帳號：開放後台人員手動輸入/編輯 StripeSubAccount（acct_xxxxx）</span></span><br><span class="line">    result.Properties = <span class="keyword">new</span>[]</span><br><span class="line">    &#123;</span><br><span class="line">        isNewPopupFormProperty,</span><br><span class="line">        <span class="keyword">new</span> ThirdPartyServiceSettingPropertyEntity(<span class="string">&quot;Stripe&quot;</span>, <span class="keyword">nameof</span>(StripeSettingsEntity.StripeSubAccount), settings.StripeSubAccount)</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">UpdateSettingDetails</span>(<span class="params">ThirdPartyServiceSettingDetailsInfoEntity details, StripeSettingsEntity settings</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (settings.IsCustomAccountSettingType() == <span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>; <span class="comment">// Custom 不需更新（沒有可編輯欄位）</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> subAcctSetting = details.Properties.Single(x =&gt; x.Group == <span class="string">&quot;Stripe&quot;</span> &amp;&amp; x.Property == <span class="keyword">nameof</span>(StripeSettingsEntity.StripeSubAccount));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 直接把後台表單填的值寫進 ShopDefault 表</span></span><br><span class="line">    <span class="keyword">this</span>._shopDefaultService.Update(details.ShopId, subAcctSetting.Group, subAcctSetting.Property, subAcctSetting.Value, <span class="keyword">this</span>._userService.GetCurrentOperatorName());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>._mwebApiService.CleanShopDefaultCache(details.ShopId);</span><br><span class="line">    <span class="keyword">this</span>._shoppingApiService.CleanShopDefaultCacheAsync(details.ShopId).GetAwaiter().GetResult();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<div class="pat-callout info">
+<span class="pat-icon">📋</span>
+<span><strong>實務作業流程：</strong>商店走完 Stripe 官網的 OAuth 同意畫面後，91APP 維運人員從 Log（或請商店提供 Stripe Dashboard 上顯示的 Account ID）取得 <code>acct_xxxxx</code>，再到 <strong>OSM(SMS) 後台 → 第三方服務設定 → Stripe → <code>StripeSubAccount</code></strong> 欄位手動貼上、儲存。儲存後才會透過 <code>ShopDefaultService.Update()</code> 寫入 <code>ShopDefault</code> 表，供結帳流程讀取。</span>
+</div>
+
+<h3 id="17-4-為什麼-Custom-沒有這個手動輸入欄位？"><a href="#17-4-為什麼-Custom-沒有這個手動輸入欄位？" class="headerlink" title="17.4 為什麼 Custom 沒有這個手動輸入欄位？"></a>17.4 為什麼 Custom 沒有這個手動輸入欄位？</h3><p>因為 Custom 帳號的子帳號從一開始就是<strong>91APP 自己建立</strong>（不是商店自己開的），子帳號 ID 由 91APP 內部流程直接寫入，商店端不需要、也不能自行修改：</p>
+<div class="pat-compare-grid">
+<div class="pat-compare-card standard">
+<div class="pat-compare-head"><span class="pat-dot"></span>Standard — 手動填寫</div>
+<div class="pat-compare-body">
+<p>商店先在 Stripe 官網開通自己的帳號</p>
+<p>OSM(SMS) 後台顯示 <code>StripeSubAccount</code> 可編輯欄位</p>
+<p>維運人員（或商店窗口）手動貼上 <code>acct_xxxxx</code> 並儲存</p>
+</div>
+</div>
+<div class="pat-compare-card custom">
+<div class="pat-compare-head"><span class="pat-dot"></span>Custom — 系統代開</div>
+<div class="pat-compare-body">
+<p>91APP 內部流程在 OSM 幫商店直接建立 Stripe 子帳號</p>
+<p>OSM(SMS) 後台<strong>不顯示</strong>可編輯欄位（<code>IsCustomAccountSettingType() == true</code> 時直接跳過）</p>
+<p><code>StripeCustomSubAccount</code> 由代開流程直接寫入，商店無法自行更改</p>
+</div>
+</div>
+</div>
+
+<h3 id="17-5-驗證子帳號是否可結帳：IsStripeChargedEnabled"><a href="#17-5-驗證子帳號是否可結帳：IsStripeChargedEnabled" class="headerlink" title="17.5 驗證子帳號是否可結帳：IsStripeChargedEnabled()"></a>17.5 驗證子帳號是否可結帳：<code>IsStripeChargedEnabled()</code></h3><p>OSM(SMS) 後台在顯示設定狀態時，會額外呼叫 SCM API 確認子帳號的收款能力是否已開通（僅針對 Custom 類型會實際檢查）：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="built_in">bool</span> <span class="title">IsStripeChargedEnabled</span>(<span class="params">StripeSettingsEntity settings</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> (IStripeAccountClient client = _scmApiClientFactory.Create&lt;IStripeAccountClient, StripeClient&gt;())</span><br><span class="line">    &#123;</span><br><span class="line">        StripeApiKeyOptionsEnum option = settings.StripeAccountSettingType <span class="keyword">switch</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;Custom&quot;</span> =&gt; StripeApiKeyOptionsEnum.CustomLive,</span><br><span class="line">            <span class="string">&quot;CustomUAT&quot;</span> =&gt; StripeApiKeyOptionsEnum.CustomUATLive,</span><br><span class="line">            <span class="string">&quot;CustomTest&quot;</span> =&gt; StripeApiKeyOptionsEnum.CustomTest,</span><br><span class="line">            <span class="string">&quot;CustomUATTest&quot;</span> =&gt; StripeApiKeyOptionsEnum.CustomUATTest,</span><br><span class="line">            _ =&gt; <span class="keyword">return</span> <span class="literal">false</span> <span class="comment">// Standard 不檢查，直接視為已可收款</span></span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">string</span> subAcct = settings.IsTestMode() ? settings.StripeCustomTestSubAccount : settings.StripeCustomSubAccount;</span><br><span class="line">        ApiResultEntity&lt;<span class="built_in">bool</span>&gt; result = client.IsChargeEnabled(<span class="keyword">new</span> IsChargeEnabledRequestEntity(option, subAcct));</span><br><span class="line">        <span class="keyword">return</span> result.Status == ApiResultStatusEnum.Success &amp;&amp; result.Data == <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個檢查同樣使用<strong>平台自己的 Key</strong>（透過 <code>StripeApiKeyOptionsEnum</code> 對應 Custom 系列金鑰）去問 Stripe「這個子帳號可以收錢了嗎？」，並非用商店自己的 Key。</p>
+<h3 id="17-6-完整答案總結"><a href="#17-6-完整答案總結" class="headerlink" title="17.6 完整答案總結"></a>17.6 完整答案總結</h3><div class="pat-table-wrap">
+<table class="pat-question-table">
+<thead><tr><th>問題</th><th>答案</th></tr></thead>
+<tbody>
+<tr><td><strong>多個 Standard 商店結帳時，是否共用 91APP 統一的 Key？</strong></td><td>✅ 是。所有 Standard 商店結帳都用同一把 <code>StandardAcctLiveSecretKey</code>，差異只在 HTTP Header 帶的 <code>Stripe-Account: acct_商店xxxxx</code> 不同（見第 15 章）。</td></tr>
+<tr><td><strong>OAuth 的用意是不是要換到商店自己的 Key 來結帳？</strong></td><td>❌ 不是。OAuth 換回來的 <code>access_token</code>（商店自己的 <code>sk_live</code>）在程式碼中<strong>完全沒被儲存或使用</strong>，只留在 Log；OAuth 真正的作用是讓 Stripe 記錄「這個 <code>acct_xxxxx</code> 已授權 91APP 平台代操作」，之後 91APP 才能合法用自己的 Key + <code>Stripe-Account</code> Header 操作該子帳號。</td></tr>
+<tr><td><strong><code>acct_xxxxx</code> 是怎麼寫進系統的？</strong></td><td>Standard：OSM(SMS) 後台人員手動填寫 <code>StripeSubAccount</code> 欄位並儲存；Custom：91APP 內部代開流程直接寫入 <code>StripeCustomSubAccount</code>，後台不開放編輯。</td></tr>
+<tr><td><strong>OSM(SMS) 後台是否有存商店自己的 Stripe Key？</strong></td><td>❌ 沒有。整個系統（Webstore 前台 + SMS 後台 + PaymentMiddleware）都只保存 <code>acct_xxxxx</code> 這個帳號識別字串，實際打 API 用的一律是 91APP 平台的 Key。</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="17-7-三個系統的責任分工圖"><a href="#17-7-三個系統的責任分工圖" class="headerlink" title="17.7 三個系統的責任分工圖"></a>17.7 三個系統的責任分工圖</h3><pre class="mermaid">flowchart TD
+    A["① 商店老闆 / 窗口<br/>依 91APP 官方 PDF 指示，手動點擊固定連結<br/>https://connect.stripe.com/oauth/authorize?...&client_id=ca_FATj1..."] --> B["② Stripe 官網 OAuth 同意頁"]
+    B --> C["③ Webstore 前台（mobilewebmall）<br/>StripeOAuthController.Index(accountType, code)"]
+    C --> D["StripeService.OAuth() 用平台 client_secret 換 token"]
+    D --> E["⚠️ 換回來的 access_token / stripe_user_id<br/>只寫 Log，不落地存檔"]
+    E --> F["④ 維運人員 / 商店窗口<br/>從 Log 或 Stripe Dashboard 取得 acct_xxxxx"]
+    F --> G["⑤ OSM(SMS) 後台<br/>ThirdPartyServicesController → StripeSettingService<br/>→ CreditCardOnceStripePaymentMethodSetting.UpdateSettingDetails()"]
+    G --> H["手動填入 StripeSubAccount = acct_xxxxx<br/>寫入 ShopDefault 表"]
+    H --> I["⑥ 結帳流程（第 15、16 章）<br/>mweb 讀取 ShopDefault.StripeSubAccount"]
+    I --> J["一律用 91APP 平台的 StandardAcctLiveSecretKey 打 API"]
+    J --> K["搭配 Stripe-Account: acct_xxxxx Header 代表該商店操作"]
+    K --> L["Stripe 驗證：「這把平台 Key 是否已被 acct_xxxxx 授權？」<br/>→ OAuth 當初已同意 → 放行"]</pre></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/07/13/DeepType-Payment-Stripe-account-type/">https://allenlin000.github.io.git/2026/07/13/DeepType-Payment-Stripe-account-type/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/" title="Stripe-Paytype-Express"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/paytype-express.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Stripe-Paytype-Express</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">254</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#stripe_account-1"><span class="toc-number">1.</span> <span class="toc-text">帳戶類型與金鑰管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#stripe_account-1"><span class="toc-number">1.1.</span> <span class="toc-text">技術文件與資源</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Stripe-Custom-Account-%E9%9C%80%E6%B1%82%E8%A6%8F%E5%8A%83"><span class="toc-number">1.1.1.</span> <span class="toc-text">Stripe Custom Account 需求規劃</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#stripe_account-1"><span class="toc-number">1.2.</span> <span class="toc-text">帳戶類型與金鑰</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%B8%B3%E6%88%B6%E9%A1%9E%E5%9E%8B%E5%B0%8D%E6%AF%94"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 帳戶類型對比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%B3%BB%E7%B5%B1%E5%B8%B3%E6%88%B6%E9%A1%9E%E5%9E%8B%E6%B8%85%E5%96%AE"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 系統帳戶類型清單</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%B8%B3%E6%88%B6%E9%A1%9E%E5%9E%8B%E6%9F%A5%E8%A9%A2"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.3 帳戶類型查詢</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B3%87%E6%96%99%E5%BA%AB%E6%9F%A5%E8%A9%A2%E8%AA%9E%E6%B3%95"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">資料庫查詢語法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E7%B3%BB%E7%B5%B1%E8%A8%AD%E5%AE%9A%E7%AE%A1%E7%90%86"><span class="toc-number">1.2.4.</span> <span class="toc-text">2.4 系統設定管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%96%E5%BE%97%E5%95%86%E5%BA%97-Stripe-%E8%A8%AD%E5%AE%9A"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">取得商店 Stripe 設定</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E5%9F%B7%E8%A1%8C%E6%99%82%E6%9C%9F%E5%B8%B3%E6%88%B6%E9%A1%9E%E5%9E%8B%E9%82%8F%E8%BC%AF"><span class="toc-number">1.2.5.</span> <span class="toc-text">2.5 執行時期帳戶類型邏輯</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8B%95%E6%85%8B%E5%B8%B3%E6%88%B6%E9%A1%9E%E5%9E%8B%E5%88%87%E6%8F%9B"><span class="toc-number">1.2.5.1.</span> <span class="toc-text">動態帳戶類型切換</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E5%B8%B3%E6%88%B6%E9%A1%9E%E5%9E%8B%E5%88%A4%E6%96%B7%E8%88%87%E8%A8%AD%E5%AE%9A"><span class="toc-number">1.2.6.</span> <span class="toc-text">2.6 帳戶類型判斷與設定</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B3%E6%88%B6%E9%A1%9E%E5%9E%8B%E5%88%A4%E6%96%B7%E6%96%B9%E6%B3%95"><span class="toc-number">1.2.6.1.</span> <span class="toc-text">帳戶類型判斷方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%98%E6%AC%BE%E6%B5%81%E7%A8%8B%E6%B1%BA%E5%AE%9A"><span class="toc-number">1.2.6.2.</span> <span class="toc-text">付款流程決定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%90%E5%B8%B3%E6%88%B6%E9%81%B8%E6%93%87"><span class="toc-number">1.2.6.3.</span> <span class="toc-text">子帳戶選擇</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-API-%E9%87%91%E9%91%B0%E7%AE%A1%E7%90%86"><span class="toc-number">1.2.7.</span> <span class="toc-text">2.7 API 金鑰管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B9%E6%93%9A%E5%B8%B3%E6%88%B6%E9%A1%9E%E5%9E%8B%E5%8F%96%E5%BE%97-API-%E9%87%91%E9%91%B0"><span class="toc-number">1.2.7.1.</span> <span class="toc-text">根據帳戶類型取得 API 金鑰</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#API-%E9%87%91%E9%91%B0%E5%B0%8D%E6%87%89%E8%A1%A8"><span class="toc-number">1.2.7.2.</span> <span class="toc-text">API 金鑰對應表</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#stripe_account-2"><span class="toc-number">1.3.</span> <span class="toc-text">帳戶類型與 Key 整理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E6%A6%82%E8%BF%B0"><span class="toc-number">1.3.1.</span> <span class="toc-text">9.1 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-HK-QA-%E6%B8%AC%E8%A9%A6%E5%95%86%E5%BA%97%E9%85%8D%E7%BD%AE"><span class="toc-number">1.3.2.</span> <span class="toc-text">9.2 HK QA 測試商店配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#9-2-1-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%E4%B8%AD%E5%BF%83"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">9.2.1 配置管理中心</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#9-2-2-%E6%B8%AC%E8%A9%A6%E5%95%86%E5%BA%97%E9%85%8D%E7%BD%AE%E5%85%A7%E5%AE%B9"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">9.2.2 測試商店配置內容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#9-2-3-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%E6%9C%80%E4%BD%B3%E5%AF%A6%E5%8B%99"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">9.2.3 配置管理最佳實務</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-API-%E9%87%91%E9%91%B0%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86"><span class="toc-number">1.3.3.</span> <span class="toc-text">9.3 API 金鑰配置管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#9-3-1-Secret-Key-%E8%A8%AD%E5%AE%9A%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">9.3.1 Secret Key 設定位置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-4-%E5%B8%B3%E6%88%B6%E7%AE%A1%E7%90%86%E6%96%87%E4%BB%B6%E6%95%B4%E7%90%86"><span class="toc-number">1.3.4.</span> <span class="toc-text">9.4 帳戶管理文件整理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#9-4-1-%E4%B8%BB%E8%A6%81%E7%AE%A1%E7%90%86%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.4.1.</span> <span class="toc-text">9.4.1 主要管理文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#9-4-2-%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E5%85%A7%E5%AE%B9"><span class="toc-number">1.3.4.2.</span> <span class="toc-text">9.4.2 文件管理內容</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#stripe_account-3"><span class="toc-number">1.4.</span> <span class="toc-text">商店與 Stripe 帳號的關係</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5%E7%B8%BD%E8%A6%BD"><span class="toc-number">1.4.1.</span> <span class="toc-text">概念總覽</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B3%E8%99%9F%E7%B5%90%E6%A7%8B"><span class="toc-number">1.4.2.</span> <span class="toc-text">帳號結構</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A9%E7%A8%AE%E5%B8%B3%E8%99%9F%E9%A1%9E%E5%9E%8B"><span class="toc-number">1.4.3.</span> <span class="toc-text">兩種帳號類型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%94%B5-Standard-%E5%B8%B3%E8%99%9F%EF%BC%88%E5%A4%A7%E5%9E%8B%E5%95%86%E5%BA%97%EF%BC%8C%E4%BE%8B%E5%A6%82-SASA%EF%BC%89"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">🔵 Standard 帳號（大型商店，例如 SASA）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%9F%A0-Custom-%E5%B8%B3%E8%99%9F%EF%BC%88%E5%B0%8F%E5%9E%8B%E5%95%86%E5%BA%97%EF%BC%8C%E7%94%B1-91APP-%E5%9C%A8-OSM-%E4%BB%A3%E9%96%8B%EF%BC%89"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">🟠 Custom 帳號（小型商店，由 91APP 在 OSM 代開）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC-Standard-%E5%95%86%E5%BA%97%EF%BC%88%E8%87%AA%E5%B7%B1%E7%9A%84%E5%B8%B3%E8%99%9F%EF%BC%89%E4%B9%9F%E7%94%A8-91APP-%E7%9A%84-Key%EF%BC%9F"><span class="toc-number">1.4.4.</span> <span class="toc-text">為什麼 Standard 商店（自己的帳號）也用 91APP 的 Key？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%9C%E9%8D%B5%EF%BC%9AOAuth-%E6%8E%88%E6%AC%8A"><span class="toc-number">1.4.4.1.</span> <span class="toc-text">關鍵：OAuth 授權</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sk-live-%E6%9C%89%E5%85%A9%E7%A8%AE%EF%BC%8C%E9%95%B7%E5%BE%97%E4%B8%80%E6%A8%A3%E4%BD%86%E8%BA%AB%E4%BB%BD%E4%B8%8D%E5%90%8C"><span class="toc-number">1.4.5.</span> <span class="toc-text">sk_live_... 有兩種，長得一樣但身份不同</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_account-3"><span class="toc-number">1.4.5.1.</span> <span class="toc-text">🏢 91APP 平台帳號的 Key</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stripe_account-3"><span class="toc-number">1.4.5.2.</span> <span class="toc-text">🏪 商店 OAuth 後的 Key</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#config-%E8%A3%A1%E7%9A%84-StandardAcctLiveSecretKey-%E6%98%AF%E5%93%AA%E4%B8%80%E6%8A%8A%EF%BC%9F"><span class="toc-number">1.4.5.3.</span> <span class="toc-text">config 裡的 StandardAcctLiveSecretKey 是哪一把？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E4%B8%8D%E7%9B%B4%E6%8E%A5%E7%94%A8%E5%95%86%E5%BA%97%E7%9A%84-access-token-%E4%BE%86%E6%89%93-API%EF%BC%9F"><span class="toc-number">1.4.6.</span> <span class="toc-text">為什麼不直接用商店的 access_token 來打 API？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%98%E6%AC%BE%E6%99%82-Stripe-%E7%9A%84%E9%A9%97%E8%AD%89%E9%82%8F%E8%BC%AF"><span class="toc-number">1.4.7.</span> <span class="toc-text">付款時 Stripe 的驗證邏輯</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DB-%E8%A8%AD%E5%AE%9A%E5%B0%8D%E6%87%89%EF%BC%88ShopDefault-%E8%A1%A8%EF%BC%89"><span class="toc-number">1.4.8.</span> <span class="toc-text">DB 設定對應（ShopDefault 表）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E8%A9%A2%E8%AA%9E%E6%B3%95"><span class="toc-number">1.4.8.1.</span> <span class="toc-text">查詢語法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EnableCustomDate-%E9%99%8D%E7%B4%9A%E6%A9%9F%E5%88%B6"><span class="toc-number">1.4.9.</span> <span class="toc-text">EnableCustomDate 降級機制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E9%97%9C%E4%BF%82%E5%9C%96"><span class="toc-number">1.4.10.</span> <span class="toc-text">完整關係圖</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#stripe_account-4"><span class="toc-number">1.5.</span> <span class="toc-text">帳戶切換與管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#14-1-%E6%A6%82%E8%BF%B0"><span class="toc-number">1.5.1.</span> <span class="toc-text">14.1 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-2-HK-QA-125-%E7%BE%8E%E9%87%91%E7%AB%99%E5%B8%B3%E6%88%B6%E7%95%B0%E5%8B%95"><span class="toc-number">1.5.2.</span> <span class="toc-text">14.2 HK QA 125 美金站帳戶異動</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#14-2-1-%E7%95%B0%E5%8B%95%E6%A6%82%E8%BF%B0"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">14.2.1 異動概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#14-2-2-%E5%B8%B3%E6%88%B6%E8%AE%8A%E6%9B%B4%E8%A9%B3%E6%83%85"><span class="toc-number">1.5.2.2.</span> <span class="toc-text">14.2.2 帳戶變更詳情</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#14-2-3-%E7%95%B0%E5%8B%95%E5%BD%B1%E9%9F%BF%E7%AF%84%E5%9C%8D"><span class="toc-number">1.5.2.3.</span> <span class="toc-text">14.2.3 異動影響範圍</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-3-%E5%B8%B3%E6%88%B6%E5%88%87%E6%8F%9B%E6%B5%81%E7%A8%8B"><span class="toc-number">1.5.3.</span> <span class="toc-text">14.3 帳戶切換流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#14-3-1-%E5%88%87%E6%8F%9B%E5%89%8D%E6%BA%96%E5%82%99%EF%BC%88%E6%AA%A2%E6%9F%A5%E6%B8%85%E5%96%AE%EF%BC%89"><span class="toc-number">1.5.3.1.</span> <span class="toc-text">14.3.1 切換前準備（檢查清單）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#14-3-2-%E8%A8%AD%E5%AE%9A%E6%9B%B4%E6%96%B0%E6%AD%A5%E9%A9%9F"><span class="toc-number">1.5.3.2.</span> <span class="toc-text">14.3.2 設定更新步驟</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#14-3-3-%E5%88%87%E6%8F%9B%E5%BE%8C%E9%A9%97%E8%AD%89"><span class="toc-number">1.5.3.3.</span> <span class="toc-text">14.3.3 切換後驗證</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#stripe_account-5"><span class="toc-number">1.6.</span> <span class="toc-text">PaymentMiddleware 原始碼解析：DirectCharge vs DestinationCharge</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#15-1-%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F%EF%BC%88Strategy-Pattern%EF%BC%89%E7%B8%BD%E8%A6%BD"><span class="toc-number">1.6.1.</span> <span class="toc-text">15.1 策略模式（Strategy Pattern）總覽</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-2-%E5%BB%BA%E7%AB%8B%E4%BB%98%E6%AC%BE%EF%BC%9APay-%E6%96%B9%E6%B3%95%E7%A8%8B%E5%BC%8F%E7%A2%BC%E6%AF%94%E5%B0%8D"><span class="toc-number">1.6.2.</span> <span class="toc-text">15.2 建立付款：Pay() 方法程式碼比對</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%94%B5-DirectChargePaymentFlowStrategy-Pay"><span class="toc-number">1.6.2.1.</span> <span class="toc-text">🔵 DirectChargePaymentFlowStrategy.Pay()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%9F%A0-DestinationChargePaymentFlowStrategy-Pay"><span class="toc-number">1.6.2.2.</span> <span class="toc-text">🟠 DestinationChargePaymentFlowStrategy.Pay()</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-3-Stripe-Account-Header-%E7%9A%84%E9%97%9C%E9%8D%B5%E9%96%8B%E9%97%9C"><span class="toc-number">1.6.3.</span> <span class="toc-text">15.3 Stripe-Account Header 的關鍵開關</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-4-%E9%80%80%E6%AC%BE%E6%B5%81%E7%A8%8B%EF%BC%9A%E5%A4%9A%E5%87%BA%E7%9A%84-Transfer-Reversal-%E6%AD%A5%E9%A9%9F"><span class="toc-number">1.6.4.</span> <span class="toc-text">15.4 退款流程：多出的 Transfer Reversal 步驟</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-5-%E9%97%9C%E9%8D%B5%E5%B7%AE%E7%95%B0%E7%B8%BD%E8%A1%A8"><span class="toc-number">1.6.5.</span> <span class="toc-text">15.5 關鍵差異總表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-6-%E5%AE%8C%E6%95%B4%E7%A8%8B%E5%BC%8F%E7%A2%BC%E5%91%BC%E5%8F%AB%E9%8F%88"><span class="toc-number">1.6.6.</span> <span class="toc-text">15.6 完整程式碼呼叫鏈</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#stripe_account-6"><span class="toc-number">1.7.</span> <span class="toc-text">mweb 站台 CompleteForNewCartV2 流程解析：DirectCharge vs DestinationCharge</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#16-1-%E6%95%B4%E9%AB%94%E5%91%BC%E5%8F%AB%E9%8F%88"><span class="toc-number">1.7.1.</span> <span class="toc-text">16.1 整體呼叫鏈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-2-GetHeader-%EF%BC%9A%E4%BE%9D%E5%B8%B3%E8%99%9F%E9%A1%9E%E5%9E%8B%E9%81%B8%E6%93%87-API-%E9%87%91%E9%91%B0"><span class="toc-number">1.7.2.</span> <span class="toc-text">16.2 GetHeader()：依帳號類型選擇 API 金鑰</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-3-GetPayExtendInfo-%EF%BC%9A%E7%B5%84%E8%A3%9D%E9%80%81%E7%B5%A6-PaymentMiddleware-%E7%9A%84%E4%BB%98%E6%AC%BE%E5%8F%83%E6%95%B8"><span class="toc-number">1.7.3.</span> <span class="toc-text">16.3 GetPayExtendInfo()：組裝送給 PaymentMiddleware 的付款參數</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%94%B5-Standard%EF%BC%88DirectCharge%EF%BC%89"><span class="toc-number">1.7.3.1.</span> <span class="toc-text">🔵 Standard（DirectCharge）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%F0%9F%9F%A0-Custom%EF%BC%88DestinationCharge%EF%BC%89"><span class="toc-number">1.7.3.2.</span> <span class="toc-text">🟠 Custom（DestinationCharge）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-4-GetStripeApplicationFee-%EF%BC%9A%E6%89%8B%E7%BA%8C%E8%B2%BB%E8%A8%88%E7%AE%97%E7%9A%84%E9%97%9C%E9%8D%B5%E5%88%86%E6%AD%A7"><span class="toc-number">1.7.4.</span> <span class="toc-text">16.4 GetStripeApplicationFee()：手續費計算的關鍵分歧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-5-%E8%A8%82%E5%96%AE%E5%BB%BA%E7%AB%8B%E5%BE%8C%EF%BC%9A%E6%9F%A5%E8%A9%A2-%E5%8F%96%E6%B6%88-%E5%B0%8D%E5%B8%B3%E7%9A%84%E8%B3%87%E8%A8%8A%E7%95%99%E5%AD%98"><span class="toc-number">1.7.5.</span> <span class="toc-text">16.5 訂單建立後：查詢 &#x2F; 取消 &#x2F; 對帳的資訊留存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-6-%E5%AE%8C%E6%95%B4%E5%B7%AE%E7%95%B0%E7%B8%BD%E8%A1%A8"><span class="toc-number">1.7.6.</span> <span class="toc-text">16.6 完整差異總表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-7-%E5%B0%8F%E7%B5%90%EF%BC%9A%E4%B8%80%E5%BC%B5%E5%9C%96%E7%9C%8B%E6%87%82%E5%88%86%E5%B2%94%E9%BB%9E"><span class="toc-number">1.7.7.</span> <span class="toc-text">16.7 小結：一張圖看懂分岔點</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#stripe_account-7"><span class="toc-number">1.8.</span> <span class="toc-text">OSM(SMS) 後台確認：Standard 帳號真的共用 91APP 統一 Key 嗎？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#17-1-%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%B5%B7%E9%BB%9E%EF%BC%9AOAuth-%E5%88%B0%E5%BA%95%E5%BE%9E%E5%93%AA%E8%A3%A1%E8%A2%AB%E8%A7%B8%E7%99%BC%EF%BC%9F%EF%BC%8891APP-%E5%AE%98%E6%96%B9-PDF-%E5%AF%A6%E8%AD%89%EF%BC%89"><span class="toc-number">1.8.1.</span> <span class="toc-text">17.1 端到端起點：OAuth 到底從哪裡被觸發？（91APP 官方 PDF 實證）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-2-OAuth-%E6%8F%9B%E9%87%91%E9%91%B0%E7%9A%84%E7%9C%9F%E7%9B%B8%EF%BC%9A%E5%8F%AA%E6%8F%9B%E5%88%B0-Log%EF%BC%8C%E4%B8%8D%E8%90%BD%E5%9C%B0%E5%AD%98%E6%AA%94"><span class="toc-number">1.8.2.</span> <span class="toc-text">17.2 OAuth 換金鑰的真相：只換到 Log，不落地存檔</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-3-%E9%82%A3-acct-xxxxx-%E6%9C%80%E7%B5%82%E6%80%8E%E9%BA%BC%E9%80%B2%E5%88%B0%E7%B3%BB%E7%B5%B1%EF%BC%9F%E2%80%94%E2%80%94OSM-SMS-%E5%BE%8C%E5%8F%B0%E6%89%8B%E5%8B%95%E8%BC%B8%E5%85%A5"><span class="toc-number">1.8.3.</span> <span class="toc-text">17.3 那 acct_xxxxx 最終怎麼進到系統？——OSM(SMS) 後台手動輸入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-4-%E7%82%BA%E4%BB%80%E9%BA%BC-Custom-%E6%B2%92%E6%9C%89%E9%80%99%E5%80%8B%E6%89%8B%E5%8B%95%E8%BC%B8%E5%85%A5%E6%AC%84%E4%BD%8D%EF%BC%9F"><span class="toc-number">1.8.4.</span> <span class="toc-text">17.4 為什麼 Custom 沒有這個手動輸入欄位？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-5-%E9%A9%97%E8%AD%89%E5%AD%90%E5%B8%B3%E8%99%9F%E6%98%AF%E5%90%A6%E5%8F%AF%E7%B5%90%E5%B8%B3%EF%BC%9AIsStripeChargedEnabled"><span class="toc-number">1.8.5.</span> <span class="toc-text">17.5 驗證子帳號是否可結帳：IsStripeChargedEnabled()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-6-%E5%AE%8C%E6%95%B4%E7%AD%94%E6%A1%88%E7%B8%BD%E7%B5%90"><span class="toc-number">1.8.6.</span> <span class="toc-text">17.6 完整答案總結</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-7-%E4%B8%89%E5%80%8B%E7%B3%BB%E7%B5%B1%E7%9A%84%E8%B2%AC%E4%BB%BB%E5%88%86%E5%B7%A5%E5%9C%96"><span class="toc-number">1.8.7.</span> <span class="toc-text">17.7 三個系統的責任分工圖</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/13/DeepType-Payment-Stripe-account-type/" title="Stripe-Account"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe-Account"/></a><div class="content"><a class="title" href="/2026/07/13/DeepType-Payment-Stripe-account-type/" title="Stripe-Account">Stripe-Account</a><time datetime="2026-07-13T02:07:00.000Z" title="Created 2026-07-13 10:07:00">2026-07-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/" title="Stripe-Paytype-Express"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/paytype-express.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe-Paytype-Express"/></a><div class="content"><a class="title" href="/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/" title="Stripe-Paytype-Express">Stripe-Paytype-Express</a><time datetime="2026-07-13T02:07:00.000Z" title="Created 2026-07-13 10:07:00">2026-07-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/10/DeepType-Payment-Stripe-fee/" title="Stripe-Fee"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe-Fee"/></a><div class="content"><a class="title" href="/2026/07/10/DeepType-Payment-Stripe-fee/" title="Stripe-Fee">Stripe-Fee</a><time datetime="2026-07-10T03:09:00.000Z" title="Created 2026-07-10 11:09:00">2026-07-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/06/DeepType-Payment-Cybersource-Refund/" title="Cybersource-Refund"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/Cybersource/Query/landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cybersource-Refund"/></a><div class="content"><a class="title" href="/2026/07/06/DeepType-Payment-Cybersource-Refund/" title="Cybersource-Refund">Cybersource-Refund</a><time datetime="2026-07-06T09:51:00.000Z" title="Created 2026-07-06 17:51:00">2026-07-06</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
