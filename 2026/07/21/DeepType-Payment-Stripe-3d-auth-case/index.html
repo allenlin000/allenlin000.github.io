@@ -1,0 +1,662 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Stripe 3D Secure 驗證失敗處理：從 canceled 卡死到根本觸發鏈設計 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="案例全文事件時間軸與技術分析程式碼實證異常循環機制解決方案與預防措施根本觸發鏈與自動化根治設計 .s3d{display:block;font-family:&#39;Segoe UI&#39;,-apple-system,BlinkMacSystemFont,&#39;PingFang TC&#39;,&#39;Microsoft JhengHei&#39;,sans-serif;background:radial-gradient(1200">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stripe 3D Secure 驗證失敗處理：從 canceled 卡死到根本觸發鏈設計">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/07/21/DeepType-Payment-Stripe-3d-auth-case/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="案例全文事件時間軸與技術分析程式碼實證異常循環機制解決方案與預防措施根本觸發鏈與自動化根治設計 .s3d{display:block;font-family:&#39;Segoe UI&#39;,-apple-system,BlinkMacSystemFont,&#39;PingFang TC&#39;,&#39;Microsoft JhengHei&#39;,sans-serif;background:radial-gradient(1200">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-07-21T02:07:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T00:33:43.707Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/07/21/DeepType-Payment-Stripe-3d-auth-case/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Stripe 3D Secure 驗證失敗處理：從 canceled 卡死到根本觸發鏈設計',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-07-22 08:33:43'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">255</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Stripe 3D Secure 驗證失敗處理：從 canceled 卡死到根本觸發鏈設計</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-07-21T02:07:00.000Z" title="Created 2026-07-21 10:07:00">2026-07-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-07-22T00:33:43.707Z" title="Updated 2026-07-22 08:33:43">2026-07-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Payment/">Payment</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Stripe 3D Secure 驗證失敗處理：從 canceled 卡死到根本觸發鏈設計"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="stripe-3d-auth-case"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="stripe-3d-auth-case-1">案例全文</button><button type="button" class="tab " data-href="stripe-3d-auth-case-2">事件時間軸與技術分析</button><button type="button" class="tab " data-href="stripe-3d-auth-case-3">程式碼實證</button><button type="button" class="tab " data-href="stripe-3d-auth-case-4">異常循環機制</button><button type="button" class="tab " data-href="stripe-3d-auth-case-5">解決方案與預防措施</button><button type="button" class="tab " data-href="stripe-3d-auth-case-6">根本觸發鏈與自動化根治設計</button></ul><div class="tab-contents"><div class="tab-item-content active" id="stripe-3d-auth-case-1"><style>
+.s3d{display:block;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;background:radial-gradient(1200px 600px at 10% -10%, rgba(108,140,255,.18), transparent 60%),radial-gradient(1000px 500px at 100% 0%, rgba(255,107,107,.12), transparent 55%),#0f1220;color:#e7e9f5!important;line-height:1.7;border-radius:20px;padding:1px 0 28px;margin:0 0 20px;overflow:hidden;}
+.s3d *{box-sizing:border-box;}
+.s3d a{color:#6c8cff!important;text-decoration:none;}
+.s3d a:hover{text-decoration:underline;}
+.s3d .s3d-hero{padding:48px 6vw 34px;text-align:center;position:relative;overflow:hidden;}
+.s3d .s3d-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(255,107,107,.08), transparent 70%);pointer-events:none;}
+.s3d .s3d-eyebrow{display:inline-block;font-size:.78rem;letter-spacing:.16em;color:#4fd1c5!important;text-transform:uppercase;font-weight:700;margin-bottom:12px;}
+.s3d .s3d-hero h1{font-size:1.7rem;margin:0 0 12px;color:#fff!important;font-weight:800;}
+.s3d .s3d-hero p{color:#a6acc9!important;max-width:700px;margin:0 auto;font-size:1rem;}
+.s3d .s3d-badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+.s3d .s3d-badge{background:#1b2038;border:1px solid #2a3153;padding:6px 14px;border-radius:999px;font-size:.8rem;color:#a6acc9!important;}
+.s3d .s3d-container{padding:0 5vw;}
+.s3d nav.s3d-toc{background:#1b2038;border:1px solid #2a3153;border-radius:14px;padding:20px 22px;margin-bottom:36px;}
+.s3d nav.s3d-toc h2{margin:0 0 12px;font-size:.9rem;letter-spacing:.08em;text-transform:uppercase;color:#4fd1c5!important;}
+.s3d nav.s3d-toc ol{margin:0;padding-left:0;list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:6px 18px;}
+.s3d nav.s3d-toc li a{display:block;padding:5px 8px;border-radius:8px;color:#e7e9f5!important;font-size:.9rem;}
+.s3d nav.s3d-toc li a:hover{background:#20263f;text-decoration:none;color:#6c8cff!important;}
+.s3d nav.s3d-toc li a .s3d-num{color:#8f6cff!important;font-weight:700;margin-right:6px;}
+.s3d section{margin-bottom:44px;}
+.s3d .s3d-section-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.s3d .s3d-section-head .s3d-chip{flex:none;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;background:linear-gradient(135deg,#6c8cff,#8f6cff);color:#fff!important;font-size:1rem;}
+.s3d .s3d-section-head.danger .s3d-chip{background:linear-gradient(135deg,#ff6b6b,#b23b3b);}
+.s3d .s3d-section-head h2{margin:0;font-size:1.3rem;font-weight:800;color:#fff!important;}
+.s3d h3{font-size:1.08rem;margin:26px 0 10px;color:#fff!important;border-left:4px solid #6c8cff;padding-left:10px;}
+.s3d p{color:#a6acc9!important;}
+.s3d .s3d-card{background:#1b2038;border:1px solid #2a3153;border-radius:14px;padding:18px 22px;margin:14px 0;}
+.s3d table{width:100%;border-collapse:collapse;background:#1b2038!important;border:1px solid #2a3153;border-radius:14px;overflow:hidden;margin:14px 0 22px;font-size:.88rem;}
+.s3d thead th{background:linear-gradient(90deg, rgba(108,140,255,.18), rgba(143,108,255,.1))!important;color:#fff!important;text-align:left;padding:11px 14px;font-weight:700;border-bottom:1px solid #2a3153;}
+.s3d tbody td{padding:10px 14px;border-bottom:1px solid #2a3153;color:#a6acc9!important;vertical-align:top;background:#1b2038!important;}
+.s3d tbody tr:last-child td{border-bottom:none;}
+.s3d tbody td strong,.s3d tbody td code{color:#e7e9f5!important;}
+.s3d code{font-family:Consolas,'SFMono-Regular','Liberation Mono',Menlo,monospace;background:rgba(108,140,255,.16)!important;color:#c7d2ff!important;padding:2px 6px;border-radius:5px;font-size:.88em;}
+.s3d pre.s3d-pre{background:#0d0f1c!important;border:1px solid #2a3153;border-radius:12px;padding:16px 18px;overflow-x:auto;margin:12px 0 22px;position:relative;color:#dce1f5!important;font-size:.84rem!important;line-height:1.65!important;font-family:Consolas,'SFMono-Regular','Liberation Mono',Menlo,monospace!important;white-space:pre!important;}
+.s3d pre.s3d-pre::before{content:attr(data-lang);position:absolute;top:6px;right:12px;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:#a6acc9!important;font-family:'Segoe UI',sans-serif;}
+.s3d .kw{color:#c792ea!important;} .s3d .str{color:#c3e88d!important;} .s3d .cm{color:#6b7394!important;font-style:italic;} .s3d .fn{color:#82aaff!important;} .s3d .type{color:#ffcb6b!important;} .s3d .num{color:#f78c6c!important;}
+.s3d .s3d-callout{border-radius:12px;padding:14px 18px;margin:14px 0 22px;border:1px solid #2a3153;display:flex;gap:12px;}
+.s3d .s3d-callout .s3d-icon{font-size:1.15rem;}
+.s3d .s3d-callout.info{background:rgba(108,140,255,.08);border-color:rgba(108,140,255,.35);}
+.s3d .s3d-callout.warn{background:rgba(255,180,84,.08);border-color:rgba(255,180,84,.35);}
+.s3d .s3d-callout.danger{background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.35);}
+.s3d .s3d-callout.ok{background:rgba(79,209,140,.08);border-color:rgba(79,209,140,.35);}
+.s3d .s3d-callout p{margin:0;color:#e7e9f5!important;}
+.s3d .s3d-callout strong{color:#fff!important;}
+.s3d .s3d-file-path{font-family:Consolas,monospace;font-size:.76rem;color:#a6acc9!important;background:#20263f!important;display:inline-block;padding:3px 10px;border-radius:6px;margin:4px 0 12px;}
+.s3d .s3d-tag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:999px;letter-spacing:.03em;}
+.s3d .s3d-tag.danger{background:rgba(255,107,107,.18)!important;color:#ff6b6b!important;}
+.s3d .s3d-tag.ok{background:rgba(79,209,140,.18)!important;color:#4fd18c!important;}
+.s3d .s3d-tag.warn{background:rgba(255,180,84,.18)!important;color:#ffb454!important;}
+.s3d .s3d-tag.info{background:rgba(108,140,255,.18)!important;color:#6c8cff!important;}
+.s3d .s3d-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0 22px;}
+.s3d .s3d-summary-grid .s3d-box{background:#1b2038;border:1px solid #2a3153;border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;}
+.s3d .s3d-summary-grid .s3d-box::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;}
+.s3d .s3d-summary-grid .s3d-box.impact::before{background:#ff6b6b;}
+.s3d .s3d-summary-grid .s3d-box.cause::before{background:#ffb454;}
+.s3d .s3d-summary-grid .s3d-box.fix::before{background:#4fd18c;}
+.s3d .s3d-summary-grid .s3d-box h4{margin:0 0 8px;color:#fff!important;font-size:.83rem;text-transform:uppercase;letter-spacing:.06em;}
+.s3d .s3d-summary-grid .s3d-box p{margin:0;font-size:.88rem;}
+@media (max-width:780px){.s3d .s3d-summary-grid{grid-template-columns:1fr;}}
+.s3d .s3d-timeline{position:relative;margin:20px 0;padding-left:26px;border-left:2px solid #2a3153;}
+.s3d .s3d-t-item{position:relative;padding-bottom:22px;}
+.s3d .s3d-t-item:last-child{padding-bottom:0;}
+.s3d .s3d-t-item::before{content:"";position:absolute;left:-32px;top:4px;width:12px;height:12px;border-radius:50%;background:#6c8cff;border:3px solid #0f1220;box-shadow:0 0 0 2px #2a3153;}
+.s3d .s3d-t-item.warn::before{background:#ffb454;}
+.s3d .s3d-t-item.danger::before{background:#ff6b6b;}
+.s3d .s3d-t-item .s3d-t-time{font-family:Consolas,monospace;font-size:.78rem;color:#4fd1c5!important;font-weight:700;}
+.s3d .s3d-t-item .s3d-t-title{font-size:.98rem;font-weight:700;color:#fff!important;margin:3px 0 4px;}
+.s3d .s3d-t-item .s3d-t-desc{font-size:.86rem;color:#a6acc9!important;margin:0;}
+.s3d .s3d-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0 22px;}
+.s3d .s3d-flow .s3d-step{background:#1b2038;border:1px solid #2a3153;border-radius:10px;padding:9px 14px;font-size:.84rem;color:#e7e9f5!important;}
+.s3d .s3d-flow .s3d-step.bad{border-color:rgba(255,107,107,.5);color:#ff6b6b!important;background:rgba(255,107,107,.08);}
+.s3d .s3d-flow .s3d-arrow{color:#8f6cff!important;font-size:1.05rem;}
+.s3d .s3d-flow.loop{border:1px dashed rgba(255,107,107,.4);border-radius:16px;padding:12px 10px;background:rgba(255,107,107,.04);}
+.s3d .s3d-checklist{list-style:none;padding:0;margin:14px 0;}
+.s3d .s3d-checklist li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;color:#a6acc9!important;}
+.s3d .s3d-checklist li::before{content:"✓";flex:none;width:18px;height:18px;border-radius:6px;background:rgba(79,209,140,.18);color:#4fd18c!important;font-size:.72rem;display:flex;align-items:center;justify-content:center;margin-top:2px;font-weight:700;}
+.s3d .s3d-evidence{border:1px solid rgba(108,140,255,.35);background:linear-gradient(135deg, rgba(108,140,255,.06), rgba(143,108,255,.03));border-radius:14px;padding:18px 20px;margin:16px 0 22px;}
+.s3d .s3d-evidence .s3d-evidence-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.s3d .s3d-evidence .s3d-evidence-head .s3d-tag{background:#6c8cff!important;color:#fff!important;}
+.s3d footer{text-align:center;padding:30px 5vw 6px;color:#a6acc9!important;font-size:.82rem;border-top:1px solid #2a3153;margin-top:8px;}
+@media (max-width:680px){.s3d nav.s3d-toc ol{grid-template-columns:1fr;} .s3d .s3d-summary-grid{grid-template-columns:1fr;}}
+</style>
+
+<div class="s3d">
+<div class="s3d-hero">
+<span class="s3d-eyebrow">Payment · Stripe · 異常處理</span>
+<h1>3D Secure 驗證失敗處理</h1>
+</div>
+<div class="s3d-container">
+
+<section id="s3d-1">
+<div class="s3d-section-head danger">
+<div class="s3d-chip">01</div>
+<h2>概述與問題來源</h2>
+</div>
+
+<p>3D Secure 是信用卡的額外身份驗證機制。當持卡人在銀行驗證頁面操作失敗時，Stripe 回傳的其實是 <code>requires_payment_method</code> 狀態並附上 <code>last_payment_error</code>（<code>payment_intent_authentication_failure</code>），PMW 會把它判讀為 <code>Failed</code> 交給 MWeb。
+
+<p><code>canceled</code> 並不是 3D 驗證失敗當下 Stripe 自然轉入的狀態，而是 MWeb 收到 <code>Failed</code> 後，依規則主動呼叫 Stripe Cancel API 所造成的結果</p>
+<p>因此真正的問題出在呼叫 Cancel API 成功、Stripe 端已轉為 <code>canceled</code> 之後，MWeb 用來結案的 <code>CancelTradeOrder</code>（退點數、還購物金、回補庫存、轉單…）中途被中斷，本地訂單狀態沒能同步更新，仍停留在 <code>WaitingToPay</code>。當系統下一次重新查詢時，才會「撞見」Stripe 已是 <code>canceled</code> 的終態</p>
+<p>而這個狀態剛好又不在 PMW 查詢邏輯的處理分支中，於是 PMW 與 MWeb 雙邊都無法辨識，訂單就此卡死。</p></p>
+<div class="s3d-callout danger">
+<span class="s3d-icon">🚨</span>
+<p><strong>問題監控來源：</strong> <a href="https://91app.slack.com/archives/C7T5CTALV/p1738461751955299" target="_blank">Slack 3D 驗證失敗問題追蹤討論串</a>　·　分類：資料庫更新異常 / 狀態處理錯誤</p>
+</div>
+
+<div class="s3d-summary-grid">
+<div class="s3d-box impact">
+<h4>💥 影響</h4>
+<p>訂單卡在 WaitingToPay，Redis Cache 過期後 WebAPI 持續拋出 <code>GetPayProcessDataProcessorException</code>，需仰賴 Console 人工介入才能結案。</p>
+</div>
+<div class="s3d-box cause">
+<h4>🔍 根因</h4>
+<p>並非「Stripe 直接回傳 canceled 沒人處理」這麼單純，而是「MWeb 呼叫 Cancel API 後、CancelTradeOrder 結案流程中途中斷，造成 Stripe 與 DB 狀態不同步」；下一次重新查詢才撞見 PMW 無分支可判讀的 <code>canceled</code></p>
+</div>
+<div class="s3d-box fix">
+<h4>🛠️ 解法</h4>
+<p>短期以 Timeout 機制強制轉單；長期需讓 PMW 把 <code>canceled</code> 對應到 <code>Expired</code>（天生不會重複呼叫 Cancel API），並補強結案流程的防重複執行保護</p>
+</div>
+</div>
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="stripe-3d-auth-case-2"><div class="s3d">
+<div class="s3d-container">
+
+<section id="s3d-2">
+<div class="s3d-section-head">
+<div class="s3d-chip">02</div>
+<h2>事件時間軸</h2>
+</div>
+<p class="s3d-file-path">實際案例時序（同一筆交易）</p>
+
+<div class="s3d-timeline">
+<div class="s3d-t-item">
+<div class="s3d-t-time">01:16:55.049</div>
+<div class="s3d-t-title">建立付款方式</div>
+<p class="s3d-t-desc">建立 <code>payment_method</code> 與 <code>payment_intent</code>，流程正常啟動。</p>
+</div>
+<div class="s3d-t-item">
+<div class="s3d-t-time">01:16:58.780</div>
+<div class="s3d-t-title">WaitingToPay</div>
+<p class="s3d-t-desc">Stripe 回傳 <code>next_action: redirect_to_url</code>，使用者被導向銀行 3D 驗證頁面。</p>
+</div>
+<div class="s3d-t-item">
+<div class="s3d-t-time">01:21:10.334</div>
+<div class="s3d-t-title">requires_action</div>
+<p class="s3d-t-desc">仍需完成 3D Secure 驗證，<code>amount_received = 0</code>，系統持續等待用戶操作。</p>
+</div>
+<div class="s3d-t-item warn">
+<div class="s3d-t-time">01:27:37.290</div>
+<div class="s3d-t-title">驗證失敗</div>
+<p class="s3d-t-desc">Stripe 回報 <code>payment_intent_authentication_failure</code>，PMW 收到失敗事件。</p>
+</div>
+<div class="s3d-t-item warn">
+<div class="s3d-t-time">01:27:37.350</div>
+<div class="s3d-t-title">API 取消成功</div>
+<p class="s3d-t-desc">MWeb 呼叫 Stripe Cancel API 成功，預期訂單應轉入取消流程。</p>
+</div>
+<div class="s3d-t-item danger">
+<div class="s3d-t-time">01:31:07.879</div>
+<div class="s3d-t-title">狀態異常</div>
+<p class="s3d-t-desc">後續查詢 Stripe 回傳狀態變為 <code>"canceled"</code>，PMW 無法解析此狀態，系統開始進入無限迴圈。</p>
+</div>
+</div>
+
+<h3>關鍵狀態轉換</h3>
+<div class="s3d-flow">
+<div class="s3d-step">建立付款</div><span class="s3d-arrow">→</span>
+<div class="s3d-step">等待 3D 驗證</div><span class="s3d-arrow">→</span>
+<div class="s3d-step">驗證失敗</div><span class="s3d-arrow">→</span>
+<div class="s3d-step">API 取消</div><span class="s3d-arrow">→</span>
+<div class="s3d-step bad">canceled 狀態異常</div><span class="s3d-arrow">→</span>
+<div class="s3d-step bad">系統循環</div>
+</div>
+</section>
+
+<section id="s3d-3">
+<div class="s3d-section-head">
+<div class="s3d-chip">03</div>
+<h2>技術問題分析</h2>
+</div>
+
+<h3>核心問題</h3>
+<p>問題有兩層，缺一不可：① MWeb 的 CancelTradeOrder 結案流程中途中斷，導致 Stripe 已是 canceled 但本地 DB 仍是 WaitingToPay；② PMW 對 canceled 狀態沒有對應的判讀邏輯，讓這個不同步狀態被重新查詢到時無法收斂</p>
+<ul class="s3d-checklist">
+<li>MWeb 收到 Failed（3D 驗證失敗）後呼叫 Cancel API，Stripe 端成功轉為 canceled，但後續 CancelTradeOrder（結案）中斷，DB 訂單狀態沒能同步為 Fail</li>
+<li>下一次重新查詢時，PMW 將 canceled 歸類為「未處理錯誤」，回傳非明確結果給 MWeb</li>
+<li>MWeb 收到未預期的回應，進入「由 Console 處理」的分支，資料庫訂單狀態持續停留在 <code>WaitingToPay</code></li>
+</ul>
+
+<h3>系統行為異常對照</h3>
+<table>
+<thead><tr><th>組件</th><th>預期行為</th><th>實際行為</th><th>問題原因</th></tr></thead>
+<tbody>
+<tr><td><strong>MWeb（結案階段）</strong></td><td>呼叫 Cancel API 成功後，完整執行 CancelTradeOrder 並同步本地訂單狀態</td><td>CancelTradeOrder 中途中斷，DB 狀態未同步為 Fail</td><td>結案流程非原子化，中斷後無補償機制</td></tr>
+<tr><td><strong>PMW（重查階段）</strong></td><td>明確處理 <code>"canceled"</code> 狀態並回傳可判讀的 ReturnCode</td><td>落入 else 分支，回傳「未處理錯誤」</td><td>狀態判斷邏輯中缺少 <code>canceled</code> 分支</td></tr>
+<tr><td><strong>MWeb（重查後）</strong></td><td>依 ReturnCode 更新訂單狀態為取消</td><td>進入「由 Console 處理」的等待迴圈</td><td>收到 PMW 未分類的錯誤回應，找不到對應處理路徑</td></tr>
+<tr><td><strong>資料庫</strong></td><td>狀態更新為 Canceled / Fail</td><td>維持 <code>WaitingToPay</code></td><td>源頭是結案中斷，PMW 無法辨識 canceled 只是讓問題浮現、無法收斂</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="stripe-3d-auth-case-3"><div class="s3d">
+<div class="s3d-container">
+
+<section id="s3d-4">
+<div class="s3d-section-head">
+<div class="s3d-chip">04</div>
+<h2>程式碼實證</h2>
+</div>
+<p>對照 <code>nineyi.payment.middleware</code> 的 Stripe Plugin 與 <code>nineyi.webstore.mobilewebmall</code> 的 <code>PayChannelController</code> / <code>TradesOrderPaymentService</code>，可以精確定位問題發生的程式碼位置。</p>
+
+<div class="s3d-evidence">
+<div class="s3d-evidence-head"><span class="s3d-tag">PMW</span>StripePlugin.GetThirdPartyQueryPaymentDetail</div>
+<p class="s3d-file-path">src/Plugins/NineYi.PaymentMiddleware.Plugins.Stripe/StripePlugin.cs</p>
+<p>這個私有方法負責把 Stripe <code>PaymentIntent.status</code> 轉換成 PMW 標準 ReturnCode。可以看到判斷式只涵蓋 <code>succeeded</code>、<code>requires_payment_method</code>（含 last_payment_error）、<code>requires_action</code> / <code>requires_confirmation</code> 三類，<code>canceled</code> 完全沒有出現在任何條件分支中，只能落入最後的 <code>else</code>。</p>
+<pre class="s3d-pre" data-lang="C#"><span class="kw">private</span> (<span class="type">string</span> returnCode, <span class="type">string</span> returnMessage, <span class="type">IDictionary</span>&lt;<span class="type">string</span>, <span class="type">object</span>&gt; extendInfo) GetThirdPartyQueryPaymentDetail(...)
+{
+    <span class="kw">var</span> status = paymentIntentResponseEntity.status;
+&nbsp;
+    <span class="kw">if</span> (status == <span class="str">"succeeded"</span>) { <span class="cm">/* ReturnCodes.Success */</span> }
+    <span class="kw">else if</span> (status == <span class="str">"requires_payment_method"</span> &amp;&amp; last_payment_error != <span class="kw">null</span>)
+    {
+        <span class="kw">return</span> (ReturnCodes.Failed, ...);
+    }
+    <span class="kw">else if</span> (status == <span class="str">"requires_action"</span> || status == <span class="str">"requires_payment_method"</span> || status == <span class="str">"requires_confirmation"</span>)
+    {
+        <span class="kw">return</span> (ReturnCodes.WaitingToPay, status, <span class="kw">null</span>);
+    }
+    <span class="kw">else</span> <span class="cm">// ⚠️ "canceled" 落到這裡，未被顯式處理</span>
+    {
+        _logger.LogWarning($<span class="str">"Payment Exception. \nPaymentIntentResponseEntity: {json}"</span>);
+        <span class="kw">return</span> (ReturnCodes.UnhandledException, status, <span class="kw">null</span>); <span class="cm">// "9001"</span>
+    }
+}</pre>
+<div class="s3d-callout warn">
+<span class="s3d-icon">⚠️</span>
+<p><strong>與原始事故紀錄的差異：</strong> 事件描述中提到的是「錯誤碼 9999」，但依目前程式碼，<code>canceled</code> 實際落入的是 <code>ReturnCodes.UnhandledException = "9001"</code>（<code>ReturnCodes.UnknownException = "9999"</code> 是另一個保留碼）。無論是 9001 或 9999，兩者在 MWeb 端都不屬於「可辨識」的 ReturnCode，最終效果相同——訂單都會落入 Console 人工處理分支，事件本質未變。</p>
+</div>
+</div>
+
+<div class="s3d-evidence">
+<div class="s3d-evidence-head"><span class="s3d-tag">MWeb</span>TradesOrderPaymentService.FinishPayment</div>
+<p class="s3d-file-path">WebStore/Frontend/BLV2/ThirdPartyPay/TradesOrderPaymentService.cs</p>
+<p>MWeb 依 PMW 回傳的 <code>ReturnCode</code> 分派後續動作：<code>Success</code> 轉單、<code>Expired</code> 逾時處理、<code>Failed</code> 取消訂單、Worker 情境下的 <code>WaitingToPay</code> 判斷逾時。除此之外的任何 ReturnCode（包含本案的 <code>9001</code>）都會落入最後的 <code>else</code>，也就是文件中所說的「由 Console 處理」。</p>
+<pre class="s3d-pre" data-lang="C#"><span class="kw">else</span>
+{
+    <span class="cm">//// For this scenario, order will process by the console
+    //// ReturnCode from Payment Middleware Response included:
+    ////  - 2003 : WaitingToPay 待付款
+    ////  - 9000 : PayChannelError
+    ////  - 9999 : Payment Middleware Exception</span>
+    _logger.Info($<span class="str">"Payment Middleware 回傳資訊 - ReturnCode: {resultEntity.ReturnCode}, ReturnMessage: ..."</span>);
+    _logger.Info(<span class="str">"訂單將由 Console 進行處理"</span>);
+&nbsp;
+    resultEntity.Message = Translation...OrderInProcessing;
+}</pre>
+<p>這段程式碼本身沒有拋出例外，只是把訂單「晾在原地」等待人工處理——這解釋了為何前台會持續顯示處理中，而不是直接報錯。</p>
+</div>
+
+<div class="s3d-evidence">
+<div class="s3d-evidence-head"><span class="s3d-tag">MWeb</span>PayChannelController.InternalFinishPayment</div>
+<p class="s3d-file-path">WebStore/WebAPI/Controllers/PayChannelController.cs</p>
+<p>此 API 註解明確標示「提供內部 Console 使用」，僅允許來自公司內網（<code>IsFromCompany()</code>）的請求呼叫，用途正是本文「解決方案」章節提到的「強制轉單」動作——由客服 / RD 在 Console 手動觸發 <code>FinishPayment(isFromWorker: true)</code> 重新跑一次結果判斷流程。</p>
+<pre class="s3d-pre" data-lang="C#">[HttpPost]
+[Route(<span class="str">"PayChannel/InternalFinishPayment"</span>)]
+<span class="kw">public</span> JsonResult InternalFinishPayment(InternalFinishPaymentRequestEntity request)
+{
+    <span class="kw">if</span> (<span class="kw">this</span>.IsFromCompany() == <span class="kw">false</span>)
+    {
+        <span class="kw">return</span> <span class="kw">this</span>.Json(ApiResultEntity&lt;<span class="type">object</span>&gt;.Success(<span class="kw">new</span> { }));
+    }
+&nbsp;
+    <span class="kw">var</span> payType = PayChannelHelper.SplitPayProfileType(request.PayProfileType);
+&nbsp;
+    <span class="kw">var</span> result = _tradesOrderPaymentService.FinishPayment(
+        request.ShopId, request.MemberId,
+        payType.PayChannel, payType.PayMethod,
+        request.TradesOrderGroupCode, request.UniqueKey,
+        <span class="type">string</span>.Empty, <span class="kw">isFromWorker: true</span>
+    );
+&nbsp;
+    <span class="kw">return</span> <span class="kw">this</span>.Json(ApiResultEntity&lt;<span class="type">object</span>&gt;.Success(<span class="kw">new</span> { result.ReturnCode, result.ReturnMessage, result.Message }));
+}</pre>
+<div class="s3d-callout info">
+<span class="s3d-icon">💡</span>
+<p><strong>關鍵：</strong> 由於呼叫時固定帶入 <code>isFromWorker: true</code>，即使查詢結果仍是 <code>WaitingToPay</code>，也會進入 <code>FinishPayment</code> 內「Worker 逾時判斷」分支，只要超過 Timeout 秒數就會強制取消付款請求並結束訂單，這正是「Timeout 機制進行資料庫狀態更新」的實際程式路徑。</p>
+</div>
+</div>
+
+<div class="s3d-evidence">
+<div class="s3d-evidence-head"><span class="s3d-tag">MWeb</span>StripePayChannelService.IsRequiredCancelPaymentRequestOnReturnFailed</div>
+<p class="s3d-file-path">WebStore/Frontend/BLV2/PayChannel/StripePayChannelService.cs</p>
+<p>這是本案「第一次」進入 Failed 分支時，真正觸發 Cancel API 呼叫的判斷式。只有當 Stripe 狀態為 <code>requires_payment_method</code> 且錯誤碼為 <code>payment_intent_authentication_failure</code>（也就是 3D 驗證失敗）時才會回傳 <code>true</code>：</p>
+<pre class="s3d-pre" data-lang="C#"><span class="kw">public</span> <span class="type">bool</span> IsRequiredCancelPaymentRequestOnReturnFailed(PayProcessContextEntity context, QueryPaymentResultEntity queryResult)
+{
+    <span class="type">string</span> stripeStatus = queryResult.ExtendInfo.GetValueOrDefault(<span class="str">"status"</span>)?.ToString() ?? <span class="str">""</span>;
+    <span class="type">string</span> stripeErrorCode = queryResult.ExtendInfo.GetValueOrDefault(<span class="str">"last_payment_error_code"</span>)?.ToString() ?? <span class="str">""</span>;
+&nbsp;
+    <span class="kw">return</span> stripeStatus == <span class="str">"requires_payment_method"</span> &amp;&amp; stripeErrorCode == <span class="str">"payment_intent_authentication_failure"</span>;
+}</pre>
+<p>命中後 <code>FinishPayment</code> 會呼叫 <code>CancelPayment(context)</code> → PMW <code>StripePlugin.Cancel()</code> → 呼叫 Stripe <code>CancelPaymentIntentAsync</code>，成功後 Stripe 端的 PaymentIntent 就會真正轉為 <code>canceled</code>。但緊接著的 <code>CancelTradeOrder(...)</code>（結案：退點數、還券、回補庫存、轉單…）若在這一步中斷（例外、NMQ 逾時、Retry 失敗等），本地訂單狀態就會停留在 <code>WaitingToPay</code>，而 Stripe 端已經是 <code>canceled</code>。</p>
+<div class="s3d-callout warn">
+<span class="s3d-icon">🔗</span>
+<p><strong>完整觸發鏈：</strong> ① 第一次查詢 → <code>requires_payment_method + payment_intent_authentication_failure</code> → PMW 回 <code>Failed(3000)</code> → ② MWeb 命中本判斷式 → 呼叫 Cancel API → Stripe 端成功轉為 <code>canceled</code> → ③ <code>CancelTradeOrder</code> 執行中斷，DB 訂單狀態未落地 → ④ 下一次重試查詢 → Stripe 這次直接回 <code>canceled</code>（不再是 requires_payment_method）→ PMW 因無對應分支回傳 <code>UnhandledException(9001)</code> → MWeb 也無法識別 → 卡入「由 Console 處理」。</p>
+</div>
+</div>
+
+<h3>ReturnCode 對照（本案相關）</h3>
+<table>
+<thead><tr><th>ReturnCode</th><th>常數名稱</th><th>意義</th><th>本案是否命中</th></tr></thead>
+<tbody>
+<tr><td><code>0000</code></td><td>Success</td><td>付款成功</td><td>—</td></tr>
+<tr><td><code>2001</code></td><td>Expired</td><td>付款逾期／已取消（建議：canceled 應對應此碼，MWeb 該分支不會呼叫 Cancel API）</td><td>目前未命中，第 08 節建議改為命中</td></tr>
+<tr><td><code>2003</code></td><td>WaitingToPay</td><td>待付款 / requires_action 等中間狀態</td><td>驗證中階段命中</td></tr>
+<tr><td><code>3000</code></td><td>Failed</td><td>requires_payment_method + 有 last_payment_error</td><td>3D 驗證失敗當下命中（會觸發 MWeb 呼叫 Cancel API）</td></tr>
+<tr><td><code>9001</code></td><td><strong>UnhandledException</strong></td><td>狀態不在已知分支中（目前 <code>canceled</code> 命中此碼）</td><td>✅ 命中，導致落入 Console 分支</td></tr>
+<tr><td><code>9999</code></td><td>UnknownException</td><td>保留碼，事件敘述中提及但目前程式碼未直接產生此碼</td><td>否（程式碼實際回傳 9001）</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="stripe-3d-auth-case-4"><div class="s3d">
+<div class="s3d-container">
+
+<section id="s3d-5">
+<div class="s3d-section-head danger">
+<div class="s3d-chip">05</div>
+<h2>異常循環機制</h2>
+</div>
+<div class="s3d-flow loop">
+<div class="s3d-step">Query 狀態</div><span class="s3d-arrow">→</span>
+<div class="s3d-step bad">收到 "canceled"</div><span class="s3d-arrow">→</span>
+<div class="s3d-step bad">PMW 回傳 9001（未處理錯誤）</div><span class="s3d-arrow">→</span>
+<div class="s3d-step">MWeb 落入 Console 分支</div><span class="s3d-arrow">→</span>
+<div class="s3d-step bad">前台 / Worker 重試</div><span class="s3d-arrow">→</span>
+<div class="s3d-step bad">無限循環</div>
+</div>
+
+<div class="s3d-callout danger">
+<span class="s3d-icon">🔁</span>
+<p><strong>最終結果：</strong> Redis Cache 過期、WebAPI 持續拋出 <code>GetPayProcessDataProcessorException</code>（因 <code>PayProcessContextEntity</code> 快取遺失），訂單處理卡死，只能由 Console 人工介入。</p>
+</div>
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="stripe-3d-auth-case-5"><div class="s3d">
+<div class="s3d-container">
+
+<section id="s3d-6">
+<div class="s3d-section-head">
+<div class="s3d-chip">06</div>
+<h2>解決方案</h2>
+</div>
+
+<h3>立即處理方案</h3>
+<p>使用 Timeout 機制進行資料庫狀態更新（實務上即透過 <code>PayChannel/InternalFinishPayment</code> 由 Console 觸發 <code>isFromWorker: true</code> 的 <code>FinishPayment</code>）：</p>
+<ul class="s3d-checklist">
+<li>狀態重置：將訂單狀態設為 Timeout</li>
+<li>資料壓制：更新資料庫中的訂單狀態</li>
+<li>強制轉單：執行轉單流程，完成訂單結案</li>
+</ul>
+
+<h3>長期修復方案</h3>
+<table>
+<thead><tr><th>修復項目</th><th>修復內容</th><th>優先級</th></tr></thead>
+<tbody>
+<tr><td><strong>PMW 狀態處理</strong></td><td>在 <code>GetThirdPartyQueryPaymentDetail</code> 加入 <code>"canceled"</code> 狀態的顯式判斷，對應 <code>Expired</code>（而非 Failed，避免 MWeb 重複呼叫 Cancel API，詳見第 08 節設計）</td><td><span class="s3d-tag danger">高</span></td></tr>
+<tr><td><strong>取消申請單防重複</strong></td><td><code>DoProcessOnReturnForTimeoutTradesOrder</code> 呼叫的 <code>CreateCancelRequest</code> 目前無條件新增，需先檢查是否已有未關閉的取消申請單（詳見第 08 節設計）</td><td><span class="s3d-tag danger">高</span></td></tr>
+<tr><td><strong>子步驟可安全重跑</strong></td><td>依第 08 節方案 A/B，讓 CancelTradeOrder（Failed 分支）具備進度追蹤或各步驟自行冪等，避免自動補跑造成重複退款 / 重複還購物金</td><td><span class="s3d-tag danger">高</span></td></tr>
+<tr><td><strong>錯誤處理機制</strong></td><td>改善 MWeb 對未分類 ReturnCode 的自動回復機制，避免單純停在「由 Console 處理」</td><td><span class="s3d-tag warn">中</span></td></tr>
+<tr><td><strong>監控告警</strong></td><td>加強 3D 驗證失敗率與 <code>canceled</code> 狀態出現次數的監控</td><td><span class="s3d-tag warn">中</span></td></tr>
+<tr><td><strong>文件更新</strong></td><td>更新異常處理操作手冊，同步修正 ReturnCode 描述（9001 vs 9999）</td><td><span class="s3d-tag info">低</span></td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="stripe-3d-auth-case-6"><div class="s3d">
+<div class="s3d-container">
+
+<section id="s3d-8">
+<div class="s3d-section-head danger">
+<div class="s3d-chip">08</div>
+<h2>根本觸發鏈與自動化根治設計</h2>
+</div>
+
+
+
+<h3>建議修改一：PMW 顯式處理 canceled 狀態，對應 Expired 而非 Failed</h3>
+<p class="s3d-file-path">src/Plugins/NineYi.PaymentMiddleware.Plugins.Stripe/StripePlugin.cs · GetThirdPartyQueryPaymentDetail</p>
+<pre class="s3d-pre" data-lang="C#"><span class="kw">else if</span> (status == StripeStatusConstants.Cancelled) <span class="cm">// "canceled"</span>
+{
+    <span class="cm">// Stripe 端已是終態，且此時通常已無 last_payment_error 可帶（因為是先前流程呼叫 Cancel 造成的）。
+    // 對應 Expired 而非 Failed，讓 MWeb 走「逾時／已取消」處理路徑——
+    // 這條路徑天生不會再呼叫 Cancel API，避免對已終態的 PaymentIntent 重複取消。</span>
+    <span class="kw">var</span> extendInfo = <span class="kw">new</span> Dictionary&lt;<span class="type">string</span>, <span class="type">object</span>&gt;();
+    extendInfo.Add(<span class="str">"status"</span>, status);
+&nbsp;
+    <span class="kw">return</span> (ReturnCodes.Expired, status, extendInfo);
+}
+<span class="kw">else</span>
+{
+    <span class="cm">// 其餘真正未知的狀態才落入 UnhandledException</span>
+    ...
+}</pre>
+
+<h3>建議修改二：確認 MWeb Expired 分支的既有行為（不需額外改動即可避免重複 Cancel）</h3>
+<p class="s3d-file-path">WebStore/Frontend/BLV2/ThirdPartyPay/TradesOrderPaymentService.cs · FinishPayment / DoProcessOnReturnForTimeoutTradesOrder</p>
+<pre class="s3d-pre" data-lang="C#"><span class="kw">else if</span> (resultEntity.ReturnCode == PaymentMiddlewareReturnCodeConstants.Expired)
+{
+    <span class="cm">//// 付款逾時，不關閉第三方訂單</span>
+    thirdPartyPaymentEntity.IsClosed = <span class="kw">false</span>;
+    <span class="kw">this</span>.EnsureRequestNotDuplicated(memberId, k);
+    <span class="kw">this</span>.DoProcessOnReturnForTimeoutTradesOrder(context, thirdPartyPaymentEntity, payChannelService);
+    <span class="cm">// ⚠️ 注意：這條路徑完全沒有呼叫 CancelPayment / Cancel API，
+    // 所以把 canceled 對應到 Expired，天生規避了「重複打 Cancel API」的風險，
+    // 不需要像 Failed 分支那樣額外去改 IsRequiredCancelPaymentRequestOnReturnFailed。</span>
+}</pre>
+<p><code>DoProcessOnReturnForTimeoutTradesOrder</code> 內部依序執行：更新 <code>TradesOrderThirdPartyPayment_StatusDef = Timeout</code> → <code>CancelExternalStoreCreditDeduction</code> → <code>_cancelRequestService.CreateCancelRequest(...)</code>（建立取消申請單）→ <code>UpdateOrderSlaveFlow</code>。註解也明確寫著「補庫存、退點、退券於 CancelOrderProcess 進行」——也就是說退點 / 退券 / 補庫存被拆到後續<strong>非同步的取消單處理流程</strong>執行，而不是像 <code>CancelTradeOrder</code> 一樣同步全部做完。</p>
+
+<div class="s3d-callout ok">
+<span class="s3d-icon">✅</span>
+<p><strong>效果：</strong> 只要修改 PMW 這一處，MWeb 完全不需要改動任何 Cancel 相關判斷式，就能保證「查到 canceled」這件事永遠不會再多打一次 Stripe Cancel API。這比原本「對應 Failed + 額外修改 IsRequiredCancelPaymentRequestOnReturnFailed」更安全，因為它不依賴兩處程式碼同時改對，而是天生走一條不含 Cancel 呼叫的路徑。</p>
+</div>
+
+<div class="s3d-callout warn">
+<span class="s3d-icon">⚠️</span>
+<p><strong>仍要注意的殘留風險：</strong> <code>CancelExternalStoreCreditDeduction</code>（同前面分析，靠靜態旗標判斷，非真正冪等）與 <code>_cancelRequestService.CreateCancelRequest(...)</code>（無條件新增一筆取消申請單，未檢查是否已存在同一 <code>TradesOrderGroupId</code> 的待處理取消單）在這條路徑上一樣<strong>不是天生防重複的</strong>。改用 Expired 只解決了「不會重複呼叫第三方 Cancel API」這一項，若 <code>DoProcessOnReturnForTimeoutTradesOrder</code> 本身也被重跑，仍可能建立重複的取消申請單。建議在 <code>CreateCancelRequest</code> 前加一個查詢：若該 <code>TradesOrderGroupId</code> 已存在未關閉（<code>CancelRequest_IsClosed = false</code>）的取消申請單，就不要再建立新的一筆。</p>
+</div>
+
+<h3>建議修改三：CancelTradeOrder（Failed 分支專用）必須是可安全重跑的（而非「猜中斷點在哪裡」）</h3>
+
+<div class="s3d-callout danger">
+<span class="s3d-icon">🚨</span>
+<p><strong>重新檢視後發現：整個 CancelTradeOrder 直接重跑「目前恰好安全、但不是被設計保證的」。</strong> <code>CancelTradeOrder</code> 的第一行就是把 <code>TradesOrderThirdPartyPayment_StatusDef</code> 寫成 <code>Fail</code>（<code>UpdateThirdPartyPaymentWithRetry</code>），而 <code>FinishPayment</code> 開頭又有守門：狀態非 <code>WaitingToPay</code> 就直接丟例外、不會再查詢 Stripe。這代表：本文情境（重試查詢仍能拿到 Stripe <code>canceled</code>）只可能發生在中斷點落在 <code>UpdateThirdPartyPaymentWithRetry</code> 提交<strong>之前</strong>——此時後面的 <code>CancelExternalStoreCreditDeduction</code>、<code>RefundPoint</code>、<code>RevertPromoCodePoolQuota</code> 都還沒執行過，重跑不會重複。但如果中斷點落在<strong>之後</strong>（例如卡在 <code>RefundPoint</code>），下一次重試會被 <code>FinishPayment</code> 的守門擋下，丟出 <code>TradesOrderThirdPartyPaymentException(NotWaitingToPay)</code>，症狀會變成另一種卡單，而不是本文描述的 canceled 迴圈——但只要日後步驟順序調整、流程非同步化、或多個 worker 併發處理同一筆訂單，這個「恰好安全」的隱性假設就會失效。</p>
+</div>
+
+<table>
+<thead><tr><th>方案</th><th>做法</th><th>優缺點</th></tr></thead>
+<tbody>
+<tr>
+<td><strong>A. 進度追蹤（Checkpoint / Saga）</strong></td>
+<td>在 <code>TradesOrderThirdPartyPayment</code> 新增每一子步驟的完成標記（或獨立的 CancelStep 記錄表），每個子步驟成功後立即落地一筆，而不是只在最後寫一次總狀態。重跑時依標記跳過已完成步驟，只執行剩餘的。</td>
+<td>改動集中在 <code>TradesOrderPaymentService</code>，不需動到下游各服務；但需新增資料結構、每步都要多一次 DB write。</td>
+</tr>
+<tr>
+<td><strong>B. 各子步驟自行冪等（Check-before-Act）</strong></td>
+<td>把 <code>CancelExternalStoreCreditDeduction</code>、<code>RefundPoint</code>、<code>RevertPromoCodePoolQuota</code>、<code>CreateCancelRequest</code> 等改為執行前先查「權威狀態」（外部購物金流水、點數退款紀錄、Promo Pool 配額紀錄、是否已有未關閉的取消申請單）確認尚未處理過才動作。</td>
+<td>更貼近各服務職責、長期更穩健，且同時涵蓋 Failed 與 Expired 兩條路徑；但要動到多個下游服務（外部購物金 / 點數 / PromoCode Pool / 券中心 / 取消申請單），改動範圍較大。</td>
+</tr>
+</tbody>
+</table>
+
+<div class="s3d-callout ok">
+<span class="s3d-icon">✅</span>
+<p><strong>建議順序：</strong> 先做 PMW／MWeb 的 <code>Expired</code> 對應（本節開頭建議修改一、二），從根本避免「canceled 重試」誤觸 Cancel API；接着針對 Failed 與 Expired 兩條路徑，短期用方案 A（進度追蹤）讓各自的結案流程可安全重跑；中長期再逐步把方案 B 的 Check-before-Act 補進各下游服務，讓整個取消流程無論從哪個步驟中斷、被重跑幾次都收斂到同一個正確結果。</p>
+</div>
+</section>
+
+<footer>
+Stripe · Paytypes 知識庫　|　來源：<code>10-3D驗證失敗處理.md</code>　+　PaymentMiddleware / MWeb 原始碼實證
+</footer>
+
+</div>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/07/21/DeepType-Payment-Stripe-3d-auth-case/">https://allenlin000.github.io.git/2026/07/21/DeepType-Payment-Stripe-3d-auth-case/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/07/13/DeepType-Payment-Stripe-account-type/" title="Stripe-Account"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Stripe-Account</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">255</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">51</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">37</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#stripe-3d-auth-case-1"><span class="toc-number">1.</span> <span class="toc-text">3D Secure 驗證失敗處理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#s3d-1"><span class="toc-number">1.1.</span> <span class="toc-text">概述與問題來源</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#s3d-1"><span class="toc-number">1.1.0.1.</span> <span class="toc-text">💥 影響</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s3d-1"><span class="toc-number">1.1.0.2.</span> <span class="toc-text">🔍 根因</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s3d-1"><span class="toc-number">1.1.0.3.</span> <span class="toc-text">🛠️ 解法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s3d-2"><span class="toc-number">1.2.</span> <span class="toc-text">事件時間軸</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s3d-2"><span class="toc-number">1.2.1.</span> <span class="toc-text">關鍵狀態轉換</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s3d-3"><span class="toc-number">1.3.</span> <span class="toc-text">技術問題分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s3d-3"><span class="toc-number">1.3.1.</span> <span class="toc-text">核心問題</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s3d-3"><span class="toc-number">1.3.2.</span> <span class="toc-text">系統行為異常對照</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s3d-4"><span class="toc-number">1.4.</span> <span class="toc-text">程式碼實證</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s3d-4"><span class="toc-number">1.4.1.</span> <span class="toc-text">ReturnCode 對照（本案相關）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s3d-5"><span class="toc-number">1.5.</span> <span class="toc-text">異常循環機制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s3d-6"><span class="toc-number">1.6.</span> <span class="toc-text">解決方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s3d-6"><span class="toc-number">1.6.1.</span> <span class="toc-text">立即處理方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s3d-6"><span class="toc-number">1.6.2.</span> <span class="toc-text">長期修復方案</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s3d-8"><span class="toc-number">1.7.</span> <span class="toc-text">根本觸發鏈與自動化根治設計</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s3d-8"><span class="toc-number">1.7.1.</span> <span class="toc-text">建議修改一：PMW 顯式處理 canceled 狀態，對應 Expired 而非 Failed</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s3d-8"><span class="toc-number">1.7.2.</span> <span class="toc-text">建議修改二：確認 MWeb Expired 分支的既有行為（不需額外改動即可避免重複 Cancel）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s3d-8"><span class="toc-number">1.7.3.</span> <span class="toc-text">建議修改三：CancelTradeOrder（Failed 分支專用）必須是可安全重跑的（而非「猜中斷點在哪裡」）</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/21/DeepType-Payment-Stripe-3d-auth-case/" title="Stripe 3D Secure 驗證失敗處理：從 canceled 卡死到根本觸發鏈設計"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe 3D Secure 驗證失敗處理：從 canceled 卡死到根本觸發鏈設計"/></a><div class="content"><a class="title" href="/2026/07/21/DeepType-Payment-Stripe-3d-auth-case/" title="Stripe 3D Secure 驗證失敗處理：從 canceled 卡死到根本觸發鏈設計">Stripe 3D Secure 驗證失敗處理：從 canceled 卡死到根本觸發鏈設計</a><time datetime="2026-07-21T02:07:00.000Z" title="Created 2026-07-21 10:07:00">2026-07-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/13/DeepType-Payment-Stripe-account-type/" title="Stripe-Account"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe-Account"/></a><div class="content"><a class="title" href="/2026/07/13/DeepType-Payment-Stripe-account-type/" title="Stripe-Account">Stripe-Account</a><time datetime="2026-07-13T02:07:00.000Z" title="Created 2026-07-13 10:07:00">2026-07-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/" title="Stripe-Paytype-Express"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/paytype-express.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe-Paytype-Express"/></a><div class="content"><a class="title" href="/2026/07/13/DeepType-Payment-Stripe-paytypeExpress/" title="Stripe-Paytype-Express">Stripe-Paytype-Express</a><time datetime="2026-07-13T02:07:00.000Z" title="Created 2026-07-13 10:07:00">2026-07-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/10/DeepType-Payment-Stripe-fee/" title="Stripe-Fee"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/app_fee_landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe-Fee"/></a><div class="content"><a class="title" href="/2026/07/10/DeepType-Payment-Stripe-fee/" title="Stripe-Fee">Stripe-Fee</a><time datetime="2026-07-10T03:09:00.000Z" title="Created 2026-07-10 11:09:00">2026-07-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
