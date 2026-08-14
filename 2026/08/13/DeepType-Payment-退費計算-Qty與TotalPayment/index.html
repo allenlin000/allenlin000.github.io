@@ -1,0 +1,543 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>退費計算-Qty與TotalPayment | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="架構總覽運費類型Qty／TotalPayment計算部分退款金額部分退貨開放判斷總結 .srf{display:block;font-family:&#39;Segoe UI&#39;,-apple-system,BlinkMacSystemFont,&#39;PingFang TC&#39;,&#39;Microsoft JhengHei&#39;,sans-serif;background:radial-gradient(1200px 60">
+<meta property="og:type" content="article">
+<meta property="og:title" content="退費計算-Qty與TotalPayment">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/08/13/DeepType-Payment-%E9%80%80%E8%B2%BB%E8%A8%88%E7%AE%97-Qty%E8%88%87TotalPayment/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="架構總覽運費類型Qty／TotalPayment計算部分退款金額部分退貨開放判斷總結 .srf{display:block;font-family:&#39;Segoe UI&#39;,-apple-system,BlinkMacSystemFont,&#39;PingFang TC&#39;,&#39;Microsoft JhengHei&#39;,sans-serif;background:radial-gradient(1200px 60">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-08-13T07:42:00.000Z">
+<meta property="article:modified_time" content="2026-08-13T07:47:47.564Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="退貨">
+<meta property="article:tag" content="退費">
+<meta property="article:tag" content="TotalPayment">
+<meta property="article:tag" content="RefundAmount">
+<meta property="article:tag" content="MemberTradesOrder">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/08/13/DeepType-Payment-%E9%80%80%E8%B2%BB%E8%A8%88%E7%AE%97-Qty%E8%88%87TotalPayment/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '退費計算-Qty與TotalPayment',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-08-13 15:47:47'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">261</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">60</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">38</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">退費計算-Qty與TotalPayment</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-08-13T07:42:00.000Z" title="Created 2026-08-13 15:42:00">2026-08-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-08-13T07:47:47.564Z" title="Updated 2026-08-13 15:47:47">2026-08-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Payment/">Payment</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="退費計算-Qty與TotalPayment"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="退費計算"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="退費計算-1">架構總覽</button><button type="button" class="tab " data-href="退費計算-2">運費類型</button><button type="button" class="tab " data-href="退費計算-3">Qty／TotalPayment計算</button><button type="button" class="tab " data-href="退費計算-4">部分退款金額</button><button type="button" class="tab " data-href="退費計算-5">部分退貨開放判斷</button><button type="button" class="tab " data-href="退費計算-6">總結</button></ul><div class="tab-contents"><div class="tab-item-content active" id="退費計算-1"><style>
+.srf{display:block;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;background:radial-gradient(1200px 600px at 10% -10%, rgba(108,140,255,.18), transparent 60%),radial-gradient(1000px 500px at 100% 0%, rgba(79,209,140,.12), transparent 55%),#0f1220;color:#e7e9f5!important;line-height:1.7;border-radius:20px;padding:1px 0 28px;margin:0 0 20px;overflow:hidden;}
+.srf *{box-sizing:border-box;}
+.srf a{color:#6c8cff!important;text-decoration:none;}
+.srf a:hover{text-decoration:underline;}
+.srf .srf-hero{padding:48px 6vw 34px;text-align:center;position:relative;overflow:hidden;}
+.srf .srf-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(79,209,140,.08), transparent 70%);pointer-events:none;}
+.srf .srf-eyebrow{display:inline-block;font-size:.78rem;letter-spacing:.16em;color:#4fd1c5!important;text-transform:uppercase;font-weight:700;margin-bottom:12px;}
+.srf .srf-hero h1{font-size:1.7rem;margin:0 0 12px;color:#fff!important;font-weight:800;}
+.srf .srf-hero p{color:#a6acc9!important;max-width:700px;margin:0 auto;font-size:1rem;}
+.srf .srf-badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+.srf .srf-badge{background:#1b2038;border:1px solid #2a3153;padding:6px 14px;border-radius:999px;font-size:.8rem;color:#a6acc9!important;}
+.srf .srf-container{padding:0 5vw;}
+.srf section{margin-bottom:44px;}
+.srf .srf-section-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.srf .srf-section-head .srf-chip{flex:none;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;background:linear-gradient(135deg,#6c8cff,#8f6cff);color:#fff!important;font-size:1rem;}
+.srf .srf-section-head.ok .srf-chip{background:linear-gradient(135deg,#4fd18c,#2f9c67);}
+.srf .srf-section-head.warn .srf-chip{background:linear-gradient(135deg,#ffb454,#c97f2a);}
+.srf .srf-section-head.purple .srf-chip{background:linear-gradient(135deg,#8f6cff,#6c4fd1);}
+.srf .srf-section-head h2{margin:0;font-size:1.3rem;font-weight:800;color:#fff!important;}
+.srf h3{font-size:1.08rem;margin:26px 0 10px;color:#fff!important;border-left:4px solid #6c8cff;padding-left:10px;}
+.srf p{color:#a6acc9!important;}
+.srf .srf-card{background:#1b2038;border:1px solid #2a3153;border-radius:14px;padding:18px 22px;margin:14px 0;}
+.srf table{width:100%;border-collapse:collapse;background:#1b2038!important;border:1px solid #2a3153;border-radius:14px;overflow:hidden;margin:14px 0 22px;font-size:.88rem;}
+.srf thead th{background:linear-gradient(90deg, rgba(108,140,255,.18), rgba(79,209,140,.12))!important;color:#fff!important;text-align:left;padding:11px 14px;font-weight:700;border-bottom:1px solid #2a3153;}
+.srf tbody td{padding:10px 14px;border-bottom:1px solid #2a3153;color:#a6acc9!important;vertical-align:top;background:#1b2038!important;}
+.srf tbody tr:last-child td{border-bottom:none;}
+.srf tbody td strong,.srf tbody td code{color:#e7e9f5!important;}
+.srf code{font-family:Consolas,'SFMono-Regular','Liberation Mono',Menlo,monospace;background:rgba(108,140,255,.16)!important;color:#c7d2ff!important;padding:2px 6px;border-radius:5px;font-size:.88em;}
+.srf pre.srf-pre{background:#0d0f1c!important;border:1px solid #2a3153;border-radius:12px;padding:16px 18px;overflow-x:auto;margin:12px 0 22px;position:relative;color:#dce1f5!important;font-size:.84rem!important;line-height:1.65!important;font-family:Consolas,'SFMono-Regular','Liberation Mono',Menlo,monospace!important;white-space:pre!important;}
+.srf pre.srf-pre::before{content:attr(data-lang);position:absolute;top:6px;right:12px;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:#a6acc9!important;font-family:'Segoe UI',sans-serif;}
+.srf .kw{color:#c792ea!important;} .srf .str{color:#c3e88d!important;} .srf .cm{color:#6b7394!important;font-style:italic;} .srf .fn{color:#82aaff!important;} .srf .type{color:#ffcb6b!important;} .srf .num{color:#f78c6c!important;}
+.srf .srf-callout{border-radius:12px;padding:14px 18px;margin:14px 0 22px;border:1px solid #2a3153;display:flex;gap:12px;}
+.srf .srf-callout .srf-icon{font-size:1.15rem;}
+.srf .srf-callout.info{background:rgba(108,140,255,.08);border-color:rgba(108,140,255,.35);}
+.srf .srf-callout.warn{background:rgba(255,180,84,.08);border-color:rgba(255,180,84,.35);}
+.srf .srf-callout.danger{background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.35);}
+.srf .srf-callout.ok{background:rgba(79,209,140,.08);border-color:rgba(79,209,140,.35);}
+.srf .srf-callout p{margin:0;color:#e7e9f5!important;}
+.srf .srf-callout strong{color:#fff!important;}
+.srf .srf-file-path{font-family:Consolas,monospace;font-size:.76rem;color:#a6acc9!important;background:#20263f!important;display:inline-block;padding:3px 10px;border-radius:6px;margin:4px 0 12px;}
+.srf .srf-tag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:999px;letter-spacing:.03em;}
+.srf .srf-tag.danger{background:rgba(255,107,107,.18)!important;color:#ff6b6b!important;}
+.srf .srf-tag.ok{background:rgba(79,209,140,.18)!important;color:#4fd18c!important;}
+.srf .srf-tag.warn{background:rgba(255,180,84,.18)!important;color:#ffb454!important;}
+.srf .srf-tag.info{background:rgba(108,140,255,.18)!important;color:#6c8cff!important;}
+.srf .srf-tag.purple{background:rgba(143,108,255,.18)!important;color:#8f6cff!important;}
+.srf .srf-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0 22px;}
+.srf .srf-summary-grid .srf-box{background:#1b2038;border:1px solid #2a3153;border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;}
+.srf .srf-summary-grid .srf-box::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;}
+.srf .srf-summary-grid .srf-box.trait::before{background:#6c8cff;}
+.srf .srf-summary-grid .srf-box.risk::before{background:#ffb454;}
+.srf .srf-summary-grid .srf-box.fix::before{background:#4fd18c;}
+.srf .srf-summary-grid .srf-box h4{margin:0 0 8px;color:#fff!important;font-size:.83rem;text-transform:uppercase;letter-spacing:.06em;}
+.srf .srf-summary-grid .srf-box p{margin:0;font-size:.88rem;}
+@media (max-width:780px){.srf .srf-summary-grid{grid-template-columns:1fr;}}
+.srf .srf-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0 22px;}
+.srf .srf-flow .srf-step{background:#1b2038;border:1px solid #2a3153;border-radius:10px;padding:9px 14px;font-size:.84rem;color:#e7e9f5!important;}
+.srf .srf-flow .srf-step.cond{border-color:rgba(255,180,84,.5);color:#ffb454!important;background:rgba(255,180,84,.08);}
+.srf .srf-flow .srf-arrow{color:#8f6cff!important;font-size:1.05rem;}
+.srf .srf-steps{display:flex;flex-direction:column;gap:14px;margin:16px 0 22px;}
+.srf .srf-stepcard{background:#1b2038;border:1px solid #2a3153;border-radius:14px;padding:16px 20px;position:relative;padding-left:60px;}
+.srf .srf-stepcard .srf-stepnum{position:absolute;left:16px;top:16px;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6c8cff,#8f6cff);color:#fff!important;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;}
+.srf .srf-stepcard.cond .srf-stepnum{background:linear-gradient(135deg,#ffb454,#c97f2a);}
+.srf .srf-stepcard .srf-step-title{font-weight:700;color:#fff!important;font-size:1rem;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.srf .srf-stepcard p{margin:6px 0;font-size:.9rem;}
+.srf .srf-checklist{list-style:none;padding:0;margin:14px 0;}
+.srf .srf-checklist li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;color:#a6acc9!important;}
+.srf .srf-checklist li::before{content:"✓";flex:none;width:18px;height:18px;border-radius:6px;background:rgba(79,209,140,.18);color:#4fd18c!important;font-size:.72rem;display:flex;align-items:center;justify-content:center;margin-top:2px;font-weight:700;}
+.srf .srf-evidence{border:1px solid rgba(108,140,255,.35);background:linear-gradient(135deg, rgba(108,140,255,.06), rgba(79,209,140,.03));border-radius:14px;padding:18px 20px;margin:16px 0 22px;}
+.srf .srf-evidence .srf-evidence-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.srf .srf-evidence .srf-evidence-head .srf-tag{background:#6c8cff!important;color:#fff!important;}
+.srf .risk-num{counter-reset:risknum;list-style:none;padding:0;margin:14px 0;}
+.srf .risk-num li{counter-increment:risknum;position:relative;padding:12px 16px 12px 48px;margin-bottom:10px;background:#1b2038;border:1px solid #2a3153;border-radius:12px;color:#a6acc9!important;}
+.srf .risk-num li::before{content:counter(risknum);position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;background:#ff6b6b;color:#fff!important;font-size:.78rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.srf footer{text-align:center;padding:30px 5vw 6px;color:#a6acc9!important;font-size:.82rem;border-top:1px solid #2a3153;margin-top:8px;}
+@media (max-width:680px){.srf .srf-summary-grid{grid-template-columns:1fr;}}
+</style>
+
+<div class="srf">
+<div class="srf-hero">
+<span class="srf-eyebrow">Payment · MemberTradesOrder · 退貨退費</span>
+<h1>🧾 退貨/取消 Qty 與 TotalPayment 退費計算完整分析</h1>
+<p>以 Case 1（訂單 <code>MG260204P00004</code> / TS Id <code>16434</code>）為例，說明 MobileWebMall 前台會員訂單在「部分取消」「部分退貨」「補退款」情境下，實際數量與已付金額如何被重新計算，以及運費類型如何影響退費判斷。</p>
+<div class="srf-badges">
+<span class="srf-badge">MemberTradesOrderService</span>
+<span class="srf-badge">ReturnGoodsRequestService</span>
+<span class="srf-badge">ShopShippingType_FeeTypeDef</span>
+</div>
+</div>
+<div class="srf-container">
+
+<section id="srf-1">
+<div class="srf-section-head">
+<div class="srf-chip">01</div>
+<h2>架構總覽</h2>
+</div>
+
+<h3>各層職責</h3>
+<table>
+<thead><tr><th>層級</th><th>檔案</th><th>職責</th></tr></thead>
+<tbody>
+<tr><td>訂單明細組裝</td><td class="srf-file-path">MemberTradesOrderService.ArrangePartialQtyCancelInfo</td><td>依取消 / 退貨 / 補退資料，重新計算 TS 的實際 <code>Qty</code> 與 <code>TotalPayment</code></td></tr>
+<tr><td>部分退款金額判斷</td><td class="srf-file-path">MemberTradesOrderService.ArrangeRefund 相關方法</td><td>計算 <code>PartialRefundAmount</code>、<code>TotalRefundAmount</code>，決定是否顯示退款資訊區塊</td></tr>
+<tr><td>退貨資格檢查</td><td class="srf-file-path">ReturnGoodsRequestService</td><td>檢查部分退貨是否開放、活動/加價購限制、退款資訊蒐集條件</td></tr>
+<tr><td>運費類型</td><td class="srf-file-path">ShopShippingType / ShopShippingTypeRepository</td><td>依 <code>ShopShippingTypeId</code> 取得 <code>ShopShippingType_FeeTypeDef</code>，描述商店運費規則種類</td></tr>
+<tr><td>訂單查詢組裝</td><td class="srf-file-path">GetMemberTradesOrderProcessor / GetMemberArchiveTradesOrderProcessor</td><td>撈取 TS 明細時一併帶出 <code>OrderSlaveFlowCancelQty</code>、<code>OrderSlaveFlowOrderSpreadsAmount</code> 等欄位</td></tr>
+</tbody>
+</table>
+
+<div class="srf-callout info">
+<span class="srf-icon">💡</span>
+<p>接下來依序展開：運費類型定義、Qty / TotalPayment 核心計算公式、部分退款金額（PartialRefundAmount / TotalRefundAmount）、以及是否開放部分退貨的判斷邏輯。</p>
+</div>
+
+<h3>案例資訊</h3>
+<div class="srf-card">
+<p><strong>訂單編號：</strong><code>MG260204P00004</code>　<strong>TS Id：</strong><code>16434</code></p>
+<p>此案例用來驗證「部分取消 + 部分退貨 + 補退款」同時存在時，實際數量與已付金額的重算結果是否正確。</p>
+</div>
+
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="退費計算-2"><div class="srf">
+<div class="srf-container">
+
+<section id="srf-2">
+<div class="srf-section-head purple">
+<div class="srf-chip">02</div>
+<h2><span class="srf-tag purple">運費規則</span> ShopShippingType_FeeTypeDef</h2>
+</div>
+
+<p>訂單子單（<code>orderSlave</code>）上帶有 <code>ShopShippingTypeId</code>，透過此 Id 可對應到商店設定的 <code>ShopShippingType_FeeTypeDef</code>，用來標示這筆訂單當初適用的運費計算規則。退貨/退費流程在判斷「運費是否需要一併退還」、「是否因退貨導致低於免運門檻」時，會需要參考這個欄位。</p>
+
+<table>
+<thead><tr><th>值</th><th>說明</th></tr></thead>
+<tbody>
+<tr><td><code>Fixed</code></td><td>固定運費：不論金額或重量，收取固定運費</td></tr>
+<tr><td><code>Free</code></td><td>免運費：全店/該商品一律免運</td></tr>
+<tr><td><code>OverPrice</code></td><td>滿額免運：訂單金額達到門檻即免運，退貨後若金額低於門檻需另行處理運費補收/退還</td></tr>
+<tr><td><code>PriceRule</code></td><td>多階運費：依訂單金額區間套用不同運費</td></tr>
+<tr><td><code>WeightBilling</code></td><td>重量計費：依商品總重量計算運費</td></tr>
+</tbody>
+</table>
+
+<div class="srf-callout warn">
+<span class="srf-icon">⚠️</span>
+<p>當商店運費類型為 <code>OverPrice</code>（滿額免運）或 <code>PriceRule</code>（多階運費）時，部分退貨可能讓訂單金額掉出原本適用的運費級距。此時運費本身是否需要重新結算，是退費流程中需要額外檢查的風險點，實務上會搭配 <code>csp_GetSalesOrderFeeTradesOrderSlaveCode</code> 找出運費實際掛載的 TS，再比對是否已產生 <code>SalesOrderFee</code> 退款單（<code>RefundRequest_SourceDef == SalesOrderFee</code>）。</p>
+</div>
+
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="退費計算-3"><div class="srf">
+<div class="srf-container">
+
+<section id="srf-3">
+<div class="srf-section-head ok">
+<div class="srf-chip">03</div>
+<h2><span class="srf-tag ok">核心公式</span> Qty 與 TotalPayment 重算</h2>
+</div>
+
+<p>訂單明細載入後，<code>MemberTradesOrderService.ArrangePartialQtyCancelInfo</code> 會針對每一筆 <code>TradesOrderSlave</code>（TS），把「原始購買數量／金額」扣掉「取消」「退貨」，再加回「補退款價差」，得到目前真正生效的數量與金額。</p>
+
+<pre class="srf-pre" data-lang="C#"><span class="cm">//// 實際Qty為一開始購買的Qty 扣除 取消的Qty，退貨的Qty</span>
+entity.Qty = entity.Qty - entity.OrderSlaveFlowCancelQty - entity.OrderSlaveFlowReturnGoodsQty;
+
+<span class="cm">//// 補退單為正數，取消金額、退款金額為負數，扣除之後便為實際付款金額</span>
+entity.TotalPayment = entity.TotalPayment - entity.OrderSlaveFlowCancelTotalPayment - entity.OrderSlaveFlowReturnGoodsTotalPayment +
+                      entity.OrderSlaveFlowOrderSpreadsAmount; <span class="cm">//// 補退金額</span></pre>
+
+<h3>欄位定義</h3>
+<table>
+<thead><tr><th>欄位</th><th>意義</th><th>正負號慣例</th></tr></thead>
+<tbody>
+<tr><td><code>Qty</code></td><td>TS 原始購買數量（DB 原值）</td><td>正數</td></tr>
+<tr><td><code>OrderSlaveFlowCancelQty</code></td><td>已取消的數量</td><td>正數（相減）</td></tr>
+<tr><td><code>OrderSlaveFlowReturnGoodsQty</code></td><td>已退貨的數量</td><td>正數（相減）</td></tr>
+<tr><td><code>TotalPayment</code></td><td>TS 原始應付金額（DB 原值）</td><td>正數</td></tr>
+<tr><td><code>OrderSlaveFlowCancelTotalPayment</code></td><td>取消部分對應的金額</td><td><strong>負數</strong>（DB 儲存即為負值，相減等同扣除）</td></tr>
+<tr><td><code>OrderSlaveFlowReturnGoodsTotalPayment</code></td><td>退貨部分對應的金額</td><td><strong>負數</strong>（相減等同扣除）</td></tr>
+<tr><td><code>OrderSlaveFlowOrderSpreadsAmount</code></td><td>補退款價差（例如改規格、活動重算後的補收/退款）</td><td>補退為正數，需退款則為負數，直接加總</td></tr>
+</tbody>
+</table>
+
+<div class="srf-callout ok">
+<span class="srf-icon">✅</span>
+<p><strong>計算後的 <code>Qty</code> / <code>TotalPayment</code></strong> 即為「目前這筆 TS 實際生效（未取消、未退貨）的數量與已付金額」，會顯示在會員訂單明細頁，也作為後續退款金額計算的基礎。</p>
+</div>
+
+<h3>範例試算</h3>
+<div class="srf-card">
+<p>假設 TS 原始 <code>Qty = 3</code>，<code>TotalPayment = 900</code>；其中取消 1 件（<code>OrderSlaveFlowCancelQty = 1</code>，<code>OrderSlaveFlowCancelTotalPayment = -300</code>），退貨 1 件（<code>OrderSlaveFlowReturnGoodsQty = 1</code>，<code>OrderSlaveFlowReturnGoodsTotalPayment = -300</code>），並有補退款價差 <code>-50</code>（因活動重算需退還）：</p>
+<pre class="srf-pre" data-lang="計算">Qty = 3 - 1 - 1 = 1
+TotalPayment = 900 - (-300) - (-300) + (-50)
+             = 900 + 300 + 300 - 50
+             = 1450 <span class="cm">// ← 注意：Cancel/ReturnGoods 金額本身已是負值，相減會變成加回</span></pre>
+<p>實務上 <code>OrderSlaveFlowCancelTotalPayment</code>／<code>OrderSlaveFlowReturnGoodsTotalPayment</code> 在 DB 中即以「負數」記錄已扣除的金額，因此公式中的「相減」最終效果等同「扣掉已取消/已退貨的金額」，剩餘 <code>TotalPayment</code> 才會正確反映剩下 1 件商品應付的金額（例如 300），計算時務必留意欄位本身的正負號慣例，避免重複加減。</p>
+</div>
+
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="退費計算-4"><div class="srf">
+<div class="srf-container">
+
+<section id="srf-4">
+<div class="srf-section-head warn">
+<div class="srf-chip">04</div>
+<h2><span class="srf-tag warn">退款判斷</span> PartialRefundAmount / TotalRefundAmount</h2>
+</div>
+
+<p>除了重算 Qty / TotalPayment，訂單明細還需要判斷「這筆 TS 是否存在部分退款」，並算出對應金額顯示給使用者。判斷依據有兩個旗標：</p>
+
+<div class="srf-flow">
+<span class="srf-step">IsExistsOrderSpreadAmount</span>
+<span class="srf-arrow">或</span>
+<span class="srf-step">IsExistsPartialQtyCancel</span>
+<span class="srf-arrow">→</span>
+<span class="srf-step cond">計算 PartialRefundAmount</span>
+</div>
+
+<pre class="srf-pre" data-lang="C#"><span class="cm">//// 是否存在補退價差（負數代表需要退款）</span>
+ts.IsExistsOrderSpreadAmount = ts.OrderSlaveFlowOrderSpreadsAmount < 0;
+
+<span class="cm">//// 是否為 TS 數量部分取消（取消數量 &gt; 0 且小於購買數量）</span>
+ts.IsExistsPartialQtyCancel = this.IsPartialQtyCancel(ts.OrderSlaveFlowCancelQty, ts.Qty);
+
+<span class="cm">//// 判斷是否有部分取消(TS 部分數量取消或是補退)，有的話要計算部分取消金額 (不需管退款單)</span>
+if (ts.IsExistsOrderSpreadAmount || ts.IsExistsPartialQtyCancel)
+{
+    ts.PartialRefundAmount = -1 * (ts.OrderSlaveFlowCancelTotalPayment) + ts.OrderSlaveFlowOrderSpreadsAmount;
+}
+
+<span class="cm">//// 有實際退款單時，改用退款單金額加總作為總退款金額（排除運費退款單）</span>
+ts.TotalRefundAmount = -1 * tsRefundListExceptSalesOrderFee.Sum(x => x.RefundRequest_Amount);</pre>
+
+<h3><code>IsPartialQtyCancel</code> 判斷邏輯</h3>
+<pre class="srf-pre" data-lang="C#"><span class="kw">public</span> <span class="kw">bool</span> <span class="fn">IsPartialQtyCancel</span>(<span class="type">decimal</span> orderSlaveFlowCancelQty, <span class="type">decimal</span> qty)
+{
+    <span class="kw">if</span> (orderSlaveFlowCancelQty == 0)
+    {
+        <span class="kw">return</span> <span class="kw">false</span>; <span class="cm">// 完全沒取消，不算部分取消</span>
+    }
+
+<pre><code>&lt;span class=&quot;kw&quot;&gt;if&lt;/span&gt; (qty &amp;gt; orderSlaveFlowCancelQty)
+{
+    &lt;span class=&quot;kw&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kw&quot;&gt;true&lt;/span&gt;; &lt;span class=&quot;cm&quot;&gt;// 取消數量小於購買數量 → 為部分取消&lt;/span&gt;
+}
+&lt;span class=&quot;cm&quot;&gt;// qty &amp;lt;= 取消數量 → 視為全部取消，非「部分」&lt;/span&gt;
+...
+</code></pre>
+<p>}</pre></p>
+<div class="srf-summary-grid">
+<div class="srf-box trait">
+<h4>PartialRefundAmount</h4>
+<p>依「取消金額 + 補退價差」推算的部分退款金額，<strong>不需要有實際退款單</strong>即可顯示，用於 UI 上先行提示金額。</p>
+</div>
+<div class="srf-box risk">
+<h4>TotalRefundAmount</h4>
+<p>當已產生退款單時，改採退款單（<code>RefundRequest</code>）實際金額加總，排除運費類退款單，數字更貼近真實退款結果。</p>
+</div>
+<div class="srf-box fix">
+<h4>運費退款</h4>
+<p>另外獨立以 <code>csp_GetSalesOrderFeeTradesOrderSlaveCode</code> 找出運費掛載的 TS，比對 <code>SourceDef == SalesOrderFee</code> 的退款單，計算 <code>totalSalesOrderFee</code> 並決定是否顯示運費退款區塊。</p>
+</div>
+</div>
+
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="退費計算-5"><div class="srf">
+<div class="srf-container">
+
+<section id="srf-5">
+<div class="srf-section-head purple">
+<div class="srf-chip">05</div>
+<h2><span class="srf-tag purple">前置檢查</span> 是否允許部分退貨</h2>
+</div>
+
+<p>在計算退費金額之前，<code>ReturnGoodsRequestService</code> 會先確認商店是否開放「部分退貨」，此設定即文件中提到的 <code>detail.IsPartialReturnGoodsEnabled</code>。</p>
+
+<div class="srf-steps">
+<div class="srf-stepcard">
+<div class="srf-stepnum">1</div>
+<div class="srf-step-title">讀取商店設定</div>
+<p><code>ArrangeShopPartialSetting</code> 將後台設定的 <code>shopPartialSetting.IsPartialReturnGoodsEnabled</code> 帶入 <code>detail.IsPartialReturnGoodsEnabled</code>。</p>
+</div>
+<div class="srf-stepcard cond">
+<div class="srf-stepnum">2</div>
+<div class="srf-step-title">若商店本身開放部分退貨</div>
+<p><code>ValidatePartialReturn</code> 直接 <code>return</code>，不再檢查活動/加價購限制，允許使用者自由勾選要退貨的商品子單。</p>
+</div>
+<div class="srf-stepcard cond">
+<div class="srf-stepnum">3</div>
+<div class="srf-step-title">商店未開放時的例外規則</div>
+<p>若訂單含活動（<code>HasActivity</code>）或加價購（<code>HasPurchaseExtra</code>），且非所有商品都允許部分退（<code>HasPartialReturn</code>），則必須連同「不可部分退」的必退商品一起勾選，否則丟出例外「不允許部分退貨」。</p>
+</div>
+<div class="srf-stepcard">
+<div class="srf-stepnum">4</div>
+<div class="srf-step-title">未攤提活動檢查</div>
+<p>對於未攤提到所有商品的活動（例如第 N 件折扣），會額外呼叫 <code>CheckTradesOrderSlaveWithUnAllocatePromotionEngine</code> 驗證勾選組合是否合法。</p>
+</div>
+</div>
+
+<div class="srf-callout danger">
+<span class="srf-icon">🚫</span>
+<p>禮物卡另有獨立限制：<code>confirmEntity.IsPartialReturnBlockedByGiftCard()</code> 為 true 時，直接禁止部分退貨，優先於其他所有判斷。</p>
+</div>
+
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="退費計算-6"><div class="srf">
+<div class="srf-container">
+
+<section id="srf-6">
+<div class="srf-section-head">
+<div class="srf-chip">06</div>
+<h2>總結：一次退費計算的完整脈絡</h2>
+</div>
+
+<ul class="srf-checklist">
+<li>先確認商店 <code>ShopShippingType_FeeTypeDef</code> 運費規則，評估退貨是否影響免運門檻／運費金額。</li>
+<li>依 <code>IsPartialReturnGoodsEnabled</code> 與活動/加價購/禮物卡限制，判斷本次是否允許「部分」退貨。</li>
+<li>透過 <code>ArrangePartialQtyCancelInfo</code> 用「原始 Qty / TotalPayment」扣除「取消、退貨」再加回「補退價差」，得到目前實際生效的數量與金額。</li>
+<li>再依 <code>OrderSlaveFlowOrderSpreadsAmount</code>、<code>IsPartialQtyCancel</code> 判斷是否存在部分退款，估算 <code>PartialRefundAmount</code>；若已有正式退款單，改以 <code>TotalRefundAmount</code>（退款單金額加總）呈現。</li>
+<li>運費退款獨立處理，透過 <code>SalesOrderFee</code> 類型退款單與 TS 對應碼另行結算。</li>
+</ul>
+
+<div class="srf-evidence">
+<div class="srf-evidence-head">
+<span class="srf-tag">案例</span>
+<strong>MG260204P00004 / TS 16434</strong>
+</div>
+<p>此訂單用來驗證：當同一筆 TS 同時存在部分取消數量與退貨數量時，<code>Qty</code>／<code>TotalPayment</code> 是否能正確反映「扣除取消與退貨後、且加回補退價差」的最終結果，並確保 UI 顯示的部分退款金額與後續實際退款單金額一致。</p>
+</div>
+
+</section>
+
+<footer>整理自 <code>case1-退費計算.md</code> 與 <code>MemberTradesOrderService</code> / <code>ReturnGoodsRequestService</code> 原始碼</footer>
+
+</div>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/08/13/DeepType-Payment-%E9%80%80%E8%B2%BB%E8%A8%88%E7%AE%97-Qty%E8%88%87TotalPayment/">https://allenlin000.github.io.git/2026/08/13/DeepType-Payment-%E9%80%80%E8%B2%BB%E8%A8%88%E7%AE%97-Qty%E8%88%87TotalPayment/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%80%80%E8%B2%A8/">退貨</a><a class="post-meta__tags" href="/tags/%E9%80%80%E8%B2%BB/">退費</a><a class="post-meta__tags" href="/tags/TotalPayment/">TotalPayment</a><a class="post-meta__tags" href="/tags/RefundAmount/">RefundAmount</a><a class="post-meta__tags" href="/tags/MemberTradesOrder/">MemberTradesOrder</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/08/04/DeepType-Payment-Refund/" title="Refund"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/refund-landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Refund</div></div></a></div><div class="next-post pull-right"><a href="/2026/08/14/DB-MySQL-2/" title="MySQL-2"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/1-landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">MySQL-2</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">261</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">60</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">38</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%80%E8%B2%BB%E8%A8%88%E7%AE%97-1"><span class="toc-number">1.</span> <span class="toc-text">🧾 退貨&#x2F;取消 Qty 與 TotalPayment 退費計算完整分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#srf-1"><span class="toc-number">1.1.</span> <span class="toc-text">架構總覽</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#srf-1"><span class="toc-number">1.1.1.</span> <span class="toc-text">各層職責</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#srf-1"><span class="toc-number">1.1.2.</span> <span class="toc-text">案例資訊</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#srf-2"><span class="toc-number">1.2.</span> <span class="toc-text">運費規則 ShopShippingType_FeeTypeDef</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#srf-3"><span class="toc-number">1.3.</span> <span class="toc-text">核心公式 Qty 與 TotalPayment 重算</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#srf-3"><span class="toc-number">1.3.1.</span> <span class="toc-text">欄位定義</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#srf-3"><span class="toc-number">1.3.2.</span> <span class="toc-text">範例試算</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#srf-4"><span class="toc-number">1.4.</span> <span class="toc-text">退款判斷 PartialRefundAmount &#x2F; TotalRefundAmount</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#srf-4"><span class="toc-number">1.4.1.</span> <span class="toc-text">IsPartialQtyCancel 判斷邏輯</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#srf-4"><span class="toc-number">1.4.1.1.</span> <span class="toc-text">PartialRefundAmount</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#srf-4"><span class="toc-number">1.4.1.2.</span> <span class="toc-text">TotalRefundAmount</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#srf-4"><span class="toc-number">1.4.1.3.</span> <span class="toc-text">運費退款</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#srf-5"><span class="toc-number">1.5.</span> <span class="toc-text">前置檢查 是否允許部分退貨</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#srf-6"><span class="toc-number">1.6.</span> <span class="toc-text">總結：一次退費計算的完整脈絡</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/14/DB-MySQL-2/" title="MySQL-2"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/1-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MySQL-2"/></a><div class="content"><a class="title" href="/2026/08/14/DB-MySQL-2/" title="MySQL-2">MySQL-2</a><time datetime="2026-08-14T00:08:00.000Z" title="Created 2026-08-14 08:08:00">2026-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/13/DeepType-Payment-%E9%80%80%E8%B2%BB%E8%A8%88%E7%AE%97-Qty%E8%88%87TotalPayment/" title="退費計算-Qty與TotalPayment"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="退費計算-Qty與TotalPayment"/></a><div class="content"><a class="title" href="/2026/08/13/DeepType-Payment-%E9%80%80%E8%B2%BB%E8%A8%88%E7%AE%97-Qty%E8%88%87TotalPayment/" title="退費計算-Qty與TotalPayment">退費計算-Qty與TotalPayment</a><time datetime="2026-08-13T07:42:00.000Z" title="Created 2026-08-13 15:42:00">2026-08-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/04/DeepType-Payment-Refund/" title="Refund"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/refund-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Refund"/></a><div class="content"><a class="title" href="/2026/08/04/DeepType-Payment-Refund/" title="Refund">Refund</a><time datetime="2026-08-04T03:45:00.000Z" title="Created 2026-08-04 11:45:00">2026-08-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/07/28/DeepType-Payment-Stripe-Refund/" title="Stripe 退款完整解析：DirectCharge / DestinationCharge 與 Application Fee 拆帳"><img src="https://raw.githubusercontent.com/CHI-KEKE/Payment/refs/heads/master/pics/stripe/refund-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe 退款完整解析：DirectCharge / DestinationCharge 與 Application Fee 拆帳"/></a><div class="content"><a class="title" href="/2026/07/28/DeepType-Payment-Stripe-Refund/" title="Stripe 退款完整解析：DirectCharge / DestinationCharge 與 Application Fee 拆帳">Stripe 退款完整解析：DirectCharge / DestinationCharge 與 Application Fee 拆帳</a><time datetime="2026-07-28T00:45:00.000Z" title="Created 2026-07-28 08:45:00">2026-07-28</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
