@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>MySQL-2 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="資料庫平常安安靜靜地把資料存好，但只要牽涉到外鍵、交易或並行讀寫，MySQL 就會出現一些跟直覺不一樣的行為，甚至讓其他主流資料庫的工程師都嚇一跳。這篇整理四個真實會踩到的情境，從外鍵鎖定的意外連坐、交易遇到 DDL 直接失效，到兩個隔離等級案例揭露的資料錯亂風險。 外鍵限制外鍵的本意：維持兩張表的資料一致性外鍵（foreign key）的用意是讓使用系統的人知道兩張表是相關的，更重要的是讓資料庫">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL-2">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/08/14/DB-mysql-2-pure/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="資料庫平常安安靜靜地把資料存好，但只要牽涉到外鍵、交易或並行讀寫，MySQL 就會出現一些跟直覺不一樣的行為，甚至讓其他主流資料庫的工程師都嚇一跳。這篇整理四個真實會踩到的情境，從外鍵鎖定的意外連坐、交易遇到 DDL 直接失效，到兩個隔離等級案例揭露的資料錯亂風險。 外鍵限制外鍵的本意：維持兩張表的資料一致性外鍵（foreign key）的用意是讓使用系統的人知道兩張表是相關的，更重要的是讓資料庫">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/1-landing.png">
+<meta property="article:published_time" content="2026-08-14T00:08:00.000Z">
+<meta property="article:modified_time" content="2026-08-16T03:45:07.085Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/1-landing.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/08/14/DB-mysql-2-pure/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MySQL-2',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-08-16 11:45:07'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">264</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">55</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">38</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/1-landing.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">MySQL-2</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-08-14T00:08:00.000Z" title="Created 2026-08-14 08:08:00">2026-08-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-08-16T03:45:07.085Z" title="Updated 2026-08-16 11:45:07">2026-08-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/DB/">DB</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="MySQL-2"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>資料庫平常安安靜靜地把資料存好，但只要牽涉到外鍵、交易或並行讀寫，MySQL 就會出現一些跟直覺不一樣的行為，甚至讓其他主流資料庫的工程師都嚇一跳。這篇整理四個真實會踩到的情境，從外鍵鎖定的意外連坐、交易遇到 DDL 直接失效，到兩個隔離等級案例揭露的資料錯亂風險。</p>
+<h2 id="外鍵限制"><a href="#外鍵限制" class="headerlink" title="外鍵限制"></a>外鍵限制</h2><h3 id="外鍵的本意：維持兩張表的資料一致性"><a href="#外鍵的本意：維持兩張表的資料一致性" class="headerlink" title="外鍵的本意：維持兩張表的資料一致性"></a>外鍵的本意：維持兩張表的資料一致性</h3><p>外鍵（foreign key）的用意是讓使用系統的人知道兩張表是相關的，更重要的是讓資料庫本身也「意識到」這層關係。當其中一張表的資料被改動時，資料庫要負責維持兩者之間該有的一致性，而不是各改各的。</p>
+<p>下圖是一個常見的例子，買家表與訂單表，訂單表裡的買家欄位是指向買家表的外鍵。</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/fk.png" alt="fk"></p>
+<p>外鍵設定了 <code>ON UPDATE CASCADE</code>，代表系統要保證所謂的參照完整性（referential integrity）。也就是說，一旦外鍵被更改，資料的完整性就必須被守住。實務上的效果是，如果訂單表裡正在修改買家欄位，買家表對應的那筆資料就會被鎖住，不能同時被修改。</p>
+<h3 id="意外的連坐：改訂單狀態也會鎖到買家表"><a href="#意外的連坐：改訂單狀態也會鎖到買家表" class="headerlink" title="意外的連坐：改訂單狀態也會鎖到買家表"></a>意外的連坐：改訂單狀態也會鎖到買家表</h3><p>如果修改的其實是訂單的狀態欄位，理論上跟買家表完全無關，但實際測試會發現買家表依然被鎖住。</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/fk-protection.png" alt="fk"></p>
+<p>問題出在 INDEX：訂單表裡有一個「買家欄位加訂單狀態」的複合索引，而 MySQL 把訂單狀態也一併當作外鍵的一部分來管制，導致修改訂單狀態時，買家表也被牽連鎖住，這個行為相當令人意外。</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/fk-index.png" alt="fk"></p>
+<p>官方回報：已經有人把這個現象提交成官方 Bug 回報，<a target="_blank" rel="noopener" href="https://bugs.mysql.com/bug.php?id=94148">Bug #94148</a>。有網友找到的解法是，額外加一個「純買家欄位」的索引，結果就意外地不再被鎖住。索引與外鍵原本是兩個不相干的概念，卻在 MySQL 的實作裡被混在一起，變成解法也帶著一點意外的味道。</p>
+<h2 id="Transaction-與-DDL"><a href="#Transaction-與-DDL" class="headerlink" title="Transaction 與 DDL"></a>Transaction 與 DDL</h2><h3 id="當交易遇上-DDL：一個會悄悄失效的-Rollback"><a href="#當交易遇上-DDL：一個會悄悄失效的-Rollback" class="headerlink" title="當交易遇上 DDL：一個會悄悄失效的 Rollback"></a>當交易遇上 DDL：一個會悄悄失效的 Rollback</h3><p>SQL 語法大致分成兩種類型，一種是定義資料結構的 DDL，例如 <code>CREATE TABLE</code>、<code>DROP TABLE</code>；另一種是大家熟悉的 DML，例如 <code>SELECT</code>、<code>UPDATE</code>。在 MySQL 裡，交易（transaction）機制對這兩種語法的保護程度並不一樣，以下用一個常見的資料搬遷情境來說明。</p>
+<p><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/transaction-1-not-DDL.png" alt="transaction"></p>
+<ol>
+<li>將資料從 <code>old_data</code> 備份到 <code>new_data</code>：這一步是單純的資料搬移，屬於 DML 操作。</li>
+<li>刪除 <code>old_data</code>（這一步是 DDL）：因為是結構層級的操作，凌駕於交易之上，不受交易的 rollback 保護。</li>
+<li>將此操作紀錄在 audit table：如果這一步不小心失敗，理論上整包交易都應該回滾。</li>
+</ol>
+<p>實際結果：如果 audit table 那一步寫入失敗，整個交易理應回滾到最初的狀態，但因為第二步刪除 <code>old_data</code> 是 DDL，它凌駕於交易之上，不會被回滾撤銷。最後的結果是舊資料真的不見了，但整個搬遷操作卻沒有真正完整執行到，資料等於是憑空消失的。</p>
+<h2 id="隔離等級：意外復活的使用者"><a href="#隔離等級：意外復活的使用者" class="headerlink" title="隔離等級：意外復活的使用者"></a>隔離等級：意外復活的使用者</h2><h3 id="案例一：明明查詢是空表，修改卻成功了"><a href="#案例一：明明查詢是空表，修改卻成功了" class="headerlink" title="案例一：明明查詢是空表，修改卻成功了"></a>案例一：明明查詢是空表，修改卻成功了</h3><p>資料庫裡目前有一張空的使用者資料表，小左和小右兩位工程師幾乎同時開啟了各自的交易（transaction）。以下是實際發生的順序。</p>
+<ol>
+<li>小右寫入並提交：小右在自己的交易裡，往這張表寫入了 3 個新使用者，隨後執行 <code>COMMIT</code>。此時資料庫裡實際上已經存在這 3 筆資料。</li>
+<li>小左查詢，看到 0 個使用者：小左在自己尚未提交的交易裡，執行 <code>SELECT</code> 查詢這張表，結果看到的使用者數量是 0 個。原因是 MySQL 預設的隔離等級是可重複讀（Repeatable Read），小左的交易一開始就建立了一份資料快照，這份快照停留在交易剛開始時的狀態，因此即使小右已經提交了新資料，小左依然只能看到空表。</li>
+<li>小左閉眼修改，居然成功了：雖然查出來是空表，小左還是被交辦「幫第一個使用者改名字」的任務，於是直接執行 <code>UPDATE users SET name=&#39;新名字&#39; WHERE id=1;</code>，結果系統提示修改成功。原因是純查詢用的是快照讀，讀的是歷史資料，但 <code>UPDATE</code>、<code>DELETE</code>、<code>INSERT</code> 這類寫入操作用的是當前讀，會直接讀取資料庫裡最新、最真實的資料。因為小右已經提交了資料，最新資料裡確實存在 <code>id=1</code> 的使用者，小左的修改指令自然就找到了這筆紀錄並完成改名。</li>
+<li>小左再次查詢，看到 1 個使用者：小左不放心，再次查詢整張表，這次看到了 1 個使用者，正是剛剛被自己改過名字的那一筆。根據 MySQL 的多版本併發控制（MVCC）規則，一個交易永遠可以看見自己做出的修改，該筆資料被小左修改後，最新版本的交易編號就變成小左的交易編號，因此小左的快照讀在此時被允許看見這筆被修改的資料。至於另外兩筆使用者，因為從未被小左修改過，對小左的歷史快照而言依然被隔離在外，所以看不到。</li>
+</ol>
+<p>最終結局：直到下班，小左都以為這張表裡只有 1 個使用者，也就是自己改過名字的那一個，完全不知道實際上已經有 3 個使用者存在。這個現象的根源，是 MySQL 在可重複讀等級下，把快照讀與當前讀的機制混用，進而打破了原本應該嚴格的隔離性。</p>
+<h2 id="隔離等級：備份表變髒資料"><a href="#隔離等級：備份表變髒資料" class="headerlink" title="隔離等級：備份表變髒資料"></a>隔離等級：備份表變髒資料</h2><h3 id="案例二：查出來是乾淨資料，寫進備份表卻變髒了"><a href="#案例二：查出來是乾淨資料，寫進備份表卻變髒了" class="headerlink" title="案例二：查出來是乾淨資料，寫進備份表卻變髒了"></a>案例二：查出來是乾淨資料，寫進備份表卻變髒了</h3><p>這天剛好是愚人節，小左和小右同樣在差不多時間開啟了各自的交易。小右的任務是整活，要把所有使用者的名字都改成「哈基米」；小左的任務是備份，要把目前的使用者資料備份到另一張表，等愚人節活動結束後用來恢復原始資料。</p>
+<ol>
+<li>小右修改並提交：小右很快地在交易中把所有使用者名字都改成「哈基米」，執行 <code>COMMIT</code> 後就下班了。此時資料庫裡最新、最真實的使用者名稱已經全部變成「哈基米」。</li>
+<li>小左查詢，看到原始資料：小左在動手備份前，先執行單純的查詢 <code>SELECT * FROM users;</code>，看到的依然是整活前的原始資料。原因跟案例一相同，小左的交易在小右提交前就已經開啟，MySQL 的可重複讀利用快照擋住了小右的修改。小左因此鬆了一口氣，心想查出來的是乾淨的原始資料，備份應該不會有問題。</li>
+<li>小左執行「查詢並寫入」備份：小左寫下了開發中很常見的一行指令：<code>INSERT INTO backup_table SELECT * FROM users;</code>，隨後安心下班。</li>
+<li>隔天上班，備份表全部變成「哈基米」：第二天愚人節活動結束，小左準備用備份表恢復資料，打開一看卻發現備份表裡存的全部都是「哈基米」，原始資料徹底消失，根本無法恢復。</li>
+</ol>
+<p>MySQL 的雙重標準：小左明明在備份前用 <code>SELECT</code> 親眼查出原始資料，為什麼用 <code>INSERT ... SELECT</code> 寫進去就變成了「哈基米」。原因在於 MySQL 一個很反直覺的底層設計。純查詢語句（如 <code>SELECT</code>）會乖乖遵守可重複讀規則，讀取歷史快照，所以小左看到了原始資料。但查詢加寫入的語句（如 <code>INSERT ... SELECT</code>）規則會突然切換，只要指令裡同時包含查詢與寫入，查詢的部分就會自動降級成讀已提交（Read Committed）規則執行。因為小左的備份指令是 <code>INSERT ... SELECT</code>，裡面的 <code>SELECT</code> 部分不再看歷史快照，而是直接執行當前讀，讀到了小右已經提交的最新資料，也就是「哈基米」，導致真正寫入備份表的全部是整活後的髒資料。</p>
+<p>為什麼這很危險：其他主流資料庫如 PostgreSQL、Oracle、SQL Server，都不會因為多寫了一個 <code>INSERT</code> 就偷偷改變 <code>SELECT</code> 的讀取規則，機制的一致性是這些資料庫的基本要求。更麻煩的是，這種因為隔離性混用導致的資料錯亂永遠不會報錯，只會靜悄悄地在背後寫入與預期不符的資料，代表整個業務系統可能已經在用錯誤的資料下錯誤的結論，卻完全沒有察覺。整體來說，小左會被坑，是因為相信了 MySQL 聲稱的可重複讀隔離等級，卻不知道 MySQL 在處理 <code>INSERT ... SELECT</code> 這類語句時會悄悄切換規則。</p>
+<h3 id="換成-PostgreSQL-或-MS-SQL-Server，結果會不一樣嗎"><a href="#換成-PostgreSQL-或-MS-SQL-Server，結果會不一樣嗎" class="headerlink" title="換成 PostgreSQL 或 MS SQL Server，結果會不一樣嗎"></a>換成 PostgreSQL 或 MS SQL Server，結果會不一樣嗎</h3><p>在 PostgreSQL 和 MS SQL Server 這類主流資料庫上，機制的一致性是設計上的底線，不會像 MySQL 一樣在同一個隔離等級下，因為指令種類不同就偷偷切換底層的讀取規則。以下拆解如果換成這兩個資料庫，前面兩個案例會如何處理。</p>
+<p>先了解預設隔離等級的差異：有一個根本性的差別，MySQL 預設使用可重複讀（Repeatable Read），而 PostgreSQL 和 MS SQL Server 預設使用的都是讀已提交（Read Committed）。如果用預設的讀已提交執行，小左在做任何操作前，只要小右已經提交，小左的 <code>SELECT</code> 就會直接看到最新提交的資料。也就是說，小左一開始就會看到那 3 個使用者（案例一）或「哈基米」（案例二），根本不會產生資訊落差，邏輯上非常直觀，不會出現 MySQL 那種先看到舊資料、後來又冒出新資料的落差。</p>
+<p>如果都手動切換到可重複讀，公平比較會怎樣：假設把 PostgreSQL 和 MS SQL Server 也手動切換到可重複讀（快照隔離）等級，兩者的底層機制會表現得相當嚴謹，完美避開 MySQL 的陷阱。</p>
+<ul>
+<li>案例一：盲改空表。PostgreSQL 嚴格遵守「只能修改快照裡看得見的資料」，執行 <code>UPDATE ... WHERE id=1</code> 時，因為快照裡是空表，不存在 <code>id=1</code>，這個 <code>UPDATE</code> 會直接回傳影響 0 行。如果交易試圖修改一筆在交易開始後被其他交易修改並提交的資料，PostgreSQL 甚至會直接拋出併發更新序列化錯誤，強制回滾。MS SQL Server 在傳統悲觀鎖等級下，小左查詢空表時就已經鎖定該範圍，小右的 <code>INSERT</code> 會被阻塞直到小左交易結束；若使用樂觀的快照隔離，行為則與 PostgreSQL 相同，<code>UPDATE</code> 會因為快照中找不到資料而影響 0 行，不會出現 MySQL 那種當前讀的意外行為。</li>
+<li>案例二：備份表變髒。PostgreSQL 在可重複讀等級下，所有讀取操作都強制對齊同一份快照，不會因為多寫了 <code>INSERT</code> 就把裡面的 <code>SELECT</code> 偷偷降級成讀已提交。執行 <code>INSERT INTO backup_table SELECT * FROM users;</code> 時，裡面的 <code>SELECT</code> 依然讀取小左一開始建立的歷史快照，寫入備份表的會是百分之百的原始資料，備份成功。MS SQL Server 同樣地，在可重複讀或快照隔離下，<code>INSERT ... SELECT</code> 中的 <code>SELECT</code> 部分會嚴格受到交易歷史快照的保護，寫入備份表的同樣會是原始資料，不受小右後來提交的「哈基米」影響。</li>
+<li>機制一致性的差異：MySQL 的機制不一致，純查詢用可重複讀走快照讀，混合寫入時 <code>SELECT</code> 卻悄悄降級成讀已提交走當前讀，導致資料在不知不覺中錯亂。PostgreSQL 與 MS SQL Server 的機制高度一致，是可重複讀就是可重複讀，所有讀取一律看快照，不允許「看著一份資料，卻寫入另一份資料」的情況發生。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/08/14/DB-mysql-2-pure/">https://allenlin000.github.io.git/2026/08/14/DB-mysql-2-pure/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/1-landing.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/08/14/DB-MySQL-2/" title="MySQL-2"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/mysql-trap3-landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">MySQL-2</div></div></a></div><div class="next-post pull-right"><a href="/2026/08/15/DeepType-Architecture-%E8%B3%BC%E7%89%A9%E8%BB%8Apart1/" title="購物車"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">購物車</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">264</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">55</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">38</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E9%8D%B5%E9%99%90%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">外鍵限制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%96%E9%8D%B5%E7%9A%84%E6%9C%AC%E6%84%8F%EF%BC%9A%E7%B6%AD%E6%8C%81%E5%85%A9%E5%BC%B5%E8%A1%A8%E7%9A%84%E8%B3%87%E6%96%99%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-number">1.1.</span> <span class="toc-text">外鍵的本意：維持兩張表的資料一致性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%84%8F%E5%A4%96%E7%9A%84%E9%80%A3%E5%9D%90%EF%BC%9A%E6%94%B9%E8%A8%82%E5%96%AE%E7%8B%80%E6%85%8B%E4%B9%9F%E6%9C%83%E9%8E%96%E5%88%B0%E8%B2%B7%E5%AE%B6%E8%A1%A8"><span class="toc-number">1.2.</span> <span class="toc-text">意外的連坐：改訂單狀態也會鎖到買家表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Transaction-%E8%88%87-DDL"><span class="toc-number">2.</span> <span class="toc-text">Transaction 與 DDL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%95%B6%E4%BA%A4%E6%98%93%E9%81%87%E4%B8%8A-DDL%EF%BC%9A%E4%B8%80%E5%80%8B%E6%9C%83%E6%82%84%E6%82%84%E5%A4%B1%E6%95%88%E7%9A%84-Rollback"><span class="toc-number">2.1.</span> <span class="toc-text">當交易遇上 DDL：一個會悄悄失效的 Rollback</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9A%94%E9%9B%A2%E7%AD%89%E7%B4%9A%EF%BC%9A%E6%84%8F%E5%A4%96%E5%BE%A9%E6%B4%BB%E7%9A%84%E4%BD%BF%E7%94%A8%E8%80%85"><span class="toc-number">3.</span> <span class="toc-text">隔離等級：意外復活的使用者</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E4%B8%80%EF%BC%9A%E6%98%8E%E6%98%8E%E6%9F%A5%E8%A9%A2%E6%98%AF%E7%A9%BA%E8%A1%A8%EF%BC%8C%E4%BF%AE%E6%94%B9%E5%8D%BB%E6%88%90%E5%8A%9F%E4%BA%86"><span class="toc-number">3.1.</span> <span class="toc-text">案例一：明明查詢是空表，修改卻成功了</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9A%94%E9%9B%A2%E7%AD%89%E7%B4%9A%EF%BC%9A%E5%82%99%E4%BB%BD%E8%A1%A8%E8%AE%8A%E9%AB%92%E8%B3%87%E6%96%99"><span class="toc-number">4.</span> <span class="toc-text">隔離等級：備份表變髒資料</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E4%BA%8C%EF%BC%9A%E6%9F%A5%E5%87%BA%E4%BE%86%E6%98%AF%E4%B9%BE%E6%B7%A8%E8%B3%87%E6%96%99%EF%BC%8C%E5%AF%AB%E9%80%B2%E5%82%99%E4%BB%BD%E8%A1%A8%E5%8D%BB%E8%AE%8A%E9%AB%92%E4%BA%86"><span class="toc-number">4.1.</span> <span class="toc-text">案例二：查出來是乾淨資料，寫進備份表卻變髒了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%9B%E6%88%90-PostgreSQL-%E6%88%96-MS-SQL-Server%EF%BC%8C%E7%B5%90%E6%9E%9C%E6%9C%83%E4%B8%8D%E4%B8%80%E6%A8%A3%E5%97%8E"><span class="toc-number">4.2.</span> <span class="toc-text">換成 PostgreSQL 或 MS SQL Server，結果會不一樣嗎</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/17/Rate-Limiter-Rate-Limiter-pure/" title="Untitled"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Untitled"/></a><div class="content"><a class="title" href="/2026/08/17/Rate-Limiter-Rate-Limiter-pure/" title="Untitled">Untitled</a><time datetime="2026-08-17T00:32:33.858Z" title="Created 2026-08-17 08:32:33">2026-08-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/15/DeepType-Architecture-%E8%B3%BC%E7%89%A9%E8%BB%8Apart1/" title="購物車"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車"/></a><div class="content"><a class="title" href="/2026/08/15/DeepType-Architecture-%E8%B3%BC%E7%89%A9%E8%BB%8Apart1/" title="購物車">購物車</a><time datetime="2026-08-15T08:23:11.000Z" title="Created 2026-08-15 16:23:11">2026-08-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/14/DB-mysql-2-pure/" title="MySQL-2"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/1-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MySQL-2"/></a><div class="content"><a class="title" href="/2026/08/14/DB-mysql-2-pure/" title="MySQL-2">MySQL-2</a><time datetime="2026-08-14T00:08:00.000Z" title="Created 2026-08-14 08:08:00">2026-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/14/DB-MySQL-2/" title="MySQL-2"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/mysql-trap3-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MySQL-2"/></a><div class="content"><a class="title" href="/2026/08/14/DB-MySQL-2/" title="MySQL-2">MySQL-2</a><time datetime="2026-08-14T00:08:00.000Z" title="Created 2026-08-14 08:08:00">2026-08-14</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
