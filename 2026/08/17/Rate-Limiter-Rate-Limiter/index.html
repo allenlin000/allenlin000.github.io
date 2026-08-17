@@ -1,0 +1,595 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>購物車建立 API 的限流器怎麼設計的 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="限流機制設計拆解 .wp{ display:block; font-family:&#39;Segoe UI&#39;,-apple-system,BlinkMacSystemFont,&#39;PingFang TC&#39;,&#39;Microsoft JhengHei&#39;,sans-serif; background: radial-gradient(700px 400px at 90% -5%, rgba(255,182,72,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="購物車建立 API 的限流器怎麼設計的">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/08/17/Rate-Limiter-Rate-Limiter/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="限流機制設計拆解 .wp{ display:block; font-family:&#39;Segoe UI&#39;,-apple-system,BlinkMacSystemFont,&#39;PingFang TC&#39;,&#39;Microsoft JhengHei&#39;,sans-serif; background: radial-gradient(700px 400px at 90% -5%, rgba(255,182,72,">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-08-17T10:13:00.000Z">
+<meta property="article:modified_time" content="2026-08-17T10:27:49.581Z">
+<meta property="article:author" content="Allen">
+<meta property="article:tag" content="Rate Limiter">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="Shopping">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/08/17/Rate-Limiter-Rate-Limiter/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '購物車建立 API 的限流器怎麼設計的',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-08-17 18:27:49'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">264</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">購物車建立 API 的限流器怎麼設計的</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-08-17T10:13:00.000Z" title="Created 2026-08-17 18:13:00">2026-08-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-08-17T10:27:49.581Z" title="Updated 2026-08-17 18:27:49">2026-08-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Shopping/">Shopping</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="購物車建立 API 的限流器怎麼設計的"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="ratelimiter"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="ratelimiter-1">限流機制設計拆解</button></ul><div class="tab-contents"><div class="tab-item-content active" id="ratelimiter-1"><style>
+.wp{
+display:block;
+font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;
+background:
+radial-gradient(700px 400px at 90% -5%, rgba(255,182,72,.18), transparent 60%),
+radial-gradient(900px 500px at -5% 10%, rgba(124,108,247,.10), transparent 55%),
+#fbf9f4;
+color:#1f2430!important;
+line-height:1.75;
+border-radius:20px;
+padding:1px 0 28px;
+margin:0 0 20px;
+overflow:hidden;
+--ink:#1f2430; --sub:#5b6472; --card:#ffffff; --line:#ece7dc;
+--brand:#ff6b4a; --brand2:#ffb648; --teal:#12a594; --violet:#7c6cf7; --blue:#3b82f6; --danger:#e5484d;
+--shadow:0 10px 30px -12px rgba(31,36,48,.15);
+}
+.wp *{box-sizing:border-box;}
+.wp a{color:var(--brand)!important;text-decoration:none;}
+.wp a:hover{text-decoration:underline;}
+.wp .wp-hero{padding:48px 6vw 34px;text-align:center;position:relative;overflow:hidden;}
+.wp .wp-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(255,182,72,.10), transparent 70%);pointer-events:none;}
+.wp .wp-eyebrow{display:inline-block;font-size:.78rem;letter-spacing:.16em;color:var(--brand)!important;text-transform:uppercase;font-weight:700;margin-bottom:12px;background:rgba(255,107,74,.1);padding:6px 14px;border-radius:999px;}
+.wp .wp-hero h1{font-size:1.7rem;margin:0 0 12px;color:var(--ink)!important;font-weight:800;}
+.wp .wp-hero p{color:var(--sub)!important;max-width:700px;margin:0 auto;font-size:1rem;}
+.wp .wp-badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+.wp .wp-badge{background:var(--card);border:1px solid var(--line);padding:6px 14px;border-radius:999px;font-size:.8rem;color:var(--sub)!important;box-shadow:var(--shadow);}
+.wp .wp-container{padding:0 5vw;}
+.wp section{margin-bottom:44px;}
+.wp .wp-section-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.wp .wp-section-head .wp-chip{flex:none;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;background:linear-gradient(135deg,#1f2430,#485068);color:#fff!important;font-size:1rem;box-shadow:var(--shadow);}
+.wp .wp-section-head.ok .wp-chip{background:linear-gradient(135deg,#12a594,#5ee6bf);}
+.wp .wp-section-head.warn .wp-chip{background:linear-gradient(135deg,#ff6b4a,#ffb648);}
+.wp .wp-section-head.purple .wp-chip{background:linear-gradient(135deg,#7c6cf7,#a78bfa);}
+.wp .wp-section-head h2{margin:0;font-size:1.3rem;font-weight:800;color:var(--ink)!important;}
+.wp h3{font-size:1.08rem;margin:26px 0 10px;color:var(--ink)!important;border-left:4px solid var(--brand);padding-left:10px;}
+.wp p{color:var(--sub)!important;}
+.wp .wp-card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px 22px;margin:14px 0;}
+.wp table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card)!important;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:14px 0 22px;font-size:.88rem;box-shadow:var(--shadow);}
+.wp thead th{background:#f3f0e8!important;color:var(--ink)!important;text-align:left;padding:13px 16px;font-weight:800;border-bottom:1px solid var(--line);}
+.wp tbody td{padding:13px 16px;border-bottom:1px solid var(--line);color:#3b4150!important;vertical-align:top;background:var(--card)!important;}
+.wp tbody tr:last-child td{border-bottom:none;}
+.wp tbody tr:hover td{background:#fffaf2!important;}
+.wp tbody td strong{color:var(--ink)!important;}
+.wp tbody td code{color:#c2410c!important;}
+.wp code{font-family:Consolas,'SFMono-Regular','Liberation Mono',Menlo,monospace;background:#f1eee6!important;color:#c2410c!important;padding:2px 7px;border-radius:6px;font-size:.88em;border:1px solid #e9e3d5;}
+.wp pre.wp-pre{background:#1c1f2b!important;border:none;border-radius:16px;padding:20px 22px;overflow-x:auto;margin:16px 0;position:relative;color:#e9ecf7!important;font-size:.85rem!important;line-height:1.7!important;font-family:Consolas,'SFMono-Regular','Liberation Mono',Menlo,monospace!important;white-space:pre!important;box-shadow:var(--shadow);}
+.wp pre.wp-pre::before{content:attr(data-lang);position:absolute;top:12px;right:16px;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:#8a92b2!important;font-family:'Segoe UI',sans-serif;}
+.wp .kw{color:#ff9d6c!important;} .wp .str{color:#c3e88d!important;} .wp .cm{color:#6b7394!important;font-style:italic;} .wp .fn{color:#7fd0ff!important;} .wp .type{color:#ffd479!important;} .wp .num{color:#c3e88d!important;} .wp .op{color:#ff6b9d!important;}
+.wp .wp-callout{border-radius:16px;padding:18px 22px;margin:18px 0;border:1px solid transparent;display:flex;gap:14px;}
+.wp .wp-callout .wp-icon{font-size:1.3rem;flex:none;}
+.wp .wp-callout.info{background:#eff6ff;border-color:#bfdbfe;}
+.wp .wp-callout.warn{background:#fffbeb;border-color:#fde68a;}
+.wp .wp-callout.danger{background:#fef2f2;border-color:#fecaca;}
+.wp .wp-callout.ok{background:#ecfdf5;border-color:#a7f3d0;}
+.wp .wp-callout p{margin:0;font-size:.92rem;color:#3b4150!important;}
+.wp .wp-callout strong{color:var(--ink)!important;}
+.wp .wp-file-path{font-family:Consolas,monospace;font-size:.76rem;color:var(--sub)!important;background:#f1eee6!important;display:inline-block;padding:3px 10px;border-radius:6px;margin:4px 0 12px;border:1px solid var(--line);}
+.wp .wp-tag{display:inline-block;font-size:.72rem;font-weight:800;padding:3px 11px;border-radius:999px;letter-spacing:.02em;}
+.wp .wp-tag.danger{background:#fee2e2!important;color:#b91c1c!important;}
+.wp .wp-tag.ok{background:#dcfce7!important;color:#15803d!important;}
+.wp .wp-tag.warn{background:#fef3c7!important;color:#b45309!important;}
+.wp .wp-tag.info{background:#e0f2fe!important;color:#0369a1!important;}
+.wp .wp-tag.purple{background:#ede9fe!important;color:#6d28d9!important;}
+.wp .wp-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0;}
+.wp .wp-summary-grid .wp-box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);border-top:4px solid var(--brand);position:relative;overflow:hidden;}
+.wp .wp-summary-grid .wp-box.trait{border-top-color:var(--brand);}
+.wp .wp-summary-grid .wp-box.risk{border-top-color:var(--brand2);}
+.wp .wp-summary-grid .wp-box.fix{border-top-color:var(--teal);}
+.wp .wp-summary-grid .wp-box h4{margin:0 0 8px;color:var(--ink)!important;font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;}
+.wp .wp-summary-grid .wp-box p{margin:0;font-size:.87rem;color:var(--sub)!important;}
+@media (max-width:780px){.wp .wp-summary-grid{grid-template-columns:1fr;}}
+.wp .wp-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:20px 0;}
+.wp .wp-flow .wp-step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 16px;font-size:.85rem;font-weight:700;color:var(--ink)!important;box-shadow:var(--shadow);}
+.wp .wp-flow .wp-step.cond{background:#fffbeb;border-color:#fde68a;color:#b45309!important;}
+.wp .wp-flow .wp-arrow{color:var(--violet)!important;font-size:1.2rem;font-weight:900;}
+.wp .wp-steps{display:flex;flex-direction:column;gap:14px;margin:16px 0 22px;}
+.wp .wp-stepcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;position:relative;padding-left:60px;box-shadow:var(--shadow);}
+.wp .wp-stepcard .wp-stepnum{position:absolute;left:16px;top:16px;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff!important;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;}
+.wp .wp-stepcard.cond .wp-stepnum{background:linear-gradient(135deg,#ffb454,#c97f2a);}
+.wp .wp-stepcard .wp-step-title{font-weight:700;color:var(--ink)!important;font-size:1rem;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.wp .wp-stepcard p{margin:6px 0;font-size:.9rem;color:var(--sub)!important;}
+.wp .wp-timeline{position:relative;margin:20px 0 24px;padding-left:58px;}
+.wp .wp-timeline::before{content:"";position:absolute;left:23px;top:4px;bottom:4px;width:4px;border-radius:4px;background:linear-gradient(180deg,var(--brand),var(--teal),var(--brand2));}
+.wp .wp-tl-item{position:relative;padding-bottom:26px;}
+.wp .wp-tl-item:last-child{padding-bottom:0;}
+.wp .wp-tl-badge{position:absolute;left:-58px;top:0;width:46px;height:46px;border-radius:50%;background:#fff;border:3px solid var(--brand);color:var(--brand)!important;font-weight:800;font-size:1.05rem;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);z-index:1;}
+.wp .wp-tl-item.cond .wp-tl-badge{border-color:#c97f2a;color:#b45309!important;}
+.wp .wp-tl-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;box-shadow:var(--shadow);}
+.wp .wp-tl-item.cond .wp-tl-card{background:#fffbeb;border-color:#fde68a;}
+.wp .wp-tl-title{font-weight:700;color:var(--ink)!important;font-size:1rem;margin:0 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.wp .wp-tl-tag{font-size:.68rem;font-weight:800;padding:2px 9px;border-radius:999px;background:#eef2ff;color:var(--brand)!important;letter-spacing:.02em;}
+.wp .wp-tl-item.cond .wp-tl-tag{background:#fef3c7;color:#b45309!important;}
+.wp .wp-tl-card p{margin:0;font-size:.9rem;color:var(--sub)!important;}
+.wp .wp-checklist{list-style:none;padding:0;margin:16px 0;}
+.wp .wp-checklist li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed var(--line);color:var(--sub)!important;}
+.wp .wp-checklist li:last-child{border-bottom:none;}
+.wp .wp-checklist li::before{content:"✓";flex:none;width:22px;height:22px;border-radius:7px;background:#dcfce7;color:#15803d!important;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin-top:2px;font-weight:900;}
+.wp .wp-evidence{border:1px solid var(--line);background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:18px 20px;margin:16px 0 22px;}
+.wp .wp-evidence .wp-evidence-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.wp .wp-evidence .wp-evidence-head .wp-tag{background:var(--ink)!important;color:#fff!important;}
+.wp footer{text-align:center;padding:30px 5vw 6px;color:var(--sub)!important;font-size:.82rem;border-top:1px solid var(--line);margin-top:8px;}
+</style>
+<div class="wp">
+<div class="wp-hero">
+<span class="wp-eyebrow">Shopping Service · 限流機制設計拆解</span>
+<h1>購物車建立 API 的限流器怎麼設計的</h1>
+<p>同一個會員在搶購時瘋狂連點結帳按鈕，會讓後端一連串跨服務呼叫被重複觸發，付出的成本很高。這篇整理 Shopping 服務裡的限流器 <code>ExceededTimesLimiterService</code> 實際怎麼設計，從識別鍵、設定來源、執行流程到快取分層，逐章拆解。</p>
+<div class="wp-badges"><span class="wp-badge">carts/create</span><span class="wp-badge">Redis + MemoryCache</span><span class="wp-badge">Fixed Window</span><span class="wp-badge">Service 層手動呼叫</span></div>
+</div>
+<div class="wp-container">
+
+<section id="sec-01">
+<div class="wp-section-head">
+<div class="wp-chip">01</div>
+<h2>設計目的與套用位置</h2>
+</div>
+<p>這個限流器不是全站流量限流，而是針對「特定服務加特定動作加特定識別鍵」這個組合做節流。它套用在 <code>CartService.CartCreateAsync</code> 方法的第一行，屬於呼叫 <code>carts/create</code> 這支 API 時最先執行的防護步驟，發生在還沒組裝購物車上下文、還沒碰任何外部系統之前。</p>
+
+<div class="wp-callout info">
+<span class="wp-icon">💡</span>
+<p><strong>用途：</strong>防止同一會員在搶購商品時短時間內重複呼叫 <code>carts/create</code>，因為這支 API 本身會觸發黑名單檢查、Coupon 中心、紅利點數、促銷代碼、CRM 會員等級查詢，最後還要跨服務呼叫 Cart 服務做完整換價與金物流計算，成本相當高。</p>
+</div>
+
+<div class="wp-card">
+<p>設計方式是把 <code>IExceededTimesLimiterService.ExamineTryOverTimesLockApiAsync</code> 這支共用的限流服務，寫成一行明確呼叫，散落在各個需要限流的業務方法裡（例如 <code>CartsController</code>、<code>CheckoutController</code> 對應的 Service 方法）。</p>
+</div>
+</section>
+
+<section id="sec-02">
+<div class="wp-section-head warn">
+<div class="wp-chip">02</div>
+<h2>三層識別鍵設計</h2>
+</div>
+<p>限流用的 Cache Key 由三個維度組成，缺一不可，這個組合決定了限流的粒度精準到什麼程度。</p>
+
+<table>
+<thead><tr><th>維度</th><th>對應型別</th><th>意義</th></tr></thead>
+<tbody>
+<tr><td>服務分類</td><td><code>ExceededTimesLimiterServiceTypeEnum</code></td><td>區分是哪個業務服務，如 <code>ShoppingCart</code>、<code>Pay</code>、<code>Auth</code>、<code>ECoupon</code>、<code>CCA</code>、<code>RetailStore</code>、<code>Brand</code>、<code>Catering</code></td></tr>
+<tr><td>具體動作</td><td><code>ExceededTimesLimiterActionTypeEnum</code></td><td>細到每一支 API 動作，涵蓋購物車與結帳流程幾乎所有端點，例如 <code>CartsCreate</code>、<code>CartsCalculate</code>、<code>CheckoutComplete</code></td></tr>
+<tr><td>識別身份</td><td><code>ExceededTimesLimiterRecognizeTypeEnum</code></td><td>目前只有 <code>ShopId</code> 或 <code>MemberId</code> 兩種，<code>carts/create</code> 用的是 <code>MemberId</code></td></tr>
+</tbody>
+</table>
+
+<div class="wp-card">
+<p>組出來的完整 Cache Key 大致長這樣：<code>ExceededTimesLimiterService:ShoppingCart:CartsCreate-2023051201:MemberId:&#123;memberId&#125;:&#123;時間分片&#125;</code>。這代表限流計數是以「這個會員對這支動作」為單位獨立累計，不同會員之間彼此不影響，也不會因為某支動作被限流而牽連到其他動作。</p>
+</div>
+</section>
+
+<section id="sec-03">
+<div class="wp-section-head purple">
+<div class="wp-chip">03</div>
+<h2>設定值來源，分兩層且商店優先</h2>
+</div>
+<p>限流的參數（是否開啟、上限次數、時間窗秒數、鎖定秒數）不是寫死在程式碼裡，而是可以動態調整的設定值，查詢時會依序嘗試兩個來源。</p>
+
+<div class="wp-flow">
+<div class="wp-step">呼叫 GetExceededTimesLimiterSettingsAsync</div>
+<div class="wp-arrow">→</div>
+<div class="wp-step cond">先查商店專屬設定 ShopStaticSetting</div>
+<div class="wp-arrow">→</div>
+<div class="wp-step cond">查無則退回全域預設值 App Config</div>
+</div>
+
+<div class="wp-steps">
+<div class="wp-stepcard">
+<div class="wp-stepnum">1</div>
+<div class="wp-step-title">商店專屬設定優先</div>
+<p>依 <code>ShopId</code> 查詢 <code>ShopStaticSetting</code> 資料表底下分組名稱 <code>ExceededTimesLimiter</code>、Key 為服務名稱的設定值，格式是用分號分隔多組 <code>動作.識別類型=設定字串</code>。如果該商店有針對這支動作客製化設定，就直接採用，讓不同商店可以依自己的流量特性調整限流強度。</p>
+</div>
+<div class="wp-stepcard">
+<div class="wp-stepnum">2</div>
+<div class="wp-step-title">查無商店設定則退回全域預設</div>
+<p>從 App Config 讀取 Key 為 <code>ExceededTimesLimiter:ShoppingCart.CartsCreate.MemberId</code> 的設定字串，若設定不存在則用寫死的預設值 <code>false|3|1|30</code>（代表預設關閉限流）。</p>
+</div>
+</div>
+
+<p>設定字串本身採用固定格式，用直線分隔四個欄位：</p>
+
+<table>
+<thead><tr><th>欄位順序</th><th>欄位名稱</th><th>說明</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>Enabled</code></td><td>是否開啟這支動作的限流</td></tr>
+<tr><td>2</td><td><code>MaxTimes</code></td><td>單位時間窗內允許的最高呼叫次數</td></tr>
+<tr><td>3</td><td><code>CacheSeconds</code></td><td>時間窗的長度，單位秒</td></tr>
+<tr><td>4</td><td><code>LockedSeconds</code></td><td>一旦超過次數，鎖定多少秒不允許再呼叫</td></tr>
+</tbody>
+</table>
+
+<div class="wp-callout warn">
+<span class="wp-icon">⚠️</span>
+<p><strong>目前 carts/create 的實際設定值是 <code>true|3|1|30</code></strong>，代表已開啟限流，同一會員 1 秒內最多允許呼叫 3 次，一旦超過就鎖定 30 秒。這支設定本身也會被快取（記憶體 5 秒加 Redis 4 小時），避免每次呼叫都重新查一次商店設定與 App Config。</p>
+</div>
+</section>
+
+<section id="sec-04">
+<div class="wp-section-head">
+<div class="wp-chip">04</div>
+<h2>執行流程，一次呼叫做了哪些檢查</h2>
+</div>
+<p><code>ExamineTryOverTimesLockApiAsync</code> 這支方法的執行順序如下，每一步都可能提早結束整個檢查。實際程式碼如下。</p>
+
+<div class="wp-file-path">src/BusinessLogic/Nine1.Shopping.BL.Services/ExceededTimesLimiter/ExceededTimesLimiterService.cs</div>
+<pre class="wp-pre" data-lang="csharp"><span class="kw">public</span> <span class="kw">async</span> Task <span class="fn">ExamineTryOverTimesLockApiAsync</span>(
+    ExceededTimesLimiterRequestEntity request,
+    <span class="type">long</span>? shopId = <span class="kw">null</span>,
+    <span class="type">bool</span> isExamineWithoutAddTryTimes = <span class="kw">false</span>)
+{
+    <span class="kw">var</span> settings = <span class="kw">await</span> _circuitBreakerService.GetExceededTimesLimiterSettingsAsync(request, shopId);
+    <span class="kw">if</span> (settings.Enabled == <span class="kw">false</span>)
+    {
+        <span class="kw">return</span>;
+    }
+    <span class="kw">var</span> cacheEntity = GetCacheKey(request.ServiceName, request.ActionName, <span class="kw">new</span>[] { request.RecognizeType, request.RecognizeKey });
+    <span class="cm">//// 嘗試次數 (不會+1 : 會+1)</span>
+    <span class="kw">var</span> tryTimes = isExamineWithoutAddTryTimes ? GetTryTimes(cacheEntity, settings) : TryTimes(cacheEntity, settings);
+    <span class="cm">//// 已經被鎖定</span>
+    <span class="kw">if</span> (settings.LockedSeconds &gt; <span class="num">0</span> &amp;&amp;
+        IsLocked(cacheEntity))
+    {
+        <span class="kw">throw</span> <span class="kw">new</span> <span class="type">ExceededTimesLimiterException</span>(ExceededTimesLimiterExceptionTypeEnum.ActionLocked, <span class="str">$"{request.ServiceName}-{request.ActionName} 已限速鎖定"</span>);
+    }
+    <span class="kw">if</span> (tryTimes &gt; settings.MaxTimes)
+    {
+        <span class="cm">//// 設定鎖定</span>
+        <span class="kw">if</span> (settings.LockedSeconds &gt; <span class="num">0</span>)
+        {
+            SetLocked(cacheEntity, settings.LockedSeconds);
+        }
+        <span class="kw">throw</span> <span class="kw">new</span> <span class="type">ExceededTimesLimiterException</span>(ExceededTimesLimiterExceptionTypeEnum.ActionLocked, <span class="str">"目前商品搶購熱烈，暫時無法結帳，重新整理再試一次"</span>);
+        <span class="cm">//// TODO 要請前端串</span>
+        <span class="cm">//throw new ExceededTimesLimiterException(ExceededTimesLimiterExceptionTypeEnum.ActionLocked, $"{request.ServiceName}-{request.ActionName} 已限速鎖定");</span>
+    }
+}</pre>
+<p>這段程式碼對應到下面 7 個步驟，逐步比對可以看出每個判斷式落在哪一行。</p>
+
+<div class="wp-timeline">
+<div class="wp-tl-item">
+<div class="wp-tl-badge">1</div>
+<div class="wp-tl-card">
+<div class="wp-tl-title">取得限流設定 <span class="wp-tl-tag">執行動作</span></div>
+<p>依上一章節的兩層查詢邏輯，取得這支動作對應的 <code>Enabled</code>、<code>MaxTimes</code>、<code>CacheSeconds</code>、<code>LockedSeconds</code>。</p>
+</div>
+</div>
+<div class="wp-tl-item cond">
+<div class="wp-tl-badge">2</div>
+<div class="wp-tl-card">
+<div class="wp-tl-title">若 Enabled 是 false，直接放行 <span class="wp-tl-tag">條件判斷</span></div>
+<p>不做任何計數或鎖定檢查，方法直接返回，後續邏輯完全不受影響。</p>
+</div>
+</div>
+<div class="wp-tl-item">
+<div class="wp-tl-badge">3</div>
+<div class="wp-tl-card">
+<div class="wp-tl-title">組出這次呼叫對應的 Cache Key <span class="wp-tl-tag">執行動作</span></div>
+<p>依服務名稱、動作名稱、識別類型、識別值，再疊加目前所在的時間分片，組出這次要操作的 Redis Key。</p>
+</div>
+</div>
+<div class="wp-tl-item">
+<div class="wp-tl-badge">4</div>
+<div class="wp-tl-card">
+<div class="wp-tl-title">呼叫次數累加一次 <span class="wp-tl-tag">執行動作</span></div>
+<p>用 Redis 的 <code>INCR</code> 操作把這個 Key 對應的次數加一，這是整個機制中真正累計次數的地方，取回累加後的次數。</p>
+</div>
+</div>
+<div class="wp-tl-item cond">
+<div class="wp-tl-badge">5</div>
+<div class="wp-tl-card">
+<div class="wp-tl-title">檢查是否已經處於鎖定狀態 <span class="wp-tl-tag">條件判斷</span></div>
+<p>如果設定的 <code>LockedSeconds</code> 大於零，且之前已經被標記為鎖定中，直接丟出 <code>ExceededTimesLimiterException</code>，不再往下檢查次數。</p>
+</div>
+</div>
+<div class="wp-tl-item cond">
+<div class="wp-tl-badge">6</div>
+<div class="wp-tl-card">
+<div class="wp-tl-title">次數超過上限則設定鎖定並丟出例外 <span class="wp-tl-tag">條件判斷</span></div>
+<p>如果累加後的次數大於 <code>MaxTimes</code>，就把這個識別鍵標記為鎖定狀態，存活時間是 <code>LockedSeconds</code> 秒，然後丟出例外，附帶文案「目前商品搶購熱烈，暫時無法結帳，重新整理再試一次」。</p>
+</div>
+</div>
+<div class="wp-tl-item">
+<div class="wp-tl-badge">7</div>
+<div class="wp-tl-card">
+<div class="wp-tl-title">都沒有超過，正常放行 <span class="wp-tl-tag">執行動作</span></div>
+<p>方法正常返回，呼叫端（<code>CartService.CartCreateAsync</code>）繼續往下組裝購物車上下文，進入後續的 Processor Pipeline。</p>
+</div>
+</div>
+</div>
+</section>
+
+<section id="sec-05">
+<div class="wp-section-head warn">
+<div class="wp-chip">05</div>
+<h2>時間窗機制，固定窗而非滑動窗</h2>
+</div>
+<p>計數用的時間分片，是把目前時間依 <code>CacheSeconds</code> 無條件捨去到最近的整數秒區間，當作 Cache Key 的一部分。以 <code>carts/create</code> 的 <code>CacheSeconds</code> 等於 1 秒為例，每一秒鐘都是獨立的一個計數器，時間一過該秒區間，計數器就會換成新的 Key，等於自然重置。</p>
+
+<div class="wp-callout info">
+<span class="wp-icon">🕐</span>
+<p>這種設計屬於固定時間窗（Fixed Window）計次，不是真正的滑動視窗（Sliding Window）。舉例來說，若在 17:42:52.9 呼叫一次、17:42:53.1 又呼叫兩次，因為兩者落在不同的秒區間，實際上不會被視為同一個窗口內的 3 次，各自獨立計數。這代表在窗口交界處理論上可能出現短暫的爆衝，但換來的是實作與效能都非常單純，不需要維護滑動視窗的排序結構。</p>
+</div>
+</section>
+
+<section id="sec-06">
+<div class="wp-section-head purple">
+<div class="wp-chip">06</div>
+<h2>兩層儲存設計，Redis 加本機 MemoryCache</h2>
+</div>
+<p>不同操作使用不同的儲存策略，依用途拆成兩種模式。</p>
+
+<div class="wp-summary-grid">
+<div class="wp-box trait">
+<h4>次數累加</h4>
+<p>直接用 <code>_cacheProvider.IncrBy</code>（Redis 的 <code>INCR</code>）操作，確保多台 Web 主機之間的計數是共用且一致的，不會因為負載平衡打到不同機台而各自計數失準。過期時間採用設定檔 <code>Cache.DefaultExpire</code>，預設 10800 秒也就是 3 小時，避免 Redis Key 無限累積。</p>
+</div>
+<div class="wp-box risk">
+<h4>鎖定狀態查詢</h4>
+<p>走 <code>GetMemoryOrRedisCacheData</code>，先查本機 <code>IMemoryCache</code>，沒有命中才查 Redis 並回填本機快取。鎖定判斷用的本機快取存活時間很短，用意是減少高頻率查詢對 Redis 造成的往返成本。</p>
+</div>
+<div class="wp-box fix">
+<h4>限流設定值本身</h4>
+<p>同樣走記憶體加 Redis 兩層快取，記憶體存活 5 秒、Redis 存活 4 小時，避免每次呼叫這支 API 都重新查一次商店設定與 App Config，把設定查詢的成本壓到最低。</p>
+</div>
+</div>
+
+<div class="wp-callout ok">
+<span class="wp-icon">✅</span>
+<p>整體來說，Redis 負責跨機台共享、確保計數與鎖定狀態一致；本機 <code>MemoryCache</code> 負責在短時間內攔截重複查詢，降低 Redis 的讀取壓力，是一種典型的二級快取設計。</p>
+</div>
+
+<div class="wp-callout warn">
+<span class="wp-icon">⚠</span>
+<p><strong>需要特別澄清：</strong>本機 <code>MemoryCache</code> 確實無法記錄到跨機台的實際累積次數，這一點程式碼裡也刻意避開了這個陷阱。真正負責累加次數的 <code>TryTimes</code> 方法，從頭到尾只呼叫 <code>_cacheProvider.IncrBy</code>，也就是 Redis 的原子遞增操作，並沒有經過 <code>GetMemoryOrRedisCacheData</code> 這個兩層快取讀取路徑，所以每一台 Web 主機看到的次數，都是同一份 Redis 上的最新結果，不會有各機台各自計數、加總失準的問題。</p>
+<p>本機 <code>MemoryCache</code> 只用在兩個地方：一個是<code>IsLocked</code> 讀取「是否已鎖定」這個布林旗標，另一個是讀取限流設定值本身。這兩者的共同特性是「短時間內結果不太會變、允許有些微延遲」，所以才用本機快取先擋一層，減少對 Redis 的重複讀取。至於唯讀模式 <code>GetTryTimes</code>（<code>isExamineWithoutAddTryTimes</code> 為 <code>true</code> 時使用，只查詢不累加）雖然也會經過 <code>GetMemoryOrRedisCacheData</code>，但它本來就不是負責累加的那條路徑，讀到的次數本身還是來自 Redis 寫入的值，本機快取只是短暫延遲了讀到最新值的時間點，不影響 Redis 上真正的計數結果。</p>
+</div>
+</section>
+
+<section id="sec-07">
+<div class="wp-section-head">
+<div class="wp-chip">07</div>
+<h2>觸發後的行為與前端呈現</h2>
+</div>
+<p>一旦超過次數限制，服務層會丟出以下例外：</p>
+
+<pre class="wp-pre" data-lang="csharp"><span class="kw">throw</span> <span class="kw">new</span> <span class="type">ExceededTimesLimiterException</span>(
+    <span class="type">ExceededTimesLimiterExceptionTypeEnum</span>.ActionLocked,
+    <span class="str">"目前商品搶購熱烈，暫時無法結帳，重新整理再試一次"</span>);</pre>
+
+<p>這個例外會被 <code>CartsController.Create</code> 的例外處理區塊捕捉，轉換成 HTTP 400 回應給前端，並附帶固定文案。程式碼裡目前還留了一個待辦事項，之後打算改成回傳明確的 <code>ErrorCode</code>，讓前端可以自行決定顯示什麼文案，而不是完全依賴後端寫死的字串。</p>
+</section>
+
+<section id="sec-08">
+<div class="wp-section-head ok">
+<div class="wp-chip">08</div>
+<h2>架構定位，通用化框架而非單一 API 專屬</h2>
+</div>
+<p>這支限流服務被設計成一個可重複套用的通用框架，只要滿足以下條件，任何 API 都能套用同一套機制。</p>
+
+<ul class="wp-checklist">
+<li>在 <code>ExceededTimesLimiterActionTypeEnum</code> 新增一個對應的動作名稱</li>
+<li>在設定檔（或商店設定）加一行 <code>動作名稱.識別類型</code> 對應的設定字串</li>
+<li>在該支業務方法一開頭手動呼叫 <code>ExamineTryOverTimesLockApiAsync</code></li>
+</ul>
+
+<div class="wp-card">
+<p>目前 <code>ExceededTimesLimiterActionTypeEnum</code> 底下已經涵蓋購物車與結帳流程幾乎所有動作，例如 <code>CartsCalculate</code>、<code>CartsSkuUpdateQty</code>、<code>CartsSkuAdd</code>、<code>CheckoutComplete</code>、<code>CheckoutCreate</code> 等，但實際設定檔裡目前只有 <code>CartsCreate</code> 這一支被開啟（<code>Enabled</code> 為 <code>true</code>），其餘動作雖然框架已經支援，但預設都是關閉狀態。</p>
+</div>
+</section>
+
+<section id="sec-09">
+<div class="wp-section-head warn">
+<div class="wp-chip">09</div>
+<h2>設計上的取捨與觀察</h2>
+</div>
+
+<div class="wp-summary-grid">
+<div class="wp-box trait">
+<h4>優點</h4>
+<p>每個呼叫點可以精準決定服務名稱、動作名稱、識別類型，彈性高，且與商業邏輯（例如取得 <code>ShopId</code>、<code>MemberId</code>）自然結合，程式碼可讀性好，一看就懂在限制什麼。</p>
+</div>
+<div class="wp-box risk">
+<h4>代價</h4>
+<p>屬於散落式呼叫，不是集中在 <code>ActionFilter</code> 或 <code>Middleware</code> 統一管理，新增一支要限流的 API 時，得記得手動在 Service 方法內加這段程式碼，有被遺漏的風險，也無法透過 Attribute 一眼看出「哪些 API 有限流」。</p>
+</div>
+<div class="wp-box fix">
+<h4>視窗精度</h4>
+<p>固定時間窗設計在窗口交界處理論上可能讓短時間內的實際呼叫數略微超過設定值，但換來實作單純、效能開銷低，對搶購場景這種「大致抑制連點」的需求已經足夠。</p>
+</div>
+</div>
+
+<div class="wp-callout danger">
+<span class="wp-icon">🚨</span>
+<p><strong>需要留意：</strong>目前鎖定後回傳給前端的文案是寫死的固定字串，沒有透過 <code>ErrorCode</code> 傳遞語意，如果之後要讓前端針對不同動作顯示不同提示文案，需要先補上這塊的錯誤碼設計。</p>
+</div>
+</section>
+
+</div>
+<footer>整理自 Shopping 服務原始碼分析，涵蓋 ExceededTimesLimiterService 與相關設定、例外處理</footer>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/08/17/Rate-Limiter-Rate-Limiter/">https://allenlin000.github.io.git/2026/08/17/Rate-Limiter-Rate-Limiter/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Rate-Limiter/">Rate Limiter</a><a class="post-meta__tags" href="/tags/Redis/">Redis</a><a class="post-meta__tags" href="/tags/Shopping/">Shopping</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/08/14/DB-mysql-2-pure/" title="MySQL-2"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/1-landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">MySQL-2</div></div></a></div><div class="next-post pull-right"><a href="/2026/08/17/Rate-Limiter-Rate-Limiter-pure/" title="購物車建立 API 的限流器怎麼設計的"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">購物車建立 API 的限流器怎麼設計的</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/08/17/Rate-Limiter-Rate-Limiter-pure/" title="購物車建立 API 的限流器怎麼設計的"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-17</div><div class="title">購物車建立 API 的限流器怎麼設計的</div></div></a></div><div><a href="/2026/03/15/DeepType-Cache-shopping-cart-2/" title="shopping-cart-2"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart-2/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-15</div><div class="title">shopping-cart-2</div></div></a></div><div><a href="/2026/03/15/DeepType-Cache-shopping-cart/" title="shopping-cart"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/Cache/shopping-cart/1_landing.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-15</div><div class="title">shopping-cart</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">264</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ratelimiter-1"><span class="toc-number">1.</span> <span class="toc-text">購物車建立 API 的限流器怎麼設計的</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#sec-01"><span class="toc-number">1.1.</span> <span class="toc-text">設計目的與套用位置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sec-02"><span class="toc-number">1.2.</span> <span class="toc-text">三層識別鍵設計</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sec-03"><span class="toc-number">1.3.</span> <span class="toc-text">設定值來源，分兩層且商店優先</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sec-04"><span class="toc-number">1.4.</span> <span class="toc-text">執行流程，一次呼叫做了哪些檢查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sec-05"><span class="toc-number">1.5.</span> <span class="toc-text">時間窗機制，固定窗而非滑動窗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sec-06"><span class="toc-number">1.6.</span> <span class="toc-text">兩層儲存設計，Redis 加本機 MemoryCache</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#sec-06"><span class="toc-number">1.6.0.1.</span> <span class="toc-text">次數累加</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sec-06"><span class="toc-number">1.6.0.2.</span> <span class="toc-text">鎖定狀態查詢</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sec-06"><span class="toc-number">1.6.0.3.</span> <span class="toc-text">限流設定值本身</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sec-07"><span class="toc-number">1.7.</span> <span class="toc-text">觸發後的行為與前端呈現</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sec-08"><span class="toc-number">1.8.</span> <span class="toc-text">架構定位，通用化框架而非單一 API 專屬</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sec-09"><span class="toc-number">1.9.</span> <span class="toc-text">設計上的取捨與觀察</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#sec-09"><span class="toc-number">1.9.0.1.</span> <span class="toc-text">優點</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sec-09"><span class="toc-number">1.9.0.2.</span> <span class="toc-text">代價</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sec-09"><span class="toc-number">1.9.0.3.</span> <span class="toc-text">視窗精度</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/17/Rate-Limiter-Rate-Limiter-pure/" title="購物車建立 API 的限流器怎麼設計的"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車建立 API 的限流器怎麼設計的"/></a><div class="content"><a class="title" href="/2026/08/17/Rate-Limiter-Rate-Limiter-pure/" title="購物車建立 API 的限流器怎麼設計的">購物車建立 API 的限流器怎麼設計的</a><time datetime="2026-08-17T10:13:00.000Z" title="Created 2026-08-17 18:13:00">2026-08-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/17/Rate-Limiter-Rate-Limiter/" title="購物車建立 API 的限流器怎麼設計的"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車建立 API 的限流器怎麼設計的"/></a><div class="content"><a class="title" href="/2026/08/17/Rate-Limiter-Rate-Limiter/" title="購物車建立 API 的限流器怎麼設計的">購物車建立 API 的限流器怎麼設計的</a><time datetime="2026-08-17T10:13:00.000Z" title="Created 2026-08-17 18:13:00">2026-08-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/14/DB-mysql-2-pure/" title="MySQL-2"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/1-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MySQL-2"/></a><div class="content"><a class="title" href="/2026/08/14/DB-mysql-2-pure/" title="MySQL-2">MySQL-2</a><time datetime="2026-08-14T00:08:00.000Z" title="Created 2026-08-14 08:08:00">2026-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/14/DB-MySQL-2/" title="MySQL-2"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/DB/MySQL/mysql-trap3-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MySQL-2"/></a><div class="content"><a class="title" href="/2026/08/14/DB-MySQL-2/" title="MySQL-2">MySQL-2</a><time datetime="2026-08-14T00:08:00.000Z" title="Created 2026-08-14 08:08:00">2026-08-14</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
