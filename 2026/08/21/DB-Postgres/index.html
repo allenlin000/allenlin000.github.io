@@ -1,0 +1,718 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Postgres - 1 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="起源與歷史設計思想趨勢Vector Database .pg{   display:block;   font-family:&#39;Segoe UI&#39;,-apple-system,BlinkMacSystemFont,&#39;PingFang TC&#39;,&#39;Microsoft JhengHei&#39;,sans-serif;   background:     radial-gradient(700px 400px">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Postgres - 1">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/08/21/DB-Postgres/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="起源與歷史設計思想趨勢Vector Database .pg{   display:block;   font-family:&#39;Segoe UI&#39;,-apple-system,BlinkMacSystemFont,&#39;PingFang TC&#39;,&#39;Microsoft JhengHei&#39;,sans-serif;   background:     radial-gradient(700px 400px">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-08-21T00:13:00.000Z">
+<meta property="article:modified_time" content="2026-08-22T02:03:08.302Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/08/21/DB-Postgres/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Postgres - 1',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-08-22 10:03:08'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">265</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">55</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Postgres - 1</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-08-21T00:13:00.000Z" title="Created 2026-08-21 08:13:00">2026-08-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-08-22T02:03:08.302Z" title="Updated 2026-08-22 10:03:08">2026-08-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/DB/">DB</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Postgres - 1"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="postgres"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="postgres-1">起源與歷史</button><button type="button" class="tab " data-href="postgres-2">設計思想</button><button type="button" class="tab " data-href="postgres-3">趨勢</button><button type="button" class="tab " data-href="postgres-4">Vector Database</button></ul><div class="tab-contents"><div class="tab-item-content active" id="postgres-1"><style>
+.pg{
+  display:block;
+  font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;
+  background:
+    radial-gradient(700px 400px at 94% -6%, rgba(51,103,145,.10), transparent 60%),
+    radial-gradient(900px 500px at -6% 106%, rgba(28,28,28,.06), transparent 55%),
+    #fdfdfd;
+  color:#1c1f22!important;
+  line-height:1.75;
+  border-radius:20px;
+  padding:1px 0 28px;
+  margin:0 0 20px;
+  overflow:hidden;
+  --ink:#1c1f22; --sub:#54606b; --card:#ffffff; --line:#e3e6e9;
+  --pg:#336791; --pg2:#1a3c56; --outline:#1c1c1c; --teal:#0d9488; --violet:#7c6cf7; --danger:#e5484d;
+  --shadow:0 10px 30px -12px rgba(28,28,28,.16);
+}
+.pg *{box-sizing:border-box;}
+.pg a{color:var(--pg)!important;text-decoration:none;}
+.pg a:hover{text-decoration:underline;}
+.pg .pg-hero{padding:48px 6vw 34px;text-align:center;position:relative;overflow:hidden;background:linear-gradient(160deg,var(--pg2),var(--pg));}
+.pg .pg-hero::before{content:"🐘 · · · 🐘 · · · 🐘 · · · 🐘";position:absolute;top:14px;left:0;right:0;text-align:center;font-size:.9rem;opacity:.25;letter-spacing:.3em;color:#fff!important;pointer-events:none;}
+.pg .pg-eyebrow{display:inline-block;font-size:.78rem;letter-spacing:.16em;color:#fff!important;text-transform:uppercase;font-weight:700;margin-bottom:12px;background:rgba(0,0,0,.28);border:1.5px solid rgba(255,255,255,.55);padding:6px 14px;border-radius:999px;}
+.pg .pg-hero h1{font-size:1.7rem;margin:0 0 12px;color:#fff!important;font-weight:800;}
+.pg .pg-hero p{color:#dbe8f0!important;max-width:700px;margin:0 auto;font-size:1rem;}
+.pg .pg-badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+.pg .pg-badge{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.4);padding:6px 14px;border-radius:999px;font-size:.8rem;color:#f2f7fa!important;}
+.pg .pg-container{padding:0 5vw;}
+.pg section{margin-bottom:44px;}
+.pg .pg-section-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.pg .pg-section-head .pg-chip{flex:none;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;background:linear-gradient(135deg,var(--pg2),var(--pg));color:#fff!important;font-size:1rem;border:2px solid var(--outline);box-shadow:var(--shadow);}
+.pg .pg-section-head.teal .pg-chip{background:linear-gradient(135deg,#0d7a70,#5fd4c4);}
+.pg .pg-section-head.violet .pg-chip{background:linear-gradient(135deg,#7c6cf7,#a78bfa);}
+.pg .pg-section-head h2{margin:0;font-size:1.3rem;font-weight:800;color:var(--ink)!important;}
+.pg h3{font-size:1.08rem;margin:26px 0 10px;color:var(--ink)!important;border-left:4px solid var(--pg);padding-left:10px;}
+.pg p{color:var(--sub)!important;}
+.pg .pg-card{background:var(--card);border:2.5px solid var(--outline);border-radius:18px;box-shadow:var(--shadow);padding:18px 22px;margin:14px 0;}
+.pg table{width:auto;max-width:100%;border-collapse:separate;border-spacing:0;background:var(--card)!important;border:2.5px solid var(--outline);border-radius:16px;overflow:hidden;margin:14px 0 22px;font-size:.88rem;box-shadow:var(--shadow);}
+.pg thead th{background:#eef4f8!important;color:var(--ink)!important;text-align:left;padding:13px 16px;font-weight:800;border-bottom:2px solid var(--outline);}
+.pg tbody td{padding:13px 16px;border-bottom:1px solid var(--line);color:#2b3742!important;vertical-align:top;background:var(--card)!important;}
+.pg tbody tr:last-child td{border-bottom:none;}
+.pg tbody tr:hover td{background:#f4f8fb!important;}
+.pg tbody td strong{color:var(--ink)!important;}
+.pg tbody td code{color:#1a3c56!important;}
+.pg code{font-family:Consolas,'SFMono-Regular','Liberation Mono',Menlo,monospace;background:#eaf1f6!important;color:#1a3c56!important;padding:2px 7px;border-radius:6px;font-size:.88em;border:1px solid #d7e2ea;}
+.pg pre.pg-pre{background:#0f1f2e!important;border:2.5px solid var(--outline);border-radius:16px;padding:20px 22px;overflow-x:auto;margin:16px 0;position:relative;color:#e8f1f7!important;font-size:.85rem!important;line-height:1.7!important;font-family:Consolas,'SFMono-Regular','Liberation Mono',Menlo,monospace!important;white-space:pre!important;box-shadow:var(--shadow);}
+.pg pre.pg-pre::before{content:attr(data-lang);position:absolute;top:12px;right:16px;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:#7d9bad!important;font-family:'Segoe UI',sans-serif;}
+.pg .kw{color:#7fc4ff!important;} .pg .str{color:#c3e88d!important;} .pg .cm{color:#5f8299!important;font-style:italic;} .pg .fn{color:#ffb454!important;} .pg .type{color:#7fd0ff!important;} .pg .num{color:#c3e88d!important;} .pg .op{color:#ff6b9d!important;}
+.pg .pg-callout{border-radius:16px;padding:18px 22px;margin:18px 0;border:1px solid transparent;display:flex;gap:14px;}
+.pg .pg-callout .pg-icon{font-size:1.3rem;flex:none;}
+.pg .pg-callout.info{background:#eff6ff;border-color:#bfdbfe;}
+.pg .pg-callout.warn{background:#fffbeb;border-color:#fde68a;}
+.pg .pg-callout.danger{background:#fef2f2;border-color:#fecaca;}
+.pg .pg-callout.ok{background:#ecfdf5;border-color:#a7f3d0;}
+.pg .pg-callout p{margin:0;font-size:.92rem;color:#2b3742!important;}
+.pg .pg-callout strong{color:var(--ink)!important;}
+.pg .pg-tag{display:inline-block;font-size:.72rem;font-weight:800;padding:3px 11px;border-radius:999px;letter-spacing:.02em;}
+.pg .pg-tag.danger{background:#fee2e2!important;color:#b91c1c!important;}
+.pg .pg-tag.ok{background:#dcfce7!important;color:#15803d!important;}
+.pg .pg-tag.warn{background:#fef3c7!important;color:#b45309!important;}
+.pg .pg-tag.info{background:#e0f2fe!important;color:#0369a1!important;}
+.pg .pg-tag.pg{background:#dfeaf1!important;color:#1a3c56!important;}
+.pg .pg-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0;}
+.pg .pg-summary-grid .pg-box{background:var(--card);border:2.5px solid var(--outline);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);border-top:5px solid var(--pg);position:relative;overflow:hidden;}
+.pg .pg-summary-grid .pg-box.pg{border-top-color:var(--pg);}
+.pg .pg-summary-grid .pg-box.teal{border-top-color:var(--teal);}
+.pg .pg-summary-grid .pg-box.violet{border-top-color:var(--violet);}
+.pg .pg-summary-grid .pg-box h4{margin:0 0 8px;color:var(--ink)!important;font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;}
+.pg .pg-summary-grid .pg-box p{margin:0;font-size:.87rem;color:var(--sub)!important;}
+@media (max-width:780px){.pg .pg-summary-grid{grid-template-columns:1fr;}}
+.pg .pg-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:20px 0;}
+.pg .pg-flow .pg-step{background:var(--card);border:2px solid var(--outline);border-radius:12px;padding:10px 16px;font-size:.85rem;font-weight:700;color:var(--ink)!important;box-shadow:var(--shadow);}
+.pg .pg-flow .pg-step.cond{background:#fffbeb;border-color:#c99a1f;color:#b45309!important;}
+.pg .pg-flow .pg-arrow{color:var(--pg)!important;font-size:1.2rem;font-weight:900;}
+.pg .pg-steps{display:flex;flex-direction:column;gap:14px;margin:16px 0 22px;}
+.pg .pg-stepcard{background:var(--card);border:2.5px solid var(--outline);border-radius:14px;padding:16px 20px;position:relative;padding-left:60px;box-shadow:var(--shadow);}
+.pg .pg-stepcard .pg-stepnum{position:absolute;left:16px;top:16px;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--pg2),var(--pg));color:#fff!important;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;border:2px solid var(--outline);}
+.pg .pg-stepcard.cond .pg-stepnum{background:linear-gradient(135deg,#b45309,#f7b955);}
+.pg .pg-stepcard .pg-step-title{font-weight:700;color:var(--ink)!important;font-size:1rem;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.pg .pg-stepcard p{margin:6px 0;font-size:.9rem;color:var(--sub)!important;}
+.pg .pg-checklist{list-style:none;padding:0;margin:16px 0;}
+.pg .pg-checklist li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed var(--line);color:var(--sub)!important;}
+.pg .pg-checklist li:last-child{border-bottom:none;}
+.pg .pg-checklist li::before{content:"✓";flex:none;width:22px;height:22px;border-radius:7px;background:#dfeaf1;color:#1a3c56!important;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin-top:2px;font-weight:900;border:1.5px solid var(--outline);}
+.pg .pg-evidence{border:2.5px solid var(--outline);background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:18px 20px;margin:16px 0 22px;}
+.pg .pg-evidence .pg-evidence-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.pg .pg-evidence .pg-evidence-head .pg-tag{background:var(--pg2)!important;color:#fff!important;}
+.pg .pg-trunk-divider{display:flex;align-items:center;gap:10px;justify-content:center;margin:36px 0;color:var(--pg)!important;}
+.pg .pg-trunk-divider::before,.pg .pg-trunk-divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line) 40%,var(--line) 60%,transparent);}
+.pg .pg-trunk-divider span{font-size:1.1rem;}
+.pg footer{text-align:center;padding:30px 5vw 6px;color:var(--sub)!important;font-size:.82rem;border-top:1px solid var(--line);margin-top:8px;}
+</style>
+
+<div class="pg">
+<div class="pg-hero">
+<span class="pg-eyebrow">Database History</span>
+<h1>🐘 PostgreSQL 的誕生，是一場對「資料庫該長什麼樣子」的重新設計</h1>
+<p>PostgreSQL 的起點，來自 Stonebraker 團隊發現當時的關聯式資料庫很擅長存表格，卻很難處理更複雜的資料型態，因此乾脆重新設計一套更容易擴充的資料庫。</p>
+<div class="pg-badges"><span class="pg-badge">1970s Ingres</span><span class="pg-badge">1980s POSTGRES</span><span class="pg-badge">1996 PostgreSQL</span></div>
+</div>
+<div class="pg-container">
+
+<section>
+<div class="pg-section-head">
+<div class="pg-chip">01</div>
+<h2>一段名字的演化史</h2>
+</div>
+<p>整個歷史可以先用一條簡單的脈絡記下來，後面再展開每一段的背景。</p>
+
+<div class="pg-flow">
+<div class="pg-step">Ingres</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">POSTGRES</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">PostgreSQL</div>
+</div>
+
+<div class="pg-steps">
+<div class="pg-stepcard">
+<div class="pg-stepnum">1</div>
+<div class="pg-step-title">Ingres（1970 年代）</div>
+<p>Stonebraker 早期參與開發 <code>Ingres</code>，這是 1970 年代非常重要的關聯式資料庫研究專案，奠定了他日後對資料庫設計的基礎理解。</p>
+</div>
+<div class="pg-stepcard">
+<div class="pg-stepnum">2</div>
+<div class="pg-step-title">POSTGRES（1980 年代）</div>
+<p>到了 1980 年代，Stonebraker 開始思考一個問題：如果資料庫除了 <code>integer</code>、<code>string</code> 這些基本型態，還希望支援更複雜的物件、規則甚至自訂型態，資料庫架構應該怎麼設計。於是 Berkeley 團隊啟動了新的 <code>POSTGRES</code> 專案。</p>
+</div>
+<div class="pg-stepcard">
+<div class="pg-stepnum">3</div>
+<div class="pg-step-title">Postgres95 與正式改名（1990 年代）</div>
+<p>後來 <code>POSTGRES</code> 加入 SQL 支援，逐漸演變成 <code>Postgres95</code>，最後在 1996 年正式改名為今天熟悉的 <code>PostgreSQL</code>。</p>
+</div>
+</div>
+
+<div class="pg-callout info">
+<span class="pg-icon">💡</span>
+<p><strong>名字怎麼來的：</strong>把 <code>POST</code> 加上 <code>INGRES</code> 就是 <code>POSTGRES</code>，可以直接理解成「Ingres 之後的下一個系統」，是一個延續前一代研究成果、再往前跨一步的命名方式。</p>
+</div>
+
+<div class="pg-evidence">
+<div class="pg-evidence-head"><span class="pg-tag">關鍵人物</span><strong>Michael Stonebraker</strong></div>
+<p>Stonebraker 厲害的地方在於，他長期都在重新思考資料庫應該怎麼設計，而且很多研究最後真的變成業界使用的系統。他後來還參與了 <code>Vertica</code>、<code>VoltDB</code> 等資料庫相關專案，並在 2014 年獲得 ACM 圖靈獎。</p>
+</div>
+
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="postgres-2"><div class="pg">
+<div class="pg-container">
+
+<section>
+<div class="pg-section-head">
+<div class="pg-chip">02</div>
+<h2>資料庫應該可以被擴充</h2>
+</div>
+<p>PostgreSQL 很重要的一個設計思想，就是資料庫不應該只能接受它原本規定好的資料型態，開發者應該可以自行擴充它。這個想法直接延續自當年 <code>POSTGRES</code> 專案的研究方向。</p>
+
+<div class="pg-card">
+<p>所以今天使用 PostgreSQL 時，可以看到很多很有特色的能力，例如自訂一個 <code>ENUM</code> 型態：</p>
+</div>
+
+<pre class="pg-pre" data-lang="sql"><span class="kw">CREATE</span> <span class="kw">TYPE</span> <span class="type">mood</span> <span class="kw">AS</span> <span class="kw">ENUM</span> (
+    <span class="str">'sad'</span>,
+    <span class="str">'ok'</span>,
+    <span class="str">'happy'</span>
+);</pre>
+
+<p>甚至可以安裝 extension，讓 PostgreSQL 直接擁有原本不存在的能力：</p>
+
+<pre class="pg-pre" data-lang="sql"><span class="kw">CREATE</span> <span class="kw">EXTENSION</span> <span class="type">postgis</span>;</pre>
+
+<div class="pg-callout ok">
+<span class="pg-icon">🗺️</span>
+<p>裝上 <code>postgis</code> 之後，PostgreSQL 就直接擁有了 GIS 地理資料處理能力。這種「資料庫本身可以被擴充」的味道，和 <code>POSTGRES</code> 當年的研究方向有很深的關係。</p>
+</div>
+
+<h3>為什麼特別強調這五個字眼</h3>
+<p>PostgreSQL 的文件與生態圈裡，經常反覆出現這五個關鍵字，它們都指向同一件事，也就是讓資料庫可以被擴充。</p>
+
+<ul class="pg-checklist">
+<li><code>Type</code>：可以自訂資料型態，不侷限於內建的 integer、string</li>
+<li><code>Extension</code>：可以用套件形式擴充整套能力，例如 <code>postgis</code>、<code>pgvector</code></li>
+<li><code>Function</code>：可以用多種語言撰寫自訂函式，塞進資料庫內部執行</li>
+<li><code>Operator</code>：可以定義新的運算子，讓自訂型態也能參與比較與運算</li>
+<li><code>Index Method</code>：可以擴充索引結構，讓新的資料型態也有對應的高效查詢方式</li>
+</ul>
+
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="postgres-3"><div class="pg">
+<div class="pg-container">
+
+<section>
+<div class="pg-section-head">
+<div class="pg-chip">03</div>
+<h2>為什麼越來越多人選 PostgreSQL</h2>
+</div>
+<p>PostgreSQL 越來越多人用，核心原因是它把免費、成熟、功能強、容易擴充同時做到了一個很高的水準，讓新專案在挑選資料庫時通常很難找到明顯的硬傷。</p>
+
+<table>
+<thead><tr><th>資料來源</th><th>年份 / 指標</th><th>數字</th></tr></thead>
+<tbody>
+<tr><td rowspan="3">Stack Overflow Developer Survey</td><td>2018</td><td>約 33% 開發者使用 PostgreSQL</td></tr>
+<tr><td>2024</td><td>成長到約 49%</td></tr>
+<tr><td>2025</td><td>「使用」與「想使用」兩項調查都排名最高</td></tr>
+<tr><td>DB-Engines</td><td>2026 年 8 月</td><td>所有資料庫中排名第 4，相較 2025 年同期分數增加 13.32；排名在前的是 Oracle、MySQL、SQL Server</td></tr>
+</tbody>
+</table>
+
+<div class="pg-callout info">
+<span class="pg-icon">📈</span>
+<p>綜合這兩份數據比較準確的描述是：PostgreSQL 已經從開源資料庫的其中一個選擇，逐漸變成很多新系統預設會考慮的主力資料庫。</p>
+</div>
+
+<div class="pg-summary-grid">
+<div class="pg-box pg">
+<h4>① 免費且能力完整</h4>
+<p>免費方案已足以支撐大量正式商業系統。</p>
+</div>
+<div class="pg-box teal">
+<h4>② Cloud 降低維運門檻</h4>
+<p>備份、升級、HA、監控多半交給雲端服務。</p>
+</div>
+<div class="pg-box violet">
+<h4>③ 擴充能力強</h4>
+<p>需求長大時可以先加能力，不急著換資料庫。</p>
+</div>
+</div>
+
+<h3>① 免費，而且能力已經非常完整</h3>
+<p>當免費方案已經能處理大量正式商業系統的需求，團隊自然很難說服自己一開始就支付昂貴的資料庫授權費。例如公司要做電商、CRM、ERP、SaaS、會員系統、訂單系統、金融 Backend，很多情況下 PostgreSQL 已經足夠應付。</p>
+
+<div class="pg-flow">
+<div class="pg-step">Backend</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">PostgreSQL</div>
+</div>
+
+<p>因此新專案可能直接採用上面這條路徑，而不是先購買商業資料庫授權。</p>
+
+<h3>② Cloud 把維運門檻降低很多</h3>
+<p>以前選擇 PostgreSQL，還代表要懂不少 DBA 工作。現在雲端服務把備份、升級、HA、監控處理掉很多，選 PostgreSQL 的心理成本自然降低。</p>
+
+<div class="pg-summary-grid">
+<div class="pg-box">
+<h4>以前的做法</h4>
+<p>安裝 PostgreSQL，接著自行設定 replication、backup、failover、monitoring、upgrade，每一步都可能要親自處理。</p>
+</div>
+<div class="pg-box teal">
+<h4>現在的做法</h4>
+<p>各種 managed PostgreSQL 服務已經非常普遍，工程師的體驗逐漸簡化成建立 PostgreSQL、拿到 Connection String、開始寫程式。</p>
+</div>
+</div>
+
+<div class="pg-callout ok">
+<span class="pg-icon">☁️</span>
+<p>這種維運門檻的下降，對 PostgreSQL 的普及非常重要。</p>
+</div>
+
+<h3>③ 擴充能力非常強</h3>
+<p>PostgreSQL 很有競爭力的地方，是需求長大之後，常常可以先替 PostgreSQL 加能力，而不用立刻把資料搬去另一套資料庫。</p>
+
+<div class="pg-flow">
+<div class="pg-step">users / orders / products</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">+ metadata JSONB</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">+ PostGIS</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">+ pgvector</div>
+</div>
+
+<ul class="pg-checklist">
+<li>需要 JSON 資料：加上 <code>metadata JSONB</code> 欄位就能處理</li>
+<li>需要地圖或 GIS：安裝 <code>PostGIS</code> extension</li>
+<li>需要 Vector Search：安裝 <code>pgvector</code> extension</li>
+</ul>
+
+<div class="pg-callout info">
+<span class="pg-icon">🧩</span>
+<p>DB-Engines 現在甚至直接把 PostgreSQL 標示成同時具備 relational、document、graph、spatial、vector 等多模型能力的資料庫。</p>
+</div>
+
+<h3>④ AI 時代又給 PostgreSQL 一波機會</h3>
+<p>AI 應用需要 Vector Search，而 <code>pgvector</code> 讓很多已經使用 PostgreSQL 的團隊可以直接把向量放進原本的資料庫，少維護一套系統就是很大的誘惑。</p>
+
+<div class="pg-flow">
+<div class="pg-step">文章</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">Embedding</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">Vector</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">PostgreSQL + pgvector</div>
+</div>
+
+<p>原本做 RAG 這類應用時，架構可能需要考慮 PostgreSQL 加上一套獨立的 Vector Database。現在部分規模的系統可以先採用 PostgreSQL 加上 pgvector，讓架構少一個元件。</p>
+
+<div class="pg-evidence">
+<div class="pg-evidence-head"><span class="pg-tag">少一個元件的連鎖效果</span></div>
+<p>少一套獨立的 Vector Database，代表少一套權限管理、少一套 Backup 機制、少一套 Monitoring 設定、少一個可能掛掉的地方。這對小型與中型團隊尤其有吸引力。</p>
+</div>
+
+</section>
+
+</div>
+</div></div><div class="tab-item-content" id="postgres-4"><div class="pg">
+<div class="pg-container">
+
+<section>
+<div class="pg-section-head">
+<div class="pg-chip">04</div>
+<h2>Vector 是什麼</h2>
+</div>
+<p>假設要用數字描述一杯飲料，可以自己規定三個維度：維度一是甜度，維度二是酸度，維度三是咖啡味，而且每個數值都介於 0 到 1 之間。</p>
+
+<table>
+<thead><tr><th>飲料</th><th>甜度</th><th>酸度</th><th>咖啡味</th></tr></thead>
+<tbody>
+<tr><td>拿鐵</td><td>0.6</td><td>0.1</td><td>0.8</td></tr>
+<tr><td>檸檬汁</td><td>0.3</td><td>0.9</td><td>0.0</td></tr>
+<tr><td>美式咖啡</td><td>0.1</td><td>0.1</td><td>1.0</td></tr>
+</tbody>
+</table>
+
+<div class="pg-callout ok">
+<span class="pg-icon">📐</span>
+<p>把每杯飲料都寫成 <code>[甜度, 酸度, 咖啡味]</code> 這樣的三個數字，就已經建立了一個非常簡單的三維 Vector 空間。</p>
+</div>
+
+</section>
+
+<section>
+<div class="pg-section-head teal">
+<div class="pg-chip">05</div>
+<h2>Embedding 是把內容轉成座標</h2>
+</div>
+<p>Embedding 指的是把文字、圖片等內容轉換成一串 Vector 數字，讓電腦可以用數學方式比較它們的特徵與相似程度。Vector 和 Embedding 其實是上下游關係，原始資料先經過 Embedding，才變成 Vector。</p>
+
+<div class="pg-flow">
+<div class="pg-step">原始資料</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">Embedding</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">Vector</div>
+</div>
+
+<p>人類看到「我要退款」和「我想把錢拿回來」，很自然會知道這兩句話語意接近，但跟「今天天氣很好」差很多。可是電腦如果只看文字表面，「我要退款」和「我想把錢拿回來」兩句話甚至沒有多少相同的字。Embedding 就是用來處理這個落差的。</p>
+
+<p>假設有一個 Embedding Model，分別把三句話轉成 Vector：</p>
+
+<pre class="mermaid">flowchart TD
+    M["Embedding Model"] --> A["我要退款"]
+    M --> B["我想把錢拿回來"]
+    M --> C["今天天氣很好"]
+    A --> VA["Vector A [0.82, 0.21, -0.55, ...]"]
+    B --> VB["Vector B [0.79, 0.25, -0.51, ...]"]
+    C --> VC["Vector C [-0.32, 0.91, 0.17, ...]"]
+    VA -->|"距離很近"| VB
+    VC -.->|"距離很遠"| VA</pre>
+
+<div class="pg-callout info">
+<span class="pg-icon">💬</span>
+<p>轉成 Vector 之後，電腦就能實際計算它們之間的距離：<code>Vector A</code> 跟 <code>Vector B</code> 距離很近，<code>Vector C</code> 跟前兩者距離很遠，這正好對應到語意上「退款」跟「拿回錢」很接近，跟「天氣」無關。</p>
+</div>
+
+</section>
+
+<section>
+<div class="pg-section-head violet">
+<div class="pg-chip">06</div>
+<h2>Vector Database 到底解決什麼問題</h2>
+</div>
+<p>Vector Database 真正有價值的地方，在於能快速找出距離最近的 Vector。單純把一串數字存進 <code>VARCHAR</code>，只完成了保存資料這件事，並沒有辦法回答距離相關的問題。</p>
+
+<div class="pg-evidence">
+<div class="pg-evidence-head"><span class="pg-tag">GPS 類比</span></div>
+<p>這就像把 GPS 座標 <code>25.0330, 121.5654</code> 存成 <code>VARCHAR</code>，當然可以存進去，但接下來如果被問到「找距離這個座標最近的 10 間店」，這串座標就只是一段文字。資料庫並不知道誰比較近、距離多少、要怎麼快速找出最近的 10 個，Vector 的處境也是一樣。</p>
+</div>
+
+<h3>用 100 萬篇文章拆解這個需求</h3>
+<p>假設有 100 萬篇文章，每篇文章都有各自的 embedding。使用者搜尋「我買的東西可以退錢嗎」，Embedding Model 會把這句話轉成一個 Query Vector。</p>
+
+<pre class="mermaid">flowchart LR
+    Q["Query Vector [0.79, 0.14, -0.31]"] -->|"比較距離"| R1["Article 1 [0.81, 0.12, -0.33]"]
+    Q -->|"比較距離"| R2["Article 2 [-0.21, 0.92, 0.14]"]
+    Q -->|"比較距離"| R3["Article 3 [0.77, 0.15, -0.29]"]
+    Q -->|"比較距離"| R4["Article 1,000,000 [0.13, -0.54, 0.82]"]
+    R1 -->|"距離很近"| TOP["排序後取 Top 5"]
+    R3 -->|"距離很近"| TOP
+    R2 -.->|"距離很遠，排除"| TOP
+    R4 -.->|"距離很遠，排除"| TOP</pre>
+
+<div class="pg-callout ok">
+<span class="pg-icon">🎯</span>
+<p>核心需求變成：在 100 萬個 Vector 裡，快速找出跟目標 Vector 最接近的 Top 5。這才是 Vector Database 真正要解決的問題。</p>
+</div>
+
+</section>
+
+<section>
+<div class="pg-section-head">
+<div class="pg-chip">07</div>
+<h2>把 Vector 存成 VARCHAR 會卡在哪裡</h2>
+</div>
+<p>假設真的把 Vector 存成 <code>VARCHAR</code>：</p>
+
+<pre class="pg-pre" data-lang="sql"><span class="kw">CREATE</span> <span class="kw">TABLE</span> <span class="type">articles</span> (
+    <span class="fn">id</span> <span class="kw">BIGINT</span>,
+    <span class="fn">content</span> <span class="kw">TEXT</span>,
+    <span class="fn">embedding</span> <span class="kw">VARCHAR</span>(<span class="num">10000</span>)
+);</pre>
+
+<table>
+<thead><tr><th>id</th><th>content</th><th>embedding</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>如何退款</td><td>[0.81,0.12,-0.33]</td></tr>
+<tr><td>2</td><td>如何修改密碼</td><td>[-0.21,0.92,0.14]</td></tr>
+<tr><td>3</td><td>商品退貨流程</td><td>[0.77,0.15,-0.29]</td></tr>
+</tbody>
+</table>
+
+<p>存進去完全沒問題，但如果要查詢距離最近的 5 筆：</p>
+
+<pre class="pg-pre" data-lang="sql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> <span class="type">articles</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> <span class="cm">???</span>
+<span class="kw">LIMIT</span> <span class="num">5</span>;</pre>
+
+<p><code>ORDER BY</code> 後面要接什麼，會發現需要先完成一連串手動加工才能做到：</p>
+
+<ol class="pg-checklist">
+<li>把 <code>VARCHAR</code> 解析成數字陣列</li>
+<li>把每個維度拿出來</li>
+<li>計算跟目標 Vector 的距離</li>
+<li>跟大量資料逐筆比較</li>
+<li>依距離排序</li>
+<li>取出 Top 5</li>
+</ol>
+
+<div class="pg-callout warn">
+<span class="pg-icon">⚠️</span>
+<p><code>VARCHAR</code> 本身沒有 Vector 的數學語意，資料庫不知道怎麼對一段純文字計算距離，所有加工都要應用程式自己處理。</p>
+</div>
+
+</section>
+
+<section>
+<div class="pg-section-head teal">
+<div class="pg-chip">08</div>
+<h2>PostgreSQL 加上 pgvector 差在哪裡</h2>
+</div>
+<p>裝了 <code>pgvector</code> 之後，可以直接宣告一個真正的 Vector 型態欄位：</p>
+
+<pre class="pg-pre" data-lang="sql"><span class="kw">CREATE</span> <span class="kw">TABLE</span> <span class="type">articles</span> (
+    <span class="fn">id</span> <span class="kw">BIGSERIAL</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,
+    <span class="fn">content</span> <span class="kw">TEXT</span>,
+    <span class="fn">embedding</span> <span class="type">vector</span>(<span class="num">1536</span>)
+);</pre>
+
+<p>資料庫現在真正知道 <code>embedding</code> 是一個 1536 維的 Vector，所以可以直接進行 Vector Distance Search：</p>
+
+<pre class="pg-pre" data-lang="sql"><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> <span class="type">articles</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> <span class="fn">embedding</span> <span class="op">&lt;-&gt;</span> <span class="str">'[0.79, 0.14, ...]'</span>
+<span class="kw">LIMIT</span> <span class="num">5</span>;</pre>
+
+<div class="pg-flow">
+<div class="pg-step">目標 Vector</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">跟 embedding 比較距離</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">距離由小到大排序</div>
+<div class="pg-arrow">→</div>
+<div class="pg-step">回傳最近 5 筆</div>
+</div>
+
+<div class="pg-callout ok">
+<span class="pg-icon">✅</span>
+<p>這一段 <code>ORDER BY embedding &lt;-&gt; '...'</code> 已經跟 <code>VARCHAR</code> 存法有本質上的差異，資料庫自己知道怎麼計算距離，不需要應用程式手動解析。</p>
+</div>
+
+</section>
+
+<section>
+<div class="pg-section-head violet">
+<div class="pg-chip">09</div>
+<h2>Vector Index 為什麼重要</h2>
+</div>
+<p>當 Vector 數量很大時，真正讓搜尋實用的能力之一，是透過專門的 Vector Index，避免每次查詢都要完整掃描所有 Vector。<code>pgvector</code> 支援例如 <code>HNSW</code>、<code>IVFFlat</code> 這類索引結構，不需要先研究背後演算法，只需要知道它們的目的是縮小搜尋範圍。</p>
+
+<div class="pg-summary-grid">
+<div class="pg-box">
+<h4>沒有適合的 Index</h4>
+<p>100 萬個 Vector 全部逐一比較，才能找出 Top 10。</p>
+</div>
+<div class="pg-box teal">
+<h4>有 Vector Index</h4>
+<p>先利用索引縮小搜尋範圍，再找出 Top 10。</p>
+</div>
+</div>
+
+<div class="pg-callout info">
+<span class="pg-icon">🗂️</span>
+<p>這有點類似以前熟悉的 SQL Index，例如查詢 <code>WHERE user_id = 9527</code> 時，不會希望資料庫在 1000 萬筆使用者裡逐筆比對，才終於找到 <code>9527</code>，所以會建立 <code>B-tree</code> index。Vector Search 也有類似的需求，只是「找最相似資料」跟「等值查詢 user_id」是不同性質的問題，因此使用的索引結構也不一樣。</p>
+</div>
+
+<pre class="mermaid">flowchart TD
+    PG["PostgreSQL"] -->|"傳統條件查詢"| SQL["SQL 世界：price < 3000、stock > 0"]
+    PG -->|"語意相似度查詢"| VEC["Vector 世界：語意是否相似、日系 / 夏天 / 簡約"]
+    SQL --> RESULT["搜尋結果"]
+    VEC --> RESULT</pre>
+
+<div class="pg-callout ok">
+<span class="pg-icon">🐘</span>
+<p>同一個 PostgreSQL，一邊處理傳統的條件式 SQL 查詢，一邊處理語意層面的 Vector 相似度查詢，最後匯回同一份搜尋結果，這正是 PostgreSQL 擴充能力在 AI 時代最直接的體現。</p>
+</div>
+
+</section>
+
+</div>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/08/21/DB-Postgres/">https://allenlin000.github.io.git/2026/08/21/DB-Postgres/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/08/18/Shopping-Cart-Shopping-Cart/" title="Shopping-Cart-Auth"><img class="cover" src="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Arch/ecom/Shopping-Cart/cart-create-auth-landing.png?raw=true" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Shopping-Cart-Auth</div></div></a></div><div class="next-post pull-right"><a href="/2026/08/21/DB-Postgres-pure/" title="Postgres - 1"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Postgres - 1</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">265</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">55</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#postgres-1"><span class="toc-number">1.</span> <span class="toc-text">🐘 PostgreSQL 的誕生，是一場對「資料庫該長什麼樣子」的重新設計</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#postgres-1"><span class="toc-number">1.1.</span> <span class="toc-text">一段名字的演化史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#postgres-2"><span class="toc-number">1.2.</span> <span class="toc-text">資料庫應該可以被擴充</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#postgres-2"><span class="toc-number">1.2.1.</span> <span class="toc-text">為什麼特別強調這五個字眼</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.</span> <span class="toc-text">為什麼越來越多人選 PostgreSQL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.0.1.</span> <span class="toc-text">① 免費且能力完整</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.0.2.</span> <span class="toc-text">② Cloud 降低維運門檻</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.0.3.</span> <span class="toc-text">③ 擴充能力強</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.1.</span> <span class="toc-text">① 免費，而且能力已經非常完整</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.2.</span> <span class="toc-text">② Cloud 把維運門檻降低很多</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">以前的做法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">現在的做法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.3.</span> <span class="toc-text">③ 擴充能力非常強</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#postgres-3"><span class="toc-number">1.3.4.</span> <span class="toc-text">④ AI 時代又給 PostgreSQL 一波機會</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#postgres-4"><span class="toc-number">1.4.</span> <span class="toc-text">Vector 是什麼</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#postgres-4"><span class="toc-number">1.5.</span> <span class="toc-text">Embedding 是把內容轉成座標</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#postgres-4"><span class="toc-number">1.6.</span> <span class="toc-text">Vector Database 到底解決什麼問題</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#postgres-4"><span class="toc-number">1.6.1.</span> <span class="toc-text">用 100 萬篇文章拆解這個需求</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#postgres-4"><span class="toc-number">1.7.</span> <span class="toc-text">把 Vector 存成 VARCHAR 會卡在哪裡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#postgres-4"><span class="toc-number">1.8.</span> <span class="toc-text">PostgreSQL 加上 pgvector 差在哪裡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#postgres-4"><span class="toc-number">1.9.</span> <span class="toc-text">Vector Index 為什麼重要</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#postgres-4"><span class="toc-number">1.9.0.1.</span> <span class="toc-text">沒有適合的 Index</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#postgres-4"><span class="toc-number">1.9.0.2.</span> <span class="toc-text">有 Vector Index</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/21/DB-Postgres-pure/" title="Postgres - 1"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Postgres - 1"/></a><div class="content"><a class="title" href="/2026/08/21/DB-Postgres-pure/" title="Postgres - 1">Postgres - 1</a><time datetime="2026-08-21T00:13:00.000Z" title="Created 2026-08-21 08:13:00">2026-08-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/21/DB-Postgres/" title="Postgres - 1"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Postgres - 1"/></a><div class="content"><a class="title" href="/2026/08/21/DB-Postgres/" title="Postgres - 1">Postgres - 1</a><time datetime="2026-08-21T00:13:00.000Z" title="Created 2026-08-21 08:13:00">2026-08-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/18/Shopping-Cart-Shopping-Cart/" title="Shopping-Cart-Auth"><img src="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Arch/ecom/Shopping-Cart/cart-create-auth-landing.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Shopping-Cart-Auth"/></a><div class="content"><a class="title" href="/2026/08/18/Shopping-Cart-Shopping-Cart/" title="Shopping-Cart-Auth">Shopping-Cart-Auth</a><time datetime="2026-08-18T08:35:00.000Z" title="Created 2026-08-18 16:35:00">2026-08-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/17/Shopping-Cart-Rate-Limiter/" title="購物車限流器"><img src="https://github.com/CHI-KEKE/pics/blob/main/Codesss/Arch/ecom/Shopping-Cart/rate-limit-landing.png?raw=true" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車限流器"/></a><div class="content"><a class="title" href="/2026/08/17/Shopping-Cart-Rate-Limiter/" title="購物車限流器">購物車限流器</a><time datetime="2026-08-17T10:13:00.000Z" title="Created 2026-08-17 18:13:00">2026-08-17</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
