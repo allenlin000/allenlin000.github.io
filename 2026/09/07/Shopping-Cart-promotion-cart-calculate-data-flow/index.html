@@ -1,0 +1,607 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Promotion Cart Calculate | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="架構摘要系統關係請求與資料流活動規則來源Redis Key 與快取分支失敗路徑查核與修正 .pc-article{--pc-ink:#243449;--pc-muted:#526379;--pc-line:#dce4ed;--pc-panel:#f5f8fc;--pc-blue:#245eaa;--pc-green:#167561;--pc-red:#b42332;color:var(--pc-i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Promotion Cart Calculate">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="架構摘要系統關係請求與資料流活動規則來源Redis Key 與快取分支失敗路徑查核與修正 .pc-article{--pc-ink:#243449;--pc-muted:#526379;--pc-line:#dce4ed;--pc-panel:#f5f8fc;--pc-blue:#245eaa;--pc-green:#167561;--pc-red:#b42332;color:var(--pc-i">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-09-07T02:30:56.000Z">
+<meta property="article:modified_time" content="2026-09-07T10:27:51.457Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Promotion Cart Calculate',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-09-07 18:27:51'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">272</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">55</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Promotion Cart Calculate</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-09-07T02:30:56.000Z" title="Created 2026-09-07 10:30:56">2026-09-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-09-07T10:27:51.457Z" title="Updated 2026-09-07 18:27:51">2026-09-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Shopping-Cart/">Shopping-Cart</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Promotion Cart Calculate"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="promotion-cart-calculate-data-flow"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="promotion-cart-calculate-data-flow-1">架構摘要</button><button type="button" class="tab " data-href="promotion-cart-calculate-data-flow-2">系統關係</button><button type="button" class="tab " data-href="promotion-cart-calculate-data-flow-3">請求與資料流</button><button type="button" class="tab " data-href="promotion-cart-calculate-data-flow-4">活動規則來源</button><button type="button" class="tab " data-href="promotion-cart-calculate-data-flow-5">Redis Key 與快取分支</button><button type="button" class="tab " data-href="promotion-cart-calculate-data-flow-6">失敗路徑</button><button type="button" class="tab " data-href="promotion-cart-calculate-data-flow-7">查核與修正</button></ul><div class="tab-contents"><div class="tab-item-content active" id="promotion-cart-calculate-data-flow-1"><style>
+.pc-article{--pc-ink:#243449;--pc-muted:#526379;--pc-line:#dce4ed;--pc-panel:#f5f8fc;--pc-blue:#245eaa;--pc-green:#167561;--pc-red:#b42332;color:var(--pc-ink);line-height:1.85;overflow-wrap:anywhere}
+.pc-article *{box-sizing:border-box}
+.pc-article h2{font-size:1.55em;margin:2.6em 0 1em;padding-bottom:.5em;border-bottom:1px solid var(--pc-line);color:var(--pc-ink)}
+.pc-article > h2:first-child{margin-top:0}
+.pc-article h3{font-size:1.15em;margin:1.8em 0 .7em;color:var(--pc-ink)}
+.pc-hero{padding:26px 28px;border:1px solid var(--pc-line);border-top:4px solid var(--pc-blue);border-radius:12px;background:var(--pc-panel);margin:12px 0 24px}
+.pc-eyebrow{color:var(--pc-blue);font-size:12px;font-weight:700;letter-spacing:.12em}
+.pc-hero .pc-headline{font-size:clamp(23px,3vw,32px);font-weight:700;line-height:1.4;margin:12px 0;color:var(--pc-ink)}
+.pc-hero p{margin:10px 0}
+.pc-intro{color:var(--pc-muted)}
+.pc-note{padding:14px 18px;margin:20px 0;border-left:4px solid var(--pc-blue);background:var(--pc-panel);border-radius:0 8px 8px 0}
+.pc-note.pc-cache{border-left-color:var(--pc-green)}
+.pc-note.pc-error{border-left-color:var(--pc-red)}
+.pc-note strong{color:var(--pc-ink)}
+.pc-figure{margin:24px 0;border:1px solid var(--pc-line);border-radius:10px;overflow:hidden}
+.pc-figure figcaption{padding:10px 16px;background:var(--pc-panel);color:var(--pc-muted);font-size:13px;border-top:1px solid var(--pc-line)}
+.pc-diagram{overflow-x:auto;padding:20px 12px;background:var(--pc-diagram-bg,#fff);color:#243449}
+.pc-diagram:focus-visible{outline:3px solid var(--pc-blue);outline-offset:-3px}
+.pc-diagram svg{display:block;margin:0 auto;height:auto;max-width:none!important;width:100%;min-width:660px}
+.pc-diagram.pc-sequence svg{min-width:740px}
+.pc-diagram .mermaid-wrap{margin:0}
+
+.pc-table-scroll{overflow-x:auto;margin:20px 0}
+.pc-table-scroll table{width:100%;margin:0;table-layout:fixed;font-size:14px}
+.pc-table-scroll th{background:var(--pc-panel);color:var(--pc-ink)}
+.pc-table-scroll th,.pc-table-scroll td{padding:12px;border:1px solid var(--pc-line);vertical-align:top;white-space:normal;overflow-wrap:anywhere}
+.pc-key{border:1px solid var(--pc-line);border-radius:8px;padding:16px 18px;margin:16px 0}
+.pc-key .pc-key-value{display:block;padding:12px;margin:10px 0;background:var(--pc-panel);color:var(--pc-blue);white-space:normal;overflow-wrap:anywhere;font-size:14px}
+.pc-key p{margin:8px 0;font-size:14px;color:var(--pc-muted)}
+.pc-article code{overflow-wrap:anywhere}
+.pc-evidence{border:1px solid var(--pc-line);border-radius:8px;padding:14px 18px;margin:20px 0}
+.pc-evidence summary{cursor:pointer;font-weight:700;color:var(--pc-blue)}
+.pc-evidence summary:focus-visible{outline:2px solid var(--pc-blue);outline-offset:4px}
+.pc-steps{padding-left:25px}
+.pc-steps li{padding:5px 0 10px 5px}
+.pc-steps li::marker{color:var(--pc-blue);font-weight:700}
+.pc-steps p{margin:5px 0}
+.pc-small{font-size:13px;color:var(--pc-muted)}
+[data-theme="dark"] .pc-article{--pc-ink:#e1e9f3;--pc-muted:#b5c2d3;--pc-line:#405066;--pc-panel:#232e3d;--pc-blue:#91bfff;--pc-green:#68cfb1;--pc-red:#ff9ca8;--pc-diagram-bg:#202631}
+@media(max-width:600px){ .pc-hero{padding:20px 16px}.pc-article h2{font-size:1.35em}.pc-note,.pc-key{padding:12px}.pc-table-scroll table{min-width:520px}}
+@media print{ .pc-diagram svg,.pc-diagram.pc-sequence svg{min-width:0;max-width:100%!important}.pc-diagram{overflow:visible}.pc-figure{break-inside:avoid}}
+</style>
+
+<div class="pc-article">
+
+<div class="pc-hero">
+<div class="pc-eyebrow">PROMOTION / DATA FLOW / INCIDENT TRACE</div>
+<p class="pc-headline">從購物車請求，追到促銷規則與失敗位置</p>
+<p class="pc-intro">沿著一次 <code>POST /api/cart-calculate</code>，理解商品如何找到候選活動、規則從哪裡載入，以及促銷排序為什麼會因會員範圍資料而失敗。</p>
+<p><strong>先記住三件事：</strong>Cart 提供購物車資料；Collection API 提供商品與活動的關聯；完整活動規則由 Repository 載入。</p>
+</div>
+
+<div class="pc-note pc-error"><strong>本次失敗焦點</strong><br><code>MatchedUserScopes</code> 為 <code>null</code>，<code>GetUserScopePriority()</code> 對它執行 LINQ 時拋出 <code>ArgumentNullException</code>。這是本文記錄的直接失敗位置；資料在哪一層變成 null，仍需比對原始資料、轉換結果與快取。</div>
+
+</div></div><div class="tab-item-content" id="promotion-cart-calculate-data-flow-2"><div class="pc-article">
+
+<h2 id="pc-system">系統關係：誰負責哪一段？</h2>
+
+<p>下圖區分 Promotion Frontend 的內部元件與外部支援系統。箭頭表示呼叫或資料存取方向；實際執行順序在「請求與資料流」分頁用時序圖說明。</p>
+<figure class="pc-figure">
+<div class="pc-diagram" tabindex="0" role="region" aria-label="系統關係圖，可橫向捲動">
+
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    Cart[&quot;Cart Service&quot;]
+    subgraph Frontend[&quot;Promotion Frontend · 內部元件&quot;]
+        Controller[&quot;CalculateController&quot;]
+        Service[&quot;CalculateService&quot;]
+        Repo[&quot;PromotionRuleRepository&quot;]
+        Engine[&quot;Promotion Engine&quot;]
+        Controller --&gt;|協調計算| Service
+        Service --&gt;|取得候選活動與規則| Repo
+        Service --&gt;|匹配與排序| Engine
+    end
+    Cart --&gt;|POST &#x2F;api&#x2F;cart-calculate| Controller
+    Repo --&gt;|商品與活動關聯| Collection[&quot;Collection API&quot;]
+    Repo --&gt;|讀取與回填快取| Redis[(&quot;Redis&quot;)]
+    Repo --&gt;|傳統活動規則| SQL[(&quot;WebStoreDB&quot;)]
+    Repo --&gt;|Mongo 活動規則| Mongo[(&quot;MongoDB PromotionDB&quot;)]
+    classDef service fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef cache fill:#edf9f4,stroke:#32856b,color:#175440
+    classDef store fill:#f3f4f6,stroke:#7d8998,color:#334155
+    class Cart,Controller,Service,Repo,Engine,Collection service
+    class Redis cache
+    class SQL,Mongo store
+  </pre></div>
+
+</div>
+<figcaption>圖 1｜藍色：服務與內部元件；綠色：快取；灰色：持久化資料源。窄螢幕可左右捲動。</figcaption>
+</figure>
+
+<div class="pc-table-scroll" tabindex="0" role="region" aria-label="元件責任表">
+
+<table>
+<thead>
+<tr>
+<th>元件</th>
+<th>主要責任</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cart Service</td>
+<td>組裝商品、會員、付款與配送資料，送出計算請求。</td>
+</tr>
+<tr>
+<td>CalculateController &#x2F; CalculateService</td>
+<td>接收請求、協調計算流程與包裝回應。</td>
+</tr>
+<tr>
+<td>PromotionRuleRepository</td>
+<td>取得商品匹配結果、找候選活動，並載入完整規則。</td>
+</tr>
+<tr>
+<td>Collection API</td>
+<td>提供商品頁與集合、活動的關聯。</td>
+</tr>
+<tr>
+<td>Promotion Engine</td>
+<td>執行規則匹配與 <code>DynamicPriority</code> 排序。</td>
+</tr>
+</tbody></table>
+</div>
+
+<div class="pc-note"><strong>圖的層級：</strong>這是系統邊界與元件關係示意。Controller、Service、Repository 是應用程式內部元件，因此不將這張圖稱為嚴格的 C4 Container Diagram。</div>
+
+</div></div><div class="tab-item-content" id="promotion-cart-calculate-data-flow-3"><div class="pc-article">
+
+<h2 id="pc-request">請求時序：一次計算如何完成？</h2>
+
+<p>先看正常完成的主流程。為控制圖寬，時序圖將 Controller 與 Service 合併為「Frontend」，並以業務動作標註呼叫；規則載入的快取細節在「活動規則來源」分頁展開。</p>
+<figure class="pc-figure">
+<div class="pc-diagram pc-sequence" tabindex="0" role="region" aria-label="購物車促銷計算時序圖，可橫向捲動">
+
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  %%{init: {&#39;sequence&#39;: {&#39;actorMargin&#39;: 24, &#39;width&#39;: 120, &#39;mirrorActors&#39;: false, &#39;diagramMarginX&#39;: 16}}}%%
+sequenceDiagram
+    autonumber
+    participant Cart as Cart Service
+    participant Front as Frontend
+    participant Repo as Repository
+    participant Collection as Collection API
+    participant Engine as Promotion Engine
+    Cart-&gt;&gt;Front: POST &#x2F;api&#x2F;cart-calculate
+    Note over Cart,Front: 商品、會員、付款與配送資料
+    Front-&gt;&gt;Front: 從 SalepageSkuList 取得 SalepageIds
+    Front-&gt;&gt;Repo: 取得商品匹配結果
+    alt 商品匹配快取命中
+        Note over Repo: 使用 Redis 中的匹配結果
+    else 商品匹配快取未命中
+        Repo-&gt;&gt;Collection: api&#x2F;salepage-collections:match
+        Collection--&gt;&gt;Repo: 商品集合與候選活動關聯
+        Note over Repo: 回填商品匹配快取
+    end
+    Repo--&gt;&gt;Front: 候選活動識別值
+    Front-&gt;&gt;Repo: 載入候選活動規則
+    Note over Repo: Redis 或資料庫，詳見圖 3
+    Repo--&gt;&gt;Front: 完整規則物件
+    Front-&gt;&gt;Engine: 執行促銷匹配與排序
+    Note over Engine: 本次例外發生在排序期間，詳見「失敗路徑」分頁
+    Engine--&gt;&gt;Front: 促銷計算結果（成功時）
+    Front--&gt;&gt;Cart: 包裝後的計算回應（成功時）
+  </pre></div>
+
+</div>
+<figcaption>圖 2｜正常完成路徑。實線表示呼叫，虛線表示回傳；alt 區塊中的兩條路徑擇一執行。圖中不推定錯誤時的 HTTP 狀態碼。</figcaption>
+</figure>
+
+<h3>把資料識別值串起來</h3>
+
+<p><strong>購物車商品頁 → 商品集合 → 候選活動 → 完整活動規則</strong></p>
+<div class="pc-table-scroll" tabindex="0" role="region" aria-label="資料識別值對照表">
+
+<table>
+<thead>
+<tr>
+<th>識別值</th>
+<th>在流程中的意義</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SalepageId</code></td>
+<td>來自購物車的商品頁 ID，用於查詢匹配集合。</td>
+</tr>
+<tr>
+<td><code>SalepageCollectionId</code></td>
+<td>商品所屬集合，用來串接活動關聯。</td>
+</tr>
+<tr>
+<td><code>PromotionEngineId</code></td>
+<td>候選活動識別值，用於載入活動規則。</td>
+</tr>
+</tbody></table>
+</div>
+
+<div class="pc-note pc-cache"><strong>關聯與規則分開看：</strong>找到候選活動，不代表已取得完整規則。Collection API 提供關聯；Repository 再向 Redis、WebStoreDB 或 MongoDB 取得規則內容。</div>
+
+</div></div><div class="tab-item-content" id="promotion-cart-calculate-data-flow-4"><div class="pc-article">
+
+<h2 id="pc-cache">快取分支：命中就使用，未命中才查來源</h2>
+
+<p>本流程採用 Cache Aside。以下聚焦「活動規則快取」：HIT 與 MISS 是互斥分支，命中後不會接著執行資料庫 fallback。</p>
+<figure class="pc-figure">
+<div class="pc-diagram pc-sequence" tabindex="0" role="region" aria-label="活動規則快取時序圖，可橫向捲動">
+
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  %%{init: {&#39;sequence&#39;: {&#39;actorMargin&#39;: 24, &#39;width&#39;: 120, &#39;mirrorActors&#39;: false, &#39;diagramMarginX&#39;: 16}}}%%
+sequenceDiagram
+    autonumber
+    participant Repo as Repository
+    participant Redis as Redis
+    participant SQL as WebStoreDB
+    participant Mongo as MongoDB
+    Repo-&gt;&gt;Redis: 以 ShopId 與 PromotionEngineId 查規則
+    Redis--&gt;&gt;Repo: 快取查詢結果
+    alt HIT：規則已存在
+        Note over Repo: 直接使用快取規則，跳過資料庫
+    else MISS：規則不存在
+        alt 傳統活動或低於 Mongo 分界
+            Repo-&gt;&gt;SQL: 讀取 PromotionEngine 與規則 JSON
+            SQL--&gt;&gt;Repo: 活動規則資料
+        else 活動 ID 大於等於 Mongo 分界
+            Repo-&gt;&gt;Mongo: 讀取 PromotionRule 與相關設定
+            Mongo--&gt;&gt;Repo: 活動規則資料
+        end
+        Repo-&gt;&gt;Redis: 回填活動規則快取
+    end
+    Note over Repo: 將取得的規則交給後續促銷計算
+  </pre></div>
+
+</div>
+<figcaption>圖 3｜活動規則的 HIT／MISS 與資料庫選擇。以單筆規則示意，省略批次處理細節；Mongo 分界設定為 MongoDB.PromotionId.Divide。</figcaption>
+</figure>
+
+<div class="pc-table-scroll" tabindex="0" role="region" aria-label="規則來源對照表">
+
+<table>
+<thead>
+<tr>
+<th>使用條件</th>
+<th>資料來源</th>
+<th>查核內容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>規則快取命中</td>
+<td>Redis</td>
+<td>快取中的活動規則，可能仍是舊版本。</td>
+</tr>
+<tr>
+<td>未命中，且為傳統活動或低於 Mongo 分界</td>
+<td>WebStoreDB</td>
+<td><code>PromotionEngine</code> 的基本欄位與 <code>PromotionEngine_Rule</code> JSON。</td>
+</tr>
+<tr>
+<td>未命中，且活動 ID 大於等於 Mongo 分界</td>
+<td>MongoDB PromotionDB</td>
+<td><code>PromotionRule</code>、<code>PromotionRuleSetting</code>，包含 <code>UserScope</code>、<code>ProductScope</code> 等設定。</td>
+</tr>
+</tbody></table>
+</div>
+
+<div class="pc-note pc-cache"><strong>排查時要比對兩份資料：</strong>資料庫已修正，不代表命中的 Redis value 同步更新。應同時比對快取內容與持久化來源，再判斷規則實際使用的版本。</div>
+
+</div></div><div class="tab-item-content" id="promotion-cart-calculate-data-flow-5"><div class="pc-article">
+
+<h2 id="pc-keys">Redis Key：用哪個 ID 找哪份資料？</h2>
+
+<p>兩種 Key 都包含 <code>ShopId</code>，但最後一段分別是商品頁 ID 與活動 ID。日期字串是程式內的 <strong>Key 版本</strong>，不是資料產生日期。</p>
+<div class="pc-key">
+<strong>商品頁匹配結果</strong>
+<code class="pc-key-value">CartCalculate:SalepageCollection-20230801:&#123;shopId&#125;:&#123;salepageId&#125;</code>
+<p>用購物車的 <code>salepageId</code> 查商品匹配結果，再追到候選活動。</p>
+<p>程式位置：<code>PromotionRuleRepository.GetMatchedSalepageCollectionAsync</code> 的 <code>FormatCacheKey</code> 區域。</p>
+</div>
+
+<div class="pc-key">
+<strong>活動規則資料</strong>
+<code class="pc-key-value">CartCalculate:PromotionEngine-20260317:&#123;shopId&#125;:&#123;promotionEngineId&#125;</code>
+<p>用候選活動的 <code>promotionEngineId</code> 查規則快取，重點檢查會員範圍相關資料。</p>
+<p>程式位置：<code>PromotionRuleRepository.GetPromotionEngineDataListAsync</code> 的 <code>FormatCacheKey</code> 區域。</p>
+</div>
+
+</div></div><div class="tab-item-content" id="promotion-cart-calculate-data-flow-6"><div class="pc-article">
+
+<h2 id="pc-failure">失敗位置：取得活動之後，排序期間出錯</h2>
+
+<p>本文記錄的失敗呼叫鏈如下。紅色僅標示直接拋出例外的位置；前面的節點用來交代例外如何被觸發。</p>
+<figure class="pc-figure">
+<div class="pc-diagram" tabindex="0" role="region" aria-label="促銷排序失敗路徑圖，可橫向捲動">
+
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    Process[&quot;ProcessPromotion()&quot;] --&gt; Sort[&quot;OrderBy(x &#x3D;&gt; x.DynamicPriority)&quot;]
+    Sort --&gt; Priority[&quot;GetUserScopePriority()&quot;]
+    Priority --&gt; Null[&quot;MatchedUserScopes 為 null&quot;]
+    Null --&gt; Error[&quot;OfType 呼叫拋出 ArgumentNullException&lt;br&#x2F;&gt;Parameter: source&quot;]
+    classDef normal fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef failure fill:#fff0f1,stroke:#b42332,color:#8e1b28
+    class Process,Sort,Priority,Null normal
+    class Error failure
+  </pre></div>
+
+</div>
+<figcaption>圖 4｜從規則排序追到 LINQ 的 null 集合來源。這張圖說明失敗位置，不代表已找到資料變成 null 的原因。</figcaption>
+</figure>
+
+<details class="pc-evidence" open>
+<summary>程式證據：GetUserScopePriority()</summary>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">int</span> <span class="title">GetUserScopePriority</span>(<span class="params">IBasicUserScope target</span>)</span> =&gt;</span><br><span class="line">    target.MatchedUserScopes.OfType&lt;AllUserScope&gt;().Any()</span><br><span class="line">        ? <span class="number">9000</span></span><br><span class="line">        : <span class="number">1000</span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>OfType</code> 的來源集合是 <code>MatchedUserScopes</code>。當來源為 <code>null</code>，程式會在這裡拋出例外，尚未完成後續的 <code>Any()</code> 與優先序判斷。</p>
+</details>
+
+<div class="pc-table-scroll" tabindex="0" role="region" aria-label="失敗位置與判定表">
+
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>本文記錄的行為與判定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CalculateController.CartCalculateAsync</code></td>
+<td>接收 Cart request；請求已進入 Promotion Frontend。</td>
+</tr>
+<tr>
+<td><code>PromotionRuleRepository.GetMatchedSalepageCollectionAsync</code></td>
+<td>取得商品匹配結果的流程位置；未命中快取時呼叫 Collection API。</td>
+</tr>
+<tr>
+<td><code>PromotionEngine.ProcessPromotion</code></td>
+<td><code>OrderBy</code> 求取 <code>DynamicPriority</code>，觸發失敗呼叫鏈。</td>
+</tr>
+<tr>
+<td><code>IBasicUserScope.GetUserScopePriority</code></td>
+<td>對 null 的 <code>MatchedUserScopes</code> 呼叫 <code>OfType</code>，直接拋出例外。</td>
+</tr>
+</tbody></table>
+</div>
+
+<div class="pc-note pc-error"><strong>已知：</strong>失敗發生在會員範圍優先序計算。<br><strong>待查：</strong>null 來自原始規則、反序列化、Mapping，或舊版快取。本文記錄的堆疊沒有指向 Cart 或 Collection API 查詢失敗，也不能僅憑此排除所有上游資料問題。</div>
+
+</div></div><div class="tab-item-content" id="promotion-cart-calculate-data-flow-7"><div class="pc-article">
+
+<h2 id="pc-checklist">查核與修正：沿著同一筆活動追到底</h2>
+
+<ol class="pc-steps">
+<li><strong>鎖定請求與商店</strong><p>從錯誤 trace 取得 <code>ShopId</code> 與 <code>SalepageId</code>，確保後續查詢對應同一筆請求與商店。</p></li>
+<li><strong>找到候選活動</strong><p>使用商品頁匹配 Key，檢查集合關聯與 <code>PromotionEngineId</code>；保留查到的匹配結果。</p></li>
+<li><strong>比對快取與原始規則</strong><p>使用活動規則 Key 取得 Redis value，再依活動 ID 分界回查 WebStoreDB 或 MongoDB，確認會員範圍欄位是否缺少或為 null。</p></li>
+<li><strong>追蹤資料轉換</strong><p>比對反序列化與 Mapping 前後的物件，找出 <code>MatchedUserScopes</code> 首次成為 null 的位置。</p></li>
+<li><strong>決定修正語意並驗證</strong><p>依查核結果補齊資料、處理快取版本，或定義明確的 null 處理策略。確認單筆異常活動的處置符合業務規則，並驗證正常活動仍可完成計算。</p></li>
+</ol>
+
+<div class="pc-note"><strong>修正不能只讓例外消失：</strong>會員範圍缺失時要拒絕規則、略過活動，還是採用預設行為，需先確認業務語意；不能直接把 null 視為「適用所有會員」。</div>
+
+<details class="pc-evidence">
+<summary>展開修正後的驗證項目</summary>
+
+<ul>
+<li>Redis HIT：使用快取內容，不查持久化來源。</li>
+<li>Redis MISS：依活動 ID 選擇來源，取得資料後回填快取。</li>
+<li>同一活動的快取與來源資料不一致：能辨認實際使用的版本。</li>
+<li><code>MatchedUserScopes</code> 分別為 null、空集合及正常集合：結果符合明確的業務規則。</li>
+<li>單筆異常活動：整筆請求的結果與錯誤處置符合預期，其他正常活動的計算未受到非預期影響。</li>
+</ul>
+</details>
+
+<h2 id="pc-references">延伸參考</h2>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://c4model.com/diagrams/container">C4 Container Diagram</a></li>
+<li><a target="_blank" rel="noopener" href="https://c4model.com/diagrams/dynamic">C4 Dynamic Diagram</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside">Microsoft Cache Aside Pattern</a></li>
+<li><a target="_blank" rel="noopener" href="https://aws.amazon.com/architecture/">AWS Architecture Reference</a></li>
+</ul>
+<p class="pc-small">本文圖表依原文整理，呈現業務層級的呼叫與資料流，省略未提供的批次、重試與錯誤回應細節。方法名稱、Key 版本與 Mongo 分界應以排查當下的程式版本為準。</p>
+
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+
+<script>
+(() => {
+  const article = document.getElementById('promotion-cart-calculate-data-flow');
+  if (!article) return;
+  // Butterfly 重新繪圖時保留舊 SVG；移除舊圖，避免重複 ID 影響箭頭標記。
+  article.querySelectorAll('.pc-diagram').forEach(diagram => {
+    const observer = new MutationObserver(() => {
+      const charts = [...diagram.children].filter(child => child.tagName.toLowerCase() === 'svg');
+      const latest = charts[charts.length - 1];
+      if (latest && !latest.dataset.pcMarkers) {
+        // 隱藏分頁中的同名 marker 會使其他圖的箭頭消失，為每張圖加上獨立 ID。
+        latest.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id;
+          marker.id = latest.id + '-' + oldId;
+          latest.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(line => {
+            ['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              const value = line.getAttribute(attribute);
+              if (value) line.setAttribute(attribute, value.replace('#' + oldId + ')', '#' + marker.id + ')'));
+            });
+          });
+        });
+        latest.dataset.pcMarkers = 'true';
+      }
+      charts.slice(0, -1).forEach(chart => chart.remove());
+    });
+    observer.observe(diagram, { childList: true });
+  });
+})();
+</script>
+
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/">https://allenlin000.github.io.git/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow-pure/" title="Promotion Cart Calculate"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Promotion Cart Calculate</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">272</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">55</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#pc-system"><span class="toc-number">1.</span> <span class="toc-text">系統關係：誰負責哪一段？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pc-request"><span class="toc-number">2.</span> <span class="toc-text">請求時序：一次計算如何完成？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotion-cart-calculate-data-flow-3"><span class="toc-number">2.1.</span> <span class="toc-text">把資料識別值串起來</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pc-cache"><span class="toc-number">3.</span> <span class="toc-text">快取分支：命中就使用，未命中才查來源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pc-keys"><span class="toc-number">4.</span> <span class="toc-text">Redis Key：用哪個 ID 找哪份資料？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pc-failure"><span class="toc-number">5.</span> <span class="toc-text">失敗位置：取得活動之後，排序期間出錯</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pc-checklist"><span class="toc-number">6.</span> <span class="toc-text">查核與修正：沿著同一筆活動追到底</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pc-references"><span class="toc-number">7.</span> <span class="toc-text">延伸參考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/" title="Promotion Cart Calculate"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Promotion Cart Calculate"/></a><div class="content"><a class="title" href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/" title="Promotion Cart Calculate">Promotion Cart Calculate</a><time datetime="2026-09-07T02:30:56.000Z" title="Created 2026-09-07 10:30:56">2026-09-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow-pure/" title="Promotion Cart Calculate"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Promotion Cart Calculate"/></a><div class="content"><a class="title" href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow-pure/" title="Promotion Cart Calculate">Promotion Cart Calculate</a><time datetime="2026-09-07T02:30:56.000Z" title="Created 2026-09-07 10:30:56">2026-09-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/04/Shopping-Cart-paytype-initial-filter/" title="購物車初步篩選可用金流"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/payment-availible-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車初步篩選可用金流"/></a><div class="content"><a class="title" href="/2026/09/04/Shopping-Cart-paytype-initial-filter/" title="購物車初步篩選可用金流">購物車初步篩選可用金流</a><time datetime="2026-09-04T00:35:00.000Z" title="Created 2026-09-04 08:35:00">2026-09-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/31/Shopping-Cart-extendinfo/" title="購物車資料結構解密：ShoppingCart 與 ShoppingCartExtendInfo"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/extendinfo-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車資料結構解密：ShoppingCart 與 ShoppingCartExtendInfo"/></a><div class="content"><a class="title" href="/2026/08/31/Shopping-Cart-extendinfo/" title="購物車資料結構解密：ShoppingCart 與 ShoppingCartExtendInfo">購物車資料結構解密：ShoppingCart 與 ShoppingCartExtendInfo</a><time datetime="2026-08-31T03:30:00.000Z" title="Created 2026-08-31 11:30:00">2026-08-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const isMermaidWrap = item.classList.contains('mermaid-wrap')
+      const mermaidSrc = isMermaidWrap ? item.firstElementChild : item
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
