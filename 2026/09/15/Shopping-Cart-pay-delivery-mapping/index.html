@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>購物車金物流交集：CalculatePayDeliveryMappingProcessor | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="01．Processor 處理什麼問題 #article-container .pdm-paper{--ink:#1f2430;--sub:#5b6472;--line:#ece7dc;--card:#fff;background:#fbf9f4;color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:30p">
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>購物車金物流交集：CalculatePayDeliveryMappingProcessor | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="01．處理什麼問題02．內部資料處理03．結果與例外 #article-container .pdm-paper{--ink:#1f2430;--sub:#5b6472;--line:#ece7dc;--card:#fff;background:#fbf9f4;color:var(--ink);border:1px solid var(--line);border-radius:20px;padd">
 <meta property="og:type" content="article">
 <meta property="og:title" content="購物車金物流交集：CalculatePayDeliveryMappingProcessor">
 <meta property="og:url" content="https://allenlin000.github.io.git/2026/09/15/Shopping-Cart-pay-delivery-mapping/">
 <meta property="og:site_name" content="平屋慢生活">
-<meta property="og:description" content="01．Processor 處理什麼問題 #article-container .pdm-paper{--ink:#1f2430;--sub:#5b6472;--line:#ece7dc;--card:#fff;background:#fbf9f4;color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:30p">
+<meta property="og:description" content="01．處理什麼問題02．內部資料處理03．結果與例外 #article-container .pdm-paper{--ink:#1f2430;--sub:#5b6472;--line:#ece7dc;--card:#fff;background:#fbf9f4;color:var(--ink);border:1px solid var(--line);border-radius:20px;padd">
 <meta property="og:locale">
 <meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
 <meta property="article:published_time" content="2026-09-15T02:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-15T00:50:24.937Z">
+<meta property="article:modified_time" content="2026-09-15T03:12:27.756Z">
 <meta property="article:author" content="Allen">
 <meta property="article:tag" content="購物車">
 <meta property="article:tag" content="金物流">
@@ -57,7 +57,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2026-09-15 08:50:24'
+  postUpdate: '2026-09-15 11:12:27'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -154,7 +154,7 @@
         }
       }
       detectApple()
-    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">273</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">購物車金物流交集：CalculatePayDeliveryMappingProcessor</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-09-15T02:00:00.000Z" title="Created 2026-09-15 10:00:00">2026-09-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-09-15T00:50:24.937Z" title="Updated 2026-09-15 08:50:24">2026-09-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Shopping-Cart/">Shopping-Cart</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="shopping-cart-pay-delivery-mapping"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="shopping-cart-pay-delivery-mapping-1">01．Processor 處理什麼問題</button></ul><div class="tab-contents"><div class="tab-item-content active" id="shopping-cart-pay-delivery-mapping-1"><style>
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">273</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">購物車金物流交集：CalculatePayDeliveryMappingProcessor</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-09-15T02:00:00.000Z" title="Created 2026-09-15 10:00:00">2026-09-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-09-15T03:12:27.756Z" title="Updated 2026-09-15 11:12:27">2026-09-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Shopping-Cart/">Shopping-Cart</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="shopping-cart-pay-delivery-mapping"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="shopping-cart-pay-delivery-mapping-1">01．處理什麼問題</button><button type="button" class="tab " data-href="shopping-cart-pay-delivery-mapping-2">02．內部資料處理</button><button type="button" class="tab " data-href="shopping-cart-pay-delivery-mapping-3">03．結果與例外</button></ul><div class="tab-contents"><div class="tab-item-content active" id="shopping-cart-pay-delivery-mapping-1"><style>
 #article-container .pdm-paper{--ink:#1f2430;--sub:#5b6472;--line:#ece7dc;--card:#fff;background:#fbf9f4;color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:30px;font-family:"Segoe UI","Microsoft JhengHei",sans-serif;line-height:1.9;}
 #article-container .pdm-paper *{box-sizing:border-box;}
 #article-container .pdm-paper p{color:var(--sub);margin:14px 0;}
@@ -181,24 +181,100 @@
 [data-theme="dark"] #article-container .pdm-result{background:#213e37;color:#b8eadb;}
 @media(max-width:600px){ #article-container .pdm-paper{padding:15px;border-radius:12px;}#article-container .pdm-hero{padding:18px;}#article-container .pdm-case{padding:14px;}#article-container .pdm-paper h2{font-size:1.25rem;}#article-container .pdm-table td,#article-container .pdm-table th{padding:9px;}}
 </style>
-
+<style>
+#article-container .pdm-paper{padding:24px;}
+#article-container .pdm-hero{padding:20px 24px;}
+#article-container .pdm-paper h3{margin-top:28px;}
+#article-container .pdm-diagram{overflow-x:auto;background:#fff;border:1px solid #dce4ed;border-radius:12px;padding:16px 10px;margin:16px 0;}
+#article-container .pdm-diagram svg{display:block;width:100%;max-width:none!important;min-width:440px;height:auto;margin:0 auto;}
+#article-container .pdm-diagram.pdm-full svg{min-width:780px;}
+#article-container .pdm-diagram .mermaid-wrap{margin:0;}
+#article-container .pdm-matrix td,#article-container .pdm-matrix th{text-align:center;}
+#article-container .pdm-matrix td:first-child,#article-container .pdm-matrix th:first-child{text-align:left;}
+#article-container .pdm-matrix tr>:nth-child(2){background:#edf8f5;color:#20554d;font-weight:700;}
+#article-container .pdm-detail{padding:14px 18px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin:16px 0;}
+#article-container .pdm-detail summary{cursor:pointer;font-weight:700;color:var(--ink);}
+#article-container .pdm-detail summary:focus-visible{outline:2px solid #12a594;outline-offset:5px;}
+#article-container .pdm-summary{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0;}
+#article-container .pdm-summary>div{padding:18px;background:var(--card);border:1px solid var(--line);border-top:3px solid #12a594;border-radius:12px;}
+#article-container .pdm-caption{font-size:.85rem;color:var(--sub);}
+[data-theme="dark"] #article-container .pdm-diagram{background:#202631;border-color:#405066;}
+[data-theme="dark"] #article-container .pdm-matrix tr>:nth-child(2){background:#213e37;color:#b8eadb;}
+@media(max-width:600px){ .pdm-summary{grid-template-columns:1fr!important;}#article-container .pdm-paper{padding:14px;}#article-container .pdm-hero{padding:16px;}#article-container .pdm-table{font-size:.85rem;} }
+</style>
 <div class="pdm-paper">
 <div class="pdm-hero">
-<div class="pdm-eyebrow">購物車的付款與配送選項</div>
-<h2>Processor 處理什麼問題？</h2>
-<p>單獨購買一件商品時，可能可以刷卡、轉帳，也能選宅配或超商取貨。當多件商品放進同一台購物車，每件商品的限制就必須一起考慮，原本可以選的方式也可能因此變少。</p>
-<p><code>CalculatePayDeliveryMappingProcessor</code> 負責找出這批商品共同支援的付款與配送方式，並確認留下的金流與物流有合法搭配。</p>
+<div class="pdm-eyebrow">商品一起結帳，選項一起檢查</div>
+<h2>處理什麼問題？</h2>
+<p>多件商品放進同一台購物車，付款與配送方式必須符合每件商品的限制。</p>
+<p><code>CalculatePayDeliveryMappingProcessor</code> 找出共同支援的選項，再排除無法合法配對的金物流。</p>
 </div>
+<h3>金流：每件商品都支援，才能留下</h3>
+<p>咖啡豆與餅乾一起結帳。✓ 代表支援，× 代表不支援。</p>
+<div class="pdm-table pdm-matrix">
+<table>
+<thead><tr><th>商品</th><th>信用卡</th><th>ATM</th><th>LINE Pay</th></tr></thead>
+<tbody>
+<tr><td>咖啡豆</td><td>✓</td><td>✓</td><td>×</td></tr>
+<tr><td>餅乾</td><td>✓</td><td>×</td><td>✓</td></tr>
+<tr><td>商品交集</td><td>保留</td><td>排除</td><td>排除</td></tr>
+</tbody>
+</table>
+</div>
+<p class="pdm-caption">信用卡通過商品交集，仍須繼續套用購物車允許付款方式與配對限制。</p>
+<h3>物流：共同選宅配，各溫層保留自己的設定</h3>
+<p>假設同溫層商品已完成物流交集，且所有配送地區相同。</p>
+<div class="pdm-diagram" tabindex="0" role="region" aria-label="資料關係示意">
 
-<h3>Processor 內的資料處理架構</h3>
-<p><code>CalculatePayDeliveryMappingProcessor</code> 將計算交給 <code>PayShippingMappingService.CalculatePayDeliveryMapping</code>。下圖聚焦這次呼叫讀取、轉換與寫回的資料；圖中的購物車欄位都位於 <code>context.Data</code>。</p>
-<style>
-#article-container .pdm-diagram{overflow-x:auto;background:#fff;border:1px solid #dce4ed;border-radius:12px;padding:18px 12px;margin:20px 0;}
-#article-container .pdm-diagram .mermaid-wrap{margin:0;}
-#article-container .pdm-diagram svg{display:block;min-width:780px;width:100%;max-width:none!important;height:auto;margin:auto;}
-[data-theme="dark"] #article-container .pdm-diagram{background:#202631;border-color:#405066;}
-</style>
-<div class="pdm-diagram" tabindex="0" role="region" aria-label="Processor 內部資料處理架構圖">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    Normal[&quot;常溫：宅配 #101、超取 #201&quot;] --&gt;|共同類型與地區| Shared[&quot;宅配&quot;]
+    Frozen[&quot;冷凍：宅配 #301&quot;] --&gt;|共同類型與地區| Shared
+    Shared --&gt; WarmDelivery[&quot;保留常溫宅配 #101&quot;]
+    Shared --&gt; ColdDelivery[&quot;保留冷凍宅配 #301&quot;]
+    Normal -.冷凍不支援超取.-&gt; Removed[&quot;排除超取 #201&quot;]
+    classDef keep fill:#edf9f4,stroke:#32856b,color:#175440
+classDef base fill:#edf4ff,stroke:#517ab0,color:#203c60
+classDef muted fill:#f3f4f6,stroke:#7d8998,color:#334155
+classDef stop fill:#fff1f2,stroke:#b42332,color:#852332
+    class Normal,Frozen base
+    class Shared,WarmDelivery,ColdDelivery keep
+    class Removed muted
+  </pre></div>
+
+</div>
+<p class="pdm-caption">跨溫層比較配送類型與地區，不要求物流 Id 相同，也不表示商品要裝在同一包裹。</p>
+<h3>配對：有物流，還要有能搭配的金流</h3>
+<p>本例商品交集留下信用卡，以及宅配、超取付款兩種物流。</p>
+<div class="pdm-diagram" tabindex="0" role="region" aria-label="資料關係示意">
+
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    subgraph Payment[&quot;付款方式&quot;]
+        Card[&quot;信用卡：本次可用&quot;]
+        StorePay[&quot;超取付款金流：本次缺少&quot;]
+    end
+    subgraph Shipping[&quot;配送方式&quot;]
+        Home[&quot;宅配：保留&quot;]
+        Store[&quot;超取付款物流：排除&quot;]
+    end
+    Card --&gt;|設定允許，本次成立| Home
+    StorePay -.設定允許，本次無法成立.-&gt; Store
+    classDef keep fill:#edf9f4,stroke:#32856b,color:#175440
+classDef base fill:#edf4ff,stroke:#517ab0,color:#203c60
+classDef muted fill:#f3f4f6,stroke:#7d8998,color:#334155
+classDef stop fill:#fff1f2,stroke:#b42332,color:#852332
+    class Card,Home keep
+    class StorePay,Store muted
+  </pre></div>
+
+</div>
+<p class="pdm-caption">本例設定不允許信用卡搭配超取付款物流，因此不畫連線。每項至少要有一個本次可用的合法搭配，留下多項也不代表可以任意互配。</p>
+<p class="pdm-caption">以上為獨立的假設案例；商品限制與合法配對以實際設定為準。</p>
+</div></div><div class="tab-item-content" id="shopping-cart-pay-delivery-mapping-2"><div class="pdm-paper">
+<h2>內部資料處理</h2>
+<p>Processor 呼叫 <code>PayShippingMappingService.CalculatePayDeliveryMapping</code>，讀取資料、計算交集，再寫回購物車。</p>
+<div class="pdm-diagram pdm-full" tabindex="0" role="region" aria-label="完整資料處理架構">
 
 <div class="mermaid-wrap"><pre class="mermaid-src" hidden>
   %%{init: {&#39;flowchart&#39;: {&#39;nodeSpacing&#39;: 18, &#39;rankSpacing&#39;: 30, &#39;curve&#39;: &#39;linear&#39;}}}%%
@@ -232,95 +308,106 @@ flowchart TB
   </pre></div>
 
 </div>
-<p>灰色是輸入資料，藍色是計算與判斷，綠色是仍有可用選項的結果，紅色是例外或無交集處理。實線表示處理順序，虛線表示資料供應；不是每個灰色節點都代表重新查詢資料庫。</p>
-<ul>
-<li><strong>商品資料：</strong>圖中的 Dictionary 指 <code>SalepageIdPayTypesDictionary</code> 與 <code>SalepageIdDeliveryTypesDictionary</code>；重新指派的是商品 <code>PayTypeList</code> 與 <code>DeliveryTypeList</code>。</li>
-<li><strong>限制資料：</strong><code>EnablePayProfileTypeDef</code>、<code>PromoCodeDispatch.PromoCodeInfo.PaymentTypes</code> 與 <code>BlacklistMemberAllowedPayProfileList</code>，依各階段規則篩選金流或物流。</li>
-<li><strong>還原條件：</strong><code>context.IsSkipSalepagePayDeliveryTypeInitial = false</code> 才執行 <code>ArrangePayDeliveryTypeToSalePage</code>，從既有 Dictionary 重新指派商品金物流。</li>
-<li><strong>交集的輸出：</strong>物流與金流分別寫入 <code>CheckoutType.DeliveryTypeList</code>、<code>CheckoutType.PayTypeList</code>，配對階段再刪減這兩份清單。</li>
-<li><strong>海外配送另有資料：</strong><code>DeliveryTypeUnionList</code> 是物流聯集，不等於本輪共同可用的配送清單。</li>
-<li><strong>無交集的處理：</strong>一般與贈品券商品搬入 <code>UnMappingCheckoutSalepageList</code>，標記 <code>NoIntersection</code> 並清空原群組；Service 回傳無交集結果，Processor 保存 Redis 成功後才設定 <code>IsInterrupted</code> 與 <code>NeedReCalculate</code>。</li>
-</ul>
-<p>提示訊息寫入 <code>CheckoutType.DisplayMessage</code>。圖中省略排序與主子商品置換細節。來源方法為 <code>PayShippingMappingService.CalculatePayDeliveryMapping</code> 與 <code>CalculatePayDeliveryMappingProcessor.ExecuteAsync</code>。</p>
-
-<h3>商品各自支援，不代表整台購物車都能使用</h3>
-
-<div class="pdm-case">
-<p><strong>案例一：咖啡豆和餅乾一起結帳</strong></p>
-<div class="pdm-table">
+<p class="pdm-caption">灰色為輸入、藍色為處理、綠色為可用結果、紅色為例外或無交集處理。實線表示順序，虛線表示資料供應。圖中省略排序與主子商品置換細節。</p>
+<details class="pdm-detail">
+<summary>資料從哪裡來？查看來源與節點</summary>
+<p>下表購物車欄位位於 <code>context.Data</code>。</p>
+<div class="pdm-table ">
 <table>
-<thead><tr><th>商品</th><th>支援付款方式</th></tr></thead>
+<thead><tr><th>來源</th><th>讀取節點／用途</th></tr></thead>
 <tbody>
-<tr><td>咖啡豆</td><td>信用卡、ATM</td></tr>
-<tr><td>餅乾</td><td>信用卡、LINE Pay</td></tr>
-<tr><td>共同支援</td><td><strong>信用卡</strong></td></tr>
+<tr><td>全域配對設定</td><td><code>PayShippingMapping</code>，定義金流與物流的合法搭配；查詢沒有以 <code>ShopId</code> 篩選。</td></tr>
+<tr><td>商品金物流基準</td><td><code>SalepageIdPayTypesDictionary[SalePageId]</code><br><code>SalepageIdDeliveryTypesDictionary[SalePageId]</code></td></tr>
+<tr><td>參與交集的商品</td><td><code>SalepageGroupList[…].SalepageList[…].PayTypeList</code><br><code>SalepageGroupList[…].SalepageList[…].DeliveryTypeList</code>；已存在的贈品券商品也參與。</td></tr>
+<tr><td>本次允許付款</td><td><code>EnablePayProfileTypeDef</code></td></tr>
+<tr><td>優惠碼與黑名單限制</td><td><code>PromoCodeDispatch.PromoCodeInfo.PaymentTypes</code><br><code>BlacklistMemberAllowedPayProfileList</code></td></tr>
 </tbody>
 </table>
 </div>
-<p>ATM 無法用來支付這批商品，因為餅乾不支援；LINE Pay 也無法保留，因為咖啡豆不支援。這裡的「共同」，指的就是不同商品頁之間的交集。</p>
-<div class="pdm-result">商品金流交集先留下信用卡，再交由其他可用性條件與配對規則繼續篩選。</div>
-</div>
-
-<h3>常溫與冷凍商品，需要共同可行的配送類型</h3>
-<p>物流也有商品限制，而且還要考慮溫層。系統會先找出每個溫層內商品共同支援的物流，再找出所有溫層都有的配送類型與地區。</p>
-<div class="pdm-case">
-<p><strong>案例二：常溫商品與冷凍蛋糕一起結帳</strong></p>
-<p>假設各溫層內已完成商品物流交集，而且配送地區相同。</p>
-<div class="pdm-table">
+<p><code>CartCreateProcessor.AssignSalePagePayShipping</code> 先以 <code>ShopId</code> 與商品頁 Id 查詢 <code>CartRepository.GetSalePagePayTypeAsync</code>、<code>GetSalePageDeliveryType</code>，建立 Dictionary 並首次設定商品金物流。</p>
+<p>兩支商品查詢分別呼叫 <code>csp_GetSalePagePayTypeV2</code> 與 <code>csp_GetSalePageDeliveryTypeV2</code>。全域 Mapping 則由 <code>GetPayShippingMappingAsync</code> 透過快取取得，未命中才查 Repository。</p>
+</details>
+<details class="pdm-detail">
+<summary>還原與交集：查看條件、方法與比較鍵</summary>
+<div class="pdm-table ">
 <table>
-<thead><tr><th>溫層</th><th>可用配送方式</th></tr></thead>
+<thead><tr><th>處理</th><th>規則</th></tr></thead>
 <tbody>
-<tr><td>常溫</td><td>宅配、超商取貨</td></tr>
-<tr><td>冷凍</td><td>宅配</td></tr>
-<tr><td>跨溫層共同支援</td><td><strong>宅配</strong></td></tr>
+<tr><td>是否還原</td><td><code>context.IsSkipSalepagePayDeliveryTypeInitial = false</code> 才執行還原；為 true 時沿用目前商品清單。</td></tr>
+<tr><td>商品還原</td><td><code>ArrangePayDeliveryTypeToSalePage</code> 在 Mapping Service 內從 Dictionary 重新指派商品的 <code>PayTypeList</code>、<code>DeliveryTypeList</code>，不重新查商品設定。</td></tr>
+<tr><td>同溫層物流</td><td><code>GetSalePageGroupDeliveryType</code> 先處理合併物流，再比對 <code>Id + ShippingAreaId</code>。</td></tr>
+<tr><td>跨溫層物流</td><td><code>CalculateDeliveryTypeAsync</code> 比對 <code>ShippingProfileTypeDef + ShippingAreaId</code>，保留各溫層明細。</td></tr>
+<tr><td>商品金流</td><td><code>CalculatePayType</code> 依 <code>PayProfileTypeDef</code> 找共同付款類型，再套用允許清單與優惠碼規則。</td></tr>
+<tr><td>合法配對</td><td><code>CalculatePayShippingMapping</code> 依全域設定刪減 <code>CheckoutType</code> 的兩份選項清單。</td></tr>
 </tbody>
 </table>
 </div>
-<p>超商取貨只存在於常溫的可用清單，所以這台購物車會排除它。宅配則可以保留常溫與冷凍各自的物流明細。</p>
-<div class="pdm-result">共同選擇宅配，仍可以分別使用常溫宅配與冷凍宅配設定。這個判斷不要求同一筆物流 Id，也不代表商品要裝在同一包裹。</div>
-</div>
+</details>
+<details class="pdm-detail">
+<summary>海外配送：聯集與交集的差別</summary>
+<p><code>CalculateOverseaDeliveryTypeAsync</code> 讀取一般商品、已有贈品券商品，以及無交集清單中標記 <code>OverseaNoIntersection</code> 的商品物流，整理合併物流並去重、排序。</p>
+<p>結果寫入 <code>DeliveryTypeUnionList</code>，供後續海外配送使用；它不是本輪共同可結帳的物流清單。</p>
+</details>
+<details class="pdm-detail">
+<summary>流程位置與原始碼對照</summary>
+<p>在 <code>InitailPayShippingCalculate</code> 中為第 4 步，在 <code>RePayShippingCalculate</code> 中為第 3 步。實際執行仍受入口條件與中斷影響。</p>
+<p>主要來源：<code>CalculatePayDeliveryMappingProcessor.ExecuteAsync</code>、<code>PayShippingMappingService.CalculatePayDeliveryMapping</code>、<code>ProcessorDefinitionCenter</code>。</p>
+</details> 
+</div></div><div class="tab-item-content" id="shopping-cart-pay-delivery-mapping-3"><div class="pdm-paper">
+<h2>結果與例外</h2>
+<p>先區分「配對設定缺失」與「商品計算後沒有共同選項」，兩者走不同處理分支。</p>
+<div class="pdm-diagram" tabindex="0" role="region" aria-label="資料關係示意">
 
-<h3>付款與配送各自可用，還要確認能搭配</h3>
-<p>系統還需要一份全域配對設定，確認某種付款方式是否能搭配某種配送方式。</p>
-<div class="pdm-case">
-<p><strong>案例三：有超取付款物流，卻沒有對應金流</strong></p>
-<p>假設商品交集留下信用卡，以及宅配、超取付款兩種物流。全域配對設定只允許信用卡搭配宅配，超取付款物流則必須搭配超取付款金流。</p>
-<div class="pdm-table">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    Start{&quot;全域 Mapping 有資料？&quot;}
+    Start --&gt;|否| Error[&quot;拋出 CartCacheExpired&quot;]
+    Start --&gt;|是| Calculate[&quot;完成交集、配對與海外物流聯集&quot;]
+    Calculate --&gt; Available{&quot;金流與物流皆非空？&quot;}
+    Available --&gt;|是| Ready[&quot;更新提示，繼續後續計算&quot;]
+    Available --&gt;|否| Move[&quot;商品移入無交集清單，清空原群組&quot;]
+    Move --&gt; Mark[&quot;標記 NoIntersection，更新提示&quot;]
+    Mark --&gt; Save[&quot;保存 CartEntity 至 Redis&quot;]
+    Save --&gt;|保存成功| Flags[&quot;設定中斷與重算旗標&quot;]
+    classDef keep fill:#edf9f4,stroke:#32856b,color:#175440
+classDef base fill:#edf4ff,stroke:#517ab0,color:#203c60
+classDef muted fill:#f3f4f6,stroke:#7d8998,color:#334155
+classDef stop fill:#fff1f2,stroke:#b42332,color:#852332
+    class Start,Calculate,Available base
+    class Ready keep
+    class Error,Move,Mark,Save,Flags stop
+  </pre></div>
+
+</div>
+<div class="pdm-summary">
+<div><strong>付款選項</strong><p><code>CheckoutType.PayTypeList</code></p></div>
+<div><strong>配送明細</strong><p><code>CheckoutType.DeliveryTypeList</code></p></div>
+</div>
+<p>這兩份結果供後續運費、重量、金額門檻與預選計算使用，仍可能被調整。</p>
+<details class="pdm-detail">
+<summary>無交集時，哪些商品與旗標會改變？</summary>
+<p>例如咖啡豆只支援信用卡、餅乾只支援 ATM，即使都能宅配，付款交集仍為空。</p>
+<div class="pdm-table ">
 <table>
-<thead><tr><th>候選搭配</th><th>檢查結果</th></tr></thead>
+<thead><tr><th>節點</th><th>變化</th></tr></thead>
 <tbody>
-<tr><td>信用卡＋宅配</td><td>符合配對設定，保留。</td></tr>
-<tr><td>信用卡＋超取付款物流</td><td>配對設定不允許。</td></tr>
-<tr><td>超取付款金流＋超取付款物流</td><td>配對設定允許，但本次沒有超取付款金流。</td></tr>
+<tr><td><code>UnMappingCheckoutSalepageList</code></td><td>合併目前一般商品與贈品券商品，不只挑其中一件移除。</td></tr>
+<tr><td><code>SalepageGroupList</code>、<code>SalePageGiftCouponGroupList</code></td><td>搬移商品後清空。</td></tr>
+<tr><td><code>PayShippingIntersectionStatus</code></td><td>無交集清單商品標記為 <code>NoIntersection</code>。</td></tr>
+<tr><td><code>context.IsInterrupted</code>、<code>context.NeedReCalculate</code></td><td>Service 回傳無交集結果；Processor 保存 Redis 成功後，兩者設為 true。</td></tr>
 </tbody>
 </table>
 </div>
-<div class="pdm-result">留下信用卡與宅配。超取付款物流雖然通過商品交集，仍因沒有可搭配的金流而被移除。</div>
-</div>
-<p>每個留下的金流或物流，至少要有一個合法搭配。若留下多種選項，也不代表這些選項可以任意互配。</p>
-
-<h3>處理完之後，購物車得到什麼？</h3>
-<p>這個階段把個別商品的限制，整理成本輪可繼續使用的購物車金物流資料。後續計算會沿用結果，再處理運費、重量、金額門檻與預選等條件。</p>
-<div class="pdm-table">
-<table>
-<thead><tr><th>資料節點</th><th>意義</th></tr></thead>
-<tbody>
-<tr><td><code>CheckoutType.PayTypeList</code></td><td>商品交集、可用性限制與配對檢查後，留下的付款方式。</td></tr>
-<tr><td><code>CheckoutType.DeliveryTypeList</code></td><td>商品與跨溫層交集、相關限制及配對檢查後，留下的配送明細。</td></tr>
-</tbody>
-</table>
-</div>
-<p>如果付款或配送清單任一為空，本輪商品就無法用共同方式結帳。系統會將目前一般商品與贈品券商品移入無交集清單，保存購物車資料，並設定中斷與重算旗標，由外層流程接手。</p>
-
-<h3>在建立購物車流程中的角色</h3>
-<ul>
-<li><strong>前面已準備商品資料：</strong><code>CartCreateProcessor</code> 查詢商品金物流，保存到購物車資料中。</li>
-<li><strong>這裡計算共同可用方式：</strong><code>CalculatePayDeliveryMappingProcessor</code> 呼叫 <code>PayShippingMappingService</code> 完成交集與配對判斷。</li>
-<li><strong>後面繼續整理結帳條件：</strong>沿用本輪結果，處理運費與其餘限制，逐步形成消費者可選用的結帳方式。</li>
-</ul>
-<p>在初始金物流流程 <code>InitailPayShippingCalculate</code> 中，它是第 4 步；促銷後的 <code>RePayShippingCalculate</code> 也會在第 3 步使用它。實際是否執行，仍取決於入口條件與流程是否中斷。</p>
+<p>這裡只提出重算需求，不直接重跑自己，後續由外層流程接手。</p>
+</details>
+<details class="pdm-detail">
+<summary>選項減少時，提示如何更新？</summary>
+<p><code>CheckPayShippingMapping</code> 更新 <code>CheckoutType.DisplayMessage</code>。商品原有的金流種類數或配送類型與地區組合數，若與最後選項不同，就設定 <code>OnlyFollowingPaymentAndShipping</code> 對應提示。</p>
+<p>出現提示可能只是選項減少，不表示一定無法結帳。無交集時商品已先搬移，也不能假設必定出現同一提示。</p>
+</details>
+<p class="pdm-caption">圖示只涵蓋本文已確認的處理分支；Redis 保存失敗的例外處理未展開。</p>
 </div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/09/15/Shopping-Cart-pay-delivery-mapping/">https://allenlin000.github.io.git/2026/09/15/Shopping-Cart-pay-delivery-mapping/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%B3%BC%E7%89%A9%E8%BB%8A/">購物車</a><a class="post-meta__tags" href="/tags/%E9%87%91%E7%89%A9%E6%B5%81/">金物流</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/" title="Promotion Cart Calculate"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/promotioncalculate-landing.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">Promotion Cart Calculate</div></div></a></div><div class="next-post pull-right"><a href="/2026/09/15/Shopping-Cart-pay-delivery-mapping-pure/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">購物車金物流交集：CalculatePayDeliveryMappingProcessor</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/09/15/Shopping-Cart-pay-delivery-mapping-pure/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-15</div><div class="title">購物車金物流交集：CalculatePayDeliveryMappingProcessor</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">273</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">Processor 處理什麼問題？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">Processor 內的資料處理架構</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">商品各自支援，不代表整台購物車都能使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">常溫與冷凍商品，需要共同可行的配送類型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">付款與配送各自可用，還要確認能搭配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">處理完之後，購物車得到什麼？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">在建立購物車流程中的角色</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/15/Shopping-Cart-pay-delivery-mapping-pure/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車金物流交集：CalculatePayDeliveryMappingProcessor"/></a><div class="content"><a class="title" href="/2026/09/15/Shopping-Cart-pay-delivery-mapping-pure/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor">購物車金物流交集：CalculatePayDeliveryMappingProcessor</a><time datetime="2026-09-15T02:00:00.000Z" title="Created 2026-09-15 10:00:00">2026-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/15/Shopping-Cart-pay-delivery-mapping/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車金物流交集：CalculatePayDeliveryMappingProcessor"/></a><div class="content"><a class="title" href="/2026/09/15/Shopping-Cart-pay-delivery-mapping/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor">購物車金物流交集：CalculatePayDeliveryMappingProcessor</a><time datetime="2026-09-15T02:00:00.000Z" title="Created 2026-09-15 10:00:00">2026-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/" title="Promotion Cart Calculate"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/promotioncalculate-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Promotion Cart Calculate"/></a><div class="content"><a class="title" href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/" title="Promotion Cart Calculate">Promotion Cart Calculate</a><time datetime="2026-09-07T02:30:56.000Z" title="Created 2026-09-07 10:30:56">2026-09-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/04/Shopping-Cart-paytype-initial-filter/" title="購物車初步篩選可用金流"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/payment-availible-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車初步篩選可用金流"/></a><div class="content"><a class="title" href="/2026/09/04/Shopping-Cart-paytype-initial-filter/" title="購物車初步篩選可用金流">購物車初步篩選可用金流</a><time datetime="2026-09-04T00:35:00.000Z" title="Created 2026-09-04 08:35:00">2026-09-04</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/09/15/Shopping-Cart-pay-delivery-mapping/">https://allenlin000.github.io.git/2026/09/15/Shopping-Cart-pay-delivery-mapping/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%B3%BC%E7%89%A9%E8%BB%8A/">購物車</a><a class="post-meta__tags" href="/tags/%E9%87%91%E7%89%A9%E6%B5%81/">金物流</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/09/15/Shopping-Cart-pay-delivery-mapping-pure/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">購物車金物流交集：CalculatePayDeliveryMappingProcessor</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/09/15/Shopping-Cart-pay-delivery-mapping-pure/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-15</div><div class="title">購物車金物流交集：CalculatePayDeliveryMappingProcessor</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">273</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">39</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">處理什麼問題？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">金流：每件商品都支援，才能留下</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">物流：共同選宅配，各溫層保留自己的設定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-1"><span class="toc-text">配對：有物流，還要有能搭配的金流</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-2"><span class="toc-text">內部資料處理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shopping-cart-pay-delivery-mapping-3"><span class="toc-text">結果與例外</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/15/Shopping-Cart-pay-delivery-mapping/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車金物流交集：CalculatePayDeliveryMappingProcessor"/></a><div class="content"><a class="title" href="/2026/09/15/Shopping-Cart-pay-delivery-mapping/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor">購物車金物流交集：CalculatePayDeliveryMappingProcessor</a><time datetime="2026-09-15T02:00:00.000Z" title="Created 2026-09-15 10:00:00">2026-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/15/Shopping-Cart-pay-delivery-mapping-pure/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車金物流交集：CalculatePayDeliveryMappingProcessor"/></a><div class="content"><a class="title" href="/2026/09/15/Shopping-Cart-pay-delivery-mapping-pure/" title="購物車金物流交集：CalculatePayDeliveryMappingProcessor">購物車金物流交集：CalculatePayDeliveryMappingProcessor</a><time datetime="2026-09-15T02:00:00.000Z" title="Created 2026-09-15 10:00:00">2026-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/" title="Promotion Cart Calculate"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/promotioncalculate-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Promotion Cart Calculate"/></a><div class="content"><a class="title" href="/2026/09/07/Shopping-Cart-promotion-cart-calculate-data-flow/" title="Promotion Cart Calculate">Promotion Cart Calculate</a><time datetime="2026-09-07T02:30:56.000Z" title="Created 2026-09-07 10:30:56">2026-09-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/04/Shopping-Cart-paytype-initial-filter/" title="購物車初步篩選可用金流"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/payment-availible-landing.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="購物車初步篩選可用金流"/></a><div class="content"><a class="title" href="/2026/09/04/Shopping-Cart-paytype-initial-filter/" title="購物車初步篩選可用金流">購物車初步篩選可用金流</a><time datetime="2026-09-04T00:35:00.000Z" title="Created 2026-09-04 08:35:00">2026-09-04</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
   const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
   if ($mermaid.length === 0) return
   const runMermaid = () => {
