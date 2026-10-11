@@ -1,0 +1,316 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Stripe Apple Pay：憑證、金鑰與付款全貌 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="全貌Stripe × Apple Pay · Architecture 一筆 Apple Pay 付款，背後有兩條先接好的關係 Apple 要知道這個 App 代表哪個商家收款，Stripe 要能處理 Apple Pay 加密後的付款資料。真正付款時，App 與後端還要使用對應的 Stripe 帳戶和模式。 第一章：先看全貌上線前，確認商家身分與付款資料的處理者Apple Merchant ID">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stripe Apple Pay：憑證、金鑰與付款全貌">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/09/24/DeepType-Payment-Stripe-ApplePay-pure/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="全貌Stripe × Apple Pay · Architecture 一筆 Apple Pay 付款，背後有兩條先接好的關係 Apple 要知道這個 App 代表哪個商家收款，Stripe 要能處理 Apple Pay 加密後的付款資料。真正付款時，App 與後端還要使用對應的 Stripe 帳戶和模式。 第一章：先看全貌上線前，確認商家身分與付款資料的處理者Apple Merchant ID">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-09-24T06:10:00.000Z">
+<meta property="article:modified_time" content="2026-10-11T02:02:34.755Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/09/24/DeepType-Payment-Stripe-ApplePay-pure/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Stripe Apple Pay：憑證、金鑰與付款全貌',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-10-11 10:02:34'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">278</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">40</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Stripe Apple Pay：憑證、金鑰與付款全貌</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-09-24T06:10:00.000Z" title="Created 2026-09-24 14:10:00">2026-09-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-10-11T02:02:34.755Z" title="Updated 2026-10-11 10:02:34">2026-10-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Payment/">Payment</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Stripe Apple Pay：憑證、金鑰與付款全貌"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="全貌"><a href="#全貌" class="headerlink" title="全貌"></a>全貌</h2><p>Stripe × Apple Pay · Architecture</p>
+<p>一筆 Apple Pay 付款，背後有兩條先接好的關係</p>
+<p>Apple 要知道這個 App 代表哪個商家收款，Stripe 要能處理 Apple Pay 加密後的付款資料。真正付款時，App 與後端還要使用對應的 Stripe 帳戶和模式。</p>
+<h2 id="第一章：先看全貌"><a href="#第一章：先看全貌" class="headerlink" title="第一章：先看全貌"></a>第一章：先看全貌</h2><h3 id="上線前，確認商家身分與付款資料的處理者"><a href="#上線前，確認商家身分與付款資料的處理者" class="headerlink" title="上線前，確認商家身分與付款資料的處理者"></a>上線前，確認商家身分與付款資料的處理者</h3><p><code>Apple Merchant ID</code> 是商家在 Apple Pay 的身分。iOS App 將它設定在 Apple Pay capability，表示這個 App 代表該商家收款。Stripe 提供 <code>CSR</code>，Apple 根據 CSR 為該 Merchant ID 簽發付款處理憑證，最後把憑證放回 Stripe。</p>
+<pre class="mermaid">flowchart TB
+    merchant["Apple Merchant ID"] -->|指定給| app["iOS App"]
+    merchant -->|關聯| certificate["Apple Pay 付款處理憑證"]
+    csr["Stripe 提供 CSR"] -->|交給 Apple 簽發| certificate
+    certificate -->|上傳回| stripe["Stripe 帳戶"]
+
+    classDef apple fill:#eff3fa,stroke:#56729b,color:#243b5a,stroke-width:2px
+    classDef stripeStyle fill:#eeecff,stroke:#635bff,color:#342d80,stroke-width:2px
+    class merchant,app,certificate apple
+    class csr,stripe stripeStyle</pre>
+
+<p>這張圖描述上線前的設定關係。Apple 用憑證中的公鑰加密付款資料，Stripe 持有相對應的私鑰，才能解密並處理。憑證不是 App 的 API key。</p>
+<h3 id="付款時，App-與後端各使用一把-Stripe-key"><a href="#付款時，App-與後端各使用一把-Stripe-key" class="headerlink" title="付款時，App 與後端各使用一把 Stripe key"></a>付款時，App 與後端各使用一把 Stripe key</h3><p>App 呼叫 <code>GetMobileAppSettings</code>，取得從 <code>ShopDefault</code> 與 <code>ShopSecret</code> 選出的 publishable key，再初始化 Stripe SDK。使用者完成 Apple Pay 操作後，App 把 <code>PaymentMethod ID</code> 交給 mweb。後端用自己的 secret key，透過 PaymentMiddleware 向 Stripe 建立付款。</p>
+<pre class="mermaid">flowchart TB
+    shop["ShopDefault + ShopSecret"] --> config["GetMobileAppSettings"]
+    config -->|pk_test_ 或 pk_live_| app["App + Stripe SDK"]
+    app -->|PaymentMethod ID| middleware["mweb + PaymentMiddleware"]
+    serverKey["後端 AppSetting"] -->|sk_test_ 或 sk_live_| middleware
+    middleware -->|PaymentIntent| stripe["Stripe API"]
+
+    classDef setting fill:#edf4ff,stroke:#4879be,color:#234874,stroke-width:2px
+    classDef application fill:#eeecff,stroke:#635bff,color:#342d80,stroke-width:2px
+    classDef service fill:#f2f4f7,stroke:#758096,color:#344054,stroke-width:2px
+    class shop,config,serverKey setting
+    class app application
+    class middleware,stripe service</pre>
+
+<h3 id="三種名稱相近，但工作不同的東西"><a href="#三種名稱相近，但工作不同的東西" class="headerlink" title="三種名稱相近，但工作不同的東西"></a>三種名稱相近，但工作不同的東西</h3><p><strong>Apple Merchant ID</strong>回答「哪個商家在收款」。App 使用這個 ID 啟用 Apple Pay；同一個 Merchant ID 可以供多個 App 使用。</p>
+<p><strong>憑證中的公鑰</strong>回答「Apple Pay 付款資料要用什麼加密」。Apple 加密後，由持有對應私鑰的 Stripe 處理。</p>
+<p><strong>Stripe publishable key</strong>回答「App 的 Stripe SDK 使用哪個帳戶與模式」。格式是 <code>pk_test_</code> 或 <code>pk_live_</code>，並不是憑證中的公鑰。</p>
+<p><code>Merchant ID + 付款處理憑證</code>建立 Apple Pay 的商家與加密關係；<code>pk_*</code> 和 <code>sk_*</code> 則分別供 App 與後端使用 Stripe API。兩組設定都要對上，Apple Pay 付款才能走完整條鏈路。</p>
+<h2 id="CSR"><a href="#CSR" class="headerlink" title="CSR"></a>CSR</h2><h2 id="第二章：Stripe-CSR-是什麼"><a href="#第二章：Stripe-CSR-是什麼" class="headerlink" title="第二章：Stripe CSR 是什麼"></a>第二章：Stripe CSR 是什麼</h2><p>Apple Pay 付款資料會先被加密，再交給 Stripe 處理。要讓 Stripe 能解開這份資料，上線前得先備好一組對得上的公鑰與私鑰。Stripe 保管私鑰，並提供一份含有對應公鑰的申請文件，交給 Apple 核發憑證。這份申請文件就是 <code>CSR</code>。</p>
+<h3 id="CSR-是申請書，不是付款時使用的憑證"><a href="#CSR-是申請書，不是付款時使用的憑證" class="headerlink" title="CSR 是申請書，不是付款時使用的憑證"></a>CSR 是申請書，不是付款時使用的憑證</h3><p><code>CSR</code> 的全名是 Certificate Signing Request，中文是「憑證簽署請求」。它把要放進憑證的公鑰資料交給 Apple。Apple 收到後，針對指定的 <code>Apple Merchant ID</code> 核發付款處理憑證。<code>CSR</code> 本身還沒有經過 Apple 簽發，不能拿來取代憑證，也不包含用來解密的私鑰。</p>
+<pre class="mermaid">flowchart TB
+    stripe["Stripe 準備配對的公鑰與私鑰"] -->|公鑰放進申請書| csr["Stripe 提供 CSR"]
+    stripe -->|私鑰留在 Stripe| privateKey["Stripe 保管私鑰"]
+    merchant["Apple Merchant ID"] -->|指定申請對象| apple["Apple 核發付款處理憑證"]
+    csr -->|提交申請| apple
+    apple -->|憑證上傳回 Stripe| certificate["Stripe 保存憑證"]
+
+    classDef stripeStyle fill:#eeecff,stroke:#635bff,color:#342d80,stroke-width:2px
+    classDef appleStyle fill:#eff3fa,stroke:#56729b,color:#243b5a,stroke-width:2px
+    class stripe,csr,privateKey,certificate stripeStyle
+    class merchant,apple appleStyle</pre>
+
+<p>圖中的兩條線最後要接到同一組鑰匙：Apple Pay 使用憑證中的公鑰加密付款資料，Stripe 使用自己保管的對應私鑰解密。CSR 與憑證的申請是在上線前完成，不會在每筆付款時重做。</p>
+<h3 id="為什麼要從-Stripe-取得-CSR"><a href="#為什麼要從-Stripe-取得-CSR" class="headerlink" title="為什麼要從 Stripe 取得 CSR"></a>為什麼要從 Stripe 取得 CSR</h3><p>這條付款鏈路由 Stripe 處理加密後的 Apple Pay 資料，所以憑證中的公鑰必須對應 Stripe 能使用的私鑰。若改用自行產生的另一份 CSR，Apple 核發的憑證就會對應另一組鑰匙，不能假設 Stripe 能解開用它加密的付款資料。Apple 也明確建議使用付款服務商時，向服務商取得適用的 CSR。</p>
+<h3 id="實際取得與提交順序"><a href="#實際取得與提交順序" class="headerlink" title="實際取得與提交順序"></a>實際取得與提交順序</h3><ol>
+<li>在 Apple Developer 確認 App 使用的 <code>Apple Merchant ID</code>。</li>
+<li>登入要處理這筆 Apple Pay 交易的 Stripe 帳戶，開啟 <a target="_blank" rel="noopener" href="https://dashboard.stripe.com/settings/ios_certificates">iOS Certificate Settings</a>，選擇 <code>Add new application</code>，依畫面指示下載 Stripe 提供的 <code>CSR</code>。</li>
+<li>回到 Apple Developer，選擇該 Merchant ID，建立 <code>Apple Pay Payment Processing Certificate</code>，提交剛下載的 CSR。</li>
+<li>下載 Apple 核發的憑證，依 Stripe Dashboard 指示上傳回對應的 Stripe 帳戶。</li>
+</ol>
+<p><code>CSR</code> 處理的是「Apple Pay 憑證要使用哪組公私鑰」。App 初始化 Stripe SDK 所用的 <code>pk_test_</code> 或 <code>pk_live_</code> 是另一種金鑰，不會放進這份 CSR，也不能拿來當憑證公鑰。</p>
+<h2 id="憑證"><a href="#憑證" class="headerlink" title="憑證"></a>憑證</h2><h2 id="第三章：Apple-Pay-憑證的意義與產生方式"><a href="#第三章：Apple-Pay-憑證的意義與產生方式" class="headerlink" title="第三章：Apple Pay 憑證的意義與產生方式"></a>第三章：Apple Pay 憑證的意義與產生方式</h2><p>Apple 核發憑證後，還需要讓 App 的商家設定與 Stripe 的憑證設定對上，付款資料才有對應的處理者。這一章接著看核發後的檔案、設定完成的條件，以及到期前的更新方式。</p>
+<h3 id="Apple-核發的是付款處理憑證"><a href="#Apple-核發的是付款處理憑證" class="headerlink" title="Apple 核發的是付款處理憑證"></a>Apple 核發的是付款處理憑證</h3><p>本文的 iOS App 整合使用 <code>Apple Pay Payment Processing Certificate</code>。Apple 將它關聯到指定的 <code>Merchant ID</code>，憑證中的公鑰用來加密付款資料。在這條 Stripe 整合中，對應私鑰由 Stripe 保管，下載憑證不會取得那把私鑰。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>負責的事情</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Apple Pay Payment Processing Certificate</td>
+<td>提供 Apple Pay 付款資料加密所需的公鑰</td>
+</tr>
+<tr>
+<td>App 簽章憑證</td>
+<td>簽署 App，與付款資料的加密用途不同</td>
+</tr>
+<tr>
+<td>Apple Pay Merchant Identity Certificate</td>
+<td>Apple Pay on the Web 與 Apple 建立商家驗證連線時使用</td>
+</tr>
+<tr>
+<td>Stripe API keys</td>
+<td>App 與後端存取 Stripe API 時使用，詳見第一章的金鑰分工</td>
+</tr>
+</tbody></table>
+<p>付款處理憑證與 Merchant ID 的關係見 <a target="_blank" rel="noopener" href="https://developer.apple.com/help/account/capabilities/configure-apple-pay">Apple 設定說明</a>；Web 商家驗證憑證的用途見 <a target="_blank" rel="noopener" href="https://developer.apple.com/help/account/capabilities/configure-apple-pay-on-the-web">Apple Pay on the Web</a>。</p>
+<h3 id="提交-CSR-後，取得什麼檔案"><a href="#提交-CSR-後，取得什麼檔案" class="headerlink" title="提交 CSR 後，取得什麼檔案"></a>提交 CSR 後，取得什麼檔案</h3><p>沿用第二章的申請順序，在 Apple Developer 的 <code>Merchant IDs</code> 選定商家，於 <code>Apple Pay Payment Processing Certificate</code> 提交 Stripe CSR。Apple 核發後，按 <code>Download</code> 取得副檔名為 <code>.cer</code> 的憑證，再將這份檔案上傳回提供 CSR 的 Stripe 帳戶。</p>
+<p><strong>下載完成與設定完成是兩個階段。</strong>電腦上已有 <code>.cer</code>，只表示已取得 Apple 核發的檔案；Stripe 端仍須完成上傳，才能接上這次憑證設定。</p>
+<h3 id="完成設定，要核對三個位置"><a href="#完成設定，要核對三個位置" class="headerlink" title="完成設定，要核對三個位置"></a>完成設定，要核對三個位置</h3><table>
+<thead>
+<tr>
+<th>位置</th>
+<th>核對內容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>iOS App</td>
+<td>Apple Pay capability 勾選的 Merchant ID，與付款請求使用的商家識別一致</td>
+</tr>
+<tr>
+<td>Apple Developer</td>
+<td>憑證建立在該 Merchant ID 下，且仍在有效期間內</td>
+</tr>
+<tr>
+<td>Stripe Dashboard</td>
+<td>Apple 核發的憑證已上傳到提供 CSR、預定處理付款的帳戶</td>
+</tr>
+</tbody></table>
+<p>這三處核對的是同一條商家與憑證關係。完成後，仍要以測試金鑰執行 Apple Pay 付款，確認整合能處理付款資料。憑證有效不代表交易成功，也不決定交易使用 Test 或 Live 模式。</p>
+<h3 id="到期前更新，先讓-Stripe-準備好"><a href="#到期前更新，先讓-Stripe-準備好" class="headerlink" title="到期前更新，先讓 Stripe 準備好"></a>到期前更新，先讓 Stripe 準備好</h3><p>付款處理憑證的有效期為 <strong>25 個月</strong>，應在到期前完成更新。更新的重點是避免 Apple 已改用新公鑰加密，Stripe 卻還沒收到新憑證。</p>
+<ol>
+<li><strong>取得新憑證：</strong>重新從 Stripe 下載 CSR，再到 Apple Developer 申請新憑證，不沿用舊 CSR。</li>
+<li><strong>先上傳 Stripe：</strong>將新憑證上傳至 Stripe Dashboard，並保留舊憑證，讓切換期間兩張憑證都可使用。</li>
+<li><strong>再到 Apple 啟用：</strong>確認 Stripe 已有新舊憑證後，才在 Apple Developer 啟用新憑證。Stripe 文件指出，Apple 約在啟用後 5 分鐘改用新公鑰。</li>
+<li><strong>驗證付款：</strong>使用測試 API keys 執行 Apple Pay 交易，確認更新後的整合正常。單純更換憑證不需要更新 App。</li>
+</ol>
+<p>有效期依據 <a target="_blank" rel="noopener" href="https://developer.apple.com/help/account/capabilities/configure-apple-pay">Apple 付款處理憑證說明</a>；切換順序與驗證方式依據 <a target="_blank" rel="noopener" href="https://docs.stripe.com/apple-pay/best-practices#apple-pay-certificate-renewal">Stripe 憑證更新建議</a>。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/09/24/DeepType-Payment-Stripe-ApplePay-pure/">https://allenlin000.github.io.git/2026/09/24/DeepType-Payment-Stripe-ApplePay-pure/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/09/18/Shopping-Cart-promotion-reward-collection-flow-pure/" title="回饋給券活動商品異動的全貌鏈路"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">回饋給券活動商品異動的全貌鏈路</div></div></a></div><div class="next-post pull-right"><a href="/2026/09/24/DeepType-Payment-Stripe-ApplePay/" title="Stripe Apple Pay：憑證、金鑰與付款全貌"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Stripe Apple Pay：憑證、金鑰與付款全貌</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">278</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">40</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A8%E8%B2%8C"><span class="toc-number">1.</span> <span class="toc-text">全貌</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E5%85%88%E7%9C%8B%E5%85%A8%E8%B2%8C"><span class="toc-number">2.</span> <span class="toc-text">第一章：先看全貌</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E7%B7%9A%E5%89%8D%EF%BC%8C%E7%A2%BA%E8%AA%8D%E5%95%86%E5%AE%B6%E8%BA%AB%E5%88%86%E8%88%87%E4%BB%98%E6%AC%BE%E8%B3%87%E6%96%99%E7%9A%84%E8%99%95%E7%90%86%E8%80%85"><span class="toc-number">2.1.</span> <span class="toc-text">上線前，確認商家身分與付款資料的處理者</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%98%E6%AC%BE%E6%99%82%EF%BC%8CApp-%E8%88%87%E5%BE%8C%E7%AB%AF%E5%90%84%E4%BD%BF%E7%94%A8%E4%B8%80%E6%8A%8A-Stripe-key"><span class="toc-number">2.2.</span> <span class="toc-text">付款時，App 與後端各使用一把 Stripe key</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A8%AE%E5%90%8D%E7%A8%B1%E7%9B%B8%E8%BF%91%EF%BC%8C%E4%BD%86%E5%B7%A5%E4%BD%9C%E4%B8%8D%E5%90%8C%E7%9A%84%E6%9D%B1%E8%A5%BF"><span class="toc-number">2.3.</span> <span class="toc-text">三種名稱相近，但工作不同的東西</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSR"><span class="toc-number">3.</span> <span class="toc-text">CSR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E7%AB%A0%EF%BC%9AStripe-CSR-%E6%98%AF%E4%BB%80%E9%BA%BC"><span class="toc-number">4.</span> <span class="toc-text">第二章：Stripe CSR 是什麼</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CSR-%E6%98%AF%E7%94%B3%E8%AB%8B%E6%9B%B8%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%BB%98%E6%AC%BE%E6%99%82%E4%BD%BF%E7%94%A8%E7%9A%84%E6%86%91%E8%AD%89"><span class="toc-number">4.1.</span> <span class="toc-text">CSR 是申請書，不是付款時使用的憑證</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E8%A6%81%E5%BE%9E-Stripe-%E5%8F%96%E5%BE%97-CSR"><span class="toc-number">4.2.</span> <span class="toc-text">為什麼要從 Stripe 取得 CSR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%A6%E9%9A%9B%E5%8F%96%E5%BE%97%E8%88%87%E6%8F%90%E4%BA%A4%E9%A0%86%E5%BA%8F"><span class="toc-number">4.3.</span> <span class="toc-text">實際取得與提交順序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%86%91%E8%AD%89"><span class="toc-number">5.</span> <span class="toc-text">憑證</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E7%AB%A0%EF%BC%9AApple-Pay-%E6%86%91%E8%AD%89%E7%9A%84%E6%84%8F%E7%BE%A9%E8%88%87%E7%94%A2%E7%94%9F%E6%96%B9%E5%BC%8F"><span class="toc-number">6.</span> <span class="toc-text">第三章：Apple Pay 憑證的意義與產生方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Apple-%E6%A0%B8%E7%99%BC%E7%9A%84%E6%98%AF%E4%BB%98%E6%AC%BE%E8%99%95%E7%90%86%E6%86%91%E8%AD%89"><span class="toc-number">6.1.</span> <span class="toc-text">Apple 核發的是付款處理憑證</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E4%BA%A4-CSR-%E5%BE%8C%EF%BC%8C%E5%8F%96%E5%BE%97%E4%BB%80%E9%BA%BC%E6%AA%94%E6%A1%88"><span class="toc-number">6.2.</span> <span class="toc-text">提交 CSR 後，取得什麼檔案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8C%E6%88%90%E8%A8%AD%E5%AE%9A%EF%BC%8C%E8%A6%81%E6%A0%B8%E5%B0%8D%E4%B8%89%E5%80%8B%E4%BD%8D%E7%BD%AE"><span class="toc-number">6.3.</span> <span class="toc-text">完成設定，要核對三個位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B0%E6%9C%9F%E5%89%8D%E6%9B%B4%E6%96%B0%EF%BC%8C%E5%85%88%E8%AE%93-Stripe-%E6%BA%96%E5%82%99%E5%A5%BD"><span class="toc-number">6.4.</span> <span class="toc-text">到期前更新，先讓 Stripe 準備好</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/08/Regular-Order-queue-1/" title="定期購通知 Queue 設計：從雙層佇列到防重與併發控制"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="定期購通知 Queue 設計：從雙層佇列到防重與併發控制"/></a><div class="content"><a class="title" href="/2026/10/08/Regular-Order-queue-1/" title="定期購通知 Queue 設計：從雙層佇列到防重與併發控制">定期購通知 Queue 設計：從雙層佇列到防重與併發控制</a><time datetime="2026-10-08T03:42:00.000Z" title="Created 2026-10-08 11:42:00">2026-10-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/24/Test-time/" title="in"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="in"/></a><div class="content"><a class="title" href="/2026/09/24/Test-time/" title="in">in</a><time datetime="2026-09-24T06:10:00.000Z" title="Created 2026-09-24 14:10:00">2026-09-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/24/DeepType-Payment-Stripe-ApplePay/" title="Stripe Apple Pay：憑證、金鑰與付款全貌"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe Apple Pay：憑證、金鑰與付款全貌"/></a><div class="content"><a class="title" href="/2026/09/24/DeepType-Payment-Stripe-ApplePay/" title="Stripe Apple Pay：憑證、金鑰與付款全貌">Stripe Apple Pay：憑證、金鑰與付款全貌</a><time datetime="2026-09-24T06:10:00.000Z" title="Created 2026-09-24 14:10:00">2026-09-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/24/DeepType-Payment-Stripe-ApplePay-pure/" title="Stripe Apple Pay：憑證、金鑰與付款全貌"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Stripe Apple Pay：憑證、金鑰與付款全貌"/></a><div class="content"><a class="title" href="/2026/09/24/DeepType-Payment-Stripe-ApplePay-pure/" title="Stripe Apple Pay：憑證、金鑰與付款全貌">Stripe Apple Pay：憑證、金鑰與付款全貌</a><time datetime="2026-09-24T06:10:00.000Z" title="Created 2026-09-24 14:10:00">2026-09-24</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        item.insertAdjacentHTML('afterend', svg)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
