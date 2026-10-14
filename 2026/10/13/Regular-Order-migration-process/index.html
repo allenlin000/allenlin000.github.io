@@ -1,0 +1,775 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>migration-process | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Migration Process 架構設計Manage 如何續跑一次 migration 怎麼跑怎麼記住搬到哪裡失敗與修復細節支援補同步舊資料刪除了怎麼辦是相容不是複製 .rma{font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;Noto Sans TC&quot;,sans-serif;color:#1a1a2e;background:#f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="migration-process">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/10/13/Regular-Order-migration-process/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="Migration Process 架構設計Manage 如何續跑一次 migration 怎麼跑怎麼記住搬到哪裡失敗與修復細節支援補同步舊資料刪除了怎麼辦是相容不是複製 .rma{font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;Noto Sans TC&quot;,sans-serif;color:#1a1a2e;background:#f">
+<meta property="og:locale">
+<meta property="og:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png">
+<meta property="article:published_time" content="2026-10-13T05:44:00.000Z">
+<meta property="article:modified_time" content="2026-10-14T06:04:15.472Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/10/13/Regular-Order-migration-process/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'migration-process',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-10-14 14:04:15'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">279</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">40</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">migration-process</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-10-13T05:44:00.000Z" title="Created 2026-10-13 13:44:00">2026-10-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-10-14T06:04:15.472Z" title="Updated 2026-10-14 14:04:15">2026-10-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Regular-Order/">Regular-Order</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="migration-process"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="migration-process"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="migration-process-1">Migration Process 架構設計</button><button type="button" class="tab " data-href="migration-process-2">Manage 如何續跑</button><button type="button" class="tab " data-href="migration-process-3">一次 migration 怎麼跑</button><button type="button" class="tab " data-href="migration-process-4">怎麼記住搬到哪裡</button><button type="button" class="tab " data-href="migration-process-5">失敗與修復細節</button><button type="button" class="tab " data-href="migration-process-6">支援補同步</button><button type="button" class="tab " data-href="migration-process-7">舊資料刪除了怎麼辦</button><button type="button" class="tab " data-href="migration-process-8">是相容不是複製</button></ul><div class="tab-contents"><div class="tab-item-content active" id="migration-process-1"><style>
+.rma{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#1a1a2e;background:#f0f2f5;padding:22px;border-radius:12px;font-size:16px;line-height:1.8;overflow:hidden}
+.rma *{box-sizing:border-box}
+#article-container .rma p{color:#4a5568;margin:10px 0;line-height:1.85}
+#article-container .rma code{font-family:"Fira Code",Consolas,monospace;background:#f1f3f5;color:#d63384;padding:1px 5px;border-radius:3px;font-size:.88em;overflow-wrap:anywhere}
+.rma-hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;border-radius:12px;padding:32px 36px;margin-bottom:24px;position:relative;overflow:hidden}
+.rma-hero:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(189,147,249,.28);border-radius:50%;right:-70px;top:-80px}
+.rma-eyebrow{font-size:12px;letter-spacing:1.2px;color:#bd93f9;font-weight:700;margin-bottom:9px}
+#article-container .rma .rma-hero h1{color:#fff!important;font-size:27px;line-height:1.45;margin:0 0 10px}
+#article-container .rma .rma-hero p{color:#cdd6f4;margin:0;max-width:720px}
+#article-container .rma .rma-hero code{background:transparent;color:inherit;padding:0;font-size:inherit}
+.rma-purpose{border-left:3px solid #bd93f9;padding:7px 0 7px 16px;margin:18px 0 28px;font-weight:700;color:#1a1a2e}
+.rma-section-head{display:flex;align-items:center;gap:11px;margin:34px 0 16px}
+.rma-section-chip{width:34px;height:34px;border-radius:8px;background:#f3f0ff;color:#7048e8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+.rma-section-title{font-size:20px;font-weight:800;color:#1a1a2e}
+.rma-subhead{font-size:17px;font-weight:800;color:#1a1a2e;margin:26px 0 8px}
+.rma-table-scroll{overflow-x:auto;margin:16px 0 24px}
+#article-container .rma table.rma-table{width:100%;min-width:620px;border-collapse:collapse;background:#fff;font-size:14px;margin:0;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+#article-container .rma table.rma-table th{background:#f1f3f5;color:#495057;text-align:left;padding:11px 14px;border:0;border-bottom:2px solid #dee2e6;font-weight:700}
+#article-container .rma table.rma-table td{background:#fff;color:#4a5568;padding:12px 14px;border:0;border-bottom:1px solid #f1f3f5;vertical-align:top;line-height:1.75}
+#article-container .rma table.rma-table tr:last-child td{border-bottom:0}
+.rma-arch{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin:18px 0}
+.rma-arch-control{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:8px;align-items:center;max-width:620px;margin:0 auto}
+.rma-arch-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:620px;margin:0 auto}
+.rma-arch-node{border:2px solid var(--node-color,#4dabf7);background:var(--node-bg,#e7f5ff);border-radius:10px;padding:12px 14px;text-align:center;color:var(--node-ink,#1971c2);font-weight:800}
+.rma-arch-node small{display:block;color:#6272a4;font-weight:500;font-size:12px;line-height:1.5;margin-top:3px}
+.rma-arch-arrow{text-align:center;color:#adb5bd;font-size:23px;line-height:1.2;margin:5px 0}
+.rma-arch-data{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:620px;margin:0 auto}
+.rma-arch-store{border-top:3px solid #20c997;background:#f8fffc;padding:10px 14px;text-align:center;color:#0f9177;font-weight:800}
+.rma-arch-progress{border-top:1px dashed #dce3ed;margin-top:18px;padding-top:12px;text-align:center;color:#6272a4;font-size:14px}
+.rma-flow{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr);align-items:center;margin:18px 0}
+.rma-flow-node{min-width:0;border-top:3px solid var(--step-color,#4dabf7);padding:11px 8px;text-align:center;background:#fff;color:#1a1a2e;font-size:14px;font-weight:800}
+.rma-flow-node small{display:block;color:#6272a4;font-size:12px;font-weight:500;line-height:1.5;margin-top:3px}
+.rma-flow-arrow{text-align:center;color:#adb5bd;font-size:20px}
+.rma-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}
+.rma-card{background:#fff;border-left:4px solid var(--card-color,#4dabf7);border-radius:10px;padding:17px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rma-card-title{font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:4px}
+.rma-card-desc{font-size:14px;color:#6272a4;line-height:1.7}
+.rma-note{background:#fff9db;border:1px solid #ffd43b;border-radius:8px;padding:14px 16px;margin:16px 0;color:#664d03}
+.rma-note strong{color:#9c5b00}
+.rma-note.info{background:#e7f5ff;border-color:#a5d8ff;color:#1971c2}
+.rma-note.info strong{color:#1971c2}
+.rma-cycle{background:#fff;border:1px solid #e2e8f0;border-top:4px solid var(--cycle-color,#4dabf7);border-radius:10px;padding:18px 20px;margin:18px 0;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.rma-cycle-title{font-size:17px;font-weight:800;color:#1a1a2e;margin-bottom:5px}
+.rma-cycle-desc{font-size:14px;color:#6272a4;line-height:1.7}
+.rma-branch-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.rma-branch{border-left:3px solid var(--branch-color,#4dabf7);background:#f8fafc;padding:12px 14px;color:#4a5568;font-size:14px;line-height:1.65}
+.rma-branch strong{display:block;color:#1a1a2e;margin-bottom:4px}
+.rma-key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.rma-key-part{background:#fff;border-top:3px solid #bd93f9;border-radius:8px;padding:12px 8px;text-align:center;color:#1a1a2e;font-weight:800}
+.rma-key-join{text-align:center;color:#adb5bd;font-size:24px;line-height:1;margin:0 0 10px}
+.rma-track-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0}
+.rma-track{background:#fff;border-top:4px solid var(--track-color,#4dabf7);border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08);min-width:0}
+.rma-track-title{font-size:17px;font-weight:800;color:#1a1a2e;margin-bottom:12px}
+.rma-track-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rma-track-field{background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px;font-size:13px;color:#6272a4;min-width:0}
+.rma-track-field code{display:block;margin-top:4px}
+.rma-track-next{border-top:1px dashed #dce3ed;margin-top:13px;padding-top:11px;font-size:14px;color:#4a5568}
+.rma-set-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0}
+.rma-set{background:#fff;border-top:4px solid var(--set-color,#4dabf7);border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rma-set-title{font-size:17px;font-weight:800;color:#1a1a2e;margin-bottom:5px}
+.rma-set-desc{font-size:13px;color:#6272a4;margin-bottom:13px}
+.rma-pk-list{display:flex;gap:8px;flex-wrap:wrap}
+.rma-pk{background:#e7f5ff;border-radius:6px;padding:5px 10px;font-size:13px;color:#1971c2;font-weight:800}
+.rma-pk.extra{background:#fff5f5;color:#c92a2a;border:1px solid #ffa8a8}
+#article-container .rma .rma-pk code{background:transparent!important;color:inherit!important;padding:0;font-size:inherit}
+.rma-json-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0}
+.rma-json-card{background:#fff;border-top:4px solid var(--json-color,#4dabf7);border-radius:10px;padding:16px;min-width:0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rma-json-title{font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:10px}
+#article-container .rma .rma-json-card pre.rma-pre{background:#1e1e2e!important;color:#e7edf7!important;border:0!important;border-radius:8px!important;padding:14px!important;margin:0!important;box-shadow:none!important;text-shadow:none!important;font:13px/1.55 Consolas,monospace!important;white-space:pre!important;overflow-x:auto!important}
+.rma-caption{font-size:13px;color:#6272a4;margin:8px 0 20px}
+@media(max-width:760px){.rma{padding:14px 10px}.rma-hero{padding:25px 20px}.rma-grid,.rma-branch-grid,.rma-track-grid,.rma-set-grid,.rma-json-grid{grid-template-columns:1fr}.rma-flow{grid-template-columns:1fr}.rma-flow-arrow{transform:rotate(90deg)}.rma-arch{padding:14px 10px}.rma-arch-row,.rma-arch-data{gap:8px}.rma-arch-node{padding:10px 6px;font-size:14px}.rma-arch-store{padding:8px 6px;font-size:13px}}
+</style>
+
+<div class="rma">
+<div class="rma-hero">
+<div class="rma-eyebrow">REGULAR PURCHASE MIGRATION</div>
+<h1 style="color:#fff!important">Migration Process 架構設計</h1>
+<p>一間商店的定期購資料包含商品、會員、訂閱等不同類型。搬移時，要把舊 MySQL 的資料轉到新 PostgreSQL；每一類資料搬完後還要驗證，才能接著處理下一類。</p>
+</div>
+<div class="rma-purpose">整輪共有 14 個階段。架構設計要同時處理階段順序、每批資料的搬移與驗證，以及中斷後的接續。</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">01</div>
+<div class="rma-section-title">為什麼設計 Stage</div>
+</div>
+<p>整輪搬移涵蓋商品、會員、訂閱等不同資料。它們各有搬移與驗證規則，卻都要經過「搬移一批、保存進度、核對一批」的節奏。把每一類資料切成一個 <code>Stage</code>，才能讓共通流程與各類資料的規則有清楚的界線。</p>
+<div class="rma-grid">
+<div class="rma-card" style="--card-color:#4dabf7"><div class="rma-card-title">規則按資料類型分開</div><div class="rma-card-desc">每個 <code>Stage</code> 由對應的 <code>Stage Handler</code> 決定資料怎麼搬、怎麼驗證。</div></div>
+<div class="rma-card" style="--card-color:#bd93f9"><div class="rma-card-title">完成條件可以辨認</div><div class="rma-card-desc"><code>Copied</code> 只代表搬完；達到 <code>Validated</code>，才代表這個階段完成。</div></div>
+<div class="rma-card" style="--card-color:#20c997"><div class="rma-card-title">進度能定位到階段</div><div class="rma-card-desc"><code>migration_process</code> 以 <code>MigrationId</code>、<code>ShopId</code>、<code>Stage</code> 記錄各階段的進度與狀態。</div></div>
+</div>
+<p>因此，<code>Product</code> 搬完時還不能直接進入 <code>Member</code>。兩個 <code>Stage</code> 之間，必須先確認 <code>Product</code> 已驗證通過。</p>
+<div class="rma-section-head">
+<div class="rma-section-chip">02</div>
+<div class="rma-section-title">為什麼設計 Manage Job</div>
+</div>
+<p><code>Transfer Job</code> 知道怎麼搬目前這一批，成功後接續下一批；<code>Validate Job</code> 知道怎麼核對目前這一批，通過後接續下一批。兩者處理的是 <code>Stage</code> 內的工作，還需要有人判斷何時驗證、何時進入下一個 <code>Stage</code>。</p>
+<p>以 <code>Product</code> 接到 <code>Member</code> 為例，<code>Product</code> 搬完後仍須驗證。只有狀態達到 <code>Validated</code>，才能安排 <code>Member</code> 搬移。</p>
+<div class="rma-flow" role="group" aria-label="Product 搬完、Manage 安排驗證、Product 驗證通過、Manage 安排 Member 搬移">
+<div class="rma-flow-node" style="--step-color:#4dabf7">Product 搬移完成<small>狀態為 Copied</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#bd93f9">Manage 安排驗證<small>派送 Validate Job</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#51cf66">Product 驗證通過<small>狀態為 Validated</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#4dabf7">Manage 安排搬移<small>進入 Member 階段</small></div>
+</div>
+<p>這個調度責任即使沒有 <code>Manage Job</code>，仍然需要有人承擔。若由 <code>Transfer Job</code>、<code>Validate Job</code> 各自判斷下一階段，再由 RD 拼出恢復流程，階段越多，越容易漏掉驗證、用錯游標，或提前進入下一階段。</p>
+<div class="rma-grid">
+<div class="rma-card" style="--card-color:#4dabf7"><div class="rma-card-title">順序只在一處決定</div><div class="rma-card-desc"><code>Product</code> 必須到 <code>Validated</code>，才能開始 <code>Member</code>。新增 <code>Stage</code> 時，也有明確的地方調整順序。</div></div>
+<div class="rma-card" style="--card-color:#bd93f9"><div class="rma-card-title">恢復從同一入口開始</div><div class="rma-card-desc">RD 重新建立 <code>Manage</code> 任務，由保存的進度找出階段與游標，不必自行推算該叫哪個 Job。</div></div>
+<div class="rma-card" style="--card-color:#ff922b"><div class="rma-card-title">驗證失敗先停下判斷</div><div class="rma-card-desc">資料差異不能直接視為搬移失敗後的續跑。<code>Manage Job</code> 會區分一般恢復、重新驗證與支援的修復操作。</div></div>
+</div>
+<p><code>Manage Job</code> 因此負責跨階段調度、續跑與人工處理的入口。這些規則不必散落在每個批次 Job 裡。</p>
+<div class="rma-section-head">
+<div class="rma-section-chip">03</div>
+<div class="rma-section-title">架構成員</div>
+</div>
+<p><code>Manage Job</code> 在階段交接或恢復時讀進度、決定工作；一個階段內的批次接續，仍由 <code>Transfer Job</code> 與 <code>Validate Job</code> 自己完成。資料怎麼搬、怎麼驗證，則交給對應的 <code>Stage Handler</code>。</p>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>元件</th><th>角色</th><th>負責的事</th></tr></thead>
+<tbody>
+<tr><td><code>Manage Job</code></td><td>調度</td><td>讀取整間商店的進度，決定要搬移、驗證，或等待人工處理</td></tr>
+<tr><td><code>Transfer Job</code></td><td>搬移</td><td>讀取一批舊資料，轉換後寫入新資料庫，並接續下一批</td></tr>
+<tr><td><code>Validate Job</code></td><td>驗證</td><td>重新讀取一批來源資料，核對新資料庫，並接續下一批</td></tr>
+<tr><td><code>Stage Handler</code></td><td>資料類型規則</td><td>決定商品、會員、訂閱等資料各自的搬移與驗證方式</td></tr>
+<tr><td><code>Repository</code></td><td>資料存取</td><td>執行來源查詢、目標寫入與比對，以及進度保存</td></tr>
+<tr><td><code>migration_process</code></td><td>進度紀錄</td><td>保存每個階段的搬移與驗證進度、狀態及失敗資訊</td></tr>
+<tr><td><code>NMQ</code></td><td>任務派送</td><td>將 <code>Manage</code>、<code>Transfer</code>、<code>Validate</code> 任務交給 Worker 執行</td></tr>
+</tbody>
+</table>
+</div>
+<div class="rma-arch" role="group" aria-label="Manage 經由 NMQ 派送 Transfer 或 Validate，Stage Handler 處理來源與目標資料，migration_process 保存進度">
+<div class="rma-arch-control">
+<div class="rma-arch-node" style="--node-color:#bd93f9;--node-bg:#f3f0ff;--node-ink:#7048e8">Manage Job<small>讀取進度，決定下一步</small></div>
+<div class="rma-arch-arrow" aria-hidden="true">→</div>
+<div class="rma-arch-node" style="--node-color:#bd93f9;--node-bg:#f3f0ff;--node-ink:#7048e8">NMQ<small>派送對應任務</small></div>
+</div>
+<div class="rma-arch-arrow" aria-hidden="true">↓</div>
+<div class="rma-arch-row">
+<div class="rma-arch-node">Transfer Job<small>搬移一批</small></div>
+<div class="rma-arch-node">Validate Job<small>核對一批</small></div>
+</div>
+<div class="rma-arch-arrow" aria-hidden="true">↓</div>
+<div class="rma-arch-node" style="max-width:620px;margin:0 auto;--node-color:#4dabf7;--node-bg:#e7f5ff;--node-ink:#1971c2">對應的 Stage Handler<small>依資料類型執行搬移或驗證規則</small></div>
+<div class="rma-arch-arrow" aria-hidden="true">↕</div>
+<div class="rma-arch-data">
+<div class="rma-arch-store">舊 MySQL：來源資料</div>
+<div class="rma-arch-store">新 PostgreSQL：目標資料</div>
+</div>
+<div class="rma-arch-progress"><code>migration_process</code> 保存狀態與進度，供三種 Job 在處理時查詢或更新。</div>
+</div>
+<div class="rma-caption">此圖表示元件的責任與資料關係；<code>Transfer Job</code> 與 <code>Validate Job</code> 是依目前狀態選擇的工作。</div>
+</div></div><div class="tab-item-content" id="migration-process-2"><div class="rma">
+<div class="rma-hero">
+<div class="rma-eyebrow">RECOVERY &amp; DISPATCH</div>
+<h1 style="color:#fff!important">停下來後，怎麼從正確的位置接續？</h1>
+<p><code>Manage Job</code> 以保存的階段、狀態與游標作為恢復依據；遇到驗證失敗時，還要區分重新核對與重寫資料。</p>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">01</div>
+<div class="rma-section-title">失敗後，從保存的進度續跑</div>
+</div>
+<p>假設 <code>Order</code> 搬到一半失敗，RD 以相同的 <code>MigrationId</code> 與 <code>ShopId</code> 重新建立 <code>Manage</code> 任務。<code>Manage Job</code> 會依已保存的狀態處理：</p>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>階段</th><th>已保存狀態</th><th>下一步</th></tr></thead>
+<tbody>
+<tr><td><code>Shop</code>、<code>Product</code>、<code>Member</code></td><td><code>Validated</code></td><td>略過</td></tr>
+<tr><td><code>Order</code></td><td><code>Failed</code></td><td>從保存的搬移游標續跑</td></tr>
+<tr><td>後續階段</td><td><code>Pending</code></td><td>等待 <code>Order</code> 完成</td></tr>
+</tbody>
+</table>
+</div>
+<p>失敗批次不推進搬移進度。RD 不必自行推算階段、游標或要派送的 Job；恢復工作的依據是 <code>migration_process</code> 保存的進度。</p>
+<div class="rma-section-head">
+<div class="rma-section-chip">02</div>
+<div class="rma-section-title">搬移失敗與驗證失敗，處理方式不同</div>
+</div>
+<p>搬移失敗可以從保存位置續跑；驗證失敗可能代表資料有差異，不能直接自動重寫。<code>Manage Job</code> 依狀態與 RD 指定的操作做出不同決定：</p>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>目前狀態與操作</th><th><code>Manage Job</code> 的決定</th></tr></thead>
+<tbody>
+<tr><td><code>Pending</code> 或 <code>Failed</code></td><td>派送 <code>Transfer Job</code></td></tr>
+<tr><td><code>Copied</code></td><td>派送 <code>Validate Job</code></td></tr>
+<tr><td><code>Running</code> 或 <code>Validating</code></td><td>等待，不另派工作</td></tr>
+<tr><td><code>ValidationFailed</code>，一般 <code>Resume</code></td><td>停住，等待人工判斷</td></tr>
+<tr><td><code>ValidationFailed</code>，<code>RetryValidation</code></td><td>派送 <code>Validate Job</code>，從驗證游標重新核對</td></tr>
+<tr><td><code>ValidationFailed</code>，<code>RepairValidation</code></td><td>派送 <code>Transfer Job</code> 執行該階段支援的修復模式</td></tr>
+</tbody>
+</table>
+</div>
+<div class="rma-note"><strong>驗證失敗不會自動重寫資料。</strong>一般 <code>Resume</code> 會停住，待 RD 確認原因後再選擇重驗或支援的修復操作。</div>
+</div></div><div class="tab-item-content" id="migration-process-3"><div class="rma">
+<div class="rma-hero">
+<div class="rma-eyebrow">ONE MIGRATION RUN</div>
+<h1 style="color:#fff!important">一次 Migration 怎麼跑？</h1>
+<p>先指定這一輪要搬的商店與每批筆數。<code>Manage Job</code> 建立 14 個 <code>Stage</code> 的進度後，從第一個尚未驗證完成的階段開始，依序安排搬移與驗證。</p>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">01</div>
+<div class="rma-section-title">啟動時需要哪些資訊？</div>
+</div>
+<div class="rma-grid">
+<div class="rma-card" style="--card-color:#4dabf7"><div class="rma-card-title"><code>MigrationId</code></div><div class="rma-card-desc">辨識這一輪搬移。</div></div>
+<div class="rma-card" style="--card-color:#bd93f9"><div class="rma-card-title"><code>ShopId</code></div><div class="rma-card-desc">指定要搬移的商店。</div></div>
+<div class="rma-card" style="--card-color:#20c997"><div class="rma-card-title"><code>BatchSize</code></div><div class="rma-card-desc">決定每批處理多少筆，預設為 <code>500</code>。</div></div>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">02</div>
+<div class="rma-section-title">Manage 如何選下一個 Stage？</div>
+</div>
+<p><code>Manage Job</code> 初始化 14 個 <code>Stage</code> 的進度，然後找出第一個尚未達到 <code>Validated</code> 的階段。即使某個階段已搬完，只要驗證未通過，就不會進入後面的階段。</p>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>順序</th><th>資料類型</th></tr></thead>
+<tbody>
+<tr><td>1～4</td><td><code>Shop</code> → <code>Product</code> → <code>Member</code> → <code>Order</code></td></tr>
+<tr><td>5～10</td><td><code>UpdateHistory</code> → <code>CreateRegularLog</code> → <code>MemberLoginLog</code> → <code>ShopManagementLog</code> → <code>ApiAccessLog</code> → <code>ApiRequestLog</code></td></tr>
+<tr><td>11～14</td><td><code>NotifyQueueArchive</code> → <code>OrderCreateQueueArchive</code> → <code>NotifyQueue</code> → <code>OrderCreateQueue</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">03</div>
+<div class="rma-section-title">一個 Stage 何時從搬移轉成驗證？</div>
+</div>
+<p>每個 <code>Stage</code> 都先由 <code>Transfer Job</code> 一批批搬移。查到來源尾端後，狀態改為 <code>Copied</code>，再由 <code>Manage Job</code> 安排 <code>Validate Job</code> 一批批核對。</p>
+<div class="rma-cycle" style="--cycle-color:#4dabf7">
+<div class="rma-cycle-title">搬移階段：<code>Transfer Job</code></div>
+<div class="rma-cycle-desc">讀取來源的一批資料；有資料時寫入目標並保存搬移進度。</div>
+<div class="rma-branch-grid">
+<div class="rma-branch" style="--branch-color:#4dabf7"><strong>有資料且寫入成功</strong>保存搬移進度，接著讀取下一批。</div>
+<div class="rma-branch" style="--branch-color:#51cf66"><strong>來源查到 0 筆</strong>標記 <code>Copied</code>，通知 <code>Manage Job</code> 安排驗證。</div>
+<div class="rma-branch" style="--branch-color:#ff5555"><strong>搬移失敗</strong>標記 <code>Failed</code>；失敗批次不推進進度。</div>
+</div>
+</div>
+<div class="rma-cycle" style="--cycle-color:#bd93f9">
+<div class="rma-cycle-title">驗證階段：<code>Validate Job</code></div>
+<div class="rma-cycle-desc">重新讀取來源的一批資料，核對新資料庫裡的結果。</div>
+<div class="rma-branch-grid">
+<div class="rma-branch" style="--branch-color:#4dabf7"><strong>有資料且一致</strong>保存驗證進度，接著核對下一批。</div>
+<div class="rma-branch" style="--branch-color:#51cf66"><strong>來源查到 0 筆</strong>標記 <code>Validated</code>，通知 <code>Manage Job</code> 進入下一個 <code>Stage</code>。</div>
+<div class="rma-branch" style="--branch-color:#ff5555"><strong>內容有差異或驗證出錯</strong>標記 <code>ValidationFailed</code>，等待人工判斷。</div>
+</div>
+</div>
+<div class="rma-note info"><strong><code>Copied</code> 只代表搬完；<code>Validated</code> 才代表階段完成。</strong>即使最後一批只有 22 筆，系統仍會再查一次；真正查到 0 筆，才確認已到資料尾端。</div>
+</div></div><div class="tab-item-content" id="migration-process-4"><div class="rma">
+<div class="rma-hero">
+<div class="rma-eyebrow">MIGRATION PROGRESS</div>
+<h1 style="color:#fff!important">怎麼記住搬到哪裡？</h1>
+<p>同一個 <code>Stage</code> 可能已搬完多批資料，卻只驗證到較早的一批。<code>migration_process</code> 因此分開保存搬移與驗證進度，讓兩種工作都能從各自成功的位置接續。</p>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">01</div>
+<div class="rma-section-title">一列進度對應哪個工作範圍？</div>
+</div>
+<p><code>migration_process</code> 以一輪搬移、一間商店、一個 <code>Stage</code> 的組合識別每列進度：</p>
+<div class="rma-key" role="group" aria-label="MigrationId 加 ShopId 加 Stage 識別一列進度">
+<div class="rma-key-part"><code>MigrationId</code></div>
+<div class="rma-key-part"><code>ShopId</code></div>
+<div class="rma-key-part"><code>Stage</code></div>
+</div>
+<div class="rma-key-join" aria-hidden="true">↓</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">02</div>
+<div class="rma-section-title">搬移與驗證各記住什麼？</div>
+</div>
+<p>每套進度都記住「上次成功處理到的來源主鍵」與成功累計。下一批在同一商店的來源資料中，從 <code>PK</code> 大於各自游標的位置繼續讀取。</p>
+<div class="rma-track-grid" role="group" aria-label="同一列進度中的搬移游標與驗證游標分開保存">
+<div class="rma-track" style="--track-color:#4dabf7">
+<div class="rma-track-title">搬移進度</div>
+<div class="rma-track-fields">
+<div class="rma-track-field">最後成功處理的來源主鍵<code>last_pk</code></div>
+<div class="rma-track-field">搬移成功累計<code>processed_count</code></div>
+</div>
+<div class="rma-track-next">下一批讀取：<code>PK &gt; last_pk</code></div>
+</div>
+<div class="rma-track" style="--track-color:#bd93f9">
+<div class="rma-track-title">驗證進度</div>
+<div class="rma-track-fields">
+<div class="rma-track-field">最後核對通過的來源主鍵<code>validation_last_pk</code></div>
+<div class="rma-track-field">驗證成功累計<code>validated_count</code></div>
+</div>
+<div class="rma-track-next">下一批讀取：<code>PK &gt; validation_last_pk</code></div>
+</div>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">03</div>
+<div class="rma-section-title">為什麼不能共用一個游標？</div>
+</div>
+<p>「搬移成功累計 1,200 筆」和「驗證通過 500 筆」描述的是兩件不同的事。若驗證停在某一批，搬移已完成的位置仍要保留，重驗才能從驗證游標接續，不會把搬移進度蓋掉。</p>
+<div class="rma-note info"><strong>游標只在成功處理後向前。</strong>搬移與驗證各自保存成功位置，後續批次使用對應的游標讀取來源。</div>
+</div></div><div class="tab-item-content" id="migration-process-5"><div class="rma">
+<div class="rma-hero">
+<div class="rma-eyebrow">FAILURE &amp; REPAIR</div>
+<h1 style="color:#fff!important">失敗後，資料與進度怎麼接回來？</h1>
+<p>重新派送工作只是恢復入口。真正需要確認的是：同一批資料重跑會不會重複寫入、進度會不會重複累計，以及驗證失敗是否需要改動目標資料。</p>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">01</div>
+<div class="rma-section-title">資料已寫入，進度卻沒保存，重跑會怎樣？</div>
+</div>
+<p>目標寫入採用 <code>Upsert</code>：資料不存在就新增，存在則依規則更新。因此同一批再次執行時，可以重新處理已寫入的資料；進度更新另會檢查原游標，避免重複累計。</p>
+<div class="rma-flow" role="group" aria-label="資料已寫入、進度保存失敗、同批重跑、Upsert 與原游標檢查">
+<div class="rma-flow-node" style="--step-color:#4dabf7">目標資料已寫入<small>本批 Upsert 完成</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#ff922b">進度保存失敗<small>游標仍在舊位置</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#bd93f9">再次處理同一批<small>從保存的游標重跑</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#51cf66">寫入與計數各自保護<small>Upsert；檢查原游標</small></div>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">02</div>
+<div class="rma-section-title">停在 Running 或 Validating，能直接續跑嗎？</div>
+</div>
+<p>目前尚未有鎖、租約或心跳判斷任務是否仍存活。若程序突然中止，狀態仍留在 <code>Running</code> 或 <code>Validating</code>，<code>Manage Job</code> 會等待，不另派工作，需要人工確認後恢復。</p>
+<div class="rma-note"><strong>這是目前的實作限制。</strong>進度表顯示工作進行中，不代表程序此刻仍在執行。</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">03</div>
+<div class="rma-section-title">ValidationFailed 要先查什麼？</div>
+</div>
+<p><code>ValidationFailed</code> 可能是資料真的不同，也可能是驗證過程發生錯誤。先看 <code>migration_process.last_error</code> 和差異 log，確認原因；若來源或轉換程式有問題，應先修正原因，再決定後續操作。</p>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>操作</th><th>實際做的事</th><th>是否修改目標業務資料</th></tr></thead>
+<tbody>
+<tr><td><code>RetryValidation</code></td><td>再檢查一次，只讀取與比對</td><td>不會</td></tr>
+<tr><td><code>RepairValidation</code></td><td>依目前來源重寫失敗批次，再核對</td><td>會，執行 <code>Upsert</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="rma-note"><strong>修復操作有適用範圍。</strong>目前只有 <code>Product Stage</code> 支援 <code>RepairValidation</code>；其他 <code>Stage</code> 驗證失敗時不能直接套用。</div>
+<div class="rma-subhead">查到不同原因，下一步也不同</div>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>查到的原因</th><th>RD 要確認什麼</th><th>適合的處理</th></tr></thead>
+<tbody>
+<tr><td><code>SCM</code> timeout、DB timeout、網路錯誤</td><td>服務是否恢復？有沒有證據顯示目標資料錯誤？</td><td>恢復後執行 <code>RetryValidation</code></td></tr>
+<tr><td>目標缺資料或欄位不符</td><td>目前來源與轉換結果是否正確？目標是否應該跟著更新？</td><td><code>Product</code> 可選 <code>RepairValidation</code></td></tr>
+<tr><td>資料已由 RD 或其他程序修正</td><td>修正結果是否符合預期？</td><td>以 <code>RetryValidation</code> 驗收</td></tr>
+<tr><td>來源異常或轉換程式有 bug</td><td>哪一份內容才是正確的？</td><td>先修原因，再決定重驗或重寫</td></tr>
+<tr><td>目標已有新版正常操作產生的更新</td><td>重寫是否會蓋掉應保留的資料？</td><td>先確認資料交接規則，暫不修復</td></tr>
+</tbody>
+</table>
+</div>
+</div></div><div class="tab-item-content" id="migration-process-6"><div class="rma">
+<div class="rma-hero">
+<div class="rma-eyebrow">SUPPLEMENTAL SYNC</div>
+<h1 style="color:#fff!important">補同步為什麼要開新的一輪？</h1>
+<p>第一輪完成後，舊系統的資料仍可能改變。建立新的 <code>MigrationId</code>，沿用相同的 <code>ShopId</code>，就能從頭再搬移並驗證一次，補到原本游標之前的修改與新增關聯資料。</p>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">01</div>
+<div class="rma-section-title">為什麼不能只沿用上一輪的游標？</div>
+</div>
+<p>上一輪的游標已走到來源尾端。若舊系統後來修改了較早的資料，從原游標繼續讀取就不會再讀到它。新的一輪有自己的進度，會從來源重新讀取，再以 <code>Upsert</code> 寫入目標。</p>
+<div class="rma-flow" role="group" aria-label="第一輪完成、來源資料變動、使用新 MigrationId 從頭搬移、Upsert 並驗證">
+<div class="rma-flow-node" style="--step-color:#4dabf7">第一輪完成<small>游標已到來源尾端</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#ff922b">來源再次變動<small>可能落在舊游標之前</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#bd93f9">建立新 MigrationId<small>同一 ShopId，從頭讀取</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#51cf66">Upsert 並驗證<small>補上新增與更新</small></div>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">02</div>
+<div class="rma-section-title">第二輪碰到不同變動，結果是什麼？</div>
+</div>
+<p>相同 <code>PK</code> 的資料走 <code>Upsert</code>，不會再新增一筆相同主鍵的資料。以下是第一輪完成後，來源再次變動的例子：</p>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>來源變動</th><th>第二輪從頭跑的結果</th></tr></thead>
+<tbody>
+<tr><td>訂閱 <code>PK 300</code> 修改收件地址</td><td>更新目標既有的 <code>PK 300</code></td></tr>
+<tr><td>訂閱 <code>PK 500</code> 新增一期明細</td><td>重讀主檔及全部關聯資料，新增缺少的明細</td></tr>
+<tr><td>新增訂閱 <code>PK 1001</code></td><td>新增目標 <code>PK 1001</code></td></tr>
+<tr><td>商品 <code>PK 100</code> 完全沒變</td><td>不會新增另一筆 <code>PK 100</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">03</div>
+<div class="rma-section-title">完整重跑，仍有哪些資料接不起來？</div>
+</div>
+<div class="rma-track-grid">
+<div class="rma-track" style="--track-color:#ff922b">
+<div class="rma-track-title">來源已刪除的資料</div>
+<p>第二輪只讀得到來源仍存在的資料。來源已刪除的資料不會因 <code>Upsert</code> 自動從目標刪掉。</p>
+</div>
+<div class="rma-track" style="--track-color:#ff5555">
+<div class="rma-track-title">已開始執行的 Queue</div>
+<p>若新版已開始處理 Queue，重跑可能把目標的執行狀態更新成舊來源狀態。沒有重複資料列，不代表工作不會再次執行。</p>
+</div>
+</div>
+<div class="rma-note"><strong>切換前的最後補同步需要控制交接時機。</strong>先控制來源寫入與 Queue 執行，再完成核對及交接，才能把新的一輪當作最後補同步。</div>
+</div></div><div class="tab-item-content" id="migration-process-7"><div class="rma">
+<div class="rma-hero">
+<div class="rma-eyebrow">DELETION GAP</div>
+<h1 style="color:#fff!important">舊資料刪除了，目標為什麼還在？</h1>
+<p>目前的補搬只會讀取來源仍存在的資料，再對目標執行 <code>Upsert</code>。來源刪掉的資料不會被讀到，因此重新搬移也不會自動清掉目標那一筆。</p>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">01</div>
+<div class="rma-section-title">PK 200 怎麼變成目標獨有？</div>
+</div>
+<p>第一輪完成時，舊 MySQL 與新 PostgreSQL 都有 <code>PK 100</code>、<code>PK 200</code>、<code>PK 300</code>。之後舊系統刪除 <code>PK 200</code>；第二輪只能讀到 <code>PK 100</code> 和 <code>PK 300</code>，目標的 <code>PK 200</code> 仍會留下。</p>
+<div class="rma-set-grid" role="group" aria-label="第二輪後來源只有 PK 100 和 PK 300，目標仍有 PK 100、PK 200 和 PK 300">
+<div class="rma-set" style="--set-color:#4dabf7">
+<div class="rma-set-title">舊 MySQL：目前來源</div>
+<div class="rma-set-desc">第二輪能讀到的主鍵</div>
+<div class="rma-pk-list"><span class="rma-pk"><code>PK 100</code></span><span class="rma-pk"><code>PK 300</code></span></div>
+</div>
+<div class="rma-set" style="--set-color:#bd93f9">
+<div class="rma-set-title">新 PostgreSQL：目前目標</div>
+<div class="rma-set-desc">第二輪結束後仍存在的主鍵</div>
+<div class="rma-pk-list"><span class="rma-pk"><code>PK 100</code></span><span class="rma-pk extra"><code>PK 200</code>，目標獨有</span><span class="rma-pk"><code>PK 300</code></span></div>
+</div>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">02</div>
+<div class="rma-section-title">要找出刪除差異，還需補上什麼？</div>
+</div>
+<p>目前流程沒有找出「目標有、來源沒有」的資料。若要把刪除納入完整補同步，還需要增加以下比對與處置步驟：</p>
+<div class="rma-flow" role="group" aria-label="確認來源停止變動、取得來源與目標 PK、找出目標獨有 PK、按資料類型處置並驗證">
+<div class="rma-flow-node" style="--step-color:#4dabf7">確認來源停止變動<small>先固定比對範圍</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#bd93f9">取得完整 PK 清單<small>同一商店的來源與目標</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#ff922b">找出目標獨有 PK<small>目標有，來源沒有</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#4dabf7">依類型處置並驗證<small>刪除、停用或保留</small></div>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">03</div>
+<div class="rma-section-title">目標多出一筆，就能直接刪嗎？</div>
+</div>
+<p>同樣是目標獨有的資料，原因與用途可能不同。找出差異後，還需要按資料類型判斷：</p>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>資料類型</th><th>需要判斷的事</th></tr></thead>
+<tbody>
+<tr><td>商品、會員、訂閱</td><td>是否確實被來源刪除？應刪除還是停用？</td></tr>
+<tr><td>訂閱明細、<code>mapping</code></td><td>主檔還在，但部分關聯資料是否被刪除？必須各自比對。</td></tr>
+<tr><td><code>Queue</code></td><td>是否已執行並移到 <code>Archive</code>？不能只因來源 <code>Queue</code> 沒有就判定刪除。</td></tr>
+<tr><td><code>Log</code>、<code>Archive</code></td><td>是否因保存期限被清除？目標是否仍應保留？</td></tr>
+</tbody>
+</table>
+</div>
+<div class="rma-note"><strong>比對範圍必須先界定。</strong>只比較同一商店、同一搬移範圍；目標由新版系統自行建立的資料，也不能直接當成來源刪除。</div>
+<p>目前支援的是新增與更新的補搬。完整補同步還缺刪除差異偵測與處置規則；可先產出「目標多出哪些資料」的清單，確認每類資料的意義後，再決定如何處理。</p>
+</div></div><div class="tab-item-content" id="migration-process-8"><div class="rma">
+<div class="rma-hero">
+<div class="rma-eyebrow">COMPATIBILITY, NOT COPYING</div>
+<h1 style="color:#fff!important">搬移完成，資料就能在新架構運作嗎？</h1>
+<p>搬移目標是讓舊資料能被新系統正確使用。主鍵存在、欄位原值相同，只能證明資料寫進去了；資料格式、時間區間與狀態仍可能需要轉換。</p>
+</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">01</div>
+<div class="rma-section-title"><code>NotifyQueue</code>：字串相同，Worker 卻讀不懂</div>
+</div>
+<p>文件中的待發通知是 <code>StockNotify</code>。這筆資料仍可能被新版 Worker 消費，關鍵不只在於搬移後字串是否相同，還在於 JSON 是否符合新版格式。</p>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>來源欄位</th><th>案例值</th></tr></thead>
+<tbody>
+<tr><td><code>nq_pk</code></td><td><code>12001</code></td></tr>
+<tr><td><code>nq_type</code></td><td><code>StockNotify</code></td></tr>
+<tr><td><code>nq_ref_shop</code></td><td><code>2</code></td></tr>
+<tr><td><code>nq_send_status</code></td><td><code>0</code>，待發</td></tr>
+<tr><td><code>nq_sended_count</code></td><td><code>0</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>舊版 GameBall 的 <code>stock_estimate_housekeeper.php</code> 直接儲存商品陣列；新版 <code>RegularOrderStockNotifyJob</code> 要求外層有 <code>SchemaVersion</code>、<code>ProductItems</code>、<code>GiftItems</code> 的 Version 2 envelope：</p>
+<div class="rma-json-grid">
+<div class="rma-json-card" style="--json-color:#ff922b">
+<div class="rma-json-title">舊資料：直接存陣列</div>
+<pre class="rma-pre">[
+  {
+    "Cycle": 1,
+    "SalePageId": 456,
+    "Qty": 2
+  }
+]</pre>
+</div>
+<div class="rma-json-card" style="--json-color:#4dabf7">
+<div class="rma-json-title">新版 Worker 需要：Version 2 envelope</div>
+<pre class="rma-pre">{
+  "SchemaVersion": 2,
+  "ProductItems": [
+    {
+      "Cycle": 1,
+      "SalePageId": 456,
+      "Qty": 2
+    }
+  ],
+  "GiftItems": []
+}</pre>
+</div>
+</div>
+<p>目前程式把舊 JSON 原樣搬過去，再以來源原字串比對目標。這讓 <code>Validate</code> 可以通過，但新版 Worker 讀到舊陣列時仍會解析失敗；文件指出此問題目前尚未修正。</p>
+<div class="rma-flow" role="group" aria-label="舊 JSON 原樣搬移、字串比對通過、新版 Worker 消費、解析失敗">
+<div class="rma-flow-node" style="--step-color:#4dabf7">原樣搬移舊 JSON<small>目標字串與來源相同</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#ff922b">Validate 通過<small>只比對原字串</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#4dabf7">新版 Worker 消費<small>期待 Version 2 格式</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#ff5555">解析失敗<small>舊陣列缺少 envelope</small></div>
+</div>
+<div class="rma-note"><strong>這裡的驗證成功只代表原值一致。</strong><code>notify_queue_bak</code> 是封存資料，不由待發通知 Worker 消費；相容性問題針對仍可能執行的 <code>notify_queue</code>。</div>
+<div class="rma-section-head">
+<div class="rma-section-chip">02</div>
+<div class="rma-section-title"><code>Product</code>：銷售期間與狀態要一起轉換</div>
+</div>
+<p><code>Product Handler</code> 以 <code>regular_product.rpd_page_id</code> 向 SCM 查商品銷售期間，並以台灣時間（UTC+8）的 <code>Now</code> 比較。查到有效的 SCM 商品時，銷售期間使用 SCM 最新值；來源狀態為啟用時，還要依當下是否位於銷售區間內決定搬移後狀態。</p>
+<div class="rma-flow" role="group" aria-label="來源商品頁面 ID 查 SCM 銷售期間，Product Handler 以台灣時間判斷，寫入目標銷售及方案期間與狀態">
+<div class="rma-flow-node" style="--step-color:#4dabf7">來源 Product<small>rpd_page_id</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#bd93f9">SCM 銷售期間<small>SellingStart / End</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#ff922b">Product Handler<small>比較台灣時間 Now</small></div>
+<div class="rma-flow-arrow" aria-hidden="true">→</div>
+<div class="rma-flow-node" style="--step-color:#4dabf7">目標 Product<small>sale、plan 期間與狀態</small></div>
+</div>
+<div class="rma-caption">此圖呈現查到有效 SCM 商品時的轉換；查無商品與無效期間的行為見下方條件表。</div>
+<div class="rma-subhead">SCM 時間要寫入哪些欄位？</div>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>SCM 商品銷售時間</th><th>新架構欄位</th></tr></thead>
+<tbody>
+<tr><td><code>SellingStartDateTime</code></td><td><code>rpd_sale_date_begin</code>、<code>rpd_plan_date_begin</code></td></tr>
+<tr><td><code>SellingEndDateTime</code></td><td><code>rpd_sale_date_end</code>、<code>rpd_plan_date_end</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>舊架構沒有 <code>rpd_plan_date_begin</code>、<code>rpd_plan_date_end</code>，Migration 必須用 SCM 銷售區間補上。V2 用方案生效時間判斷方案是否適用；若 plan 區間沒有對齊銷售區間，即使原有銷售欄位正確，新架構仍可能在錯誤時間選到或排除方案。</p>
+<div class="rma-subhead">狀態會如何轉換？</div>
+<p>程式測試使用固定的 <code>Now</code>。下表保留測試涵蓋的區間邊界、原狀態及 SCM 查無商品的結果：</p>
+<div class="rma-table-scroll">
+<table class="rma-table">
+<thead><tr><th>商品原狀態</th><th>SCM 銷售期間相對 Now</th><th>搬移後狀態</th></tr></thead>
+<tbody>
+<tr><td><code>1</code>，啟用</td><td>Now 前 1 小時至 Now 後 1 小時</td><td><code>1</code>，仍在銷售</td></tr>
+<tr><td><code>1</code>，啟用</td><td>Now 至 Now 後 1 小時</td><td><code>1</code>，開始時間剛好等於現在</td></tr>
+<tr><td><code>1</code>，啟用</td><td>Now 前 1 小時至 Now</td><td><code>1</code>，結束時間剛好等於現在</td></tr>
+<tr><td><code>1</code>，啟用</td><td>Now 後 1 小時至 Now 後 2 小時</td><td><code>9</code>，尚未開賣，停用</td></tr>
+<tr><td><code>1</code>，啟用</td><td>Now 前 2 小時至 Now 前 1 小時</td><td><code>9</code>，已停售，停用</td></tr>
+<tr><td><code>9</code> 或 <code>8</code></td><td>期間在銷售中</td><td>保留原狀態</td></tr>
+<tr><td><code>1</code>，但 SCM 查無商品</td><td>沒有目前銷售期間</td><td>保留來源狀態與期間；<code>HasCurrentSales = false</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="rma-note"><strong>來源與 SCM 都會影響搬移結果。</strong>查無 SCM 商品時保留來源狀態與期間；SCM 回傳無效期間時，搬移會失敗。</div>
+<div class="rma-note info"><strong>驗證可能遇到不同的 SCM 預期值。</strong><code>Product</code> 驗證會重新查 SCM 最新期間，沒有使用跨系統快照。若 SCM 在搬移與驗證之間改變銷售期間，兩次可能得到不同結果；目前沒有固定整輪搬移的時間基準。</div>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/10/13/Regular-Order-migration-process/">https://allenlin000.github.io.git/2026/10/13/Regular-Order-migration-process/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/10/12/Shopping-Cart-CalculateShoppingCartCheckoutPayShippingProcessor/" title="CalculateShoppingCartCheckoutPayShippingProcessor"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/pay-delivery.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">CalculateShoppingCartCheckoutPayShippingProcessor</div></div></a></div><div class="next-post pull-right"><a href="/2026/10/13/Regular-Order-migration-process-pure/" title="migration-process"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">migration-process</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">279</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">40</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#migration-process-1"><span class="toc-number">1.</span> <span class="toc-text">Migration Process 架構設計</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#migration-process-2"><span class="toc-number">2.</span> <span class="toc-text">停下來後，怎麼從正確的位置接續？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#migration-process-3"><span class="toc-number">3.</span> <span class="toc-text">一次 Migration 怎麼跑？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#migration-process-4"><span class="toc-number">4.</span> <span class="toc-text">怎麼記住搬到哪裡？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#migration-process-5"><span class="toc-number">5.</span> <span class="toc-text">失敗後，資料與進度怎麼接回來？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#migration-process-6"><span class="toc-number">6.</span> <span class="toc-text">補同步為什麼要開新的一輪？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#migration-process-7"><span class="toc-number">7.</span> <span class="toc-text">舊資料刪除了，目標為什麼還在？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#migration-process-8"><span class="toc-number">8.</span> <span class="toc-text">搬移完成，資料就能在新架構運作嗎？</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/13/Regular-Order-migration-process-pure/" title="migration-process"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="migration-process"/></a><div class="content"><a class="title" href="/2026/10/13/Regular-Order-migration-process-pure/" title="migration-process">migration-process</a><time datetime="2026-10-13T05:44:00.000Z" title="Created 2026-10-13 13:44:00">2026-10-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/13/Regular-Order-migration-process/" title="migration-process"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="migration-process"/></a><div class="content"><a class="title" href="/2026/10/13/Regular-Order-migration-process/" title="migration-process">migration-process</a><time datetime="2026-10-13T05:44:00.000Z" title="Created 2026-10-13 13:44:00">2026-10-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/12/Shopping-Cart-CalculateShoppingCartCheckoutPayShippingProcessor/" title="CalculateShoppingCartCheckoutPayShippingProcessor"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/pay-delivery.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CalculateShoppingCartCheckoutPayShippingProcessor"/></a><div class="content"><a class="title" href="/2026/10/12/Shopping-Cart-CalculateShoppingCartCheckoutPayShippingProcessor/" title="CalculateShoppingCartCheckoutPayShippingProcessor">CalculateShoppingCartCheckoutPayShippingProcessor</a><time datetime="2026-10-12T02:00:00.000Z" title="Created 2026-10-12 10:00:00">2026-10-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/08/Regular-Order-Queue/" title="定期購通知 Queue 設計"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="定期購通知 Queue 設計"/></a><div class="content"><a class="title" href="/2026/10/08/Regular-Order-Queue/" title="定期購通知 Queue 設計">定期購通知 Queue 設計</a><time datetime="2026-10-08T03:42:00.000Z" title="Created 2026-10-08 11:42:00">2026-10-08</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
