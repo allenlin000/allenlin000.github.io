@@ -1,0 +1,850 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>pay api 1 - 設計現狀 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="架構Provider 檢查是做什麼的虛擬購物車建立付款 context付款信用卡定期購怎麼建單貨到付款定期購怎麼建單建單差異RegularOrderTracing .rpa{font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;Noto Sans TC&quot;,sans-serif;color:#1a1a2e;background:#f0f2f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pay api 1 - 設計現狀">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="架構Provider 檢查是做什麼的虛擬購物車建立付款 context付款信用卡定期購怎麼建單貨到付款定期購怎麼建單建單差異RegularOrderTracing .rpa{font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;Noto Sans TC&quot;,sans-serif;color:#1a1a2e;background:#f0f2f">
+<meta property="og:locale">
+<meta property="og:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png">
+<meta property="article:published_time" content="2026-10-14T09:41:00.000Z">
+<meta property="article:modified_time" content="2026-10-17T13:21:13.013Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'pay api 1 - 設計現狀',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-10-17 21:21:13'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">280</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">40</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">pay api 1 - 設計現狀</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-10-14T09:41:00.000Z" title="Created 2026-10-14 17:41:00">2026-10-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-10-17T13:21:13.013Z" title="Updated 2026-10-17 21:21:13">2026-10-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Regular-Order/">Regular-Order</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="pay api 1 - 設計現狀"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="設計現狀"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="設計現狀-1">架構</button><button type="button" class="tab " data-href="設計現狀-2">Provider 檢查是做什麼的</button><button type="button" class="tab " data-href="設計現狀-3">虛擬購物車</button><button type="button" class="tab " data-href="設計現狀-4">建立付款 context</button><button type="button" class="tab " data-href="設計現狀-5">付款</button><button type="button" class="tab " data-href="設計現狀-6">信用卡定期購怎麼建單</button><button type="button" class="tab " data-href="設計現狀-7">貨到付款定期購怎麼建單</button><button type="button" class="tab " data-href="設計現狀-8">建單差異</button><button type="button" class="tab " data-href="設計現狀-9">RegularOrderTracing</button></ul><div class="tab-contents"><div class="tab-item-content active" id="設計現狀-1"><style>
+.rpa{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#1a1a2e;background:#f0f2f5;padding:22px;border-radius:12px;font-size:16px;line-height:1.8;overflow:hidden}
+.rpa *{box-sizing:border-box}
+#article-container .rpa p{color:#4a5568;margin:10px 0;line-height:1.85}
+#article-container .rpa code{font-family:"Fira Code",Consolas,monospace;background:#f1f3f5;color:#d63384;padding:1px 5px;border-radius:3px;font-size:.88em;overflow-wrap:anywhere}
+.rpa-hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;border-radius:12px;padding:32px 36px;margin-bottom:24px;position:relative;overflow:hidden}
+.rpa-hero:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(189,147,249,.28);border-radius:50%;right:-70px;top:-80px}
+.rpa-hero .rpa-eyebrow{font-size:12px;letter-spacing:1.2px;color:#bd93f9;font-weight:700;margin-bottom:9px}
+#article-container .rpa .rpa-hero h1{color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:27px;line-height:1.45;margin:0 0 10px}
+#article-container .rpa .rpa-hero p{color:#cdd6f4;margin:0;max-width:720px}
+.rpa-section-head{display:flex;align-items:center;gap:11px;margin:30px 0 16px}
+.rpa-section-chip{width:34px;height:34px;border-radius:8px;background:#f3f0ff;color:#7048e8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+.rpa-section-title{font-size:20px;font-weight:800;color:#1a1a2e}
+.rpa-diagram{overflow-x:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin:18px 0 8px}
+.rpa-diagram svg{display:block;width:100%;min-width:0;height:auto;font-family:"Segoe UI","Microsoft JhengHei",sans-serif}
+.rpa-mobile-flow{display:none}
+.rpa-mobile-node{background:#fff;border:2px solid var(--flow-color,#4dabf7);border-radius:9px;padding:12px 14px;color:var(--flow-ink,#1971c2);font-weight:800;text-align:center}
+.rpa-mobile-node small{display:block;color:#6272a4;font-size:12px;font-weight:500;line-height:1.5;margin-top:3px}
+.rpa-mobile-arrow{text-align:center;color:#94a3b8;font-size:22px;line-height:1.3;padding:4px}
+.rpa-mobile-gate{background:#fff7ed;border:2px solid #ff922b;border-radius:9px;padding:10px 12px;text-align:center;color:#d9480f;font-weight:800}
+.rpa-mobile-branches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.rpa-mobile-outcome{border-top:3px solid var(--outcome-color);background:#fff;padding:10px 8px;color:var(--outcome-ink);font-size:13px;font-weight:700;text-align:center}
+.rpa-mobile-outcome small{display:block;color:#6272a4;font-size:11px;font-weight:500;line-height:1.45}
+.rpa-mobile-continue{text-align:center;color:#6272a4;font-size:12px;margin-top:5px}
+.rpa-caption{font-size:13px;color:#6272a4;margin:8px 0 20px}
+.rpa-inline-note{border-left:3px solid #bd93f9;padding:6px 0 6px 14px;margin:17px 0;color:#4a5568}
+.rpa-inline-note strong{color:#7048e8}
+.rpa-rail-shell{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin:16px 0 8px}
+.rpa-rail-io{background:#f3f0ff;border-left:3px solid #bd93f9;color:#7048e8;font-size:14px;font-weight:800;padding:10px 14px}
+.rpa-rail-io.output{background:#e6fcf5;border-color:#20c997;color:#0f9177}
+.rpa-rail{position:relative;padding:18px 0 24px}
+.rpa-rail:before{content:"";position:absolute;top:20px;bottom:20px;left:19px;width:3px;background:#cbd5e1}
+.rpa-rail-stop{position:relative;min-width:0;padding:0 0 25px 56px;text-align:left}
+.rpa-rail-stop:last-child{padding-bottom:0}
+.rpa-rail-dot{position:absolute;left:1px;top:0;z-index:1;background:var(--rail-color);color:#fff;border:4px solid #fff;box-shadow:0 0 0 1px var(--rail-color);border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.rpa-rail-title{font-size:17px;font-weight:800;color:#1a1a2e;line-height:1.45}
+.rpa-rail-desc{font-size:14px;color:#6272a4;line-height:1.65;margin:5px 0 9px}
+.rpa-rail-names{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;border-top:1px dashed #dce3ed;padding-top:10px}
+#article-container .rpa .rpa-rail-names code{display:block;background:#f8fafc;border-left:2px solid var(--rail-color);padding:6px 10px;font-size:12px;line-height:1.6;overflow-wrap:normal;word-break:normal}
+.rpa-sequence{overflow-x:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin:16px 0 8px}
+.rpa-sequence svg{display:block;width:100%;height:auto;font-family:"Segoe UI","Microsoft JhengHei",sans-serif}
+.rpa-swim-shell{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin:16px 0 8px}
+.rpa-swim-entry{background:#f3f0ff;border-left:3px solid #bd93f9;color:#7048e8;text-align:center;font-size:14px;font-weight:800;padding:9px 12px;margin-bottom:18px}
+.rpa-swim{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px}
+.rpa-swim-lane{min-width:0}
+.rpa-swim-head{border-bottom:3px solid var(--swim-color);color:var(--swim-ink);font-size:16px;font-weight:800;padding:8px 4px 12px}
+.rpa-swim-head span{display:block;color:#6272a4;font-size:12px;font-weight:500}
+.rpa-swim-track{border-left:3px solid var(--swim-color);margin:14px 0 0 12px;padding:0 0 0 17px}
+.rpa-swim-event{position:relative;padding:0 0 19px;margin-bottom:18px;border-bottom:1px dashed #dce3ed}
+.rpa-swim-event:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.rpa-swim-event:before{content:"";position:absolute;left:-25px;top:6px;width:11px;height:11px;border-radius:50%;background:var(--swim-color);border:3px solid #fff;box-shadow:0 0 0 1px var(--swim-color)}
+.rpa-swim-event strong{display:block;color:#1a1a2e;font-size:15px}
+.rpa-swim-event span{display:block;color:#6272a4;font-size:12px;line-height:1.65;margin:3px 0}
+#article-container .rpa .rpa-swim-event code{display:inline-block;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.rpa-provider-sources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:17px 0 0}
+.rpa-provider-source{min-width:0;background:#fff;border:1px solid #dce3ed;border-top:4px solid var(--source-color);border-radius:10px;padding:15px 18px}
+.rpa-provider-source .label{display:block;color:var(--source-ink);font-size:13px;font-weight:800;margin-bottom:5px}
+.rpa-provider-source strong{display:block;color:#1a1a2e;font-size:16px;line-height:1.5}
+.rpa-provider-source small{display:block;color:#6272a4;font-size:12px;line-height:1.6;margin-top:6px}
+.rpa-provider-join{text-align:center;color:#94a3b8;font-size:24px;line-height:1;margin:8px 0}
+.rpa-provider-gate{background:#f3f0ff;border:2px solid #bd93f9;border-radius:10px;text-align:center;padding:13px 17px;color:#7048e8;font-weight:800;font-size:16px}
+.rpa-provider-gate small{display:block;color:#6272a4;font-size:12px;font-weight:500;line-height:1.5;margin-top:3px}
+.rpa-provider-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0 8px}
+.rpa-provider-result{min-width:0;background:#fff;border-radius:10px;border:1px solid #e2e8f0;border-left:4px solid var(--result-color);padding:12px 15px}
+.rpa-provider-result b{display:block;color:var(--result-ink);font-size:14px}
+.rpa-provider-result span{display:block;color:#4a5568;font-size:13px;line-height:1.6;margin-top:4px}
+.rpa-provider-case{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1fr);align-items:center;gap:8px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin:16px 0 7px}
+.rpa-provider-case-cell{min-width:0;background:#f8fafc;border-radius:7px;padding:9px 11px;font-size:13px;color:#6272a4;line-height:1.5}
+.rpa-provider-case-cell strong{display:block;color:#1a1a2e;font-size:15px;margin-top:2px}
+.rpa-provider-case-cell.reject{background:#fff5f5;color:#c92a2a}
+.rpa-provider-case-cell.reject strong{color:#c92a2a}
+.rpa-provider-case-arrow{text-align:center;color:#94a3b8;font-size:20px}
+.rpa-provider-paths{display:grid;gap:12px;margin:17px 0 8px}
+.rpa-provider-path{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--path-color);border-radius:10px;padding:16px 18px}
+.rpa-provider-path-label{min-width:0;color:var(--path-ink);font-size:13px;font-weight:800}
+.rpa-provider-path-label strong{display:block;color:#1a1a2e;font-size:15px;line-height:1.5;margin-top:5px}
+.rpa-provider-path-steps{display:grid;gap:10px;min-width:0}
+.rpa-provider-path-step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:9px;align-items:start;min-width:0;color:#4a5568;font-size:14px;line-height:1.65}
+.rpa-provider-path-step b{display:flex;align-items:center;justify-content:center;width:25px;height:25px;background:var(--path-tint);color:var(--path-ink);border-radius:6px;font-size:11px}
+.rpa-provider-path-step span{min-width:0}
+.rpa-cart-flow{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin:16px 0 8px}
+.rpa-cart-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.rpa-cart-input{min-width:0;border-top:4px solid var(--cart-color);background:var(--cart-tint);border-radius:8px;padding:12px 15px}
+.rpa-cart-input b{display:block;color:var(--cart-ink);font-size:14px}
+.rpa-cart-input span{display:block;color:#4a5568;font-size:13px;line-height:1.6;margin-top:5px}
+.rpa-cart-arrow{text-align:center;color:#94a3b8;font-size:24px;line-height:1;margin:9px 0}
+.rpa-cart-track{border-left:3px solid #cbd5e1;margin:10px 0 0 20px;padding:0 0 0 20px}
+.rpa-cart-stage{position:relative;border:1px solid #e2e8f0;border-left:4px solid var(--cart-color);border-radius:9px;padding:12px 15px;margin-bottom:18px;min-width:0}
+.rpa-cart-stage:last-child{margin-bottom:0}
+.rpa-cart-stage:before{content:"";position:absolute;left:-32px;top:18px;width:12px;height:12px;background:var(--cart-color);border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 1px var(--cart-color)}
+.rpa-cart-stage b{display:block;color:var(--cart-ink);font-size:15px}
+.rpa-cart-stage span{display:block;color:#4a5568;font-size:13px;line-height:1.65;margin-top:3px}
+.rpa-cart-output{background:#e6fcf5;border-left:4px solid #20c997;border-radius:8px;padding:12px 16px;color:#0f9177;font-weight:800;font-size:15px}
+.rpa-cart-output small{display:block;color:#4a5568;font-size:12px;font-weight:500;line-height:1.6;margin-top:3px}
+.rpa-cart-ledger{display:grid;gap:9px;margin:16px 0 8px}
+.rpa-cart-ledger-row{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1.4fr);align-items:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:9px;padding:12px 15px;min-width:0}
+.rpa-cart-ledger-side{min-width:0;color:#4a5568;font-size:13px;line-height:1.65}
+.rpa-cart-ledger-side b{display:block;color:#1a1a2e;font-size:14px;margin-bottom:2px}
+.rpa-cart-ledger-arrow{text-align:center;color:#94a3b8;font-size:19px}
+.rpa-cart-endings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0 8px}
+.rpa-cart-ending{min-width:0;background:#fff;border-top:4px solid var(--ending-color);border-radius:9px;padding:12px 15px;color:#4a5568;font-size:13px;line-height:1.6}
+.rpa-cart-ending b{display:block;color:var(--ending-ink);font-size:14px;margin-bottom:3px}
+.rpa-cart-trace{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin:0 0 25px}
+.rpa-cart-trace-label{color:#7048e8;font-size:13px;font-weight:800;letter-spacing:.3px;margin-bottom:12px}
+.rpa-cart-trace-chain{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.rpa-cart-trace-node{position:relative;min-width:0;background:#f8fafc;border-top:3px solid var(--trace-color);border-radius:8px;padding:11px 9px;text-align:center}
+.rpa-cart-trace-node:not(:last-child):after{content:"→";position:absolute;right:-17px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:19px}
+.rpa-cart-trace-node b{display:block;color:var(--trace-ink);font-size:12px;line-height:1.4}
+#article-container .rpa .rpa-cart-trace-node code{display:block;background:transparent;color:#1a1a2e;font-size:11px;font-weight:700;line-height:1.45;padding:0;margin-top:4px;overflow-wrap:normal;word-break:normal}
+.rpa-cart-trace-output{position:relative;margin-top:21px;background:#e6fcf5;border-left:3px solid #20c997;border-radius:6px;padding:8px 12px;text-align:center;color:#0f9177;font-size:13px;font-weight:800}
+.rpa-cart-trace-output:before{content:"↓";position:absolute;top:-21px;left:50%;transform:translateX(-50%);color:#94a3b8;font-size:17px;font-weight:400}
+.rpa-cart-trace-output code{font-size:12px}
+.rpa-cart-proc-branches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.rpa-cart-proc-branch{min-width:0;background:#f8fafc;border-left:3px solid var(--branch-color);border-radius:5px;padding:8px 10px;color:#4a5568;font-size:12px;line-height:1.55}
+.rpa-cart-proc-branch strong{display:block;color:var(--branch-ink);font-size:12px;margin-bottom:2px}
+.rpa-cart-proc-branch code{font-size:11px}
+.rpa-payctx-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:16px 0 8px}
+.rpa-payctx-field{min-width:0;background:#fff;border:1px solid #e2e8f0;border-top:4px solid var(--field-color);border-radius:9px;padding:13px 14px}
+.rpa-payctx-field b{display:block;color:var(--field-ink);font-size:14px;margin-bottom:6px}
+.rpa-payctx-field span{display:block;color:#4a5568;font-size:12px;line-height:1.65}
+.rpa-payctx-field span+span{margin-top:6px}
+.rpa-payctx-routes{display:grid;gap:9px;margin:16px 0 8px}
+.rpa-payctx-route{display:grid;grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr);align-items:center;gap:6px;background:#fff;border:1px solid #e2e8f0;border-radius:9px;padding:10px 12px}
+.rpa-payctx-route-cell{min-width:0;background:#f8fafc;border-radius:6px;padding:7px 9px;color:#4a5568;font-size:12px;line-height:1.5}
+.rpa-payctx-route-cell b{display:block;color:#1a1a2e;font-size:12px;margin-bottom:2px}
+.rpa-payctx-route-arrow{text-align:center;color:#94a3b8;font-size:17px}
+.rpa-payctx-route-cell.result{background:#e6fcf5;color:#0f9177}
+.rpa-payctx-route-cell.result b{color:#0f9177}
+@media(max-width:760px){.rpa{padding:14px 10px}.rpa-hero{padding:25px 20px}.rpa-diagram{display:none}.rpa-mobile-flow{display:block}.rpa-rail-shell,.rpa-swim-shell{padding:12px}.rpa-rail-stop{padding-left:48px}.rpa-rail-desc{font-size:13px}.rpa-sequence svg{min-width:760px}.rpa-swim{grid-template-columns:1fr;gap:26px}}
+@media(max-width:760px){.rpa-provider-sources,.rpa-provider-results,.rpa-provider-path{grid-template-columns:1fr}.rpa-provider-path{gap:9px;padding:14px}.rpa-provider-case{grid-template-columns:1fr;gap:3px}.rpa-provider-case-arrow{line-height:1}.rpa-provider-case-arrow:nth-child(4){transform:rotate(90deg)}}
+@media(max-width:760px){.rpa-cart-flow{padding:13px}.rpa-cart-inputs,.rpa-cart-endings{grid-template-columns:1fr}.rpa-cart-ledger-row{grid-template-columns:1fr;gap:2px}.rpa-cart-ledger-arrow{transform:rotate(90deg);line-height:1}.rpa-cart-track{margin-left:13px;padding-left:17px}.rpa-cart-stage:before{left:-29px}}
+@media(max-width:760px){.rpa-cart-trace{padding:14px}.rpa-cart-trace-chain{grid-template-columns:1fr;gap:19px}.rpa-cart-trace-node{padding:7px 12px}.rpa-cart-trace-node:not(:last-child):after{content:"↓";right:50%;top:auto;bottom:-22px;transform:translateX(50%);font-size:17px}.rpa-cart-trace-output{margin-top:21px}}
+@media(max-width:760px){.rpa-cart-proc-branches{grid-template-columns:1fr}}
+@media(max-width:760px){.rpa-payctx-fields,.rpa-payctx-route{grid-template-columns:1fr}.rpa-payctx-route{gap:2px}.rpa-payctx-route-arrow{transform:rotate(90deg);line-height:1}}
+.rpa-payment-entry{background:#f3f0ff;border:1px solid #dacbff;border-radius:10px;padding:14px 18px;text-align:center;margin:18px 0 10px;color:#4a5568;font-size:13px}
+.rpa-payment-entry strong{display:block;color:#7048e8;font-size:16px}
+.rpa-payment-entry code{font-size:12px}
+.rpa-payment-fork{text-align:center;color:#94a3b8;font-size:24px;line-height:1;margin-bottom:10px}
+.rpa-payment-routes{display:grid;gap:12px;margin:0 0 8px}
+.rpa-payment-route{background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--route-color);border-radius:10px;padding:14px 18px;min-width:0}
+.rpa-payment-route-head{display:grid;grid-template-columns:220px minmax(0,1fr);gap:15px;align-items:start}
+.rpa-payment-route-label{color:var(--route-ink);font-size:13px;font-weight:800;line-height:1.6}
+.rpa-payment-route-label strong{display:block;color:#1a1a2e;font-size:17px}
+.rpa-payment-route-body{min-width:0;color:#4a5568;font-size:13px;line-height:1.7}
+.rpa-payment-track{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:9px 0 3px}
+.rpa-payment-track span{background:var(--route-tint);border-radius:6px;padding:5px 8px;color:#1a1a2e;font-size:12px;font-weight:700}
+.rpa-payment-track i{font-style:normal;color:#94a3b8}
+.rpa-payment-track code{background:transparent!important;color:inherit!important;padding:0!important;font-size:11px!important}
+.rpa-payment-note{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:15px 18px;margin:16px 0;color:#4a5568;font-size:14px;line-height:1.75}
+.rpa-payment-note strong{color:#7048e8}
+.rpa-payment-data{display:grid;gap:12px;margin:16px 0 8px}
+.rpa-payment-data-row{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--data-color);border-radius:10px;padding:15px 18px;min-width:0}
+.rpa-payment-data-name{color:var(--data-ink);font-size:13px;font-weight:800;line-height:1.55}
+.rpa-payment-data-name strong{display:block;color:#1a1a2e;font-size:16px}
+.rpa-payment-data-path{min-width:0;color:#4a5568;font-size:13px;line-height:1.7}
+.rpa-payment-data-path b{color:#1a1a2e}
+.rpa-payment-data-path .step{display:block;margin:2px 0}
+.rpa-payment-data-path .arrow{color:#94a3b8;margin-right:7px}
+@media(max-width:760px){.rpa-payment-route-head,.rpa-payment-data-row{grid-template-columns:1fr;gap:7px}.rpa-payment-route,.rpa-payment-data-row{padding:12px 13px}.rpa-payment-track{gap:5px}.rpa-payment-track span{width:100%}.rpa-payment-track i{width:100%;text-align:center;line-height:1}}
+.rpa-rec-payload{background:#fff;border:1px solid #e2e8f0;border-radius:11px;margin:16px 0 8px;padding:17px 19px}
+.rpa-rec-payload-head{color:#7048e8;font-size:14px;font-weight:800;margin-bottom:10px}
+.rpa-rec-payload-row{display:grid;grid-template-columns:170px minmax(0,1fr);gap:11px;padding:8px 0;border-top:1px dashed #e2e8f0;color:#4a5568;font-size:13px;line-height:1.65;min-width:0}
+.rpa-rec-payload-row:first-of-type{border-top:0}
+.rpa-rec-payload-row b{color:#1a1a2e}
+.rpa-rec-gate{background:#f3f0ff;border:1px solid #dacbff;border-radius:10px;padding:14px 18px;text-align:center;color:#7048e8;font-size:14px;font-weight:800;margin:16px 0 12px}
+.rpa-rec-gate small{display:block;color:#6272a4;font-size:12px;font-weight:500;line-height:1.6;margin-top:3px}
+.rpa-rec-results{display:grid;gap:10px;margin:0 0 8px}
+.rpa-rec-result{display:grid;grid-template-columns:180px minmax(0,1fr);gap:16px;align-items:start;background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--result-color);border-radius:9px;padding:13px 16px;min-width:0}
+.rpa-rec-result-label{color:var(--result-ink);font-size:14px;font-weight:800;line-height:1.6}
+.rpa-rec-result-body{min-width:0;color:#4a5568;font-size:13px;line-height:1.7}
+.rpa-rec-follow{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:15px 18px;margin:15px 0;color:#4a5568;font-size:13px;line-height:1.75}
+.rpa-rec-follow strong{color:#7048e8}
+@media(max-width:760px){.rpa-rec-payload{padding:12px 14px}.rpa-rec-payload-row,.rpa-rec-result{grid-template-columns:1fr;gap:3px}.rpa-rec-result{padding:11px 13px}}
+.rpa-tail-compare{display:grid;gap:11px;margin:16px 0 8px}
+.rpa-tail-compare-row{display:grid;grid-template-columns:175px minmax(0,1fr);gap:16px;background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--compare-color);border-radius:10px;padding:14px 17px;min-width:0}
+.rpa-tail-compare-name{color:var(--compare-ink);font-size:13px;font-weight:800;line-height:1.6}
+.rpa-tail-compare-name strong{display:block;color:#1a1a2e;font-size:16px}
+.rpa-tail-compare-detail{min-width:0;color:#4a5568;font-size:13px;line-height:1.7}
+.rpa-tail-compare-detail span{display:block}
+.rpa-tail-compare-detail b{color:#1a1a2e}
+.rpa-tail-chain{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;margin:17px 0 8px}
+.rpa-tail-chain-step{display:grid;grid-template-columns:170px 22px minmax(0,1fr);gap:10px;align-items:center;border-bottom:1px dashed #e2e8f0;padding:9px 0;color:#4a5568;font-size:13px;line-height:1.65;min-width:0}
+.rpa-tail-chain-step:last-child{border-bottom:0}
+.rpa-tail-chain-step b{color:#1a1a2e}
+.rpa-tail-chain-step i{font-style:normal;text-align:center;color:#94a3b8;font-size:18px}
+.rpa-tail-trace-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:16px 0 8px}
+.rpa-tail-trace-field{background:#fff;border:1px solid #e2e8f0;border-top:4px solid var(--field-color);border-radius:9px;padding:12px 15px;min-width:0;color:#4a5568;font-size:13px;line-height:1.65}
+.rpa-tail-trace-field b{display:block;color:var(--field-ink);font-size:14px;margin-bottom:5px}
+@media(max-width:760px){.rpa-tail-compare-row,.rpa-tail-chain-step{grid-template-columns:1fr;gap:4px}.rpa-tail-chain-step i{transform:rotate(90deg);line-height:1}.rpa-tail-trace-fields{grid-template-columns:1fr}}
+</style>
+
+<div class="rpa">
+<div class="rpa-hero">
+<div class="rpa-eyebrow">REGULAR ORDER PAYMENT API</div>
+<h1>定期購到了建單時間，mweb 如何完成這一期訂單？</h1>
+<p>排程送來定期購資料後，mweb 會先確認這次請求是否已完成，再組出可供結帳的資料。接著依付款方式執行建單流程，並記錄本次結果。</p>
+</div>
+<div class="rpa-section-head"><div class="rpa-section-chip">01</div><div class="rpa-section-title">從 API 入口到建單結果</div></div>
+<div class="rpa-diagram">
+<svg viewBox="0 0 920 1050" role="img" aria-labelledby="rpa-flow-title rpa-flow-desc">
+<title id="rpa-flow-title">定期購自動建單的主要分支流程</title>
+<desc id="rpa-flow-desc">排程呼叫 mweb API。已成功的 TraceId 直接回傳既有結果；其他請求建立虛擬購物車，Provider 不一致時停止。一致時建立付款 Context，依信用卡或貨到付款流程建單，成功後更新 Tracing。</desc>
+<defs><marker id="rpa-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10Z" fill="#94a3b8"></path></marker></defs>
+<g fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#rpa-arrow)">
+<path d="M460 84 V116"></path><path d="M460 186 V224"></path><path d="M580 269 H658"></path><path d="M460 314 V352"></path><path d="M460 422 V458"></path><path d="M580 503 H658"></path><path d="M460 548 V586"></path><path d="M460 656 V694"></path><path d="M460 784 V816 H228 V830"></path><path d="M460 784 V816 H692 V830"></path><path d="M228 910 V950 H460 V966"></path><path d="M692 910 V950 H460"></path>
+</g>
+<g font-size="14" font-weight="700" fill="#6272a4"><text x="610" y="257">已成功</text><text x="460" y="341" text-anchor="middle">其餘請求</text><text x="608" y="490">不一致</text><text x="460" y="575" text-anchor="middle">一致</text><text x="280" y="805">信用卡</text><text x="610" y="805">貨到付款</text></g>
+<rect x="280" y="20" width="360" height="64" rx="10" fill="#e7f5ff" stroke="#4dabf7" stroke-width="2"></rect>
+<text x="460" y="47" text-anchor="middle" font-size="16" font-weight="700" fill="#1971c2">定期購排程或 Worker</text><text x="460" y="69" text-anchor="middle" font-size="13" fill="#475569">送出本期建單資料</text>
+<rect x="250" y="116" width="420" height="70" rx="10" fill="#f3f0ff" stroke="#bd93f9" stroke-width="2"></rect>
+<text x="460" y="145" text-anchor="middle" font-size="16" font-weight="700" fill="#7048e8">SubscriptionOrderAutoGen</text><text x="460" y="169" text-anchor="middle" font-size="13" fill="#475569">檢查來源、重複請求與 Tracing</text>
+<path d="M460 224 L580 269 L460 314 L340 269 Z" fill="#fff7ed" stroke="#ff922b" stroke-width="2"></path><text x="460" y="274" text-anchor="middle" font-size="15" font-weight="700" fill="#d9480f">Tracing 已成功？</text>
+<rect x="658" y="238" width="220" height="64" rx="10" fill="#ebfbee" stroke="#51cf66" stroke-width="2"></rect><text x="768" y="265" text-anchor="middle" font-size="15" font-weight="700" fill="#2f9e44">回傳既有結果</text><text x="768" y="287" text-anchor="middle" font-size="12" fill="#475569">不再執行建單</text>
+<rect x="250" y="352" width="420" height="70" rx="10" fill="#e7f5ff" stroke="#4dabf7" stroke-width="2"></rect><text x="460" y="380" text-anchor="middle" font-size="16" font-weight="700" fill="#1971c2">建立定期購用的虛擬購物車</text><text x="460" y="404" text-anchor="middle" font-size="13" fill="#475569">執行 GetRegularOrder Processor Pipeline</text>
+<path d="M460 458 L580 503 L460 548 L340 503 Z" fill="#fff7ed" stroke="#ff922b" stroke-width="2"></path><text x="460" y="508" text-anchor="middle" font-size="15" font-weight="700" fill="#d9480f">Provider 相符？</text>
+<rect x="658" y="472" width="220" height="64" rx="10" fill="#fff5f5" stroke="#ff5555" stroke-width="2"></rect><text x="768" y="499" text-anchor="middle" font-size="15" font-weight="700" fill="#c92a2a">拋出例外</text><text x="768" y="521" text-anchor="middle" font-size="12" fill="#475569">不進入付款與建單</text>
+<rect x="250" y="586" width="420" height="70" rx="10" fill="#f3f0ff" stroke="#bd93f9" stroke-width="2"></rect><text x="460" y="614" text-anchor="middle" font-size="16" font-weight="700" fill="#7048e8">建立 PayProcessContext</text><text x="460" y="638" text-anchor="middle" font-size="13" fill="#475569">執行 GetPayProcess 並補收件人、發票資料</text>
+<path d="M460 694 L580 739 L460 784 L340 739 Z" fill="#fff7ed" stroke="#ff922b" stroke-width="2"></path><text x="460" y="744" text-anchor="middle" font-size="15" font-weight="700" fill="#d9480f">付款方式？</text>
+<rect x="58" y="830" width="340" height="80" rx="10" fill="#e7f5ff" stroke="#4dabf7" stroke-width="2"></rect><text x="228" y="860" text-anchor="middle" font-size="16" font-weight="700" fill="#1971c2">CreditCardProcess</text><text x="228" y="887" text-anchor="middle" font-size="13" fill="#475569">建立訂單並執行信用卡授權流程</text>
+<rect x="522" y="830" width="340" height="80" rx="10" fill="#e6fcf5" stroke="#20c997" stroke-width="2"></rect><text x="692" y="860" text-anchor="middle" font-size="16" font-weight="700" fill="#0f9177">CashOnDeliveryProcess</text><text x="692" y="887" text-anchor="middle" font-size="13" fill="#475569">建立貨到付款訂單</text>
+<rect x="250" y="966" width="420" height="64" rx="10" fill="#ebfbee" stroke="#51cf66" stroke-width="2"></rect><text x="460" y="992" text-anchor="middle" font-size="16" font-weight="700" fill="#2f9e44">建單成功後更新 Tracing</text><text x="460" y="1016" text-anchor="middle" font-size="13" fill="#475569">記錄正式訂單識別資訊並回傳</text>
+</svg>
+</div>
+<div class="rpa-mobile-flow" role="group" aria-label="定期購自動建單的手機版分支流程">
+<div class="rpa-mobile-node">定期購排程或 Worker<small>送出本期建單資料</small></div>
+<div class="rpa-mobile-arrow" aria-hidden="true">↓</div>
+<div class="rpa-mobile-node" style="--flow-color:#bd93f9;--flow-ink:#7048e8"><code>SubscriptionOrderAutoGen</code><small>檢查來源、重複請求與 Tracing</small></div>
+<div class="rpa-mobile-arrow" aria-hidden="true">↓</div>
+<div class="rpa-mobile-gate">Tracing 已成功？</div>
+<div class="rpa-mobile-branches"><div class="rpa-mobile-outcome" style="--outcome-color:#51cf66;--outcome-ink:#2f9e44">是，回傳既有結果<small>不再執行建單</small></div><div class="rpa-mobile-outcome" style="--outcome-color:#4dabf7;--outcome-ink:#1971c2">否，繼續處理<small>建立虛擬購物車</small></div></div>
+<div class="rpa-mobile-continue">以下沿「繼續處理」分支</div>
+<div class="rpa-mobile-arrow" aria-hidden="true">↓</div>
+<div class="rpa-mobile-node">虛擬購物車<small>執行 <code>GetRegularOrder</code> Pipeline</small></div>
+<div class="rpa-mobile-arrow" aria-hidden="true">↓</div>
+<div class="rpa-mobile-gate">Provider 相符？</div>
+<div class="rpa-mobile-branches"><div class="rpa-mobile-outcome" style="--outcome-color:#ff5555;--outcome-ink:#c92a2a">否，拋出例外<small>不進入付款與建單</small></div><div class="rpa-mobile-outcome" style="--outcome-color:#20c997;--outcome-ink:#0f9177">是，繼續處理<small>建立付款 Context</small></div></div>
+<div class="rpa-mobile-continue">以下沿「繼續處理」分支</div>
+<div class="rpa-mobile-arrow" aria-hidden="true">↓</div>
+<div class="rpa-mobile-node" style="--flow-color:#bd93f9;--flow-ink:#7048e8"><code>PayProcessContext</code><small>執行 <code>GetPayProcess</code>，補收件人與發票資料</small></div>
+<div class="rpa-mobile-arrow" aria-hidden="true">↓</div>
+<div class="rpa-mobile-gate">付款方式？</div>
+<div class="rpa-mobile-branches"><div class="rpa-mobile-outcome" style="--outcome-color:#4dabf7;--outcome-ink:#1971c2"><code>CreditCardProcess</code><small>建單與信用卡授權流程</small></div><div class="rpa-mobile-outcome" style="--outcome-color:#20c997;--outcome-ink:#0f9177"><code>CashOnDeliveryProcess</code><small>建立貨到付款訂單</small></div></div>
+<div class="rpa-mobile-arrow" aria-hidden="true">↓</div>
+<div class="rpa-mobile-node" style="--flow-color:#51cf66;--flow-ink:#2f9e44">建單成功後更新 Tracing<small>記錄正式訂單識別資訊並回傳</small></div>
+</div>
+<div class="rpa-caption">箭頭依執行順序閱讀。圖中付款分支聚焦信用卡與貨到付款；其他付款方式由各自的 <code>PayProcessFlowType</code> 處理。</div>
+<div class="rpa-inline-note"><strong>Provider 檢查範圍：</strong>圖中的比對描述 <code>GameBall</code> 與 <code>Nine1V2</code>。程式內的舊 <code>Nine1</code> 分支不執行這項比對。</div>
+<div class="rpa-section-head"><div class="rpa-section-chip">02</div><div class="rpa-section-title">虛擬購物車沿著哪些處理階段形成？</div></div>
+<p><code>ShoppingCartV2Service.GetShoppingCartContextForRegularOrder()</code> 先放入請求資料與商店設定，再執行 <code>GetRegularOrder</code> Pipeline。軌道由上往下呈現主要處理階段。</p>
+<div class="rpa-rail-shell" role="group" aria-label="GetRegularOrder 虛擬購物車 Pipeline 的階段軌道">
+<div class="rpa-rail-io">輸入：定期購請求、商店 Provider、商品與配送資料</div>
+<div class="rpa-rail">
+<div class="rpa-rail-stop" style="--rail-color:#bd93f9"><div class="rpa-rail-dot">1</div><div class="rpa-rail-title">取出定期購資料</div><div class="rpa-rail-desc">驗證會員與 Provider，整理商品節點及贈品。</div><div class="rpa-rail-names"><code>GetRegularOrderProcessor</code><code>RegularOrderGiftPrepareProcessor</code></div></div>
+<div class="rpa-rail-stop" style="--rail-color:#4dabf7"><div class="rpa-rail-dot">2</div><div class="rpa-rail-title">檢查可用條件</div><div class="rpa-rail-desc">確認交期、付款方式與配送方式。</div><div class="rpa-rail-names"><code>GetPayTypeIsAvaliableProcessor</code><code>CheckShippingProfileType<wbr>IsAvaliableV2Processor</code></div></div>
+<div class="rpa-rail-stop" style="--rail-color:#4dabf7"><div class="rpa-rail-dot">3</div><div class="rpa-rail-title">計算金物流</div><div class="rpa-rail-desc">算出金物流交集、運費、金額限制與可用組合。</div><div class="rpa-rail-names"><code>CalculateShoppingCart<wbr>PayShippingV2Processor</code><code>CalculateShoppingCart<wbr>FeeV2Processor</code></div></div>
+<div class="rpa-rail-stop" style="--rail-color:#20c997"><div class="rpa-rail-dot">4</div><div class="rpa-rail-title">選定結帳資料</div><div class="rpa-rail-desc">預選結帳方式，計算配送日期與供應商物流代碼。</div><div class="rpa-rail-names"><code>PickupShoppingCart<wbr>CheckoutTypeV2Processor</code><code>CalculateShoppingCart<wbr>ShippingDateV2Processor</code></div></div>
+</div>
+<div class="rpa-rail-io output">輸出：<code>ShoppingCartClientEntity</code>，交給付款 Context 建立流程</div>
+</div>
+<div class="rpa-caption">圖依 <code>GetRegularOrder</code> 的註冊順序分組，列出代表性 Processor。其餘檢查與設定仍在同一條 Pipeline 中；<code>context.IsFinish</code> 成立時會提前停止。</div>
+
+<div class="rpa-section-head"><div class="rpa-section-chip">03</div><div class="rpa-section-title">付款 Context 在哪些元件之間完成？</div></div>
+<p><code>TradesOrderService</code> 將虛擬購物車交給 <code>PayProcessService</code>。時序圖把 Context 建立、暫存、<code>GetPayProcess</code> Pipeline，以及外層補資料分開呈現。</p>
+<div class="rpa-sequence">
+<svg viewBox="0 0 760 710" role="img" aria-labelledby="rpa-context-seq-title rpa-context-seq-desc">
+<title id="rpa-context-seq-title">PayProcessContext 建立時序圖</title>
+<desc id="rpa-context-seq-desc">TradesOrderService 呼叫 PayProcessService 建立付款 Context。PayProcessService 檢查購物車、建立並暫存 Context，執行 GetPayProcess Pipeline。回傳後，TradesOrderService 補定期購收件人及發票資料。</desc>
+<defs><marker id="rpa-seq-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10Z" fill="#64748b"></path></marker></defs>
+<rect x="16" y="18" width="145" height="55" rx="8" fill="#e7f5ff" stroke="#4dabf7" stroke-width="2"></rect><text x="88" y="43" text-anchor="middle" font-size="13" font-weight="700" fill="#1971c2">TradesOrder</text><text x="88" y="61" text-anchor="middle" font-size="13" font-weight="700" fill="#1971c2">Service</text>
+<rect x="190" y="18" width="160" height="55" rx="8" fill="#f3f0ff" stroke="#bd93f9" stroke-width="2"></rect><text x="270" y="43" text-anchor="middle" font-size="13" font-weight="700" fill="#7048e8">PayProcess</text><text x="270" y="61" text-anchor="middle" font-size="13" font-weight="700" fill="#7048e8">Service</text>
+<rect x="380" y="18" width="144" height="55" rx="8" fill="#f1f3f5" stroke="#94a3b8" stroke-width="2"></rect><text x="452" y="51" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">UserDataHelper</text>
+<rect x="554" y="18" width="172" height="55" rx="8" fill="#e6fcf5" stroke="#20c997" stroke-width="2"></rect><text x="640" y="43" text-anchor="middle" font-size="13" font-weight="700" fill="#0f9177">GetPayProcess</text><text x="640" y="61" text-anchor="middle" font-size="13" font-weight="700" fill="#0f9177">Pipeline</text>
+<g stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"><line x1="88" y1="73" x2="88" y2="675"></line><line x1="270" y1="73" x2="270" y2="675"></line><line x1="452" y1="73" x2="452" y2="675"></line><line x1="640" y1="73" x2="640" y2="675"></line></g>
+<rect x="264" y="137" width="12" height="435" fill="#ede9fe" stroke="#bd93f9"></rect><rect x="634" y="345" width="12" height="173" fill="#d3f9eb" stroke="#20c997"></rect>
+<g fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#rpa-seq-arrow)"><line x1="88" y1="137" x2="262" y2="137"></line><line x1="276" y1="274" x2="442" y2="274"></line><line x1="276" y1="345" x2="632" y2="345"></line></g>
+<g fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#rpa-seq-arrow)"><line x1="452" y1="309" x2="278" y2="309"></line><line x1="640" y1="526" x2="278" y2="526"></line><line x1="270" y1="572" x2="98" y2="572"></line></g>
+<text x="178" y="122" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">建立定期購付款 Context</text>
+<rect x="185" y="167" width="170" height="69" rx="8" fill="#f8f7ff" stroke="#bd93f9"></rect><text x="270" y="192" text-anchor="middle" font-size="12" fill="#475569">檢查購物車非空</text><text x="270" y="212" text-anchor="middle" font-size="12" fill="#475569">建立 Context 與識別碼</text>
+<text x="362" y="260" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">Save(Context)</text>
+<text x="460" y="330" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">ExecuteProcess("GetPayProcess")</text>
+<rect x="545" y="376" width="190" height="118" rx="8" fill="#f2fffa" stroke="#20c997"></rect><text x="640" y="402" text-anchor="middle" font-size="12" font-weight="700" fill="#0f9177">依序執行 Processor</text><text x="640" y="426" text-anchor="middle" font-size="12" fill="#475569">付款資料與 Token</text><text x="640" y="447" text-anchor="middle" font-size="12" fill="#475569">配送與門市檢查</text><text x="640" y="468" text-anchor="middle" font-size="12" fill="#475569">驗證與個資遮罩</text>
+<text x="455" y="513" text-anchor="middle" font-size="12" fill="#475569">Pipeline 結束，回傳 Context</text><text x="180" y="559" text-anchor="middle" font-size="12" fill="#475569">回傳付款 Context</text>
+<rect x="10" y="598" width="217" height="73" rx="8" fill="#f8fafc" stroke="#4dabf7"></rect><text x="118" y="622" text-anchor="middle" font-size="12" font-weight="700" fill="#1971c2">外層補定期購資料</text><text x="118" y="643" text-anchor="middle" font-size="12" fill="#475569">收件人、My 發票</text><text x="118" y="662" text-anchor="middle" font-size="12" fill="#475569">與可選的會員發票欄位</text>
+</svg>
+</div>
+<div class="rpa-caption">時間由上往下。<code>GetPayProcess</code> 的 Processor 依序處理付款資料、Token、配送、驗證與遮罩；收件人及發票的定期購專用補值發生在 Pipeline 回傳後。</div>
+
+<div class="rpa-section-head"><div class="rpa-section-chip">04</div><div class="rpa-section-title">實際付款與建單如何分流？</div></div>
+<p><code>PayProcessService.CreateTradesOrder()</code> 依 <code>PayProcessFlowType</code> 選擇 Processor Pipeline。雙泳道以相同階段對照信用卡與貨到付款，節點沿各自的垂直線往下執行。</p>
+<div class="rpa-swim-shell" role="group" aria-label="信用卡與貨到付款建單 Pipeline 的雙泳道圖">
+<div class="rpa-swim-entry"><code>CreateTradesOrder()</code> → <code>ExecuteProcess(PayProcessFlowType)</code></div>
+<div class="rpa-swim">
+<div class="rpa-swim-lane" style="--swim-color:#4dabf7;--swim-ink:#1971c2"><div class="rpa-swim-head"><code>CreditCardProcess</code><span>信用卡</span></div><div class="rpa-swim-track">
+<div class="rpa-swim-event"><strong>檢查</strong><span>信用卡格式、黑名單、分期與付款資料</span><code>CheckCreditCardProcessor</code></div>
+<div class="rpa-swim-event"><strong>計算與組單</strong><span>購物車計價、贈品處理、映射與驗證訂單資料</span><code>MapToTradesOrderProcessor</code></div>
+<div class="rpa-swim-event"><strong>建立訂單</strong><span>寫入訂單，接著處理 Event、活動名額與其他權益</span><code>CreateTradesOrderProcessor</code></div>
+<div class="rpa-swim-event"><strong>信用卡授權</strong><span>3D 驗證節點後執行授權，再進入定期購與訂單後續處理</span><code>ThreeDSecureProcessor → AuthProcessor</code></div>
+</div></div>
+<div class="rpa-swim-lane" style="--swim-color:#20c997;--swim-ink:#0f9177"><div class="rpa-swim-head"><code>CashOnDeliveryProcess</code><span>貨到付款</span></div><div class="rpa-swim-track">
+<div class="rpa-swim-event"><strong>檢查</strong><span>整理並驗證付款資料與配送條件</span><code>ValidateProcessDataProcessor</code></div>
+<div class="rpa-swim-event"><strong>計算與組單</strong><span>購物車計價、贈品處理、映射與驗證訂單資料</span><code>MapToTradesOrderProcessor</code></div>
+<div class="rpa-swim-event"><strong>建立訂單</strong><span>寫入訂單，接著處理 Event、活動名額與其他權益</span><code>CreateTradesOrderProcessor</code></div>
+<div class="rpa-swim-event"><strong>轉單與後續處理</strong><span>轉單到 ERP，接著執行定期購與訂單後續處理</span><code>TransferOrderProcessor</code></div>
+</div></div>
+</div>
+</div>
+<div class="rpa-caption">泳道由上往下表示註冊順序，列出代表性 Processor。信用卡在 <code>CreateTradesOrderProcessor</code> 之後才到 <code>ThreeDSecureProcessor</code> 與 <code>AuthProcessor</code>；貨到付款沒有這兩個信用卡授權節點。<code>context.IsFinish</code> 成立時，後續 Processor 不再執行。</div>
+</div></div><div class="tab-item-content" id="設計現狀-2"><div class="rpa">
+<div class="rpa-hero">
+<div class="rpa-eyebrow">PROVIDER GATE · 定期購責任來源</div>
+<h1>Provider 檢查是做什麼的？</h1>
+<p>mweb 會確認「商店目前設定的定期購 Provider」與「這次 API 請求宣告的 Provider」一致。兩者不同時，這次請求不能繼續把定期購資料組成付款用的購物車。</p>
+</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">01</span><span class="rpa-section-title">兩個 Provider 從哪裡來？</span></div>
+<p>商店設定代表目前由哪套定期購流程負責；請求值代表這次呼叫宣告的來源。mweb 建立購物車 context 時，分別把它們放進以下欄位。</p>
+<div class="rpa-provider-sources" role="group" aria-label="Provider 比對的兩個資料來源">
+<div class="rpa-provider-source" style="--source-color:#4dabf7;--source-ink:#1971c2"><span class="label">商店目前的設定</span><strong><code>context.Data.RegularOrderProvider</code></strong><small>由 <code>GetShopDefaultValue</code> 讀取 <code>RegularOrder / RegularOrderProvider</code></small></div>
+<div class="rpa-provider-source" style="--source-color:#bd93f9;--source-ink:#7048e8"><span class="label">這次 API 請求</span><strong><code>context.RegularOrderData.<wbr>Data.Provider</code></strong><small>來自 request 的 <code>RegularOrderProvider</code></small></div>
+</div>
+<div class="rpa-provider-join" aria-hidden="true">↓</div>
+<div class="rpa-provider-gate">兩個 Provider 是否相同？<small><code>GetRegularOrderProcessor</code> 的新定期購檢查</small></div>
+<div class="rpa-provider-results" role="group" aria-label="Provider 比對的兩種結果">
+<div class="rpa-provider-result" style="--result-color:#20c997;--result-ink:#0f9177"><b>相同 → 繼續</b><span>接著驗證商店與商品頁，再把定期購主單映射到購物車 context。</span></div>
+<div class="rpa-provider-result" style="--result-color:#fa5252;--result-ink:#c92a2a"><b>不同 → 中止</b><span>拋出 <code>RegularOrderException("Other")</code>，不會進入後續付款流程。</span></div>
+</div>
+<div class="rpa-caption">這是 Provider 這一道關卡的局部流程。程式在比對前已載入主單並檢查 ShopId、訂購狀態與 MemberId；若使用門市自取，還會先檢查門市是否可用。商店設定為舊版 <code>Nine1</code> 時，不執行這段 Provider 相等比對。</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">02</span><span class="rpa-section-title">商店已切換，舊來源仍送出請求時</span></div>
+<p>例如商店設定已是 <code>Nine1V2</code>，這次請求卻宣告 <code>GameBall</code>，mweb 會在主單檢查階段拒絕這次建單。這表示請求來源與商店設定不符，不代表信用卡授權失敗。</p>
+<div class="rpa-provider-case" role="group" aria-label="商店 Nine1V2、請求 GameBall 的比對範例">
+<div class="rpa-provider-case-cell">商店設定<strong>Nine1V2</strong></div>
+<div class="rpa-provider-case-arrow" aria-hidden="true">≠</div>
+<div class="rpa-provider-case-cell">API 請求<strong>GameBall</strong></div>
+<div class="rpa-provider-case-arrow" aria-hidden="true">→</div>
+<div class="rpa-provider-case-cell reject">檢查結果<strong>拒絕建單 · Other</strong></div>
+</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">03</span><span class="rpa-section-title">Provider 還決定主單怎麼載入</span></div>
+<p><code>GetRegularOrderProcessor</code> 先依商店設定的 Provider 選擇資料取得方式，取得主單後才做欄位驗證與上述比對。<code>GameBall</code> 與 <code>Nine1V2</code> 在這裡走同一條路。</p>
+<div class="rpa-provider-paths" role="group" aria-label="依商店 Provider 選擇定期購主單資料路徑">
+<div class="rpa-provider-path" style="--path-color:#4dabf7;--path-tint:#e7f5ff;--path-ink:#1971c2">
+<div class="rpa-provider-path-label">商店 Provider<strong><code>GameBall</code> / <code>Nine1V2</code></strong></div>
+<div class="rpa-provider-path-steps">
+<div class="rpa-provider-path-step"><b>01</b><span>以主單 ID 呼叫 <code>GetCheckOutInfo</code> 取得結帳資料。</span></div>
+<div class="rpa-provider-path-step"><b>02</b><span>用 <code>ShoppingCartNodeMappingToRegularOrderEntity</code> 組成主單 Entity，再執行 Provider 相等比對。</span></div>
+</div>
+</div>
+<div class="rpa-provider-path" style="--path-color:#bd93f9;--path-tint:#f3f0ff;--path-ink:#7048e8">
+<div class="rpa-provider-path-label">商店 Provider<strong>其他值，包含 <code>Nine1</code></strong></div>
+<div class="rpa-provider-path-steps">
+<div class="rpa-provider-path-step"><b>01</b><span>以主單 ID 呼叫 <code>RegularOrderService.Get</code> 讀取既有主單。</span></div>
+<div class="rpa-provider-path-step"><b>02</b><span>商店 Provider 為舊版 <code>Nine1</code> 時，略過新定期購的 Provider 相等比對。</span></div>
+</div>
+</div>
+</div>
+<div class="rpa-inline-note"><strong>重點：</strong>Provider 在此決定主單的資料路徑，也用來核對這次請求是否屬於商店目前的定期購流程；實際可用付款方式仍由後續購物車與付款處理計算。</div>
+</div></div><div class="tab-item-content" id="設計現狀-3"><div class="rpa">
+<div class="rpa-hero">
+<div class="rpa-eyebrow">VIRTUAL CART · 資料如何成形</div>
+<h1>定期購資料如何變成虛擬購物車？</h1>
+<p>這一期訂單沒有經過會員手動加購物車。mweb 會把定期購請求、商店設定與商品頁資料組成購物車結帳所需的結構，再交給既有付款流程。</p>
+</div>
+
+<div class="rpa-cart-trace" role="group" aria-label="定期購虛擬購物車組裝呼叫鏈">
+<div class="rpa-cart-trace-label">組車 Trace · 從 API 到購物車資料</div>
+<div class="rpa-cart-trace-chain">
+<div class="rpa-cart-trace-node" style="--trace-color:#bd93f9;--trace-ink:#7048e8"><b>API 入口</b><code>SubscriptionOrder<wbr>AutoGen</code></div>
+<div class="rpa-cart-trace-node" style="--trace-color:#bd93f9;--trace-ink:#7048e8"><b>流程協調</b><code>TradesOrderService</code></div>
+<div class="rpa-cart-trace-node" style="--trace-color:#4dabf7;--trace-ink:#1971c2"><b>建立 Context</b><code>ShoppingCartV2<wbr>Service</code></div>
+<div class="rpa-cart-trace-node" style="--trace-color:#4dabf7;--trace-ink:#1971c2"><b>執行組車 Pipeline</b><code>GetRegularOrder</code></div>
+</div>
+<div class="rpa-cart-trace-output">產出 <code>ShoppingCartClientEntity</code>，交給付款 Context 建立流程</div>
+</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">01</span><span class="rpa-section-title">資料從哪裡來，交到哪裡？</span></div>
+<p><code>ShoppingCartV2Service</code> 的定期購入口先建立 <code>ShoppingCartV2Context</code>，再依 <code>GetRegularOrder</code> 的註冊順序執行 Processor。下圖追蹤資料形成與交接。</p>
+<div class="rpa-cart-flow" role="group" aria-label="定期購資料形成虛擬購物車的資料流">
+<div class="rpa-cart-inputs">
+<div class="rpa-cart-input" style="--cart-color:#4dabf7;--cart-tint:#e7f5ff;--cart-ink:#1971c2"><b>本期 API 請求</b><span>主單、商店與會員 ID；商品 SKU、價格與數量；收件、配送、付款與贈品資料。</span></div>
+<div class="rpa-cart-input" style="--cart-color:#bd93f9;--cart-tint:#f3f0ff;--cart-ink:#7048e8"><b>商店設定</b><span>從 <code>ShopDefault</code> 讀取目前的 <code>RegularOrderProvider</code>。</span></div>
+</div>
+<div class="rpa-cart-arrow" aria-hidden="true">↓</div>
+<div class="rpa-cart-track">
+<div class="rpa-cart-stage" style="--cart-color:#bd93f9;--cart-ink:#7048e8"><b>建立計算用 Context</b><span>把請求欄位放進 <code>RegularOrderData</code>，連同商店 Provider、來源追蹤與購物時間建立 <code>ShoppingCartV2Context</code>。</span></div>
+<div class="rpa-cart-stage" style="--cart-color:#4dabf7;--cart-ink:#1971c2"><b>轉成購物車商品資料</b><span><code>GetRegularOrderProcessor</code> 讀取並驗證主單，取得商品頁資料，再把主單價格、數量、交期與金物流條件寫入仿購物車結構。</span></div>
+<div class="rpa-cart-stage" style="--cart-color:#20c997;--cart-ink:#0f9177"><b>補齊可結帳資料</b><span>後續 <code>GetRegularOrder</code> Processor 準備贈品，檢查金物流、計算運費與限制，並預選結帳方式及計算配送日期。</span></div>
+</div>
+<div class="rpa-cart-arrow" aria-hidden="true">↓</div>
+<div class="rpa-cart-output"><code>shoppingCartContext.Data</code>：<code>ShoppingCartClientEntity</code><small>組車成功後，<code>TradesOrderService</code> 將它交給 <code>PayProcessService</code> 建立付款 Context。</small></div>
+</div>
+<div class="rpa-caption">箭頭表示資料形成與交接方向。<code>GetRegularOrderProcessor</code> 在中途會依商店 Provider 選擇主單來源，並核對請求 Provider；詳細條件見前一個 tab。</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">02</span><span class="rpa-section-title"><code>GetRegularOrderProcessor</code> 實際做了什麼？</span></div>
+<p>它是把定期購主單轉成購物車商品資料的核心節點。下方依 <code>Process</code> 的執行順序展開；後續運費計算與結帳預選由同一條 Pipeline 的其他 Processor 接手。</p>
+<div class="rpa-cart-flow" role="group" aria-label="GetRegularOrderProcessor 的四個組車步驟">
+<div class="rpa-cart-track">
+<div class="rpa-cart-stage" style="--cart-color:#bd93f9;--cart-ink:#7048e8"><b>1 · 依商店 Provider 取得主單</b><span>先決定主單資料從哪裡來，再形成 <code>RegularOrderEntity</code>。</span><div class="rpa-cart-proc-branches"><div class="rpa-cart-proc-branch" style="--branch-color:#bd93f9;--branch-ink:#7048e8"><strong><code>GameBall</code> / <code>Nine1V2</code></strong><code>GetCheckOutInfo</code>，再以請求欄位組主單。</div><div class="rpa-cart-proc-branch" style="--branch-color:#94a3b8;--branch-ink:#475569"><strong>其他 Provider</strong><code>RegularOrderService.Get</code> 讀取既有主單。</div></div></div>
+<div class="rpa-cart-stage" style="--cart-color:#ff922b;--cart-ink:#d9480f"><b>2 · 驗證主單與可售條件</b><span>核對商店 ID、訂購中狀態、會員 ID；非舊版 <code>Nine1</code> 時，若為門市自取先檢查門市可用，並比對 Provider。接著執行 <code>ValidateShop</code>、<code>ValidateSalePage</code>。</span></div>
+<div class="rpa-cart-stage" style="--cart-color:#4dabf7;--cart-ink:#1971c2"><b>3 · 生成購物車商品</b><span>依主單的商品頁與 SKU 查商品資料，帶入主單價格、數量與下次出貨日，映射成 <code>ShoppingCartClientEntity</code>，並複製贈品需求。</span></div>
+<div class="rpa-cart-stage" style="--cart-color:#20c997;--cart-ink:#0f9177"><b>4 · 補齊金物流並寫回 Context</b><span>讀取商品頁金物流；非舊版 <code>Nine1</code> 依主單指定類型篩選。檢查選項、依溫層分組，補上識別碼、Provider 與結帳資訊，最後設為 <code>context.Data</code>。</span></div>
+</div>
+</div>
+<div class="rpa-caption">若 <code>RegularOrderData</code> 不存在或主單 ID 為 0，這個 Processor 直接返回；商品資料缺失、售完或金物流不可用時的結果見下方「組車階段停下來」一節。</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">03</span><span class="rpa-section-title">主單欄位如何落到購物車？</span></div>
+<p>商品頁提供可販售商品與原本金物流選項；定期購主單則保留本期的購買條件。轉換時兩邊資料會合併，不能只把 API request 原封不動交給付款流程。</p>
+<div class="rpa-cart-ledger" role="group" aria-label="定期購資料到虛擬購物車的欄位映射">
+<div class="rpa-cart-ledger-row"><div class="rpa-cart-ledger-side"><b>主單商品條件</b>商品頁與 SKU、主單價格、數量、下次預計出貨日</div><div class="rpa-cart-ledger-arrow" aria-hidden="true">→</div><div class="rpa-cart-ledger-side"><b>購物車商品節點</b>查詢商品頁後，以主單價格與數量填值，設定交期，再依物流溫層建立 <code>SalePageGroupList</code>。</div></div>
+<div class="rpa-cart-ledger-row"><div class="rpa-cart-ledger-side"><b>主單金物流條件</b><code>PayProfileTypeDef</code>、<code>ShippingProfileTypeDef</code></div><div class="rpa-cart-ledger-arrow" aria-hidden="true">→</div><div class="rpa-cart-ledger-side"><b>可選的金物流</b>先取得商品頁支援的選項；非舊版 <code>Nine1</code> 再依主單指定類型篩選，後續 Processor 計算可結帳組合。</div></div>
+<div class="rpa-cart-ledger-row"><div class="rpa-cart-ledger-side"><b>定期購附帶資料</b>贈品需求、Provider、結帳資訊</div><div class="rpa-cart-ledger-arrow" aria-hidden="true">→</div><div class="rpa-cart-ledger-side"><b>購物車交接欄位</b><code>SubscriptionGiftItems</code>、<code>RegularOrderProvider</code>；<code>GameBall</code> / <code>Nine1V2</code> 路徑另帶入 <code>RegularOrderCheckoutInfo</code>。</div></div>
+</div>
+<div class="rpa-inline-note"><strong>價格以主單為準：</strong>即使商品頁價格在定期購成立後改變，<code>AssingShoppingCartInfo</code> 仍把購物車商品價格設回主單價格。</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">04</span><span class="rpa-section-title">哪些情況會在組車階段停下來？</span></div>
+<div class="rpa-cart-endings" role="group" aria-label="虛擬購物車形成時的兩類中止結果">
+<div class="rpa-cart-ending" style="--ending-color:#ff922b;--ending-ink:#d9480f"><b><code>context.IsFinish = true</code></b>查不到仿購物車商品頁資料，或映射後全部商品已售完，後面的 <code>GetRegularOrder</code> Processor 不再執行。</div>
+<div class="rpa-cart-ending" style="--ending-color:#fa5252;--ending-ink:#c92a2a"><b>拋出購物車例外</b>可售商品沒有可用金流、沒有可用物流，或物流同時出現多個溫層時，<code>GetRegularOrderProcessor</code> 會中止轉換。</div>
+</div>
+<div class="rpa-caption">這裡只列出轉換商品資料時的停止條件；主單與 Provider 的驗證也可能更早中止流程。</div>
+</div></div><div class="tab-item-content" id="設計現狀-4"><div class="rpa">
+<div class="rpa-hero">
+<div class="rpa-eyebrow">PAYMENT CONTEXT · 組裝與分流</div>
+<h1>虛擬購物車如何變成付款 Context？</h1>
+<p>虛擬購物車完成後，mweb 把它放進付款用的 Context，從已選的結帳方式判定後續流程，並補上本期定期購的收件與發票資料。</p>
+</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">01</span><span class="rpa-section-title">從購物車到可用的付款 Context</span></div>
+<p><code>TradesOrderService</code> 將購物車交給 <code>PayProcessService.GetProcessContextFor<wbr>RegularOrderPay</code>。這段先建立付款資料，執行付款前置 Pipeline，回到外層後再覆寫定期購專用欄位。</p>
+<div class="rpa-cart-flow" role="group" aria-label="定期購付款 Context 建立順序">
+<div class="rpa-rail-io">輸入：<code>ShoppingCartClientEntity</code> 與會員 ID</div>
+<div class="rpa-cart-track">
+<div class="rpa-cart-stage" style="--cart-color:#4dabf7;--cart-ink:#1971c2"><b>1 · 確認購物車有商品群組</b><span>購物車或 <code>SalePageGroupList</code> 為空時，拋出「購物車不得為空」例外。</span></div>
+<div class="rpa-cart-stage" style="--cart-color:#bd93f9;--cart-ink:#7048e8"><b>2 · 建立 <code>PayProcessContextEntity</code></b><span>放入購物車與會員、產生 Context 識別碼，設定 V2 版本、拆單設定及定期購專用資料。</span></div>
+<div class="rpa-cart-stage" style="--cart-color:#4dabf7;--cart-ink:#1971c2"><b>3 · 暫存並執行 <code>GetPayProcess</code></b><span>先以 <code>UserDataHelper.Save</code> 暫存 Context，再依序執行付款資料、Token、配送、驗證與遮罩的 Processor。</span></div>
+<div class="rpa-cart-stage" style="--cart-color:#20c997;--cart-ink:#0f9177"><b>4 · 回到 <code>TradesOrderService</code> 補定期購資料</b><span>以主單資料覆寫收件人；處理符合條件的馬來西亞發票資訊；請求有統編時，補上會員發票欄位。</span></div>
+</div>
+<div class="rpa-cart-arrow" aria-hidden="true">↓</div>
+<div class="rpa-cart-output"><code>PayProcessContextEntity</code><small>帶著購物車、付款流程類型及定期購資料，交給後續建立訂單流程。</small></div>
+</div>
+<div class="rpa-caption">圖中順序依目前自動建單入口。付款 Context 的準備階段不會在這裡執行信用卡授權；正式建單由後續 <code>CreateTradesOrder</code> 流程處理。</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">02</span><span class="rpa-section-title">Context 裡先放了哪些資料？</span></div>
+<div class="rpa-payctx-fields" role="group" aria-label="付款 Context 的三組主要欄位">
+<div class="rpa-payctx-field" style="--field-color:#4dabf7;--field-ink:#1971c2"><b>購物車與會員</b><span><code>ShoppingCartV2</code> 放入虛擬購物車，<code>ShoppingCartVersion</code> 設為 <code>V2</code>，並設定 <code>MemberId</code>。</span><span><code>IsOrdersSplitByQty</code> 由商店設定取得。</span></div>
+<div class="rpa-payctx-field" style="--field-color:#bd93f9;--field-ink:#7048e8"><b>本次 Context 識別</b><span>新產生一組 GUID，同時寫入 <code>UniqueKey</code> 與 <code>ContextId</code>。</span><span>這組識別碼用於暫存與後續載入。</span></div>
+<div class="rpa-payctx-field" style="--field-color:#20c997;--field-ink:#0f9177"><b>定期購標記</b><span>複製 <code>RegularOrderProvider</code> 與 <code>RegularOrderCheckoutInfo</code>。</span><span><code>IsRegularOrderAutoGen</code> 設為 <code>true</code>。</span></div>
+</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">03</span><span class="rpa-section-title">已選付款方式如何變成流程類型？</span></div>
+<p><code>GetPayProcessDataProcessor</code> 從暫存資料還原購物車，讀取 <code>SelectedCheckoutPayTypeGroup.StatisticsTypeDef</code>，先設定 <code>PayProfileType</code>，再決定 <code>PayProcessFlowType</code>。以下列出主要對應。</p>
+<div class="rpa-payctx-routes" role="group" aria-label="購物車已選付款方式到付款流程類型的對應">
+<div class="rpa-payctx-route"><div class="rpa-payctx-route-cell"><b>購物車已選付款</b><code>CreditCardOnce</code><br><code>CreditCardInstallment</code></div><div class="rpa-payctx-route-arrow" aria-hidden="true">→</div><div class="rpa-payctx-route-cell"><b>PayProfileType</b>沿用信用卡一次付清或分期類型</div><div class="rpa-payctx-route-arrow" aria-hidden="true">→</div><div class="rpa-payctx-route-cell result"><b>PayProcessFlowType</b><code>CreditCardProcess</code></div></div>
+<div class="rpa-payctx-route"><div class="rpa-payctx-route-cell"><b>購物車已選付款</b><code>CashOnDelivery</code></div><div class="rpa-payctx-route-arrow" aria-hidden="true">→</div><div class="rpa-payctx-route-cell"><b>PayProfileType</b><code>CashOnDelivery</code></div><div class="rpa-payctx-route-arrow" aria-hidden="true">→</div><div class="rpa-payctx-route-cell result"><b>PayProcessFlowType</b><code>CashOnDeliveryProcess</code></div></div>
+<div class="rpa-payctx-route"><div class="rpa-payctx-route-cell"><b>購物車已選付款</b><code>ATM</code></div><div class="rpa-payctx-route-arrow" aria-hidden="true">→</div><div class="rpa-payctx-route-cell"><b>PayProfileType</b><code>ATM</code></div><div class="rpa-payctx-route-arrow" aria-hidden="true">→</div><div class="rpa-payctx-route-cell result"><b>PayProcessFlowType</b><code>AtmProcess</code></div></div>
+<div class="rpa-payctx-route"><div class="rpa-payctx-route-cell"><b>購物車已選付款</b><code>StorePay</code></div><div class="rpa-payctx-route-arrow" aria-hidden="true">→</div><div class="rpa-payctx-route-cell"><b>PayProfileType</b>取自已選超商配送類型</div><div class="rpa-payctx-route-arrow" aria-hidden="true">→</div><div class="rpa-payctx-route-cell result"><b>PayProcessFlowType</b><code>ShopProcess</code></div></div>
+</div>
+<div class="rpa-caption"><code>StorePay</code> 會依已選的 <code>Family</code>、<code>SevenEleven</code>、<code>HiLife</code> 或 <code>OKmart</code> 配送類型設定付款類型。其他付款方式依各自的 <code>PayProfileType</code> 分支決定流程；此處的分類還不是扣款。</div>
+
+<div class="rpa-section-head"><span class="rpa-section-chip">04</span><span class="rpa-section-title"><code>GetPayProcess</code> Pipeline 做哪些準備？</span></div>
+<div class="rpa-rail-shell" role="group" aria-label="GetPayProcess 付款前置 Pipeline 的四個階段">
+<div class="rpa-rail-io">入口：已暫存的 <code>PayProcessContextEntity</code></div>
+<div class="rpa-rail">
+<div class="rpa-rail-stop" style="--rail-color:#bd93f9"><div class="rpa-rail-dot">1</div><div class="rpa-rail-title">還原資料並決定流程</div><div class="rpa-rail-desc">載入 Context，設定配送與付款類型、Gateway 及流程類型。</div><div class="rpa-rail-names"><code>GetPayProcessDataProcessor</code></div></div>
+<div class="rpa-rail-stop" style="--rail-color:#4dabf7"><div class="rpa-rail-dot">2</div><div class="rpa-rail-title">補結帳與付款資料</div><div class="rpa-rail-desc">處理商品頁備註、流程 Token、會員結帳資料與快速結帳資料。</div><div class="rpa-rail-names"><code>GetSalePageMemo<wbr>SettingsProcessor</code><code>GetPayProcess<wbr>TokenProcessor</code><code>GetLastOrder<wbr>InfoProcessor</code><code>PayTypeExpressProcessor</code></div></div>
+<div class="rpa-rail-stop" style="--rail-color:#4dabf7"><div class="rpa-rail-dot">3</div><div class="rpa-rail-title">檢查配送情境</div><div class="rpa-rail-desc">處理海外配送、超商取貨付款與門市自取資料。</div><div class="rpa-rail-names"><code>OverseaShippingProcessor</code><code>CheckStorePayProcessor</code><code>CheckLocationPickupProcessor</code></div></div>
+<div class="rpa-rail-stop" style="--rail-color:#20c997"><div class="rpa-rail-dot">4</div><div class="rpa-rail-title">驗證與遮罩</div><div class="rpa-rail-desc">檢查付款資料，再保存並遮罩需要保護的個資。</div><div class="rpa-rail-names"><code>ValidateProcessDataProcessor</code><code>MaskProcessDataProcessor</code></div></div>
+</div>
+<div class="rpa-rail-io output">回傳付款 Context，外層再補本期定期購收件人與發票資料</div>
+</div>
+<div class="rpa-caption">四組依 <code>PayProcessProcessorModule</code> 的註冊順序排列，共列出 10 個 Processor。內部來源在 <code>GetLastOrderInfoProcessor</code> 不沿用一般結帳的上一筆訂單收件資訊；外層以本期定期購主單覆寫收件人。</div>
+</div></div><div class="tab-item-content" id="設計現狀-5"><div class="rpa">
+<div class="rpa-hero">
+<div class="rpa-eyebrow">CREATE TRADES ORDER</div>
+<h1>建立訂單後，這一期會怎麼付款？</h1>
+<p><code>PayProcessContext</code> 已選好付款方式。<code>CreateTradesOrder()</code> 依 <code>PayProcessFlowType</code> 執行對應 Pipeline：一般信用卡、Stripe／Razer 信用卡與貨到付款，實際付款的節點並不相同。</p>
+</div>
+
+<div class="rpa-section-head"><div class="rpa-section-chip">01</div><div class="rpa-section-title">付款方式如何分流？</div></div>
+<div class="rpa-payment-entry"><strong><code>PayProcessService.CreateTradesOrder(context)</code></strong>以 <code>context.PayProcessFlowType.ToString()</code> 選出已註冊的 Processor Pipeline</div>
+<div class="rpa-payment-fork" aria-hidden="true">↓</div>
+<div class="rpa-payment-routes" role="group" aria-label="三種付款 Pipeline 的關鍵執行順序">
+<div class="rpa-payment-route" style="--route-color:#4dabf7;--route-ink:#1971c2;--route-tint:#e7f5ff">
+<div class="rpa-payment-route-head"><div class="rpa-payment-route-label">一般信用卡<strong><code>CreditCardProcess</code></strong><code>CreditCardOnce</code>／<code>CreditCardInstallment</code></div><div class="rpa-payment-route-body">先建立交易訂單，再檢查是否需要 3D 驗證，接著由授權 Processor 依商店設定的 Gateway 進行授權。<div class="rpa-payment-track"><span><code>CreateTradesOrderProcessor</code></span><i>→</i><span><code>ThreeDSecureProcessor</code></span><i>→</i><span><code>AuthProcessor</code></span><i>→</i><span><code>CreateRegularOrderProcessor</code></span></div></div></div>
+</div>
+<div class="rpa-payment-route" style="--route-color:#bd93f9;--route-ink:#7048e8;--route-tint:#f3f0ff">
+<div class="rpa-payment-route-head"><div class="rpa-payment-route-label">Stripe／Razer 信用卡<strong><code>ThirdPartyProcess</code></strong><code>CreditCardOnce_Stripe</code>／<code>CreditCardOnce_Razer</code></div><div class="rpa-payment-route-body">同樣先建立交易訂單，付款交給第三方付款 Processor。該 Processor 呼叫 <code>ITradesOrderPaymentService.ProcessPayment()</code>，再由對應通道組織支付資料。<div class="rpa-payment-track"><span><code>CreateTradesOrderProcessor</code></span><i>→</i><span><code>ThirdPartyPayApiProcessor</code></span><i>→</i><span><code>TransferOrderProcessor</code></span><i>→</i><span><code>CreateRegularOrderProcessor</code></span></div></div></div>
+</div>
+<div class="rpa-payment-route" style="--route-color:#20c997;--route-ink:#0f9177;--route-tint:#e6fcf5">
+<div class="rpa-payment-route-head"><div class="rpa-payment-route-label">貨到付款<strong><code>CashOnDeliveryProcess</code></strong><code>CashOnDelivery</code></div><div class="rpa-payment-route-body">建立交易訂單後走轉單與定期購處理。這條 Pipeline 沒有信用卡授權或第三方付款 Processor。<div class="rpa-payment-track"><span><code>CreateTradesOrderProcessor</code></span><i>→</i><span><code>TransferOrderProcessor</code></span><i>→</i><span><code>CreateRegularOrderProcessor</code></span></div></div></div>
+</div>
+</div>
+<div class="rpa-caption">圖中只列辨識分支所需的節點。三條 Pipeline 在建單前還會整理資料、驗證與計算金額，建單後也有訂單事件、額度與其他後續 Processor；箭頭表示註冊順序，不保證每次都能執行到最後。</div>
+
+<div class="rpa-section-head"><div class="rpa-section-chip">02</div><div class="rpa-section-title">定期購付款資料從哪裡來？</div></div>
+<p><code>IsRegularOrderAutoGen</code> 表示這次是定期購自動建單。它不直接決定走哪條 Pipeline，卻會影響支付通道組付款資料的方式。三種信用卡分支使用的保存資料也不同。</p>
+<div class="rpa-payment-data" role="group" aria-label="定期購信用卡付款資料流">
+<div class="rpa-payment-data-row" style="--data-color:#4dabf7;--data-ink:#1971c2"><div class="rpa-payment-data-name">一般信用卡<strong><code>CreditCardOnce</code></strong>以下是 <code>Nine1Payment</code> 分支</div><div class="rpa-payment-data-path"><span class="step"><b>來源：</b><code>RegularOrderCheckoutInfo.credit_card_token</code> 等已保存欄位</span><span class="step"><span class="arrow">↓</span><code>ArrangeDataProcessor</code> 寫入 <code>PaymentInfo.CreditCardInfo</code></span><span class="step"><span class="arrow">↓</span><code>AuthProcessor</code> 依 <code>CreditCardGatewayType</code> 執行授權</span></div></div>
+<div class="rpa-payment-data-row" style="--data-color:#bd93f9;--data-ink:#7048e8"><div class="rpa-payment-data-name">Stripe<strong><code>CreditCardOnce_Stripe</code></strong></div><div class="rpa-payment-data-path"><span class="step"><b>來源：</b><code>RegularOrderCheckoutInfo</code> 中的 <code>CustomerId</code>、<code>PaymentMethod</code></span><span class="step"><span class="arrow">↓</span><code>StripePayChannelService</code> 組出 <code>customer_id</code>、<code>payment_method</code>，並設 <code>off_session = true</code></span><span class="step"><span class="arrow">↓</span>送往第三方付款服務，標示為會員未在線上的付款</span></div></div>
+<div class="rpa-payment-data-row" style="--data-color:#20c997;--data-ink:#0f9177"><div class="rpa-payment-data-name">Razer<strong><code>CreditCardOnce_Razer</code></strong></div><div class="rpa-payment-data-path"><span class="step"><b>來源：</b><code>RegularOrderCheckoutInfo</code> 中的 <code>CreditCardToken</code> 與持卡人聯絡資料</span><span class="step"><span class="arrow">↓</span><code>RazerPayChannelService</code> 組出 <code>card_token</code>、<code>card_user_email</code> 等欄位</span><span class="step"><span class="arrow">↓</span>送往第三方付款服務；不重新組本次輸入的卡號與 CVV</span></div></div>
+</div>
+<div class="rpa-caption">一般信用卡的 Token 還原只描述程式中明確實作的 <code>Nine1Payment</code> 分支；其他 Gateway 不能直接套用同一組欄位。Stripe 與 Razer 的保存資料格式亦各自不同。</div>
+
+<div class="rpa-section-head"><div class="rpa-section-chip">03</div><div class="rpa-section-title">付款結果如何影響後續流程？</div></div>
+<div class="rpa-payment-note"><strong>Pipeline 會依結果繼續或中斷。</strong><code>AuthProcessor</code> 對授權失敗有取消訂單處理；<code>ThirdPartyPayApiProcessor</code> 遇到付款服務回報 <code>Fail</code> 會拋出流程狀態例外。因此，圖中的 <code>TransferOrderProcessor</code>、<code>CreateRegularOrderProcessor</code> 與 <code>AfterOrderProcessor</code> 是註冊的後續節點，不代表付款失敗後仍會執行。</div>
+<div class="rpa-payment-note"><strong>Stripe 的 <code>off_session</code> 是請求模式。</strong>mweb 會在定期購自動建單且有保存結帳資料時送出這個旗標；實際付款結果仍取決於支付服務回應，不能把它視為每次都授權成功或永遠不需驗證。</div>
+<div class="rpa-inline-note"><strong>核對程式：</strong><code>PayProcessService.cs</code>、<code>GetPayProcessDataProcessor.cs</code>、<code>PayProcessProcessorModule.cs</code>、<code>ArrangeDataProcessor.cs</code>、<code>ThirdPartyPayApiProcessor.cs</code>、<code>StripePayChannelService.cs</code>、<code>RazerPayChannelService.cs</code>。</div>
+</div></div><div class="tab-item-content" id="設計現狀-6"><div class="rpa">
+<div class="rpa-hero">
+<div class="rpa-eyebrow">RECURRING CREDIT CARD</div>
+<h1>信用卡定期購，下一期沿用的是什麼資料？</h1>
+<p>本期自動建單會取回首次訂閱留下的結帳資訊，再交給對應金流組付款請求。保存格式依市場與支付通道而異；以下用馬來西亞 Razer 信用卡說明完整鏈路。</p>
+</div>
+
+<div class="rpa-section-head"><div class="rpa-section-chip">01</div><div class="rpa-section-title">從首次訂閱到本期付款</div></div>
+<div class="rpa-rail-shell" role="group" aria-label="信用卡定期購結帳資訊的保存與使用流程">
+<div class="rpa-rail-io">首次訂閱結帳：建立定期購設定與保存的結帳資訊</div>
+<div class="rpa-rail">
+<div class="rpa-rail-stop" style="--rail-color:#4dabf7"><div class="rpa-rail-dot">1</div><div class="rpa-rail-title">保存首次結帳資料</div><div class="rpa-rail-desc"><code>CreateRegularOrderProcessor</code> 在一般結帳建立定期購設定。對 <code>GameBall</code>／<code>Nine1V2</code>，它把 <code>GetCheckOutInfo()</code> 組出的資料寫入 <code>RegularOrder_CheckoutInfo</code>。馬來西亞 Razer 信用卡分支保存卡片 Token 與持卡人聯絡資料。</div></div>
+<div class="rpa-rail-stop" style="--rail-color:#bd93f9"><div class="rpa-rail-dot">2</div><div class="rpa-rail-title">下一期讀回設定</div><div class="rpa-rail-desc">外部供應商的 <code>GetRegularOrderProcessor</code> 透過 <code>RegularOrderService.GetCheckOutInfo()</code> 讀取保存內容，放進虛擬購物車的 <code>RegularOrderCheckoutInfo</code>。</div></div>
+<div class="rpa-rail-stop" style="--rail-color:#bd93f9"><div class="rpa-rail-dot">3</div><div class="rpa-rail-title">帶入付款 Context</div><div class="rpa-rail-desc"><code>GetProcessContextForRegularOrderPay()</code> 把購物車中的結帳資訊複製到 <code>PayProcessContext</code>，並設定 <code>IsRegularOrderAutoGen = true</code>。</div></div>
+<div class="rpa-rail-stop" style="--rail-color:#20c997"><div class="rpa-rail-dot">4</div><div class="rpa-rail-title">建單後送出 Razer 付款請求</div><div class="rpa-rail-desc"><code>CreditCardOnce_Razer</code> 選到 <code>ThirdPartyProcess</code>。Pipeline 先執行 <code>CreateTradesOrderProcessor</code>，再由 <code>ThirdPartyPayApiProcessor</code> 呼叫付款服務；<code>RazerPayChannelService</code> 使用保存資料組出 <code>card_token</code> 等欄位。</div></div>
+</div>
+<div class="rpa-rail-io output">本期交易訂單與付款結果：回傳給定期購 Worker</div>
+</div>
+<div class="rpa-caption">這是「首次保存 → 本期讀取 → 建單與付款」的資料及執行順序。每期請求標記為內部來源，<code>CreateRegularOrderProcessor</code> 遇到內部來源會直接返回，不會為本期再建立一份定期購設定。</div>
+
+<div class="rpa-section-head"><div class="rpa-section-chip">02</div><div class="rpa-section-title">Razer 本期付款送哪些資料？</div></div>
+<p>在 <code>IsRegularOrderAutoGen</code> 且為 Razer 信用卡通道時，<code>RazerPayChannelService.GetPayExtendInfo()</code> 讀取保存的 <code>RegularOrderCheckoutInfo</code>。它把 Token 與持卡人資料映射到付款請求，不採用一般結帳的卡號、效期與 CVV 欄位組法。</p>
+<div class="rpa-rec-payload" role="group" aria-label="Razer 定期購信用卡付款欄位對照">
+<div class="rpa-rec-payload-head">保存欄位 → Razer 付款請求欄位</div>
+<div class="rpa-rec-payload-row"><b><code>credit_card_token</code></b><span>映射為 <code>card_token</code>，交給支付通道辨識已保存的卡片。</span></div>
+<div class="rpa-rec-payload-row"><b><code>credit_card_user_email</code></b><span>映射為 <code>card_user_email</code>。</span></div>
+<div class="rpa-rec-payload-row"><b><code>credit_card_user_fullname</code></b><span>映射為 <code>card_user_fullname</code>。</span></div>
+<div class="rpa-rec-payload-row"><b><code>credit_card_user_phone</code></b><span>映射為 <code>card_user_phone</code>。</span></div>
+</div>
+<div class="rpa-inline-note"><strong>通道邊界：</strong>台灣一般信用卡由 <code>CreditCardProcess</code> 依 Gateway 處理；香港 Stripe 保存 <code>customer_id</code> 與 <code>payment_method</code>。因此「本期使用 Razer <code>card_token</code>」只適用於此處的 Razer 分支。</div>
+
+<div class="rpa-section-head"><div class="rpa-section-chip">03</div><div class="rpa-section-title">本期建單結果怎麼回到 Worker？</div></div>
+<p>Worker 呼叫 <code>SubscriptionOrderAutoGen</code> 後，先判斷 API 是否成功，再看回傳的 <code>OrderSlaveFlowStatus</code>。這裡的 Pending 是 Worker 對本期明細的分類，不是另一個信用卡 Token 狀態。</p>
+<div class="rpa-rec-gate"><code>SubscriptionOrderAutoGen</code> 的回應<small>先看 API <code>ReturnCode</code> 與 <code>Data.Status</code>，成功才讀 <code>OrderSlaveFlowStatus</code></small></div>
+<div class="rpa-rec-results" role="group" aria-label="Worker 對本期建單回應的三種處理">
+<div class="rpa-rec-result" style="--result-color:#ff5555;--result-ink:#c92a2a"><div class="rpa-rec-result-label">API 失敗</div><div class="rpa-rec-result-body"><code>ReturnCode</code> 非 <code>API0001</code>、資料缺失，或 <code>Data.Status</code> 非 <code>Success</code>。Worker 記錄本期建單失敗與錯誤原因。</div></div>
+<div class="rpa-rec-result" style="--result-color:#ff922b;--result-ink:#d9480f"><div class="rpa-rec-result-label">建單成功，等待付款</div><div class="rpa-rec-result-body"><code>OrderSlaveFlowStatus = WaitingToPay</code>。Worker 保存訂單代碼，將本期明細標為 Pending，暫不當作付款完成。</div></div>
+<div class="rpa-rec-result" style="--result-color:#20c997;--result-ink:#0f9177"><div class="rpa-rec-result-label">建單成功，非待付款</div><div class="rpa-rec-result-body">API 成功且狀態不是 <code>WaitingToPay</code>。Worker 記錄本期成功，推進出貨週期並更新訂單對照。</div></div>
+</div>
+<div class="rpa-rec-follow"><strong>Pending 的後續：</strong><code>RegularCheckPendingPaymentJob</code> 查詢本期 Pending 明細，再向 SCM 查詢對應 <code>TSCode</code> 的 SalesOrder 狀態。狀態是 <code>WaitingToShipping</code>、<code>ConfirmedToShipping</code> 或 <code>Finish</code> 時解除 Pending 並記為成功；其他結果走 <code>CreditCardFail</code> 處理。這個 Job 查的是 SCM 訂單狀態，不是直接向 Razer 查 Token 扣款結果。</div>
+<div class="rpa-caption">mweb 的第三方付款服務也會依支付結果處理訂單狀態，例如 <code>Pending</code> 可使訂單成為 <code>WaitingToPay</code>。Worker 實際分流依據是 API 回傳的 <code>OrderSlaveFlowStatus</code>；兩層狀態不可直接畫成同一個值。</div>
+<div class="rpa-inline-note"><strong>核對程式：</strong>mweb 的 <code>CreateRegularOrderProcessor.cs</code>、<code>GetRegularOrderProcessor.cs</code>、<code>PayProcessService.cs</code>、<code>RazerPayChannelService.cs</code>，以及 Worker 的 <code>RegularCreateOrderJob.cs</code>、<code>RegularCheckPendingPaymentJob.cs</code>。</div>
+</div></div><div class="tab-item-content" id="設計現狀-7"><div class="rpa">
+<div class="rpa-hero">
+<div class="rpa-eyebrow">CASH ON DELIVERY</div>
+<h1>貨到付款的這一期，mweb 會怎麼建單？</h1>
+<p>排程仍會建立本期交易訂單，但付款不在建單當下向信用卡通道請款。這條路徑的重點是建立訂單、排入轉單工作，以及把結果回報給定期購 Worker。</p>
+</div>
+<div class="rpa-section-head"><div class="rpa-section-chip">01</div><div class="rpa-section-title">貨到付款的建單順序</div></div>
+<div class="rpa-rail-shell" role="group" aria-label="貨到付款定期購建單流程">
+<div class="rpa-rail-io">本期虛擬購物車選擇 <code>CashOnDelivery</code></div>
+<div class="rpa-rail">
+<div class="rpa-rail-stop" style="--rail-color:#4dabf7"><div class="rpa-rail-dot">1</div><div class="rpa-rail-title">選出貨到付款 Pipeline</div><div class="rpa-rail-desc"><code>GetPayProcessDataProcessor</code> 將 <code>PayProcessFlowType</code> 設為 <code>CashOnDeliveryProcess</code>，<code>CreateTradesOrder()</code> 依此執行已註冊的 Processor。</div></div>
+<div class="rpa-rail-stop" style="--rail-color:#bd93f9"><div class="rpa-rail-dot">2</div><div class="rpa-rail-title">整理資料並建立交易訂單</div><div class="rpa-rail-desc">Pipeline 先整理、驗證、計算與映射訂單資料，再由 <code>CreateTradesOrderProcessor</code> 寫入本期交易訂單。訂單流程狀態起始預設為 <code>WaitingToTrans</code>。</div></div>
+<div class="rpa-rail-stop" style="--rail-color:#20c997"><div class="rpa-rail-dot">3</div><div class="rpa-rail-title">排入 ERP 轉單工作</div><div class="rpa-rail-desc"><code>TransferOrderProcessor</code> 建立轉單 Task。依設定排入 <code>TransferOrderToERP</code> 或 <code>TransToERPTmp</code>；這一步表示工作已排入，不表示 ERP 已完成轉單。</div></div>
+<div class="rpa-rail-stop" style="--rail-color:#20c997"><div class="rpa-rail-dot">4</div><div class="rpa-rail-title">結束本期建單流程</div><div class="rpa-rail-desc"><code>CreateRegularOrderProcessor</code> 看到內部來源會直接返回，不會再次建立訂閱主設定。Pipeline 接著執行後續訂單處理，API 回傳本期訂單識別資訊。</div></div>
+</div>
+<div class="rpa-rail-io output">本期建立的是新的交易訂單，沿用既有的定期購設定</div>
+</div>
+<div class="rpa-caption">圖中保留與貨到付款有關的主要節點，省略優惠、贈品、點數與發票等共同處理。實際執行若遇錯誤，後續 Processor 可能不會執行。</div>
+<div class="rpa-section-head"><div class="rpa-section-chip">02</div><div class="rpa-section-title">訂單狀態與付款時點</div></div>
+<div class="rpa-tail-chain" role="group" aria-label="貨到付款建單與收款時點">
+<div class="rpa-tail-chain-step"><b>mweb 建單時</b><i>→</i><span>建立交易訂單，流程狀態預設 <code>WaitingToTrans</code>。</span></div>
+<div class="rpa-tail-chain-step"><b>轉單處理時</b><i>→</i><span>由背景 Task 接手 ERP 轉單。<code>TransferOrderProcessor</code> 本身只負責排入工作。</span></div>
+<div class="rpa-tail-chain-step"><b>交付收款時</b><i>→</i><span>貨到付款的收款發生在後續交付流程，不是本次 mweb API 的線上信用卡授權。</span></div>
+</div>
+<div class="rpa-inline-note"><strong>付款邊界：</strong><code>CashOnDeliveryProcess</code> 的註冊清單沒有 <code>AuthProcessor</code> 或 <code>ThirdPartyPayApiProcessor</code>。因此這次建單不會向 Razer 送 <code>card_token</code>，也沒有線上信用卡扣款步驟。</div>
+<div class="rpa-inline-note"><strong>狀態判讀：</strong>原稿把貨到付款建單後固定寫成 <code>WaitingToPay</code>，與 <code>CreateTradesOrderProcessor</code> 的預設 <code>WaitingToTrans</code> 不符。若後續系統顯示待付款，應另看該階段的狀態欄位與更新來源。</div>
+<div class="rpa-inline-note"><strong>核對程式：</strong><code>GetPayProcessDataProcessor.cs</code>、<code>PayProcessProcessorModule.cs</code>、<code>CreateTradesOrderProcessor.cs</code>、<code>TransferOrderProcessor.cs</code>、<code>CreateRegularOrderProcessor.cs</code>。</div>
+</div></div><div class="tab-item-content" id="設計現狀-8"><div class="rpa">
+<div class="rpa-hero">
+<div class="rpa-eyebrow">ORDER STATE COMPARISON</div>
+<h1>同樣是本期建單，哪些地方真的不同？</h1>
+<p>付款方式先決定執行哪條 Pipeline；建立交易訂單時的初始狀態也各有規則。之後的授權或第三方付款結果可能再次更新訂單狀態，因此需要分清「剛寫入訂單」與「API 回傳時」。</p>
+</div>
+<div class="rpa-section-head"><div class="rpa-section-chip">01</div><div class="rpa-section-title">建立訂單當下的差異</div></div>
+<div class="rpa-tail-compare" role="group" aria-label="四種付款方式的建單狀態與付款節點">
+<div class="rpa-tail-compare-row" style="--compare-color:#4dabf7;--compare-ink:#1971c2"><div class="rpa-tail-compare-name">台灣一般信用卡<strong><code>CreditCardOnce</code></strong></div><div class="rpa-tail-compare-detail"><span><b>Pipeline：</b><code>CreditCardProcess</code></span><span><b>初始流程狀態：</b><code>WaitingToAuth</code></span><span><b>付款節點：</b><code>AuthProcessor</code> 依信用卡 Gateway 進行授權。</span></div></div>
+<div class="rpa-tail-compare-row" style="--compare-color:#bd93f9;--compare-ink:#7048e8"><div class="rpa-tail-compare-name">Stripe 信用卡<strong><code>CreditCardOnce_Stripe</code></strong></div><div class="rpa-tail-compare-detail"><span><b>Pipeline：</b><code>ThirdPartyProcess</code></span><span><b>初始流程狀態：</b>沿用 <code>WaitingToTrans</code> 預設值。</span><span><b>付款節點：</b><code>ThirdPartyPayApiProcessor</code>；付款服務可依結果更新狀態。</span></div></div>
+<div class="rpa-tail-compare-row" style="--compare-color:#bd93f9;--compare-ink:#7048e8"><div class="rpa-tail-compare-name">Razer 信用卡<strong><code>CreditCardOnce_Razer</code></strong></div><div class="rpa-tail-compare-detail"><span><b>Pipeline：</b><code>ThirdPartyProcess</code></span><span><b>初始流程狀態：</b>定期購自動建單沿用 <code>WaitingToTrans</code>；一般結帳改設 <code>WaitingToPay</code>。</span><span><b>付款節點：</b><code>ThirdPartyPayApiProcessor</code>；付款服務可依結果更新狀態。</span></div></div>
+<div class="rpa-tail-compare-row" style="--compare-color:#20c997;--compare-ink:#0f9177"><div class="rpa-tail-compare-name">貨到付款<strong><code>CashOnDelivery</code></strong></div><div class="rpa-tail-compare-detail"><span><b>Pipeline：</b><code>CashOnDeliveryProcess</code></span><span><b>初始流程狀態：</b>沿用 <code>WaitingToTrans</code> 預設值。</span><span><b>後續節點：</b><code>TransferOrderProcessor</code> 排入轉單 Task，沒有線上授權 Processor。</span></div></div>
+</div>
+<div class="rpa-caption">「初始流程狀態」指 <code>CreateTradesOrderProcessor</code> 建立 <code>OrderSlaveFlow</code> 時的 <code>StatusDef</code>。它不是整個付款流程的最終狀態，也不等於消費者畫面顯示的狀態。</div>
+<div class="rpa-section-head"><div class="rpa-section-chip">02</div><div class="rpa-section-title">建單後，哪一層會再改變狀態？</div></div>
+<div class="rpa-tail-chain" role="group" aria-label="建單與付款各階段的狀態來源">
+<div class="rpa-tail-chain-step"><b>建立訂單</b><i>→</i><span><code>CreateTradesOrderProcessor</code> 先寫入 <code>OrderSlaveFlow.StatusDef</code>。</span></div>
+<div class="rpa-tail-chain-step"><b>執行付款</b><i>→</i><span>信用卡授權或第三方付款處理結果可更新流程狀態；第三方回報 <code>Pending</code> 時會寫入 <code>WaitingToPay</code>。</span></div>
+<div class="rpa-tail-chain-step"><b>API 回傳</b><i>→</i><span><code>SubscriptionOrderAutoGen</code> 從訂單流程查出 <code>OrderSlaveFlowStatus</code>，與交易訂單識別資訊一起回傳。</span></div>
+<div class="rpa-tail-chain-step"><b>Worker 記錄本期</b><i>→</i><span><code>RegularCreateOrderJob</code> 只在 API 成功且回傳 <code>WaitingToPay</code> 時，把本期明細分類為 Pending。</span></div>
+</div>
+<div class="rpa-inline-note"><strong>同名狀態的邊界：</strong><code>OrderSlaveFlow.StatusDef</code>、面向會員的 <code>StatusForUserDef</code>，以及 Worker 的本期明細狀態是不同資料。只看到 <code>WaitingToPay</code> 這個字，不能直接推定它來自哪個欄位或表示哪個付款階段。</div>
+<div class="rpa-inline-note"><strong>核對程式：</strong>mweb 的 <code>GetPayProcessDataProcessor.cs</code>、<code>CreateTradesOrderProcessor.cs</code>、<code>TradesOrderPaymentService.cs</code>、<code>TradesOrderService.cs</code>；Worker 的 <code>RegularCreateOrderJob.cs</code>。</div>
+</div></div><div class="tab-item-content" id="設計現狀-9"><div class="rpa">
+<div class="rpa-hero">
+<div class="rpa-eyebrow">REGULAR ORDER TRACING</div>
+<h1>同一期請求重送，mweb 怎麼找回已建的訂單？</h1>
+<p><code>RegularOrderTracing</code> 用呼叫端提供的 <code>TraceId</code> 記錄一次自動建單嘗試。它保存處理狀態與建立出的交易訂單識別資訊，讓已成功的同一請求可以直接回傳原結果。</p>
+</div>
+<div class="rpa-section-head"><div class="rpa-section-chip">01</div><div class="rpa-section-title">同一個 TraceId 再進來時</div></div>
+<div class="rpa-rec-gate"><code>SubscriptionOrderAutoGen</code> 收到 <code>TraceId</code><small>先執行 <code>BlockDuplicateRequest</code>，再查詢 <code>RegularOrderTracing</code></small></div>
+<div class="rpa-rec-results" role="group" aria-label="依 Tracing 查詢結果分流">
+<div class="rpa-rec-result" style="--result-color:#4dabf7;--result-ink:#1971c2"><div class="rpa-rec-result-label">查無紀錄</div><div class="rpa-rec-result-body">插入 <code>StatusDef = New</code>，記下 <code>RegularOrderId</code>、<code>TraceId</code>、執行日期與預計出貨日，再組購物車、付款 Context 並建單。</div></div>
+<div class="rpa-rec-result" style="--result-color:#20c997;--result-ink:#0f9177"><div class="rpa-rec-result-label">已有 <code>Success</code></div><div class="rpa-rec-result-body">跳過重新建單。用 Tracing 保存的 TG／TS 識別資訊組成功回應，並查詢目前的 <code>OrderSlaveFlowStatus</code>。</div></div>
+<div class="rpa-rec-result" style="--result-color:#ff922b;--result-ink:#d9480f"><div class="rpa-rec-result-label">已有其他狀態</div><div class="rpa-rec-result-body">Controller 沒有在這裡直接回傳；它繼續執行本次建單流程。因此 <code>New</code> 或 <code>Fail</code> 不能視為「已被永久擋下」。</div></div>
+</div>
+<div class="rpa-caption">短時間重複請求由 <code>BlockDuplicateRequest</code> 處理；持久的結果重用只見於 Tracing 已是 <code>Success</code> 的分支。兩者作用時點不同。</div>
+<div class="rpa-section-head"><div class="rpa-section-chip">02</div><div class="rpa-section-title">Tracing 什麼時候更新？</div></div>
+<div class="rpa-tail-chain" role="group" aria-label="RegularOrderTracing 狀態更新順序">
+<div class="rpa-tail-chain-step"><b>第一次收到請求</b><i>→</i><span>插入 <code>New</code>；<code>ExecutedDate</code> 是當天，<code>ExpectShippingDate</code> 來自請求的 <code>NextExpectShippingDate</code>。</span></div>
+<div class="rpa-tail-chain-step"><b>建單方法返回</b><i>→</i><span><code>CreateTradesOrder()</code> 返回後，更新為 <code>Success</code>，並寫入建立出的 TG／TS 代碼與 ID。</span></div>
+<div class="rpa-tail-chain-step"><b>一般例外</b><i>→</i><span>若查得到這筆 Tracing，Controller 更新為 <code>Fail</code>，回傳失敗結果。</span></div>
+</div>
+<div class="rpa-inline-note"><strong>狀態邊界：</strong>Tracing 的 <code>Success</code> 代表這次 <code>CreateTradesOrder()</code> 已返回且訂單識別資訊已記錄，不等於第三方付款一定完成。本期交易訂單仍可能回報 <code>WaitingToPay</code>，由 Worker 另外分類為 Pending。</div>
+<div class="rpa-inline-note"><strong>例外分支：</strong><code>NoMoreElmahException</code> 的 catch 直接回傳錯誤，沒有在該分支更新 Tracing；原稿把所有例外都畫成 <code>Fail</code> 並不精確。</div>
+<div class="rpa-section-head"><div class="rpa-section-chip">03</div><div class="rpa-section-title">它保存哪些對照資料？</div></div>
+<div class="rpa-tail-trace-fields" role="group" aria-label="RegularOrderTracing 主要欄位">
+<div class="rpa-tail-trace-field" style="--field-color:#4dabf7;--field-ink:#1971c2"><b>這次請求</b><code>TraceId</code>、<code>RegularOrderId</code>。Worker 建立 API 請求時，以本期明細的 <code>RodTxid</code> 作為 <code>TraceId</code>。</div>
+<div class="rpa-tail-trace-field" style="--field-color:#bd93f9;--field-ink:#7048e8"><b>期別時間</b><code>ExecutedDate</code>、<code>ExpectShippingDate</code>，用來追查這次何時執行、預計何時出貨。</div>
+<div class="rpa-tail-trace-field" style="--field-color:#ff922b;--field-ink:#d9480f"><b>處理狀態</b><code>StatusDef</code> 記錄 <code>New</code>、<code>Success</code> 或 <code>Fail</code>。它描述自動建單嘗試，不是信用卡交易狀態。</div>
+<div class="rpa-tail-trace-field" style="--field-color:#20c997;--field-ink:#0f9177"><b>交易訂單</b><code>TradesOrderGroupId</code>／<code>Code</code>、<code>TradesOrderSlaveId</code>／<code>Code</code>，供成功重送時找回原訂單。</div>
+</div>
+<div class="rpa-tail-chain" role="group" aria-label="定期購設定、追蹤紀錄與交易訂單的分工">
+<div class="rpa-tail-chain-step"><b><code>RegularOrder</code></b><i>→</i><span>長期訂閱設定，保存商品、週期、收件與結帳資訊。</span></div>
+<div class="rpa-tail-chain-step"><b><code>RegularOrderTracing</code></b><i>→</i><span>本次自動建單的狀態與交易訂單對照。</span></div>
+<div class="rpa-tail-chain-step"><b><code>TradesOrderGroup</code>／<code>Slave</code></b><i>→</i><span>本期實際建立的交易訂單與明細。</span></div>
+</div>
+<div class="rpa-inline-note"><strong>重送的界限：</strong>如果交易訂單已寫入，但 Tracing 尚未更新為 <code>Success</code>，僅憑此處的 <code>Success</code> 回放分支無法證明「任何時點重送都絕不重複建單」。排查時仍需對照交易訂單與 Tracing。</div>
+<div class="rpa-inline-note"><strong>核對程式：</strong><code>TradesOrderV2Controller.SubscriptionOrderAutoGen()</code>、<code>RegularOrderService.cs</code>、<code>TradesOrderService.GetAutoGenResponseEntity()</code>、Worker 的 <code>RegularCreateOrderJob.cs</code>。</div>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/">https://allenlin000.github.io.git/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/" title="pay api 1 - 設計現狀"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">pay api 1 - 設計現狀</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">280</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">40</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E7%8F%BE%E7%8B%80-1"><span class="toc-number">1.</span> <span class="toc-text">定期購到了建單時間，mweb 如何完成這一期訂單？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E7%8F%BE%E7%8B%80-2"><span class="toc-number">2.</span> <span class="toc-text">Provider 檢查是做什麼的？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E7%8F%BE%E7%8B%80-3"><span class="toc-number">3.</span> <span class="toc-text">定期購資料如何變成虛擬購物車？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E7%8F%BE%E7%8B%80-4"><span class="toc-number">4.</span> <span class="toc-text">虛擬購物車如何變成付款 Context？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E7%8F%BE%E7%8B%80-5"><span class="toc-number">5.</span> <span class="toc-text">建立訂單後，這一期會怎麼付款？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E7%8F%BE%E7%8B%80-6"><span class="toc-number">6.</span> <span class="toc-text">信用卡定期購，下一期沿用的是什麼資料？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E7%8F%BE%E7%8B%80-7"><span class="toc-number">7.</span> <span class="toc-text">貨到付款的這一期，mweb 會怎麼建單？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E7%8F%BE%E7%8B%80-8"><span class="toc-number">8.</span> <span class="toc-text">同樣是本期建單，哪些地方真的不同？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A8%AD%E8%A8%88%E7%8F%BE%E7%8B%80-9"><span class="toc-number">9.</span> <span class="toc-text">同一期請求重送，mweb 怎麼找回已建的訂單？</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/" title="pay api 1 - 設計現狀"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pay api 1 - 設計現狀"/></a><div class="content"><a class="title" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/" title="pay api 1 - 設計現狀">pay api 1 - 設計現狀</a><time datetime="2026-10-14T09:41:00.000Z" title="Created 2026-10-14 17:41:00">2026-10-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/" title="pay api 1 - 設計現狀"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pay api 1 - 設計現狀"/></a><div class="content"><a class="title" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/" title="pay api 1 - 設計現狀">pay api 1 - 設計現狀</a><time datetime="2026-10-14T09:41:00.000Z" title="Created 2026-10-14 17:41:00">2026-10-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/13/Regular-Order-migration-process/" title="migration-process"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="migration-process"/></a><div class="content"><a class="title" href="/2026/10/13/Regular-Order-migration-process/" title="migration-process">migration-process</a><time datetime="2026-10-13T05:44:00.000Z" title="Created 2026-10-13 13:44:00">2026-10-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/12/Shopping-Cart-CalculateShoppingCartCheckoutPayShippingProcessor/" title="CalculateShoppingCartCheckoutPayShippingProcessor"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/pay-delivery.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CalculateShoppingCartCheckoutPayShippingProcessor"/></a><div class="content"><a class="title" href="/2026/10/12/Shopping-Cart-CalculateShoppingCartCheckoutPayShippingProcessor/" title="CalculateShoppingCartCheckoutPayShippingProcessor">CalculateShoppingCartCheckoutPayShippingProcessor</a><time datetime="2026-10-12T02:00:00.000Z" title="Created 2026-10-12 10:00:00">2026-10-12</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

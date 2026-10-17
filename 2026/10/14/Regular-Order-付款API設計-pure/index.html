@@ -1,0 +1,561 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>pay api 1 - 設計現狀 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="架構定期購到了建單時間，mweb 如何完成這一期訂單？排程送來定期購資料後，mweb 會先確認這次請求是否已完成，再組出可供結帳的資料。接著依付款方式執行建單流程，並記錄本次結果。 從 API 入口到建單結果 定期購自動建單的主要分支流程 排程呼叫 mweb API。已成功的 TraceId 直接回傳既有結果；其他請求建立虛擬購物車，Provider 不一致時停止。一致時建立付款 Context，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pay api 1 - 設計現狀">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="架構定期購到了建單時間，mweb 如何完成這一期訂單？排程送來定期購資料後，mweb 會先確認這次請求是否已完成，再組出可供結帳的資料。接著依付款方式執行建單流程，並記錄本次結果。 從 API 入口到建單結果 定期購自動建單的主要分支流程 排程呼叫 mweb API。已成功的 TraceId 直接回傳既有結果；其他請求建立虛擬購物車，Provider 不一致時停止。一致時建立付款 Context，">
+<meta property="og:locale">
+<meta property="og:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png">
+<meta property="article:published_time" content="2026-10-14T09:41:00.000Z">
+<meta property="article:modified_time" content="2026-10-17T13:25:39.874Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'pay api 1 - 設計現狀',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-10-17 21:25:39'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">280</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">40</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">pay api 1 - 設計現狀</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-10-14T09:41:00.000Z" title="Created 2026-10-14 17:41:00">2026-10-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-10-17T13:25:39.874Z" title="Updated 2026-10-17 21:25:39">2026-10-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Regular-Order/">Regular-Order</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="pay api 1 - 設計現狀"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="架構"><a href="#架構" class="headerlink" title="架構"></a>架構</h2><h3 id="定期購到了建單時間，mweb-如何完成這一期訂單？"><a href="#定期購到了建單時間，mweb-如何完成這一期訂單？" class="headerlink" title="定期購到了建單時間，mweb 如何完成這一期訂單？"></a>定期購到了建單時間，mweb 如何完成這一期訂單？</h3><p>排程送來定期購資料後，mweb 會先確認這次請求是否已完成，再組出可供結帳的資料。接著依付款方式執行建單流程，並記錄本次結果。</p>
+<h3 id="從-API-入口到建單結果"><a href="#從-API-入口到建單結果" class="headerlink" title="從 API 入口到建單結果"></a>從 API 入口到建單結果</h3><ul>
+<li><p>定期購自動建單的主要分支流程</p>
+<p>排程呼叫 mweb API。已成功的 TraceId 直接回傳既有結果；其他請求建立虛擬購物車，Provider 不一致時停止。一致時建立付款 Context，依信用卡或貨到付款流程建單，成功後更新 Tracing。</p>
+</li>
+</ul>
+<p>箭頭依執行順序閱讀。圖中付款分支聚焦信用卡與貨到付款；其他付款方式由各自的 <code>PayProcessFlowType</code> 處理。</p>
+<p><strong>Provider 檢查範圍：</strong> 圖中的比對描述 <code>GameBall</code> 與 <code>Nine1V2</code>。程式內的舊 <code>Nine1</code> 分支不執行這項比對。</p>
+<h3 id="虛擬購物車沿著哪些處理階段形成？"><a href="#虛擬購物車沿著哪些處理階段形成？" class="headerlink" title="虛擬購物車沿著哪些處理階段形成？"></a>虛擬購物車沿著哪些處理階段形成？</h3><p><code>ShoppingCartV2Service.GetShoppingCartContextForRegularOrder()</code> 先放入請求資料與商店設定，再執行 <code>GetRegularOrder</code> Pipeline。軌道由上往下呈現主要處理階段。</p>
+<p>輸入：定期購請求、商店 Provider、商品與配送資料</p>
+<ul>
+<li><p>取出定期購資料 驗證會員與 Provider，整理商品節點及贈品。 <code>GetRegularOrderProcessor</code> <code>RegularOrderGiftPrepareProcessor</code></p>
+</li>
+<li><p>檢查可用條件 確認交期、付款方式與配送方式。 <code>GetPayTypeIsAvaliableProcessor</code> <code>CheckShippingProfileTypeIsAvaliableV2Processor</code></p>
+</li>
+<li><p>計算金物流 算出金物流交集、運費、金額限制與可用組合。 <code>CalculateShoppingCartPayShippingV2Processor</code> <code>CalculateShoppingCartFeeV2Processor</code></p>
+</li>
+<li><p>選定結帳資料 預選結帳方式，計算配送日期與供應商物流代碼。 <code>PickupShoppingCartCheckoutTypeV2Processor</code> <code>CalculateShoppingCartShippingDateV2Processor</code></p>
+</li>
+</ul>
+<p>輸出：<code>ShoppingCartClientEntity</code>，交給付款 Context 建立流程</p>
+<p>圖依 <code>GetRegularOrder</code> 的註冊順序分組，列出代表性 Processor。其餘檢查與設定仍在同一條 Pipeline 中；<code>context.IsFinish</code> 成立時會提前停止。</p>
+<h3 id="付款-Context-在哪些元件之間完成？"><a href="#付款-Context-在哪些元件之間完成？" class="headerlink" title="付款 Context 在哪些元件之間完成？"></a>付款 Context 在哪些元件之間完成？</h3><p><code>TradesOrderService</code> 將虛擬購物車交給 <code>PayProcessService</code>。時序圖把 Context 建立、暫存、<code>GetPayProcess</code> Pipeline，以及外層補資料分開呈現。</p>
+<ul>
+<li><p>PayProcessContext 建立時序圖</p>
+<p>TradesOrderService 呼叫 PayProcessService 建立付款 Context。PayProcessService 檢查購物車、建立並暫存 Context，執行 GetPayProcess Pipeline。回傳後，TradesOrderService 補定期購收件人及發票資料。</p>
+</li>
+</ul>
+<p>時間由上往下。<code>GetPayProcess</code> 的 Processor 依序處理付款資料、Token、配送、驗證與遮罩；收件人及發票的定期購專用補值發生在 Pipeline 回傳後。</p>
+<h3 id="實際付款與建單如何分流？"><a href="#實際付款與建單如何分流？" class="headerlink" title="實際付款與建單如何分流？"></a>實際付款與建單如何分流？</h3><p><code>PayProcessService.CreateTradesOrder()</code> 依 <code>PayProcessFlowType</code> 選擇 Processor Pipeline。雙泳道以相同階段對照信用卡與貨到付款，節點沿各自的垂直線往下執行。</p>
+<p><code>CreateTradesOrder()</code> → <code>ExecuteProcess(PayProcessFlowType)</code></p>
+<p><code>CreditCardProcess</code> 信用卡</p>
+<ul>
+<li><p><strong>檢查</strong> 信用卡格式、黑名單、分期與付款資料 <code>CheckCreditCardProcessor</code></p>
+</li>
+<li><p><strong>計算與組單</strong> 購物車計價、贈品處理、映射與驗證訂單資料 <code>MapToTradesOrderProcessor</code></p>
+</li>
+<li><p><strong>建立訂單</strong> 寫入訂單，接著處理 Event、活動名額與其他權益 <code>CreateTradesOrderProcessor</code></p>
+</li>
+<li><p><strong>信用卡授權</strong> 3D 驗證節點後執行授權，再進入定期購與訂單後續處理 <code>ThreeDSecureProcessor → AuthProcessor</code></p>
+</li>
+</ul>
+<p><code>CashOnDeliveryProcess</code> 貨到付款</p>
+<ul>
+<li><p><strong>檢查</strong> 整理並驗證付款資料與配送條件 <code>ValidateProcessDataProcessor</code></p>
+</li>
+<li><p><strong>計算與組單</strong> 購物車計價、贈品處理、映射與驗證訂單資料 <code>MapToTradesOrderProcessor</code></p>
+</li>
+<li><p><strong>建立訂單</strong> 寫入訂單，接著處理 Event、活動名額與其他權益 <code>CreateTradesOrderProcessor</code></p>
+</li>
+<li><p><strong>轉單與後續處理</strong> 轉單到 ERP，接著執行定期購與訂單後續處理 <code>TransferOrderProcessor</code></p>
+</li>
+</ul>
+<p>泳道由上往下表示註冊順序，列出代表性 Processor。信用卡在 <code>CreateTradesOrderProcessor</code> 之後才到 <code>ThreeDSecureProcessor</code> 與 <code>AuthProcessor</code>；貨到付款沒有這兩個信用卡授權節點。<code>context.IsFinish</code> 成立時，後續 Processor 不再執行。</p>
+<h2 id="Provider-檢查是做什麼的"><a href="#Provider-檢查是做什麼的" class="headerlink" title="Provider 檢查是做什麼的"></a>Provider 檢查是做什麼的</h2><h3 id="Provider-檢查是做什麼的？"><a href="#Provider-檢查是做什麼的？" class="headerlink" title="Provider 檢查是做什麼的？"></a>Provider 檢查是做什麼的？</h3><p>mweb 會確認「商店目前設定的定期購 Provider」與「這次 API 請求宣告的 Provider」一致。兩者不同時，這次請求不能繼續把定期購資料組成付款用的購物車。</p>
+<h3 id="兩個-Provider-從哪裡來？"><a href="#兩個-Provider-從哪裡來？" class="headerlink" title="兩個 Provider 從哪裡來？"></a>兩個 Provider 從哪裡來？</h3><p>商店設定代表目前由哪套定期購流程負責；請求值代表這次呼叫宣告的來源。mweb 建立購物車 context 時，分別把它們放進以下欄位。</p>
+<ul>
+<li><p>商店目前的設定 <strong><code>context.Data.RegularOrderProvider</code></strong> 由 <code>GetShopDefaultValue</code> 讀取 <code>RegularOrder / RegularOrderProvider</code></p>
+</li>
+<li><p>這次 API 請求 <strong><code>context.RegularOrderData.Data.Provider</code></strong> 來自 request 的 <code>RegularOrderProvider</code></p>
+</li>
+</ul>
+<p>兩個 Provider 是否相同？ <code>GetRegularOrderProcessor</code> 的新定期購檢查</p>
+<ul>
+<li><p><strong>相同 → 繼續</strong> 接著驗證商店與商品頁，再把定期購主單映射到購物車 context。</p>
+</li>
+<li><p><strong>不同 → 中止</strong> 拋出 <code>RegularOrderException(&quot;Other&quot;)</code>，不會進入後續付款流程。</p>
+</li>
+</ul>
+<p>這是 Provider 這一道關卡的局部流程。程式在比對前已載入主單並檢查 ShopId、訂購狀態與 MemberId；若使用門市自取，還會先檢查門市是否可用。商店設定為舊版 <code>Nine1</code> 時，不執行這段 Provider 相等比對。</p>
+<h3 id="商店已切換，舊來源仍送出請求時"><a href="#商店已切換，舊來源仍送出請求時" class="headerlink" title="商店已切換，舊來源仍送出請求時"></a>商店已切換，舊來源仍送出請求時</h3><p>例如商店設定已是 <code>Nine1V2</code>，這次請求卻宣告 <code>GameBall</code>，mweb 會在主單檢查階段拒絕這次建單。這表示請求來源與商店設定不符，不代表信用卡授權失敗。</p>
+<ul>
+<li><p>商店設定 <strong>Nine1V2</strong></p>
+</li>
+<li><p>API 請求 <strong>GameBall</strong></p>
+</li>
+<li><p>檢查結果 <strong>拒絕建單 · Other</strong></p>
+</li>
+</ul>
+<h3 id="Provider-還決定主單怎麼載入"><a href="#Provider-還決定主單怎麼載入" class="headerlink" title="Provider 還決定主單怎麼載入"></a>Provider 還決定主單怎麼載入</h3><p><code>GetRegularOrderProcessor</code> 先依商店設定的 Provider 選擇資料取得方式，取得主單後才做欄位驗證與上述比對。<code>GameBall</code> 與 <code>Nine1V2</code> 在這裡走同一條路。</p>
+<ul>
+<li><p>商店 Provider <strong><code>GameBall</code> &#x2F; <code>Nine1V2</code></strong> <strong>01</strong> 以主單 ID 呼叫 <code>GetCheckOutInfo</code> 取得結帳資料。 <strong>02</strong> 用 <code>ShoppingCartNodeMappingToRegularOrderEntity</code> 組成主單 Entity，再執行 Provider 相等比對。</p>
+</li>
+<li><p>商店 Provider <strong>其他值，包含 <code>Nine1</code></strong> <strong>01</strong> 以主單 ID 呼叫 <code>RegularOrderService.Get</code> 讀取既有主單。 <strong>02</strong> 商店 Provider 為舊版 <code>Nine1</code> 時，略過新定期購的 Provider 相等比對。</p>
+</li>
+</ul>
+<p><strong>重點：</strong> Provider 在此決定主單的資料路徑，也用來核對這次請求是否屬於商店目前的定期購流程；實際可用付款方式仍由後續購物車與付款處理計算。</p>
+<h2 id="虛擬購物車"><a href="#虛擬購物車" class="headerlink" title="虛擬購物車"></a>虛擬購物車</h2><h3 id="定期購資料如何變成虛擬購物車？"><a href="#定期購資料如何變成虛擬購物車？" class="headerlink" title="定期購資料如何變成虛擬購物車？"></a>定期購資料如何變成虛擬購物車？</h3><p>這一期訂單沒有經過會員手動加購物車。mweb 會把定期購請求、商店設定與商品頁資料組成購物車結帳所需的結構，再交給既有付款流程。</p>
+<p>組車 Trace · 從 API 到購物車資料</p>
+<ul>
+<li><p><strong>API 入口</strong> <code>SubscriptionOrderAutoGen</code></p>
+</li>
+<li><p><strong>流程協調</strong> <code>TradesOrderService</code></p>
+</li>
+<li><p><strong>建立 Context</strong> <code>ShoppingCartV2Service</code></p>
+</li>
+<li><p><strong>執行組車 Pipeline</strong> <code>GetRegularOrder</code></p>
+</li>
+<li><p>產出 <code>ShoppingCartClientEntity</code>，交給付款 Context 建立流程</p>
+</li>
+</ul>
+<h3 id="資料從哪裡來，交到哪裡？"><a href="#資料從哪裡來，交到哪裡？" class="headerlink" title="資料從哪裡來，交到哪裡？"></a>資料從哪裡來，交到哪裡？</h3><p><code>ShoppingCartV2Service</code> 的定期購入口先建立 <code>ShoppingCartV2Context</code>，再依 <code>GetRegularOrder</code> 的註冊順序執行 Processor。下圖追蹤資料形成與交接。</p>
+<ul>
+<li><p><strong>本期 API 請求</strong> 主單、商店與會員 ID；商品 SKU、價格與數量；收件、配送、付款與贈品資料。</p>
+</li>
+<li><p><strong>商店設定</strong> 從 <code>ShopDefault</code> 讀取目前的 <code>RegularOrderProvider</code>。</p>
+</li>
+<li><p><strong>建立計算用 Context</strong> 把請求欄位放進 <code>RegularOrderData</code>，連同商店 Provider、來源追蹤與購物時間建立 <code>ShoppingCartV2Context</code>。</p>
+</li>
+<li><p><strong>轉成購物車商品資料</strong> <code>GetRegularOrderProcessor</code> 讀取並驗證主單，取得商品頁資料，再把主單價格、數量、交期與金物流條件寫入仿購物車結構。</p>
+</li>
+<li><p><strong>補齊可結帳資料</strong> 後續 <code>GetRegularOrder</code> Processor 準備贈品，檢查金物流、計算運費與限制，並預選結帳方式及計算配送日期。</p>
+</li>
+<li><p><code>shoppingCartContext.Data</code>：<code>ShoppingCartClientEntity</code> 組車成功後，<code>TradesOrderService</code> 將它交給 <code>PayProcessService</code> 建立付款 Context。</p>
+</li>
+</ul>
+<p>箭頭表示資料形成與交接方向。<code>GetRegularOrderProcessor</code> 在中途會依商店 Provider 選擇主單來源，並核對請求 Provider；詳細條件見前一個 tab。</p>
+<h3 id="GetRegularOrderProcessor-實際做了什麼？"><a href="#GetRegularOrderProcessor-實際做了什麼？" class="headerlink" title="GetRegularOrderProcessor 實際做了什麼？"></a>GetRegularOrderProcessor 實際做了什麼？</h3><p>它是把定期購主單轉成購物車商品資料的核心節點。下方依 <code>Process</code> 的執行順序展開；後續運費計算與結帳預選由同一條 Pipeline 的其他 Processor 接手。</p>
+<ul>
+<li><p><strong>1 · 依商店 Provider 取得主單</strong> 先決定主單資料從哪裡來，再形成 <code>RegularOrderEntity</code>。 <strong><code>GameBall</code> &#x2F; <code>Nine1V2</code></strong> <code>GetCheckOutInfo</code>，再以請求欄位組主單。 <strong>其他 Provider</strong> <code>RegularOrderService.Get</code> 讀取既有主單。</p>
+</li>
+<li><p><strong>2 · 驗證主單與可售條件</strong> 核對商店 ID、訂購中狀態、會員 ID；非舊版 <code>Nine1</code> 時，若為門市自取先檢查門市可用，並比對 Provider。接著執行 <code>ValidateShop</code>、<code>ValidateSalePage</code>。</p>
+</li>
+<li><p><strong>3 · 生成購物車商品</strong> 依主單的商品頁與 SKU 查商品資料，帶入主單價格、數量與下次出貨日，映射成 <code>ShoppingCartClientEntity</code>，並複製贈品需求。</p>
+</li>
+<li><p><strong>4 · 補齊金物流並寫回 Context</strong> 讀取商品頁金物流；非舊版 <code>Nine1</code> 依主單指定類型篩選。檢查選項、依溫層分組，補上識別碼、Provider 與結帳資訊，最後設為 <code>context.Data</code>。</p>
+</li>
+</ul>
+<p>若 <code>RegularOrderData</code> 不存在或主單 ID 為 0，這個 Processor 直接返回；商品資料缺失、售完或金物流不可用時的結果見下方「組車階段停下來」一節。</p>
+<h3 id="主單欄位如何落到購物車？"><a href="#主單欄位如何落到購物車？" class="headerlink" title="主單欄位如何落到購物車？"></a>主單欄位如何落到購物車？</h3><p>商品頁提供可販售商品與原本金物流選項；定期購主單則保留本期的購買條件。轉換時兩邊資料會合併，不能只把 API request 原封不動交給付款流程。</p>
+<ul>
+<li><p><strong>主單商品條件</strong> 商品頁與 SKU、主單價格、數量、下次預計出貨日 <strong>購物車商品節點</strong> 查詢商品頁後，以主單價格與數量填值，設定交期，再依物流溫層建立 <code>SalePageGroupList</code>。</p>
+</li>
+<li><p><strong>主單金物流條件</strong> <code>PayProfileTypeDef</code>、<code>ShippingProfileTypeDef</code> <strong>可選的金物流</strong> 先取得商品頁支援的選項；非舊版 <code>Nine1</code> 再依主單指定類型篩選，後續 Processor 計算可結帳組合。</p>
+</li>
+<li><p><strong>定期購附帶資料</strong> 贈品需求、Provider、結帳資訊 <strong>購物車交接欄位</strong> <code>SubscriptionGiftItems</code>、<code>RegularOrderProvider</code>；<code>GameBall</code> &#x2F; <code>Nine1V2</code> 路徑另帶入 <code>RegularOrderCheckoutInfo</code>。</p>
+</li>
+</ul>
+<p><strong>價格以主單為準：</strong> 即使商品頁價格在定期購成立後改變，<code>AssingShoppingCartInfo</code> 仍把購物車商品價格設回主單價格。</p>
+<h3 id="哪些情況會在組車階段停下來？"><a href="#哪些情況會在組車階段停下來？" class="headerlink" title="哪些情況會在組車階段停下來？"></a>哪些情況會在組車階段停下來？</h3><ul>
+<li><p><strong><code>context.IsFinish = true</code></strong> 查不到仿購物車商品頁資料，或映射後全部商品已售完，後面的 <code>GetRegularOrder</code> Processor 不再執行。</p>
+</li>
+<li><p><strong>拋出購物車例外</strong> 可售商品沒有可用金流、沒有可用物流，或物流同時出現多個溫層時，<code>GetRegularOrderProcessor</code> 會中止轉換。</p>
+</li>
+</ul>
+<p>這裡只列出轉換商品資料時的停止條件；主單與 Provider 的驗證也可能更早中止流程。</p>
+<h2 id="建立付款-context"><a href="#建立付款-context" class="headerlink" title="建立付款 context"></a>建立付款 context</h2><h3 id="虛擬購物車如何變成付款-Context？"><a href="#虛擬購物車如何變成付款-Context？" class="headerlink" title="虛擬購物車如何變成付款 Context？"></a>虛擬購物車如何變成付款 Context？</h3><p>虛擬購物車完成後，mweb 把它放進付款用的 Context，從已選的結帳方式判定後續流程，並補上本期定期購的收件與發票資料。</p>
+<h3 id="從購物車到可用的付款-Context"><a href="#從購物車到可用的付款-Context" class="headerlink" title="從購物車到可用的付款 Context"></a>從購物車到可用的付款 Context</h3><p><code>TradesOrderService</code> 將購物車交給 <code>PayProcessService.GetProcessContextForRegularOrderPay</code>。這段先建立付款資料，執行付款前置 Pipeline，回到外層後再覆寫定期購專用欄位。</p>
+<p>輸入：<code>ShoppingCartClientEntity</code> 與會員 ID</p>
+<ul>
+<li><p><strong>1 · 確認購物車有商品群組</strong> 購物車或 <code>SalePageGroupList</code> 為空時，拋出「購物車不得為空」例外。</p>
+</li>
+<li><p><strong>2 · 建立 <code>PayProcessContextEntity</code></strong> 放入購物車與會員、產生 Context 識別碼，設定 V2 版本、拆單設定及定期購專用資料。</p>
+</li>
+<li><p><strong>3 · 暫存並執行 <code>GetPayProcess</code></strong> 先以 <code>UserDataHelper.Save</code> 暫存 Context，再依序執行付款資料、Token、配送、驗證與遮罩的 Processor。</p>
+</li>
+<li><p><strong>4 · 回到 <code>TradesOrderService</code> 補定期購資料</strong> 以主單資料覆寫收件人；處理符合條件的馬來西亞發票資訊；請求有統編時，補上會員發票欄位。</p>
+</li>
+<li><p><code>PayProcessContextEntity</code> 帶著購物車、付款流程類型及定期購資料，交給後續建立訂單流程。</p>
+</li>
+</ul>
+<p>圖中順序依目前自動建單入口。付款 Context 的準備階段不會在這裡執行信用卡授權；正式建單由後續 <code>CreateTradesOrder</code> 流程處理。</p>
+<h3 id="Context-裡先放了哪些資料？"><a href="#Context-裡先放了哪些資料？" class="headerlink" title="Context 裡先放了哪些資料？"></a>Context 裡先放了哪些資料？</h3><ul>
+<li><p><strong>購物車與會員</strong> <code>ShoppingCartV2</code> 放入虛擬購物車，<code>ShoppingCartVersion</code> 設為 <code>V2</code>，並設定 <code>MemberId</code>。 <code>IsOrdersSplitByQty</code> 由商店設定取得。</p>
+</li>
+<li><p><strong>本次 Context 識別</strong> 新產生一組 GUID，同時寫入 <code>UniqueKey</code> 與 <code>ContextId</code>。 這組識別碼用於暫存與後續載入。</p>
+</li>
+<li><p><strong>定期購標記</strong> 複製 <code>RegularOrderProvider</code> 與 <code>RegularOrderCheckoutInfo</code>。 <code>IsRegularOrderAutoGen</code> 設為 <code>true</code>。</p>
+</li>
+</ul>
+<h3 id="已選付款方式如何變成流程類型？"><a href="#已選付款方式如何變成流程類型？" class="headerlink" title="已選付款方式如何變成流程類型？"></a>已選付款方式如何變成流程類型？</h3><p><code>GetPayProcessDataProcessor</code> 從暫存資料還原購物車，讀取 <code>SelectedCheckoutPayTypeGroup.StatisticsTypeDef</code>，先設定 <code>PayProfileType</code>，再決定 <code>PayProcessFlowType</code>。以下列出主要對應。</p>
+<ul>
+<li><p><strong>購物車已選付款</strong> <code>CreditCardOnce</code> <code>CreditCardInstallment</code> <strong>PayProfileType</strong> 沿用信用卡一次付清或分期類型 <strong>PayProcessFlowType</strong> <code>CreditCardProcess</code></p>
+</li>
+<li><p><strong>購物車已選付款</strong> <code>CashOnDelivery</code> <strong>PayProfileType</strong> <code>CashOnDelivery</code> <strong>PayProcessFlowType</strong> <code>CashOnDeliveryProcess</code></p>
+</li>
+<li><p><strong>購物車已選付款</strong> <code>ATM</code> <strong>PayProfileType</strong> <code>ATM</code> <strong>PayProcessFlowType</strong> <code>AtmProcess</code></p>
+</li>
+<li><p><strong>購物車已選付款</strong> <code>StorePay</code> <strong>PayProfileType</strong> 取自已選超商配送類型 <strong>PayProcessFlowType</strong> <code>ShopProcess</code></p>
+</li>
+</ul>
+<p><code>StorePay</code> 會依已選的 <code>Family</code>、<code>SevenEleven</code>、<code>HiLife</code> 或 <code>OKmart</code> 配送類型設定付款類型。其他付款方式依各自的 <code>PayProfileType</code> 分支決定流程；此處的分類還不是扣款。</p>
+<h3 id="GetPayProcess-Pipeline-做哪些準備？"><a href="#GetPayProcess-Pipeline-做哪些準備？" class="headerlink" title="GetPayProcess Pipeline 做哪些準備？"></a>GetPayProcess Pipeline 做哪些準備？</h3><p>入口：已暫存的 <code>PayProcessContextEntity</code></p>
+<ul>
+<li><p>還原資料並決定流程 載入 Context，設定配送與付款類型、Gateway 及流程類型。 <code>GetPayProcessDataProcessor</code></p>
+</li>
+<li><p>補結帳與付款資料 處理商品頁備註、流程 Token、會員結帳資料與快速結帳資料。 <code>GetSalePageMemoSettingsProcessor</code> <code>GetPayProcessTokenProcessor</code> <code>GetLastOrderInfoProcessor</code> <code>PayTypeExpressProcessor</code></p>
+</li>
+<li><p>檢查配送情境 處理海外配送、超商取貨付款與門市自取資料。 <code>OverseaShippingProcessor</code> <code>CheckStorePayProcessor</code> <code>CheckLocationPickupProcessor</code></p>
+</li>
+<li><p>驗證與遮罩 檢查付款資料，再保存並遮罩需要保護的個資。 <code>ValidateProcessDataProcessor</code> <code>MaskProcessDataProcessor</code></p>
+</li>
+</ul>
+<p>回傳付款 Context，外層再補本期定期購收件人與發票資料</p>
+<p>四組依 <code>PayProcessProcessorModule</code> 的註冊順序排列，共列出 10 個 Processor。內部來源在 <code>GetLastOrderInfoProcessor</code> 不沿用一般結帳的上一筆訂單收件資訊；外層以本期定期購主單覆寫收件人。</p>
+<h2 id="付款"><a href="#付款" class="headerlink" title="付款"></a>付款</h2><h3 id="建立訂單後，這一期會怎麼付款？"><a href="#建立訂單後，這一期會怎麼付款？" class="headerlink" title="建立訂單後，這一期會怎麼付款？"></a>建立訂單後，這一期會怎麼付款？</h3><p><code>PayProcessContext</code> 已選好付款方式。<code>CreateTradesOrder()</code> 依 <code>PayProcessFlowType</code> 執行對應 Pipeline：一般信用卡、Stripe／Razer 信用卡與貨到付款，實際付款的節點並不相同。</p>
+<h3 id="付款方式如何分流？"><a href="#付款方式如何分流？" class="headerlink" title="付款方式如何分流？"></a>付款方式如何分流？</h3><p><strong><code>PayProcessService.CreateTradesOrder(context)</code></strong> 以 <code>context.PayProcessFlowType.ToString()</code> 選出已註冊的 Processor Pipeline</p>
+<ul>
+<li><p>一般信用卡 <strong><code>CreditCardProcess</code></strong> <code>CreditCardOnce</code>／<code>CreditCardInstallment</code> 先建立交易訂單，再檢查是否需要 3D 驗證，接著由授權 Processor 依商店設定的 Gateway 進行授權。 <code>CreateTradesOrderProcessor</code> → <code>ThreeDSecureProcessor</code> → <code>AuthProcessor</code> → <code>CreateRegularOrderProcessor</code></p>
+</li>
+<li><p>Stripe／Razer 信用卡 <strong><code>ThirdPartyProcess</code></strong> <code>CreditCardOnce_Stripe</code>／<code>CreditCardOnce_Razer</code> 同樣先建立交易訂單，付款交給第三方付款 Processor。該 Processor 呼叫 <code>ITradesOrderPaymentService.ProcessPayment()</code>，再由對應通道組織支付資料。 <code>CreateTradesOrderProcessor</code> → <code>ThirdPartyPayApiProcessor</code> → <code>TransferOrderProcessor</code> → <code>CreateRegularOrderProcessor</code></p>
+</li>
+<li><p>貨到付款 <strong><code>CashOnDeliveryProcess</code></strong> <code>CashOnDelivery</code> 建立交易訂單後走轉單與定期購處理。這條 Pipeline 沒有信用卡授權或第三方付款 Processor。 <code>CreateTradesOrderProcessor</code> → <code>TransferOrderProcessor</code> → <code>CreateRegularOrderProcessor</code></p>
+</li>
+</ul>
+<p>圖中只列辨識分支所需的節點。三條 Pipeline 在建單前還會整理資料、驗證與計算金額，建單後也有訂單事件、額度與其他後續 Processor；箭頭表示註冊順序，不保證每次都能執行到最後。</p>
+<h3 id="定期購付款資料從哪裡來？"><a href="#定期購付款資料從哪裡來？" class="headerlink" title="定期購付款資料從哪裡來？"></a>定期購付款資料從哪裡來？</h3><p><code>IsRegularOrderAutoGen</code> 表示這次是定期購自動建單。它不直接決定走哪條 Pipeline，卻會影響支付通道組付款資料的方式。三種信用卡分支使用的保存資料也不同。</p>
+<ul>
+<li><p>一般信用卡 <strong><code>CreditCardOnce</code></strong> 以下是 <code>Nine1Payment</code> 分支 <strong>來源：</strong> <code>RegularOrderCheckoutInfo.credit_card_token</code> 等已保存欄位 ↓ <code>ArrangeDataProcessor</code> 寫入 <code>PaymentInfo.CreditCardInfo</code> ↓ <code>AuthProcessor</code> 依 <code>CreditCardGatewayType</code> 執行授權</p>
+</li>
+<li><p>Stripe <strong><code>CreditCardOnce_Stripe</code></strong> <strong>來源：</strong> <code>RegularOrderCheckoutInfo</code> 中的 <code>CustomerId</code>、<code>PaymentMethod</code> ↓ <code>StripePayChannelService</code> 組出 <code>customer_id</code>、<code>payment_method</code>，並設 <code>off_session = true</code> ↓ 送往第三方付款服務，標示為會員未在線上的付款</p>
+</li>
+<li><p>Razer <strong><code>CreditCardOnce_Razer</code></strong> <strong>來源：</strong> <code>RegularOrderCheckoutInfo</code> 中的 <code>CreditCardToken</code> 與持卡人聯絡資料 ↓ <code>RazerPayChannelService</code> 組出 <code>card_token</code>、<code>card_user_email</code> 等欄位 ↓ 送往第三方付款服務；不重新組本次輸入的卡號與 CVV</p>
+</li>
+</ul>
+<p>一般信用卡的 Token 還原只描述程式中明確實作的 <code>Nine1Payment</code> 分支；其他 Gateway 不能直接套用同一組欄位。Stripe 與 Razer 的保存資料格式亦各自不同。</p>
+<h3 id="付款結果如何影響後續流程？"><a href="#付款結果如何影響後續流程？" class="headerlink" title="付款結果如何影響後續流程？"></a>付款結果如何影響後續流程？</h3><p><strong>Pipeline 會依結果繼續或中斷。</strong> <code>AuthProcessor</code> 對授權失敗有取消訂單處理；<code>ThirdPartyPayApiProcessor</code> 遇到付款服務回報 <code>Fail</code> 會拋出流程狀態例外。因此，圖中的 <code>TransferOrderProcessor</code>、<code>CreateRegularOrderProcessor</code> 與 <code>AfterOrderProcessor</code> 是註冊的後續節點，不代表付款失敗後仍會執行。</p>
+<p><strong>Stripe 的 <code>off_session</code> 是請求模式。</strong> mweb 會在定期購自動建單且有保存結帳資料時送出這個旗標；實際付款結果仍取決於支付服務回應，不能把它視為每次都授權成功或永遠不需驗證。</p>
+<p><strong>核對程式：</strong> <code>PayProcessService.cs</code>、<code>GetPayProcessDataProcessor.cs</code>、<code>PayProcessProcessorModule.cs</code>、<code>ArrangeDataProcessor.cs</code>、<code>ThirdPartyPayApiProcessor.cs</code>、<code>StripePayChannelService.cs</code>、<code>RazerPayChannelService.cs</code>。</p>
+<h2 id="信用卡定期購怎麼建單"><a href="#信用卡定期購怎麼建單" class="headerlink" title="信用卡定期購怎麼建單"></a>信用卡定期購怎麼建單</h2><h3 id="信用卡定期購，下一期沿用的是什麼資料？"><a href="#信用卡定期購，下一期沿用的是什麼資料？" class="headerlink" title="信用卡定期購，下一期沿用的是什麼資料？"></a>信用卡定期購，下一期沿用的是什麼資料？</h3><p>本期自動建單會取回首次訂閱留下的結帳資訊，再交給對應金流組付款請求。保存格式依市場與支付通道而異；以下用馬來西亞 Razer 信用卡說明完整鏈路。</p>
+<h3 id="從首次訂閱到本期付款"><a href="#從首次訂閱到本期付款" class="headerlink" title="從首次訂閱到本期付款"></a>從首次訂閱到本期付款</h3><p>首次訂閱結帳：建立定期購設定與保存的結帳資訊</p>
+<ul>
+<li><p>保存首次結帳資料 <code>CreateRegularOrderProcessor</code> 在一般結帳建立定期購設定。對 <code>GameBall</code>／<code>Nine1V2</code>，它把 <code>GetCheckOutInfo()</code> 組出的資料寫入 <code>RegularOrder_CheckoutInfo</code>。馬來西亞 Razer 信用卡分支保存卡片 Token 與持卡人聯絡資料。</p>
+</li>
+<li><p>下一期讀回設定 外部供應商的 <code>GetRegularOrderProcessor</code> 透過 <code>RegularOrderService.GetCheckOutInfo()</code> 讀取保存內容，放進虛擬購物車的 <code>RegularOrderCheckoutInfo</code>。</p>
+</li>
+<li><p>帶入付款 Context <code>GetProcessContextForRegularOrderPay()</code> 把購物車中的結帳資訊複製到 <code>PayProcessContext</code>，並設定 <code>IsRegularOrderAutoGen = true</code>。</p>
+</li>
+<li><p>建單後送出 Razer 付款請求 <code>CreditCardOnce_Razer</code> 選到 <code>ThirdPartyProcess</code>。Pipeline 先執行 <code>CreateTradesOrderProcessor</code>，再由 <code>ThirdPartyPayApiProcessor</code> 呼叫付款服務；<code>RazerPayChannelService</code> 使用保存資料組出 <code>card_token</code> 等欄位。</p>
+</li>
+</ul>
+<p>本期交易訂單與付款結果：回傳給定期購 Worker</p>
+<p>這是「首次保存 → 本期讀取 → 建單與付款」的資料及執行順序。每期請求標記為內部來源，<code>CreateRegularOrderProcessor</code> 遇到內部來源會直接返回，不會為本期再建立一份定期購設定。</p>
+<h3 id="Razer-本期付款送哪些資料？"><a href="#Razer-本期付款送哪些資料？" class="headerlink" title="Razer 本期付款送哪些資料？"></a>Razer 本期付款送哪些資料？</h3><p>在 <code>IsRegularOrderAutoGen</code> 且為 Razer 信用卡通道時，<code>RazerPayChannelService.GetPayExtendInfo()</code> 讀取保存的 <code>RegularOrderCheckoutInfo</code>。它把 Token 與持卡人資料映射到付款請求，不採用一般結帳的卡號、效期與 CVV 欄位組法。</p>
+<p>保存欄位 → Razer 付款請求欄位</p>
+<ul>
+<li><p><strong><code>credit_card_token</code></strong> 映射為 <code>card_token</code>，交給支付通道辨識已保存的卡片。</p>
+</li>
+<li><p><strong><code>credit_card_user_email</code></strong> 映射為 <code>card_user_email</code>。</p>
+</li>
+<li><p><strong><code>credit_card_user_fullname</code></strong> 映射為 <code>card_user_fullname</code>。</p>
+</li>
+<li><p><strong><code>credit_card_user_phone</code></strong> 映射為 <code>card_user_phone</code>。</p>
+</li>
+</ul>
+<p><strong>通道邊界：</strong> 台灣一般信用卡由 <code>CreditCardProcess</code> 依 Gateway 處理；香港 Stripe 保存 <code>customer_id</code> 與 <code>payment_method</code>。因此「本期使用 Razer <code>card_token</code>」只適用於此處的 Razer 分支。</p>
+<h3 id="本期建單結果怎麼回到-Worker？"><a href="#本期建單結果怎麼回到-Worker？" class="headerlink" title="本期建單結果怎麼回到 Worker？"></a>本期建單結果怎麼回到 Worker？</h3><p>Worker 呼叫 <code>SubscriptionOrderAutoGen</code> 後，先判斷 API 是否成功，再看回傳的 <code>OrderSlaveFlowStatus</code>。這裡的 Pending 是 Worker 對本期明細的分類，不是另一個信用卡 Token 狀態。</p>
+<p><code>SubscriptionOrderAutoGen</code> 的回應 先看 API <code>ReturnCode</code> 與 <code>Data.Status</code>，成功才讀 <code>OrderSlaveFlowStatus</code></p>
+<ul>
+<li><p>API 失敗 <code>ReturnCode</code> 非 <code>API0001</code>、資料缺失，或 <code>Data.Status</code> 非 <code>Success</code>。Worker 記錄本期建單失敗與錯誤原因。</p>
+</li>
+<li><p>建單成功，等待付款 <code>OrderSlaveFlowStatus = WaitingToPay</code>。Worker 保存訂單代碼，將本期明細標為 Pending，暫不當作付款完成。</p>
+</li>
+<li><p>建單成功，非待付款 API 成功且狀態不是 <code>WaitingToPay</code>。Worker 記錄本期成功，推進出貨週期並更新訂單對照。</p>
+</li>
+</ul>
+<p><strong>Pending 的後續：</strong> <code>RegularCheckPendingPaymentJob</code> 查詢本期 Pending 明細，再向 SCM 查詢對應 <code>TSCode</code> 的 SalesOrder 狀態。狀態是 <code>WaitingToShipping</code>、<code>ConfirmedToShipping</code> 或 <code>Finish</code> 時解除 Pending 並記為成功；其他結果走 <code>CreditCardFail</code> 處理。這個 Job 查的是 SCM 訂單狀態，不是直接向 Razer 查 Token 扣款結果。</p>
+<p>mweb 的第三方付款服務也會依支付結果處理訂單狀態，例如 <code>Pending</code> 可使訂單成為 <code>WaitingToPay</code>。Worker 實際分流依據是 API 回傳的 <code>OrderSlaveFlowStatus</code>；兩層狀態不可直接畫成同一個值。</p>
+<p><strong>核對程式：</strong> mweb 的 <code>CreateRegularOrderProcessor.cs</code>、<code>GetRegularOrderProcessor.cs</code>、<code>PayProcessService.cs</code>、<code>RazerPayChannelService.cs</code>，以及 Worker 的 <code>RegularCreateOrderJob.cs</code>、<code>RegularCheckPendingPaymentJob.cs</code>。</p>
+<h2 id="貨到付款定期購怎麼建單"><a href="#貨到付款定期購怎麼建單" class="headerlink" title="貨到付款定期購怎麼建單"></a>貨到付款定期購怎麼建單</h2><h3 id="貨到付款的這一期，mweb-會怎麼建單？"><a href="#貨到付款的這一期，mweb-會怎麼建單？" class="headerlink" title="貨到付款的這一期，mweb 會怎麼建單？"></a>貨到付款的這一期，mweb 會怎麼建單？</h3><p>排程仍會建立本期交易訂單，但付款不在建單當下向信用卡通道請款。這條路徑的重點是建立訂單、排入轉單工作，以及把結果回報給定期購 Worker。</p>
+<h3 id="貨到付款的建單順序"><a href="#貨到付款的建單順序" class="headerlink" title="貨到付款的建單順序"></a>貨到付款的建單順序</h3><p>本期虛擬購物車選擇 <code>CashOnDelivery</code></p>
+<ul>
+<li><p>選出貨到付款 Pipeline <code>GetPayProcessDataProcessor</code> 將 <code>PayProcessFlowType</code> 設為 <code>CashOnDeliveryProcess</code>，<code>CreateTradesOrder()</code> 依此執行已註冊的 Processor。</p>
+</li>
+<li><p>整理資料並建立交易訂單 Pipeline 先整理、驗證、計算與映射訂單資料，再由 <code>CreateTradesOrderProcessor</code> 寫入本期交易訂單。訂單流程狀態起始預設為 <code>WaitingToTrans</code>。</p>
+</li>
+<li><p>排入 ERP 轉單工作 <code>TransferOrderProcessor</code> 建立轉單 Task。依設定排入 <code>TransferOrderToERP</code> 或 <code>TransToERPTmp</code>；這一步表示工作已排入，不表示 ERP 已完成轉單。</p>
+</li>
+<li><p>結束本期建單流程 <code>CreateRegularOrderProcessor</code> 看到內部來源會直接返回，不會再次建立訂閱主設定。Pipeline 接著執行後續訂單處理，API 回傳本期訂單識別資訊。</p>
+</li>
+</ul>
+<p>本期建立的是新的交易訂單，沿用既有的定期購設定</p>
+<p>圖中保留與貨到付款有關的主要節點，省略優惠、贈品、點數與發票等共同處理。實際執行若遇錯誤，後續 Processor 可能不會執行。</p>
+<h3 id="訂單狀態與付款時點"><a href="#訂單狀態與付款時點" class="headerlink" title="訂單狀態與付款時點"></a>訂單狀態與付款時點</h3><ul>
+<li><p><strong>mweb 建單時</strong>→ 建立交易訂單，流程狀態預設 <code>WaitingToTrans</code>。</p>
+</li>
+<li><p><strong>轉單處理時</strong>→ 由背景 Task 接手 ERP 轉單。<code>TransferOrderProcessor</code> 本身只負責排入工作。</p>
+</li>
+<li><p><strong>交付收款時</strong>→ 貨到付款的收款發生在後續交付流程，不是本次 mweb API 的線上信用卡授權。</p>
+</li>
+</ul>
+<p><strong>付款邊界：</strong> <code>CashOnDeliveryProcess</code> 的註冊清單沒有 <code>AuthProcessor</code> 或 <code>ThirdPartyPayApiProcessor</code>。因此這次建單不會向 Razer 送 <code>card_token</code>，也沒有線上信用卡扣款步驟。</p>
+<p><strong>狀態判讀：</strong> 原稿把貨到付款建單後固定寫成 <code>WaitingToPay</code>，與 <code>CreateTradesOrderProcessor</code> 的預設 <code>WaitingToTrans</code> 不符。若後續系統顯示待付款，應另看該階段的狀態欄位與更新來源。</p>
+<p><strong>核對程式：</strong> <code>GetPayProcessDataProcessor.cs</code>、<code>PayProcessProcessorModule.cs</code>、<code>CreateTradesOrderProcessor.cs</code>、<code>TransferOrderProcessor.cs</code>、<code>CreateRegularOrderProcessor.cs</code>。</p>
+<h2 id="建單差異"><a href="#建單差異" class="headerlink" title="建單差異"></a>建單差異</h2><h3 id="同樣是本期建單，哪些地方真的不同？"><a href="#同樣是本期建單，哪些地方真的不同？" class="headerlink" title="同樣是本期建單，哪些地方真的不同？"></a>同樣是本期建單，哪些地方真的不同？</h3><p>付款方式先決定執行哪條 Pipeline；建立交易訂單時的初始狀態也各有規則。之後的授權或第三方付款結果可能再次更新訂單狀態，因此需要分清「剛寫入訂單」與「API 回傳時」。</p>
+<h3 id="建立訂單當下的差異"><a href="#建立訂單當下的差異" class="headerlink" title="建立訂單當下的差異"></a>建立訂單當下的差異</h3><ul>
+<li><p>台灣一般信用卡 <strong><code>CreditCardOnce</code></strong> <strong>Pipeline：</strong> <code>CreditCardProcess</code> <strong>初始流程狀態：</strong> <code>WaitingToAuth</code> <strong>付款節點：</strong> <code>AuthProcessor</code> 依信用卡 Gateway 進行授權。</p>
+</li>
+<li><p>Stripe 信用卡 <strong><code>CreditCardOnce_Stripe</code></strong> <strong>Pipeline：</strong> <code>ThirdPartyProcess</code> <strong>初始流程狀態：</strong> 沿用 <code>WaitingToTrans</code> 預設值。 <strong>付款節點：</strong> <code>ThirdPartyPayApiProcessor</code>；付款服務可依結果更新狀態。</p>
+</li>
+<li><p>Razer 信用卡 <strong><code>CreditCardOnce_Razer</code></strong> <strong>Pipeline：</strong> <code>ThirdPartyProcess</code> <strong>初始流程狀態：</strong> 定期購自動建單沿用 <code>WaitingToTrans</code>；一般結帳改設 <code>WaitingToPay</code>。 <strong>付款節點：</strong> <code>ThirdPartyPayApiProcessor</code>；付款服務可依結果更新狀態。</p>
+</li>
+<li><p>貨到付款 <strong><code>CashOnDelivery</code></strong> <strong>Pipeline：</strong> <code>CashOnDeliveryProcess</code> <strong>初始流程狀態：</strong> 沿用 <code>WaitingToTrans</code> 預設值。 <strong>後續節點：</strong> <code>TransferOrderProcessor</code> 排入轉單 Task，沒有線上授權 Processor。</p>
+</li>
+</ul>
+<p>「初始流程狀態」指 <code>CreateTradesOrderProcessor</code> 建立 <code>OrderSlaveFlow</code> 時的 <code>StatusDef</code>。它不是整個付款流程的最終狀態，也不等於消費者畫面顯示的狀態。</p>
+<h3 id="建單後，哪一層會再改變狀態？"><a href="#建單後，哪一層會再改變狀態？" class="headerlink" title="建單後，哪一層會再改變狀態？"></a>建單後，哪一層會再改變狀態？</h3><ul>
+<li><p><strong>建立訂單</strong>→ <code>CreateTradesOrderProcessor</code> 先寫入 <code>OrderSlaveFlow.StatusDef</code>。</p>
+</li>
+<li><p><strong>執行付款</strong>→ 信用卡授權或第三方付款處理結果可更新流程狀態；第三方回報 <code>Pending</code> 時會寫入 <code>WaitingToPay</code>。</p>
+</li>
+<li><p><strong>API 回傳</strong>→ <code>SubscriptionOrderAutoGen</code> 從訂單流程查出 <code>OrderSlaveFlowStatus</code>，與交易訂單識別資訊一起回傳。</p>
+</li>
+<li><p><strong>Worker 記錄本期</strong>→ <code>RegularCreateOrderJob</code> 只在 API 成功且回傳 <code>WaitingToPay</code> 時，把本期明細分類為 Pending。</p>
+</li>
+</ul>
+<p><strong>同名狀態的邊界：</strong> <code>OrderSlaveFlow.StatusDef</code>、面向會員的 <code>StatusForUserDef</code>，以及 Worker 的本期明細狀態是不同資料。只看到 <code>WaitingToPay</code> 這個字，不能直接推定它來自哪個欄位或表示哪個付款階段。</p>
+<p><strong>核對程式：</strong> mweb 的 <code>GetPayProcessDataProcessor.cs</code>、<code>CreateTradesOrderProcessor.cs</code>、<code>TradesOrderPaymentService.cs</code>、<code>TradesOrderService.cs</code>；Worker 的 <code>RegularCreateOrderJob.cs</code>。</p>
+<h2 id="RegularOrderTracing"><a href="#RegularOrderTracing" class="headerlink" title="RegularOrderTracing"></a>RegularOrderTracing</h2><h3 id="同一期請求重送，mweb-怎麼找回已建的訂單？"><a href="#同一期請求重送，mweb-怎麼找回已建的訂單？" class="headerlink" title="同一期請求重送，mweb 怎麼找回已建的訂單？"></a>同一期請求重送，mweb 怎麼找回已建的訂單？</h3><p><code>RegularOrderTracing</code> 用呼叫端提供的 <code>TraceId</code> 記錄一次自動建單嘗試。它保存處理狀態與建立出的交易訂單識別資訊，讓已成功的同一請求可以直接回傳原結果。</p>
+<h3 id="同一個-TraceId-再進來時"><a href="#同一個-TraceId-再進來時" class="headerlink" title="同一個 TraceId 再進來時"></a>同一個 TraceId 再進來時</h3><p><code>SubscriptionOrderAutoGen</code> 收到 <code>TraceId</code> 先執行 <code>BlockDuplicateRequest</code>，再查詢 <code>RegularOrderTracing</code></p>
+<ul>
+<li><p>查無紀錄 插入 <code>StatusDef = New</code>，記下 <code>RegularOrderId</code>、<code>TraceId</code>、執行日期與預計出貨日，再組購物車、付款 Context 並建單。</p>
+</li>
+<li><p>已有 <code>Success</code> 跳過重新建單。用 Tracing 保存的 TG／TS 識別資訊組成功回應，並查詢目前的 <code>OrderSlaveFlowStatus</code>。</p>
+</li>
+<li><p>已有其他狀態 Controller 沒有在這裡直接回傳；它繼續執行本次建單流程。因此 <code>New</code> 或 <code>Fail</code> 不能視為「已被永久擋下」。</p>
+</li>
+</ul>
+<p>短時間重複請求由 <code>BlockDuplicateRequest</code> 處理；持久的結果重用只見於 Tracing 已是 <code>Success</code> 的分支。兩者作用時點不同。</p>
+<h3 id="Tracing-什麼時候更新？"><a href="#Tracing-什麼時候更新？" class="headerlink" title="Tracing 什麼時候更新？"></a>Tracing 什麼時候更新？</h3><ul>
+<li><p><strong>第一次收到請求</strong>→ 插入 <code>New</code>；<code>ExecutedDate</code> 是當天，<code>ExpectShippingDate</code> 來自請求的 <code>NextExpectShippingDate</code>。</p>
+</li>
+<li><p><strong>建單方法返回</strong>→ <code>CreateTradesOrder()</code> 返回後，更新為 <code>Success</code>，並寫入建立出的 TG／TS 代碼與 ID。</p>
+</li>
+<li><p><strong>一般例外</strong>→ 若查得到這筆 Tracing，Controller 更新為 <code>Fail</code>，回傳失敗結果。</p>
+</li>
+</ul>
+<p><strong>狀態邊界：</strong> Tracing 的 <code>Success</code> 代表這次 <code>CreateTradesOrder()</code> 已返回且訂單識別資訊已記錄，不等於第三方付款一定完成。本期交易訂單仍可能回報 <code>WaitingToPay</code>，由 Worker 另外分類為 Pending。</p>
+<p><strong>例外分支：</strong> <code>NoMoreElmahException</code> 的 catch 直接回傳錯誤，沒有在該分支更新 Tracing；原稿把所有例外都畫成 <code>Fail</code> 並不精確。</p>
+<h3 id="它保存哪些對照資料？"><a href="#它保存哪些對照資料？" class="headerlink" title="它保存哪些對照資料？"></a>它保存哪些對照資料？</h3><ul>
+<li><p><strong>這次請求</strong> <code>TraceId</code>、<code>RegularOrderId</code>。Worker 建立 API 請求時，以本期明細的 <code>RodTxid</code> 作為 <code>TraceId</code>。</p>
+</li>
+<li><p><strong>期別時間</strong> <code>ExecutedDate</code>、<code>ExpectShippingDate</code>，用來追查這次何時執行、預計何時出貨。</p>
+</li>
+<li><p><strong>處理狀態</strong> <code>StatusDef</code> 記錄 <code>New</code>、<code>Success</code> 或 <code>Fail</code>。它描述自動建單嘗試，不是信用卡交易狀態。</p>
+</li>
+<li><p><strong>交易訂單</strong> <code>TradesOrderGroupId</code>／<code>Code</code>、<code>TradesOrderSlaveId</code>／<code>Code</code>，供成功重送時找回原訂單。</p>
+</li>
+<li><p>**<code>RegularOrder</code>**→ 長期訂閱設定，保存商品、週期、收件與結帳資訊。</p>
+</li>
+<li><p>**<code>RegularOrderTracing</code>**→ 本次自動建單的狀態與交易訂單對照。</p>
+</li>
+<li><p>**<code>TradesOrderGroup</code>／<code>Slave</code>**→ 本期實際建立的交易訂單與明細。</p>
+</li>
+</ul>
+<p><strong>重送的界限：</strong> 如果交易訂單已寫入，但 Tracing 尚未更新為 <code>Success</code>，僅憑此處的 <code>Success</code> 回放分支無法證明「任何時點重送都絕不重複建單」。排查時仍需對照交易訂單與 Tracing。</p>
+<p><strong>核對程式：</strong> <code>TradesOrderV2Controller.SubscriptionOrderAutoGen()</code>、<code>RegularOrderService.cs</code>、<code>TradesOrderService.GetAutoGenResponseEntity()</code>、Worker 的 <code>RegularCreateOrderJob.cs</code>。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/">https://allenlin000.github.io.git/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/10/13/Regular-Order-migration-process/" title="migration-process"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">migration-process</div></div></a></div><div class="next-post pull-right"><a href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/" title="pay api 1 - 設計現狀"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">pay api 1 - 設計現狀</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">280</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">40</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%B6%E6%A7%8B"><span class="toc-number">1.</span> <span class="toc-text">架構</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E6%9C%9F%E8%B3%BC%E5%88%B0%E4%BA%86%E5%BB%BA%E5%96%AE%E6%99%82%E9%96%93%EF%BC%8Cmweb-%E5%A6%82%E4%BD%95%E5%AE%8C%E6%88%90%E9%80%99%E4%B8%80%E6%9C%9F%E8%A8%82%E5%96%AE%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">定期購到了建單時間，mweb 如何完成這一期訂單？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BE%9E-API-%E5%85%A5%E5%8F%A3%E5%88%B0%E5%BB%BA%E5%96%AE%E7%B5%90%E6%9E%9C"><span class="toc-number">1.2.</span> <span class="toc-text">從 API 入口到建單結果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%99%9B%E6%93%AC%E8%B3%BC%E7%89%A9%E8%BB%8A%E6%B2%BF%E8%91%97%E5%93%AA%E4%BA%9B%E8%99%95%E7%90%86%E9%9A%8E%E6%AE%B5%E5%BD%A2%E6%88%90%EF%BC%9F"><span class="toc-number">1.3.</span> <span class="toc-text">虛擬購物車沿著哪些處理階段形成？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%98%E6%AC%BE-Context-%E5%9C%A8%E5%93%AA%E4%BA%9B%E5%85%83%E4%BB%B6%E4%B9%8B%E9%96%93%E5%AE%8C%E6%88%90%EF%BC%9F"><span class="toc-number">1.4.</span> <span class="toc-text">付款 Context 在哪些元件之間完成？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%A6%E9%9A%9B%E4%BB%98%E6%AC%BE%E8%88%87%E5%BB%BA%E5%96%AE%E5%A6%82%E4%BD%95%E5%88%86%E6%B5%81%EF%BC%9F"><span class="toc-number">1.5.</span> <span class="toc-text">實際付款與建單如何分流？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Provider-%E6%AA%A2%E6%9F%A5%E6%98%AF%E5%81%9A%E4%BB%80%E9%BA%BC%E7%9A%84"><span class="toc-number">2.</span> <span class="toc-text">Provider 檢查是做什麼的</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Provider-%E6%AA%A2%E6%9F%A5%E6%98%AF%E5%81%9A%E4%BB%80%E9%BA%BC%E7%9A%84%EF%BC%9F"><span class="toc-number">2.1.</span> <span class="toc-text">Provider 檢查是做什麼的？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A9%E5%80%8B-Provider-%E5%BE%9E%E5%93%AA%E8%A3%A1%E4%BE%86%EF%BC%9F"><span class="toc-number">2.2.</span> <span class="toc-text">兩個 Provider 從哪裡來？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%95%86%E5%BA%97%E5%B7%B2%E5%88%87%E6%8F%9B%EF%BC%8C%E8%88%8A%E4%BE%86%E6%BA%90%E4%BB%8D%E9%80%81%E5%87%BA%E8%AB%8B%E6%B1%82%E6%99%82"><span class="toc-number">2.3.</span> <span class="toc-text">商店已切換，舊來源仍送出請求時</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Provider-%E9%82%84%E6%B1%BA%E5%AE%9A%E4%B8%BB%E5%96%AE%E6%80%8E%E9%BA%BC%E8%BC%89%E5%85%A5"><span class="toc-number">2.4.</span> <span class="toc-text">Provider 還決定主單怎麼載入</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%99%9B%E6%93%AC%E8%B3%BC%E7%89%A9%E8%BB%8A"><span class="toc-number">3.</span> <span class="toc-text">虛擬購物車</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E6%9C%9F%E8%B3%BC%E8%B3%87%E6%96%99%E5%A6%82%E4%BD%95%E8%AE%8A%E6%88%90%E8%99%9B%E6%93%AC%E8%B3%BC%E7%89%A9%E8%BB%8A%EF%BC%9F"><span class="toc-number">3.1.</span> <span class="toc-text">定期購資料如何變成虛擬購物車？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B3%87%E6%96%99%E5%BE%9E%E5%93%AA%E8%A3%A1%E4%BE%86%EF%BC%8C%E4%BA%A4%E5%88%B0%E5%93%AA%E8%A3%A1%EF%BC%9F"><span class="toc-number">3.2.</span> <span class="toc-text">資料從哪裡來，交到哪裡？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GetRegularOrderProcessor-%E5%AF%A6%E9%9A%9B%E5%81%9A%E4%BA%86%E4%BB%80%E9%BA%BC%EF%BC%9F"><span class="toc-number">3.3.</span> <span class="toc-text">GetRegularOrderProcessor 實際做了什麼？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E5%96%AE%E6%AC%84%E4%BD%8D%E5%A6%82%E4%BD%95%E8%90%BD%E5%88%B0%E8%B3%BC%E7%89%A9%E8%BB%8A%EF%BC%9F"><span class="toc-number">3.4.</span> <span class="toc-text">主單欄位如何落到購物車？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%93%AA%E4%BA%9B%E6%83%85%E6%B3%81%E6%9C%83%E5%9C%A8%E7%B5%84%E8%BB%8A%E9%9A%8E%E6%AE%B5%E5%81%9C%E4%B8%8B%E4%BE%86%EF%BC%9F"><span class="toc-number">3.5.</span> <span class="toc-text">哪些情況會在組車階段停下來？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E4%BB%98%E6%AC%BE-context"><span class="toc-number">4.</span> <span class="toc-text">建立付款 context</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%99%9B%E6%93%AC%E8%B3%BC%E7%89%A9%E8%BB%8A%E5%A6%82%E4%BD%95%E8%AE%8A%E6%88%90%E4%BB%98%E6%AC%BE-Context%EF%BC%9F"><span class="toc-number">4.1.</span> <span class="toc-text">虛擬購物車如何變成付款 Context？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BE%9E%E8%B3%BC%E7%89%A9%E8%BB%8A%E5%88%B0%E5%8F%AF%E7%94%A8%E7%9A%84%E4%BB%98%E6%AC%BE-Context"><span class="toc-number">4.2.</span> <span class="toc-text">從購物車到可用的付款 Context</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Context-%E8%A3%A1%E5%85%88%E6%94%BE%E4%BA%86%E5%93%AA%E4%BA%9B%E8%B3%87%E6%96%99%EF%BC%9F"><span class="toc-number">4.3.</span> <span class="toc-text">Context 裡先放了哪些資料？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%B2%E9%81%B8%E4%BB%98%E6%AC%BE%E6%96%B9%E5%BC%8F%E5%A6%82%E4%BD%95%E8%AE%8A%E6%88%90%E6%B5%81%E7%A8%8B%E9%A1%9E%E5%9E%8B%EF%BC%9F"><span class="toc-number">4.4.</span> <span class="toc-text">已選付款方式如何變成流程類型？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GetPayProcess-Pipeline-%E5%81%9A%E5%93%AA%E4%BA%9B%E6%BA%96%E5%82%99%EF%BC%9F"><span class="toc-number">4.5.</span> <span class="toc-text">GetPayProcess Pipeline 做哪些準備？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%98%E6%AC%BE"><span class="toc-number">5.</span> <span class="toc-text">付款</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E8%A8%82%E5%96%AE%E5%BE%8C%EF%BC%8C%E9%80%99%E4%B8%80%E6%9C%9F%E6%9C%83%E6%80%8E%E9%BA%BC%E4%BB%98%E6%AC%BE%EF%BC%9F"><span class="toc-number">5.1.</span> <span class="toc-text">建立訂單後，這一期會怎麼付款？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%98%E6%AC%BE%E6%96%B9%E5%BC%8F%E5%A6%82%E4%BD%95%E5%88%86%E6%B5%81%EF%BC%9F"><span class="toc-number">5.2.</span> <span class="toc-text">付款方式如何分流？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E6%9C%9F%E8%B3%BC%E4%BB%98%E6%AC%BE%E8%B3%87%E6%96%99%E5%BE%9E%E5%93%AA%E8%A3%A1%E4%BE%86%EF%BC%9F"><span class="toc-number">5.3.</span> <span class="toc-text">定期購付款資料從哪裡來？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%98%E6%AC%BE%E7%B5%90%E6%9E%9C%E5%A6%82%E4%BD%95%E5%BD%B1%E9%9F%BF%E5%BE%8C%E7%BA%8C%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="toc-number">5.4.</span> <span class="toc-text">付款結果如何影響後續流程？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%AE%9A%E6%9C%9F%E8%B3%BC%E6%80%8E%E9%BA%BC%E5%BB%BA%E5%96%AE"><span class="toc-number">6.</span> <span class="toc-text">信用卡定期購怎麼建單</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E7%94%A8%E5%8D%A1%E5%AE%9A%E6%9C%9F%E8%B3%BC%EF%BC%8C%E4%B8%8B%E4%B8%80%E6%9C%9F%E6%B2%BF%E7%94%A8%E7%9A%84%E6%98%AF%E4%BB%80%E9%BA%BC%E8%B3%87%E6%96%99%EF%BC%9F"><span class="toc-number">6.1.</span> <span class="toc-text">信用卡定期購，下一期沿用的是什麼資料？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BE%9E%E9%A6%96%E6%AC%A1%E8%A8%82%E9%96%B1%E5%88%B0%E6%9C%AC%E6%9C%9F%E4%BB%98%E6%AC%BE"><span class="toc-number">6.2.</span> <span class="toc-text">從首次訂閱到本期付款</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Razer-%E6%9C%AC%E6%9C%9F%E4%BB%98%E6%AC%BE%E9%80%81%E5%93%AA%E4%BA%9B%E8%B3%87%E6%96%99%EF%BC%9F"><span class="toc-number">6.3.</span> <span class="toc-text">Razer 本期付款送哪些資料？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E6%9C%9F%E5%BB%BA%E5%96%AE%E7%B5%90%E6%9E%9C%E6%80%8E%E9%BA%BC%E5%9B%9E%E5%88%B0-Worker%EF%BC%9F"><span class="toc-number">6.4.</span> <span class="toc-text">本期建單結果怎麼回到 Worker？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B2%A8%E5%88%B0%E4%BB%98%E6%AC%BE%E5%AE%9A%E6%9C%9F%E8%B3%BC%E6%80%8E%E9%BA%BC%E5%BB%BA%E5%96%AE"><span class="toc-number">7.</span> <span class="toc-text">貨到付款定期購怎麼建單</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B2%A8%E5%88%B0%E4%BB%98%E6%AC%BE%E7%9A%84%E9%80%99%E4%B8%80%E6%9C%9F%EF%BC%8Cmweb-%E6%9C%83%E6%80%8E%E9%BA%BC%E5%BB%BA%E5%96%AE%EF%BC%9F"><span class="toc-number">7.1.</span> <span class="toc-text">貨到付款的這一期，mweb 會怎麼建單？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B2%A8%E5%88%B0%E4%BB%98%E6%AC%BE%E7%9A%84%E5%BB%BA%E5%96%AE%E9%A0%86%E5%BA%8F"><span class="toc-number">7.2.</span> <span class="toc-text">貨到付款的建單順序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A8%82%E5%96%AE%E7%8B%80%E6%85%8B%E8%88%87%E4%BB%98%E6%AC%BE%E6%99%82%E9%BB%9E"><span class="toc-number">7.3.</span> <span class="toc-text">訂單狀態與付款時點</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BB%BA%E5%96%AE%E5%B7%AE%E7%95%B0"><span class="toc-number">8.</span> <span class="toc-text">建單差異</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%A8%A3%E6%98%AF%E6%9C%AC%E6%9C%9F%E5%BB%BA%E5%96%AE%EF%BC%8C%E5%93%AA%E4%BA%9B%E5%9C%B0%E6%96%B9%E7%9C%9F%E7%9A%84%E4%B8%8D%E5%90%8C%EF%BC%9F"><span class="toc-number">8.1.</span> <span class="toc-text">同樣是本期建單，哪些地方真的不同？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E8%A8%82%E5%96%AE%E7%95%B6%E4%B8%8B%E7%9A%84%E5%B7%AE%E7%95%B0"><span class="toc-number">8.2.</span> <span class="toc-text">建立訂單當下的差異</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%BA%E5%96%AE%E5%BE%8C%EF%BC%8C%E5%93%AA%E4%B8%80%E5%B1%A4%E6%9C%83%E5%86%8D%E6%94%B9%E8%AE%8A%E7%8B%80%E6%85%8B%EF%BC%9F"><span class="toc-number">8.3.</span> <span class="toc-text">建單後，哪一層會再改變狀態？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RegularOrderTracing"><span class="toc-number">9.</span> <span class="toc-text">RegularOrderTracing</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E6%9C%9F%E8%AB%8B%E6%B1%82%E9%87%8D%E9%80%81%EF%BC%8Cmweb-%E6%80%8E%E9%BA%BC%E6%89%BE%E5%9B%9E%E5%B7%B2%E5%BB%BA%E7%9A%84%E8%A8%82%E5%96%AE%EF%BC%9F"><span class="toc-number">9.1.</span> <span class="toc-text">同一期請求重送，mweb 怎麼找回已建的訂單？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E5%80%8B-TraceId-%E5%86%8D%E9%80%B2%E4%BE%86%E6%99%82"><span class="toc-number">9.2.</span> <span class="toc-text">同一個 TraceId 再進來時</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tracing-%E4%BB%80%E9%BA%BC%E6%99%82%E5%80%99%E6%9B%B4%E6%96%B0%EF%BC%9F"><span class="toc-number">9.3.</span> <span class="toc-text">Tracing 什麼時候更新？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%83%E4%BF%9D%E5%AD%98%E5%93%AA%E4%BA%9B%E5%B0%8D%E7%85%A7%E8%B3%87%E6%96%99%EF%BC%9F"><span class="toc-number">9.4.</span> <span class="toc-text">它保存哪些對照資料？</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/" title="pay api 1 - 設計現狀"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pay api 1 - 設計現狀"/></a><div class="content"><a class="title" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/" title="pay api 1 - 設計現狀">pay api 1 - 設計現狀</a><time datetime="2026-10-14T09:41:00.000Z" title="Created 2026-10-14 17:41:00">2026-10-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/" title="pay api 1 - 設計現狀"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pay api 1 - 設計現狀"/></a><div class="content"><a class="title" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/" title="pay api 1 - 設計現狀">pay api 1 - 設計現狀</a><time datetime="2026-10-14T09:41:00.000Z" title="Created 2026-10-14 17:41:00">2026-10-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/13/Regular-Order-migration-process/" title="migration-process"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="migration-process"/></a><div class="content"><a class="title" href="/2026/10/13/Regular-Order-migration-process/" title="migration-process">migration-process</a><time datetime="2026-10-13T05:44:00.000Z" title="Created 2026-10-13 13:44:00">2026-10-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/12/Shopping-Cart-CalculateShoppingCartCheckoutPayShippingProcessor/" title="CalculateShoppingCartCheckoutPayShippingProcessor"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/shoppingcart/pay-delivery.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CalculateShoppingCartCheckoutPayShippingProcessor"/></a><div class="content"><a class="title" href="/2026/10/12/Shopping-Cart-CalculateShoppingCartCheckoutPayShippingProcessor/" title="CalculateShoppingCartCheckoutPayShippingProcessor">CalculateShoppingCartCheckoutPayShippingProcessor</a><time datetime="2026-10-12T02:00:00.000Z" title="Created 2026-10-12 10:00:00">2026-10-12</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
