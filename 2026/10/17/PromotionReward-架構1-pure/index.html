@@ -1,0 +1,545 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>回饋活動 - 為何用 DynamoDB | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="架構回饋活動算出應給的點數或優惠券後，不一定會立刻發放。系統可能需要等待指定時間或訂單條件成立；發放後，也可能因取消或退貨而回收。因此，每筆訂單都需要留下目前處理到哪一步的紀錄，讓後續派工、重試與回收有依據。這些執行狀態保存在 DynamoDB。 Promotion Engine 負責計算應給多少回饋；DynamoDB 保存回饋履約的狀態與當時結果，讓後續工作能接續處理。以下五張圖分別說明狀態總覽">
+<meta property="og:type" content="article">
+<meta property="og:title" content="回饋活動 - 為何用 DynamoDB">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/10/17/PromotionReward-%E6%9E%B6%E6%A7%8B1-pure/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="架構回饋活動算出應給的點數或優惠券後，不一定會立刻發放。系統可能需要等待指定時間或訂單條件成立；發放後，也可能因取消或退貨而回收。因此，每筆訂單都需要留下目前處理到哪一步的紀錄，讓後續派工、重試與回收有依據。這些執行狀態保存在 DynamoDB。 Promotion Engine 負責計算應給多少回饋；DynamoDB 保存回饋履約的狀態與當時結果，讓後續工作能接續處理。以下五張圖分別說明狀態總覽">
+<meta property="og:locale">
+<meta property="og:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png">
+<meta property="article:published_time" content="2026-10-17T12:39:00.000Z">
+<meta property="article:modified_time" content="2026-10-18T12:45:41.035Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/10/17/PromotionReward-%E6%9E%B6%E6%A7%8B1-pure/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '回饋活動 - 為何用 DynamoDB',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-10-18 20:45:41'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">282</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">回饋活動 - 為何用 DynamoDB</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-10-17T12:39:00.000Z" title="Created 2026-10-17 20:39:00">2026-10-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-10-18T12:45:41.035Z" title="Updated 2026-10-18 20:45:41">2026-10-18</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/PromotionReward/">PromotionReward</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="回饋活動 - 為何用 DynamoDB"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="架構"><a href="#架構" class="headerlink" title="架構"></a>架構</h2><p>回饋活動算出應給的點數或優惠券後，不一定會立刻發放。系統可能需要等待指定時間或訂單條件成立；發放後，也可能因取消或退貨而回收。因此，每筆訂單都需要留下目前處理到哪一步的紀錄，讓後續派工、重試與回收有依據。這些執行狀態保存在 DynamoDB。</p>
+<p>Promotion Engine 負責計算應給多少回饋；DynamoDB 保存回饋履約的狀態與當時結果，讓後續工作能接續處理。以下五張圖分別說明狀態總覽，以及線上、線下訂單的正向與逆向流程。</p>
+<p>DynamoDB 在此承擔執行狀態帳本的角色，支援後續工作依紀錄判斷下一步：</p>
+<ul>
+<li>等待：用 <code>WaitToReward</code> 與 <code>BookingTime</code> 記錄待發放的回饋。</li>
+<li>派工：Dispatcher 依時間窗找出待處理紀錄。</li>
+<li>發放：用 <code>Reward</code> 與 <code>IsReward</code> 記錄發放進度。</li>
+<li>取消與回收：用 <code>Cancel</code>、<code>IsRecycle</code> 與 <code>RecyclePoints</code> 記錄逆向處理。</li>
+<li>重試與冪等：依 Lock、條件更新與狀態判斷防止重複處理。</li>
+<li>稽核與補償：保留歷史紀錄與 <code>UpdateReason</code>。</li>
+</ul>
+<h3 id="回饋處理流程"><a href="#回饋處理流程" class="headerlink" title="回饋處理流程"></a>回饋處理流程</h3><h3 id="回饋狀態與觸發事件"><a href="#回饋狀態與觸發事件" class="headerlink" title="回饋狀態與觸發事件"></a>回饋狀態與觸發事件</h3><p>這張圖先看訂單成立後如何進入 <code>Occupy</code>、<code>WaitToReward</code> 或 <code>Reward</code>，以及付款失敗或整張訂單取消時的 <code>Cancel</code>。<code>MatchWithoutQuota</code> 與 <code>Unmatch</code> 是圖中另外兩種判斷結果。</p>
+<pre class="mermaid">flowchart TB
+    Place["訂單成立，尚未付款"] -->|OrderPlace| NeedQuota{"活動需要佔額？"}
+    NeedQuota -->|否| Paid["訂單付款完成"]
+    NeedQuota -->|是| ActiveBefore{"有命中活動？"}
+    ActiveBefore -->|否| UnmatchBefore["Unmatch"]
+    ActiveBefore -->|是| Full{"額度已滿？"}
+    Full -->|否| Occupy["Occupy"]
+    Full -->|是| NoQuota["MatchWithoutQuota"]
+    Occupy --> Paid
+    Paid -->|OrderCreate| ActiveAfter{"有命中活動？"}
+    ActiveAfter -->|否| UnmatchAfter["Unmatch"]
+    ActiveAfter -->|是| Wait["WaitToReward"]
+    Wait --> Due{"到達給點或給券時間？"}
+    Due -->|否| Wait
+    Due -->|是| Reward["Reward"]
+    PaymentFailed["訂單付款失敗"] --> Cancel["Cancel"]
+    OrderCancelled["整張訂單取消"] --> Cancel
+    classDef service fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef decision fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef waiting fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef success fill:#eaf8ed,stroke:#52a56a,color:#275d35
+    classDef result fill:#f3f4f6,stroke:#7d8998,color:#334155
+    classDef error fill:#fff0ef,stroke:#cf6461,color:#7f2b2b
+    class Place,Paid service
+    class NeedQuota,ActiveBefore,Full,ActiveAfter,Due decision
+    class Occupy,Wait waiting
+    class Reward success
+    class PaymentFailed error
+    class OrderCancelled,Cancel,UnmatchBefore,UnmatchAfter,NoQuota result</pre>
+
+<p>黃色標示等待或佔額，綠色標示已發放。取消與未命中是另外的結果。</p>
+<p>圖中的付款後判斷若已經計算過，便沿用先前結果，不重新判斷活動是否命中。這張總覽依原圖保留狀態與事件，具體的發放與回收工作分別見下方流程。</p>
+<h3 id="線上訂單的正向流程"><a href="#線上訂單的正向流程" class="headerlink" title="線上訂單的正向流程"></a>線上訂單的正向流程</h3><p>訂單成立時，<code>PromotionRewardOccupyDispatcherJob</code> 判斷活動是否需要佔額。需要佔額時，<code>PromotionRewardCouponJob</code> 或 <code>PromotionRewardLoyaltyPointsV2Job</code> 判斷資格並建立 <code>Occupy</code> 狀態；不需要佔額則直接等待付款完成事件。</p>
+<pre class="mermaid">flowchart TB
+    Place["訂單成立 OrderPlace"] --> OccupyDispatcher["佔額派工"]
+    OccupyDispatcher --> NeedQuota{"需要佔額？"}
+    NeedQuota -->|是| OccupyJob["回饋工作判斷資格並佔額"]
+    NeedQuota -->|否| Create["訂單付款完成 OrderCreate"]
+    OccupyJob -->|Occupy| Create
+    Create --> RewardDispatcher["給點派工判斷活動資格"]
+    RewardDispatcher --> Qualified{"符合活動資格？"}
+    Qualified -->|否| End["結束"]
+    Qualified -->|是| Record["回饋工作建立 DDB 紀錄"]
+    Record --> Delayed{"狀態為 WaitToReward？"}
+    Delayed -->|否，立即贈與| End
+    Delayed -->|是| Booking["每小時檢查回饋時間"]
+    Booking --> Due{"到達回饋時間？"}
+    Due -->|否| Booking
+    Due -->|是| Grant["回饋工作發放點數或優惠券"]
+    Grant -->|Reward| End
+    classDef service fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef decision fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef waiting fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef success fill:#eaf8ed,stroke:#52a56a,color:#275d35
+    classDef result fill:#f3f4f6,stroke:#7d8998,color:#334155
+    classDef error fill:#fff0ef,stroke:#cf6461,color:#7f2b2b
+    class Place,Create,OccupyDispatcher,OccupyJob,RewardDispatcher,Record,Booking service
+    class NeedQuota,Qualified,Delayed,Due decision
+    class Grant success
+    class End result</pre>
+
+<p>線上訂單先處理佔額，付款後建立回饋紀錄；等待中的回饋再由定時派工接手。</p>
+<p>付款完成後由 <code>PromotionRewardLoyaltyPointsDispatcherV2Job</code> 判斷活動資格，回饋工作建立 DynamoDB 紀錄。若狀態是 <code>WaitToReward</code>，<code>BookingRewardLoyaltyPointsDispatcherV2Job</code> 每小時檢查回饋時間；到時再由 <code>PromotionRewardCouponJob</code> 或 <code>PromotionRewardLoyaltyPointsV2Job</code> 發放。原圖將立即贈與標成建檔後結束，沒有另外畫出發放動作。</p>
+<h3 id="線下訂單的正向流程"><a href="#線下訂單的正向流程" class="headerlink" title="線下訂單的正向流程"></a>線下訂單的正向流程</h3><p>線下訂單由每日排程先撈取前一日匯入的 CRM 訂單，再判斷適用活動並建立回饋紀錄。等待與發放階段沿用線上訂單的每小時派工流程。</p>
+<pre class="mermaid">flowchart TB
+    Schedule["每日 04:00 排程"] --> Import["撈取昨日匯入的 CRM 訂單"]
+    Import --> Match["判斷訂單適用的活動"]
+    Match --> Record["回饋工作佔額並建立 DDB 紀錄"]
+    Record --> Delayed{"狀態為 WaitToReward？"}
+    Delayed -->|否，立即贈與| End["結束"]
+    Delayed -->|是| Booking["每小時檢查回饋時間"]
+    Booking --> Due{"到達回饋時間？"}
+    Due -->|否| Booking
+    Due -->|是| Grant["回饋工作發放點數或優惠券"]
+    Grant -->|Reward| End
+    classDef service fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef decision fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef waiting fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef success fill:#eaf8ed,stroke:#52a56a,color:#275d35
+    classDef result fill:#f3f4f6,stroke:#7d8998,color:#334155
+    classDef error fill:#fff0ef,stroke:#cf6461,color:#7f2b2b
+    class Schedule,Import,Match,Record,Booking service
+    class Delayed,Due decision
+    class Grant success
+    class End result</pre>
+
+<p>線下訂單由每日排程匯入；已建立的待發放紀錄沿用每小時派工流程。</p>
+<p>撈單工作為 <code>PromotionRewardActiveCrmShopDispatcherJob</code>，活動判斷由 <code>PromotionRewardBatchDispatcherV2Job</code> 處理。建立紀錄與發放由 <code>PromotionRewardCouponJob</code> 或 <code>PromotionRewardLoyaltyPointsV2Job</code> 處理；等待中的訂單由 <code>BookingRewardLoyaltyPointsDispatcherV2Job</code> 檢查。</p>
+<h3 id="線上訂單的逆向流程"><a href="#線上訂單的逆向流程" class="headerlink" title="線上訂單的逆向流程"></a>線上訂單的逆向流程</h3><p>付款失敗會取消先前佔額。訂單取消或退貨則先判斷是否需要回收，只有需要時才執行點數或優惠券回收。</p>
+<pre class="mermaid">flowchart TB
+    Failed["訂單付款失敗 OrderFailed"] --> OccupyDispatcher["佔額派工取消佔額"]
+    OccupyDispatcher --> End["結束"]
+    Reversed["訂單取消或退貨"] --> RecycleDispatcher["回收派工判斷回收需求"]
+    RecycleDispatcher --> NeedRecycle{"需要回收？"}
+    NeedRecycle -->|否| End
+    NeedRecycle -->|是| Recycle["回收點數或優惠券"]
+    Recycle --> End
+    classDef service fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef decision fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef waiting fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef success fill:#eaf8ed,stroke:#52a56a,color:#275d35
+    classDef result fill:#f3f4f6,stroke:#7d8998,color:#334155
+    classDef error fill:#fff0ef,stroke:#cf6461,color:#7f2b2b
+    class Reversed,OccupyDispatcher,RecycleDispatcher,Recycle service
+    class Failed error
+    class NeedRecycle decision
+    class End result</pre>
+
+<p>付款失敗會取消佔額；訂單取消或退貨先判斷是否需要回收。</p>
+<p>付款失敗由 <code>PromotionRewardOccupyDispatcher</code> 取消佔額。取消或退貨事件交給 <code>RecycleLoyaltyPointsDispatcherV2</code> 判斷，必要時再由 <code>PromotionRecycleCouponJob</code> 或 <code>RecycleLoyaltyPointsV2</code> 回收。</p>
+<h3 id="線下訂單的逆向流程"><a href="#線下訂單的逆向流程" class="headerlink" title="線下訂單的逆向流程"></a>線下訂單的逆向流程</h3><p>線下訂單每天掃描前一日匯入的 CRM 訂單，發現取消或退貨時先預約回收任務，再於 10:30 執行回收。</p>
+<pre class="mermaid">flowchart TB
+    Morning["每日 04:00 排程"] --> Import["撈取昨日匯入的 CRM 訂單"]
+    Import --> Scan["掃描訂單狀態並預約回收任務"]
+    Scan --> Later["每日 10:30 排程"]
+    Later --> Recycle["依預約任務回收點數或優惠券"]
+    Recycle --> End["結束"]
+    classDef service fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef decision fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef waiting fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef success fill:#eaf8ed,stroke:#52a56a,color:#275d35
+    classDef result fill:#f3f4f6,stroke:#7d8998,color:#334155
+    classDef error fill:#fff0ef,stroke:#cf6461,color:#7f2b2b
+    class Morning,Import,Scan,Later,Recycle service
+    class End result</pre>
+
+<p>線下訂單先預約回收任務，再由後續排程執行。</p>
+<p><code>PromotionRewardActiveCrmShopDispatcherJob</code> 負責撈單，<code>PromotionRewardBatchDispatcherV2</code> 掃描取消或退貨狀態並預約任務，<code>PromotionRecycleCouponJob</code> 或 <code>RecycleLoyaltyPointsV2</code> 依預約任務執行回收。</p>
+<h2 id="選用-Ddb-有哪些好處"><a href="#選用-Ddb-有哪些好處" class="headerlink" title="選用 Ddb 有哪些好處"></a>選用 Ddb 有哪些好處</h2><p>一筆訂單的回饋可能經過佔額、等待、發放，之後還可能因退貨而回收。這些工作發生在不同時間，並由不同的 Worker 接手。系統需要反覆找回同一筆回饋紀錄，確認目前的處理進度，再決定下一步。</p>
+<h3 id="訂單事件與定時派工都有明確的查找方式"><a href="#訂單事件與定時派工都有明確的查找方式" class="headerlink" title="訂單事件與定時派工都有明確的查找方式"></a>訂單事件與定時派工都有明確的查找方式</h3><p>付款完成、取消或退貨時，系統可以依活動、訂單與子單的識別資料找回對應紀錄。例如，收到某張訂單的退貨事件後，回收工作要先找出這張訂單當初領到的回饋，才能繼續處理。</p>
+<p>定時派工則從另一個方向找資料：每小時挑出仍在等待、且 <code>BookingTime</code> 已到的紀錄。DynamoDB 適合預先為這兩種固定的讀取方式安排鍵值與索引。時間查詢仍須先指定分區鍵，再依排序鍵縮小範圍；單有 <code>BookingTime</code> 欄位，無法直接用 <code>Query</code> 找遍所有待發放紀錄。</p>
+<pre class="mermaid">flowchart TB
+    Event["付款、取消或退貨事件"] --> OrderKey["活動與訂單識別資料"]
+    OrderKey --> Lookup["查找對應回饋"]
+    Clock["每小時派工"] --> TimeKey["預先設計的分區鍵與時間排序鍵"]
+    TimeKey --> Due["查找已到期的紀錄"]
+    Lookup --> Record["DynamoDB 回饋紀錄"]
+    Due --> Record
+    classDef service fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef decision fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef result fill:#f3f4f6,stroke:#7d8998,color:#334155
+    class Event,Clock,Lookup,Due service
+    class OrderKey,TimeKey decision
+    class Record result</pre>
+
+<p>兩種工作都要讀回饋紀錄，但查找入口不同。時間查詢必須事先安排鍵值或索引。</p>
+<h3 id="多個-Worker-可以同時處理不同訂單"><a href="#多個-Worker-可以同時處理不同訂單" class="headerlink" title="多個 Worker 可以同時處理不同訂單"></a>多個 Worker 可以同時處理不同訂單</h3><p>活動期間可能有許多訂單陸續付款，也可能有大量回饋在相近時間到期。每個 Worker 主要讀取或更新自己負責的回饋紀錄，因此可以把不同訂單分開處理，而不必讓所有工作排成一條長隊。</p>
+<p>DynamoDB 會依分區鍵分布資料，讓分散在不同鍵值上的讀寫共同承擔流量。這項好處取決於鍵值設計：若大量工作集中在少數熱門鍵值，同樣可能遇到熱點與限流。</p>
+<h3 id="後續工作能知道回饋處理到哪一步"><a href="#後續工作能知道回饋處理到哪一步" class="headerlink" title="後續工作能知道回饋處理到哪一步"></a>後續工作能知道回饋處理到哪一步</h3><p>訂單成立時可能先留下 <code>Occupy</code>，付款後若還沒到發放時間，回饋紀錄會進入 <code>WaitToReward</code>；完成發放後再記錄 <code>Reward</code>。若訂單取消或退貨，後續工作也要根據當前紀錄判斷是否需要取消或回收。</p>
+<p>狀態轉換由回饋程式決定，DynamoDB 保存每次處理後的結果。<code>WaitToReward</code>、<code>Reward</code>、<code>Cancel</code> 表示流程狀態；<code>IsReward</code>、<code>IsRecycle</code> 則是幫助判斷發放或回收進度的標記，兩者用途不同。</p>
+<h3 id="事件重送時，可以有條件地更新紀錄"><a href="#事件重送時，可以有條件地更新紀錄" class="headerlink" title="事件重送時，可以有條件地更新紀錄"></a>事件重送時，可以有條件地更新紀錄</h3><p>派工或訂單事件可能再次送達，也可能有兩個 Worker 同時碰到同一筆回饋。如果只先讀取狀態、稍後再寫入，讀取與寫入之間的狀態可能已被另一個 Worker 改變。</p>
+<p>DynamoDB 的 <code>ConditionExpression</code> 可以在寫入同一筆紀錄時檢查目前狀態，只有條件成立才更新。這能降低重複變更紀錄的風險。點數或優惠券若由外部系統發放，仍須另外處理「外部發放成功，但本地紀錄更新失敗」的情境，才能讓重試有可靠依據。</p>
+<h3 id="保存當時發放結果，供回收與查證"><a href="#保存當時發放結果，供回收與查證" class="headerlink" title="保存當時發放結果，供回收與查證"></a>保存當時發放結果，供回收與查證</h3><p>退貨可能發生在活動規則變更之後。若用現在的規則重新計算，結果可能與當初實際發放的點數或優惠券不同。回收工作需要讀取當時的發放結果，才能知道要回收什麼、回收多少。</p>
+<p>回饋紀錄可以保存這份結果快照，以及後續處理所需的狀態與原因。若只在同一筆紀錄上覆蓋欄位，仍需另外保存歷次變更，才能追查完整的狀態歷史。</p>
+<ul>
+<li>識別資料：讓訂單事件能找回對應的回饋。</li>
+<li>處理進度：保存等待、發放、取消與回收所需的狀態。</li>
+<li>當時結果：保存實際發放內容，供退貨回收與查證。</li>
+</ul>
+<p>這些固定的查找方式、分散的單筆讀寫、狀態更新與結果快照，共同構成選用 DynamoDB 的理由。實際效能與重試正確性，仍取決於鍵值設計以及回饋發放流程如何處理失敗。</p>
+<p>參考資料：<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.html">DynamoDB Query</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-uniform-load.html">分區鍵設計</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ConditionExpressions.html">條件寫入</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html">DynamoDB Streams</a>。</p>
+<h2 id="如果用其他-solution-呢"><a href="#如果用其他-solution-呢" class="headerlink" title="如果用其他 solution 呢"></a>如果用其他 solution 呢</h2><p>先用同一筆訂單來比較：付款後先等待三天發點，第五天又因退貨需要回收。無論使用哪種方案，系統都要能找出到期工作、避免重複發點，並保留當時實際發放的結果，供退貨時查詢。</p>
+<h3 id="同一筆回饋交給不同方案時"><a href="#同一筆回饋交給不同方案時" class="headerlink" title="同一筆回饋交給不同方案時"></a>同一筆回饋交給不同方案時</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>回饋狀態放在哪裡</th>
+<th>到期與並發工作怎麼做</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MySQL／SQL Server</td>
+<td>回饋資料表</td>
+<td>建索引找待處理紀錄，用交易或條件更新領取工作</td>
+</tr>
+<tr>
+<td>MongoDB</td>
+<td>回饋文件</td>
+<td>建索引找待處理文件，用單筆條件更新控制狀態</td>
+</tr>
+<tr>
+<td>只有 MQ</td>
+<td>沒有獨立的目前狀態</td>
+<td>必須另找結果來源，或保存完整事件並重建狀態</td>
+</tr>
+<tr>
+<td>DynamoDB</td>
+<td>回饋項目</td>
+<td>依查找方式設計鍵與索引，用條件寫入更新單筆狀態</td>
+</tr>
+</tbody></table>
+<h3 id="關聯式資料庫（MySQL／SQL-Server）"><a href="#關聯式資料庫（MySQL／SQL-Server）" class="headerlink" title="關聯式資料庫（MySQL／SQL Server）"></a>關聯式資料庫（MySQL／SQL Server）</h3><p>關聯式資料庫可以保存每筆回饋的狀態，也能透過索引查出「這張訂單的回饋」與「現在到期、尚未發放的回饋」。多個 Worker 同時派工時，可以用交易、條件更新或跳過已被領取的工作，避免重複處理。這些做法都可行，是否會出現查詢變慢或鎖等待，取決於索引、交易範圍與實際流量，不能只因使用 SQL 就認定會發生。</p>
+<p>但這份資料目前只有回饋活動系統讀寫：其他系統不需要直接查詢回饋狀態，也沒有和它一起完成交易的需求。因此，把資料放進 SQL，不會因此取得跨系統關聯查詢或共用交易的額外效益。若選擇 SQL，仍須為這個獨立流程設計到期派工、併發領取與相關索引；未來若出現跨系統查詢需求，再依實際情況評估即可。</p>
+<h3 id="文件型資料庫（例如-MongoDB）"><a href="#文件型資料庫（例如-MongoDB）" class="headerlink" title="文件型資料庫（例如 MongoDB）"></a>文件型資料庫（例如 MongoDB）</h3><p>MongoDB 也能把回饋狀態、<code>BookingTime</code> 與發放結果存成一份文件，並用索引查詢到期工作。Worker 更新文件時，可以把「目前仍是 <code>WaitToReward</code>」放進更新條件，避免兩個 Worker 都成功改變同一筆狀態。這種單筆條件更新，不是 DynamoDB 獨有的能力。</p>
+<p>這裡的取捨主要是導入成本。若團隊尚未使用 MongoDB，為只有回饋活動系統使用的資料新增一套資料庫，還需要處理連線、權限、監控與維運。MongoDB Atlas 可以部署在 AWS 上，但仍是另一個服務；AWS 的 Amazon DocumentDB 則是 MongoDB 相容的服務，兩者功能並非完全相同，選用前要確認所需功能。若目前沒有文件型資料庫才提供的特殊需求，這些額外工作就缺少明確收益。</p>
+<h3 id="只有-MQ-傳遞事件，不保存回饋狀態"><a href="#只有-MQ-傳遞事件，不保存回饋狀態" class="headerlink" title="只有 MQ 傳遞事件，不保存回饋狀態"></a>只有 MQ 傳遞事件，不保存回饋狀態</h3><p>MQ 可以把付款、發放與退貨事件送給不同 Worker，卻不能在沒有其他紀錄的情況下，直接回答「這筆訂單是否已發點、發了多少、是否回收過」。第五天收到退貨事件時，回收工作仍須從某處取得當時的發放結果。</p>
+<p>訊息也可能重送，所以收到同一事件兩次時，Worker 必須有防止重複發放的依據。若改為長期保存完整事件，並在需要時重播事件來重建狀態，也可以做到；但那就需要另外設計事件保存、查詢與重播機制，而不是單靠無狀態的訊息處理。</p>
+<h3 id="為什麼這裡選-DynamoDB？"><a href="#為什麼這裡選-DynamoDB？" class="headerlink" title="為什麼這裡選 DynamoDB？"></a>為什麼這裡選 DynamoDB？</h3><p>回饋活動反覆執行的讀寫方式相對固定：依訂單找紀錄、找出已到期的工作、更新單筆狀態，並讀取原本的發放結果。DynamoDB 可依這些查找方式設計鍵值與索引，再用條件寫入控制狀態轉換，也不需要管理資料庫伺服器。這符合目前只有回饋活動系統使用資料的範圍。</p>
+<p>這不代表 DynamoDB 自動解決所有問題。到期派工仍要設計可查詢的分區鍵與排序鍵；點數或優惠券由外部系統發放時，「發放成功，但本地紀錄更新失敗」也仍須靠流程設計處理。選型理由是它符合目前的固定查找方式與維運需求，而非其他方案無法實作。</p>
+<p>參考資料：<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html">MySQL 派工鎖定</a>、<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table">SQL Server 工作佇列</a>、<a target="_blank" rel="noopener" href="https://www.mongodb.com/docs/manual/core/write-operations-atomicity/">MongoDB 單筆更新</a>、<a target="_blank" rel="noopener" href="https://www.mongodb.com/docs/atlas/reference/amazon-aws/">MongoDB Atlas on AWS</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/documentdb/latest/devguide/compatibility.html">Amazon DocumentDB 相容性</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.KeyConditionExpressions.html">DynamoDB Query</a>。</p>
+<h2 id="為什麼-高併發-key-based-就適合-ddb"><a href="#為什麼-高併發-key-based-就適合-ddb" class="headerlink" title="為什麼 高併發 key-based 就適合 ddb?"></a>為什麼 高併發 key-based 就適合 ddb?</h2><p>回饋活動的「高併發」有兩種情況：許多 Worker 同時處理不同訂單，以及事件重送時，多個 Worker 同時碰到同一筆回饋。前者需要把讀寫流量分散，後者需要確認誰可以更新狀態。能否事先知道要找哪筆紀錄，也是選用 DynamoDB 的關鍵。</p>
+<pre class="mermaid">flowchart TB
+    subgraph Different["不同訂單：分散讀寫"]
+        OrderA["訂單甲"] --> RecordA["回饋紀錄甲"]
+        OrderB["訂單乙"] --> RecordB["回饋紀錄乙"]
+    end
+    subgraph Same["同一筆回饋：檢查更新條件"]
+        WorkerA["Worker A"] --> CheckA{"狀態仍可更新？"}
+        WorkerB["Worker B"] --> CheckB{"狀態仍可更新？"}
+        CheckA -->|先完成| Updated["一筆狀態轉換成功"]
+        CheckB -->|已被改變| Rejected["另一筆條件不成立"]
+    end
+    classDef service fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef decision fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef success fill:#eaf8ed,stroke:#52a56a,color:#275d35
+    classDef result fill:#f3f4f6,stroke:#7d8998,color:#334155
+    class OrderA,OrderB,RecordA,RecordB,WorkerA,WorkerB service
+    class CheckA,CheckB decision
+    class Updated success
+    class Rejected result</pre>
+
+<p>右側以先後到達為例。條件寫入控制的是 DynamoDB 紀錄，外部發放仍要另外處理重試。</p>
+<h3 id="訂單事件來了，先找到對應回饋"><a href="#訂單事件來了，先找到對應回饋" class="headerlink" title="訂單事件來了，先找到對應回饋"></a>訂單事件來了，先找到對應回饋</h3><p>付款、取消或退貨事件都帶有訂單相關的識別資料。Worker 要先依預先設計的鍵值或索引，找出這張訂單的回饋紀錄，再判斷它目前是等待發放、已發放，還是已回收。若已有完整主鍵，可以用 <code>GetItem</code> 讀取單筆紀錄；若是依另一組識別資料查找，就需要為那種查找方式設計索引。不能只因資料裡有訂單欄位，就認為一定能直接找到紀錄。</p>
+<h3 id="不同訂單同時處理，流量才有機會分散"><a href="#不同訂單同時處理，流量才有機會分散" class="headerlink" title="不同訂單同時處理，流量才有機會分散"></a>不同訂單同時處理，流量才有機會分散</h3><p>假設活動期間有大量訂單付款，每個 Worker 主要更新自己負責的回饋紀錄。DynamoDB 會依分區鍵分配資料；若鍵值與請求分布得夠均勻，這些讀寫可以共同使用不同分區的容量，不必由單一位置承擔所有工作。</p>
+<p>這不是「不同 key 就一定不會互相影響」。如果所有回饋都使用少數熱門鍵值，例如只用同一個活動識別值集中派工，仍可能形成熱點而被限流。效能要看實際的分區鍵與流量分布，不能只看 Worker 數量。</p>
+<h3 id="同一筆回饋同時被處理，要檢查更新條件"><a href="#同一筆回饋同時被處理，要檢查更新條件" class="headerlink" title="同一筆回饋同時被處理，要檢查更新條件"></a>同一筆回饋同時被處理，要檢查更新條件</h3><p>派工重疊或訊息重送時，兩個 Worker 可能都讀到 <code>WaitToReward</code>。更新時可用 <code>ConditionExpression</code> 檢查「目前仍是 <code>WaitToReward</code>」，條件成立的寫入才會成功；狀態已被改掉的 Worker 就不能再做同一筆狀態轉換。這是保護 DynamoDB 紀錄的方式。</p>
+<p>但條件更新本身不能保證外部點數或優惠券服務只執行一次。若外部發放成功、本地狀態卻沒寫入，重試時仍須能查證先前的結果，並由發放流程處理重複請求。</p>
+<h3 id="定時派工需要另一種查找方式"><a href="#定時派工需要另一種查找方式" class="headerlink" title="定時派工需要另一種查找方式"></a>定時派工需要另一種查找方式</h3><p>訂單事件可以依訂單識別資料找回饋；每小時派工則要找出 <code>BookingTime</code> 已到、仍待發放的一批紀錄。這不是已知單筆主鍵的讀取。DynamoDB 的 <code>Query</code> 必須先指定分區鍵，才能依排序鍵查時間範圍，因此需要事先為到期查詢設計鍵值與索引，不能只靠資料有 <code>BookingTime</code> 欄位。</p>
+<p>回饋活動適合 DynamoDB，是因為主要讀寫方式可事先定義，且多半圍繞單筆回饋狀態；大量不同訂單的流量可以透過良好的鍵值設計分散，同一筆紀錄的並發更新也能用條件寫入控制。實際能承受多少流量，以及外部發放如何安全重試，仍取決於具體設計。</p>
+<p>參考資料：<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithItems.html">DynamoDB 項目讀寫</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-uniform-load.html">分區鍵設計</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/throttling-key-range-limit-exceeded-mitigation.html">熱點與限流</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ConditionExpressions.html">條件寫入</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.KeyConditionExpressions.html">Query 鍵值條件</a>。</p>
+<h2 id="其他活動類型呢"><a href="#其他活動類型呢" class="headerlink" title="其他活動類型呢"></a>其他活動類型呢</h2><p>同一張訂單可能同時命中滿額折與給點活動。滿額折在結帳時算出折扣，建單時就能保存折後價格；給點活動即使已算出應給多少，也可能要等付款完成或指定時間才發放，之後還可能因退貨而回收。兩者都要留下當時的結果，差別在於後續是否還有一筆回饋工作要繼續執行。</p>
+<pre class="mermaid">flowchart TB
+    subgraph Discount["滿額折：結果留在訂單"]
+        direction TB
+        CartD["購物車計算折扣"] --> OrderD["建單時保存價格與活動結果"]
+        OrderD --> ReturnD["退貨時查原訂單結果"]
+    end
+    subgraph Reward["給點：後續仍有回饋工作"]
+        direction TB
+        CartR["算出應給點數"] --> RecordR["建立回饋紀錄"]
+        RecordR --> WaitR["等待指定條件或時間"]
+        WaitR --> GrantR["實際發放"]
+        GrantR --> ReturnR["退貨時依當時結果回收"]
+    end
+    classDef service fill:#edf4ff,stroke:#517ab0,color:#203c60
+    classDef waiting fill:#fff4d6,stroke:#b48824,color:#614500
+    classDef success fill:#eaf8ed,stroke:#52a56a,color:#275d35
+    classDef result fill:#f3f4f6,stroke:#7d8998,color:#334155
+    class CartD,OrderD,CartR,RecordR service
+    class WaitR waiting
+    class GrantR success
+    class ReturnD,ReturnR result</pre>
+
+<p>圖中以延後發點為例。滿額折保存訂單結果；給點活動還要保存可供派工、重試與回收的處理進度。</p>
+<h3 id="常見活動分成哪些情況？"><a href="#常見活動分成哪些情況？" class="headerlink" title="常見活動分成哪些情況？"></a>常見活動分成哪些情況？</h3><table>
+<thead>
+<tr>
+<th>活動類型</th>
+<th>訂單當下做什麼</th>
+<th>後續需要什麼資料或工作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第 N 件改價、滿額折、會員價、多件最低價免費</td>
+<td>算出價格與折扣分攤，套用到購物車或訂單</td>
+<td>保存當時的訂單結果，供查單、退貨與對帳</td>
+</tr>
+<tr>
+<td>優惠碼折抵</td>
+<td>輸入優惠碼後計算可用折扣</td>
+<td>保存訂單折抵結果；用碼次數或配額可能由另一套機制管理</td>
+</tr>
+<tr>
+<td>滿額贈、滿額折加贈品</td>
+<td>決定優惠與贈品，建立訂單及贈品關聯</td>
+<td>保存當時贈了什麼；實體贈品的出貨仍可能有自己的流程</td>
+</tr>
+<tr>
+<td>滿額登記</td>
+<td>判斷資格並處理登記</td>
+<td>另外追蹤是否完成登記與後續資格判斷</td>
+</tr>
+<tr>
+<td>給點、給券等回饋活動</td>
+<td>算出應給的回饋，建立回饋紀錄</td>
+<td>等待、發放、重試、取消或退貨回收</td>
+</tr>
+</tbody></table>
+<p>對應到程式中的活動類型：第 N 件改價是 <code>DiscountNthPieceWithPrice</code>，滿額折是 <code>DiscountReachPriceWithRate</code>，會員價是 <code>DiscountByMemberWithPrice</code>，多件最低價免費是 <code>MultiBuyLowestPriceFree</code>；優惠碼折抵是 <code>PromoCodeKOLReachPriceAmount</code>；贈品相關有 <code>FreeGiftReachPriceWithAmount</code> 與 <code>DiscountReachPriceWithFreeGift</code>；滿額登記則是 <code>RegisterReachPrice</code>。</p>
+<h3 id="滿額折：算完後，結果留在訂單"><a href="#滿額折：算完後，結果留在訂單" class="headerlink" title="滿額折：算完後，結果留在訂單"></a>滿額折：算完後，結果留在訂單</h3><p>假設訂單原價 1,000 元，滿額折抵 100 元。結帳時計算出折扣後，建單流程會保存當時的價格、折扣分攤與命中的活動。日後若發生退貨，應以原訂單保存的結果處理，不能直接拿已經改過的活動規則重新計算這張舊訂單。</p>
+<p>以這條線上建單流程為例，Promotion Frontend API 的 <code>POST /api/basket-calculate</code> 負責回傳當下的活動計算結果；mweb 的 <code>MapToTradesOrderProcessor</code> 將活動與贈品資訊放進訂單資料，<code>CreateTradesOrderProcessor</code> 再建立訂單及相關關聯。一般活動、活動引擎與贈品有各自的訂單關聯資料，讓後續能查出這筆訂單當時命中什麼活動、拿到什麼折扣或贈品。這些紀錄是訂單結果的追溯依據，不等於另有一筆待發放的回饋工作。</p>
+<h3 id="給點或給券：算完後，還要追蹤發放進度"><a href="#給點或給券：算完後，還要追蹤發放進度" class="headerlink" title="給點或給券：算完後，還要追蹤發放進度"></a>給點或給券：算完後，還要追蹤發放進度</h3><p>假設同一張訂單另可獲得 100 點，但規則要求三天後才發放。活動計算只確定「應給 100 點」，後續還要記錄預計發放時間、派工、實際發放結果；第五天若退貨，還要知道當初是否真的發出，以及應回收多少。</p>
+<p>即使某筆回饋立即發放，也可能遇到事件重送、外部發放成功但本地紀錄未更新，或日後退貨的情況。因此，回饋活動需要以訂單為單位保存處理進度，讓後續工作能接著做。這是前面幾個分頁所說的 DynamoDB 回饋紀錄。</p>
+<h3 id="其他活動也可能有自己的後續狀態"><a href="#其他活動也可能有自己的後續狀態" class="headerlink" title="其他活動也可能有自己的後續狀態"></a>其他活動也可能有自己的後續狀態</h3><p>優惠碼可能要管理使用次數，實體贈品可能還要出貨，<code>RegisterReachPrice</code> 也有登記時間與後續處理。它們並非完全沒有狀態；只是要追蹤的事情不同，不必都使用回饋活動的 <code>WaitToReward</code>、<code>Reward</code>、<code>IsRecycle</code> 等發放與回收欄位。</p>
+<p>直播活動關心即時互動，定期購關心週期性建單與付款。它們也可能需要保存流程狀態，但屬於不同業務流程，不能只因為有狀態，就套用回饋活動的資料模型。</p>
+<p>區分這些活動時，先問「優惠是否已反映在當次訂單」，再問「之後是否還要獨立發放或回收」。前者需要保存可追溯的訂單結果；後者還需要保存可供派工、重試與回收的回饋處理狀態。</p>
+<h2 id="DynamoDB-空值注意事項"><a href="#DynamoDB-空值注意事項" class="headerlink" title="DynamoDB 空值注意事項"></a>DynamoDB 空值注意事項</h2><h3 id="空值寫入要先分清楚是哪一種"><a href="#空值寫入要先分清楚是哪一種" class="headerlink" title="空值寫入要先分清楚是哪一種"></a>空值寫入要先分清楚是哪一種</h3><p>遇到空值寫入問題時，先分辨欄位沒有出現在項目中、一般屬性被存成 <code>NULL</code>，或主鍵本身缺少有效值。這三種情況的結果不同。</p>
+<table>
+<thead>
+<tr>
+<th>寫入情況</th>
+<th>DynamoDB 的處理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一般屬性使用 <code>NULL</code> 型別</td>
+<td>支援儲存，例如低階 API 的 <code>&#123;&quot;NULL&quot;: true&#125;</code></td>
+</tr>
+<tr>
+<td>欄位未寫入項目</td>
+<td>欄位不存在；部分 SDK 或物件映射器可能省略程式中的 <code>null</code> 欄位</td>
+</tr>
+<tr>
+<td>分區鍵或排序鍵沒有有效值</td>
+<td>主鍵須是字串、數字或二進位，不能用 <code>NULL</code> 代替</td>
+</tr>
+</tbody></table>
+<p>排查時要先確認欄位是否為主鍵，再檢查 SDK 實際送出的資料。資料庫支援 <code>NULL</code> 屬性，不代表所有欄位與每種程式物件映射方式都會得到同樣結果。</p>
+<p>參考資料：<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html">DynamoDB 支援的資料型別</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Programming.LowLevelAPI.html">低階 API 的 <code>NULL</code> 表示法</a>、<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html">屬性存在與空值</a>。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/10/17/PromotionReward-%E6%9E%B6%E6%A7%8B1-pure/">https://allenlin000.github.io.git/2026/10/17/PromotionReward-%E6%9E%B6%E6%A7%8B1-pure/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/10/17/PromotionReward-%E6%9E%B6%E6%A7%8B1/" title="回饋活動 - 為何用 DynamoDB"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">回饋活動 - 為何用 DynamoDB</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">282</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%B6%E6%A7%8B"><span class="toc-number">1.</span> <span class="toc-text">架構</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E9%A5%8B%E8%99%95%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">回饋處理流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E9%A5%8B%E7%8B%80%E6%85%8B%E8%88%87%E8%A7%B8%E7%99%BC%E4%BA%8B%E4%BB%B6"><span class="toc-number">1.2.</span> <span class="toc-text">回饋狀態與觸發事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B7%9A%E4%B8%8A%E8%A8%82%E5%96%AE%E7%9A%84%E6%AD%A3%E5%90%91%E6%B5%81%E7%A8%8B"><span class="toc-number">1.3.</span> <span class="toc-text">線上訂單的正向流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B7%9A%E4%B8%8B%E8%A8%82%E5%96%AE%E7%9A%84%E6%AD%A3%E5%90%91%E6%B5%81%E7%A8%8B"><span class="toc-number">1.4.</span> <span class="toc-text">線下訂單的正向流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B7%9A%E4%B8%8A%E8%A8%82%E5%96%AE%E7%9A%84%E9%80%86%E5%90%91%E6%B5%81%E7%A8%8B"><span class="toc-number">1.5.</span> <span class="toc-text">線上訂單的逆向流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B7%9A%E4%B8%8B%E8%A8%82%E5%96%AE%E7%9A%84%E9%80%86%E5%90%91%E6%B5%81%E7%A8%8B"><span class="toc-number">1.6.</span> <span class="toc-text">線下訂單的逆向流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%81%B8%E7%94%A8-Ddb-%E6%9C%89%E5%93%AA%E4%BA%9B%E5%A5%BD%E8%99%95"><span class="toc-number">2.</span> <span class="toc-text">選用 Ddb 有哪些好處</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A8%82%E5%96%AE%E4%BA%8B%E4%BB%B6%E8%88%87%E5%AE%9A%E6%99%82%E6%B4%BE%E5%B7%A5%E9%83%BD%E6%9C%89%E6%98%8E%E7%A2%BA%E7%9A%84%E6%9F%A5%E6%89%BE%E6%96%B9%E5%BC%8F"><span class="toc-number">2.1.</span> <span class="toc-text">訂單事件與定時派工都有明確的查找方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E5%80%8B-Worker-%E5%8F%AF%E4%BB%A5%E5%90%8C%E6%99%82%E8%99%95%E7%90%86%E4%B8%8D%E5%90%8C%E8%A8%82%E5%96%AE"><span class="toc-number">2.2.</span> <span class="toc-text">多個 Worker 可以同時處理不同訂單</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BE%8C%E7%BA%8C%E5%B7%A5%E4%BD%9C%E8%83%BD%E7%9F%A5%E9%81%93%E5%9B%9E%E9%A5%8B%E8%99%95%E7%90%86%E5%88%B0%E5%93%AA%E4%B8%80%E6%AD%A5"><span class="toc-number">2.3.</span> <span class="toc-text">後續工作能知道回饋處理到哪一步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E9%87%8D%E9%80%81%E6%99%82%EF%BC%8C%E5%8F%AF%E4%BB%A5%E6%9C%89%E6%A2%9D%E4%BB%B6%E5%9C%B0%E6%9B%B4%E6%96%B0%E7%B4%80%E9%8C%84"><span class="toc-number">2.4.</span> <span class="toc-text">事件重送時，可以有條件地更新紀錄</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E5%AD%98%E7%95%B6%E6%99%82%E7%99%BC%E6%94%BE%E7%B5%90%E6%9E%9C%EF%BC%8C%E4%BE%9B%E5%9B%9E%E6%94%B6%E8%88%87%E6%9F%A5%E8%AD%89"><span class="toc-number">2.5.</span> <span class="toc-text">保存當時發放結果，供回收與查證</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E7%94%A8%E5%85%B6%E4%BB%96-solution-%E5%91%A2"><span class="toc-number">3.</span> <span class="toc-text">如果用其他 solution 呢</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E7%AD%86%E5%9B%9E%E9%A5%8B%E4%BA%A4%E7%B5%A6%E4%B8%8D%E5%90%8C%E6%96%B9%E6%A1%88%E6%99%82"><span class="toc-number">3.1.</span> <span class="toc-text">同一筆回饋交給不同方案時</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%9C%E8%81%AF%E5%BC%8F%E8%B3%87%E6%96%99%E5%BA%AB%EF%BC%88MySQL%EF%BC%8FSQL-Server%EF%BC%89"><span class="toc-number">3.2.</span> <span class="toc-text">關聯式資料庫（MySQL／SQL Server）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%9E%8B%E8%B3%87%E6%96%99%E5%BA%AB%EF%BC%88%E4%BE%8B%E5%A6%82-MongoDB%EF%BC%89"><span class="toc-number">3.3.</span> <span class="toc-text">文件型資料庫（例如 MongoDB）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AA%E6%9C%89-MQ-%E5%82%B3%E9%81%9E%E4%BA%8B%E4%BB%B6%EF%BC%8C%E4%B8%8D%E4%BF%9D%E5%AD%98%E5%9B%9E%E9%A5%8B%E7%8B%80%E6%85%8B"><span class="toc-number">3.4.</span> <span class="toc-text">只有 MQ 傳遞事件，不保存回饋狀態</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E9%80%99%E8%A3%A1%E9%81%B8-DynamoDB%EF%BC%9F"><span class="toc-number">3.5.</span> <span class="toc-text">為什麼這裡選 DynamoDB？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC-%E9%AB%98%E4%BD%B5%E7%99%BC-key-based-%E5%B0%B1%E9%81%A9%E5%90%88-ddb"><span class="toc-number">4.</span> <span class="toc-text">為什麼 高併發 key-based 就適合 ddb?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A8%82%E5%96%AE%E4%BA%8B%E4%BB%B6%E4%BE%86%E4%BA%86%EF%BC%8C%E5%85%88%E6%89%BE%E5%88%B0%E5%B0%8D%E6%87%89%E5%9B%9E%E9%A5%8B"><span class="toc-number">4.1.</span> <span class="toc-text">訂單事件來了，先找到對應回饋</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E8%A8%82%E5%96%AE%E5%90%8C%E6%99%82%E8%99%95%E7%90%86%EF%BC%8C%E6%B5%81%E9%87%8F%E6%89%8D%E6%9C%89%E6%A9%9F%E6%9C%83%E5%88%86%E6%95%A3"><span class="toc-number">4.2.</span> <span class="toc-text">不同訂單同時處理，流量才有機會分散</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E7%AD%86%E5%9B%9E%E9%A5%8B%E5%90%8C%E6%99%82%E8%A2%AB%E8%99%95%E7%90%86%EF%BC%8C%E8%A6%81%E6%AA%A2%E6%9F%A5%E6%9B%B4%E6%96%B0%E6%A2%9D%E4%BB%B6"><span class="toc-number">4.3.</span> <span class="toc-text">同一筆回饋同時被處理，要檢查更新條件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E6%99%82%E6%B4%BE%E5%B7%A5%E9%9C%80%E8%A6%81%E5%8F%A6%E4%B8%80%E7%A8%AE%E6%9F%A5%E6%89%BE%E6%96%B9%E5%BC%8F"><span class="toc-number">4.4.</span> <span class="toc-text">定時派工需要另一種查找方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%B4%BB%E5%8B%95%E9%A1%9E%E5%9E%8B%E5%91%A2"><span class="toc-number">5.</span> <span class="toc-text">其他活動類型呢</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A6%8B%E6%B4%BB%E5%8B%95%E5%88%86%E6%88%90%E5%93%AA%E4%BA%9B%E6%83%85%E6%B3%81%EF%BC%9F"><span class="toc-number">5.1.</span> <span class="toc-text">常見活動分成哪些情況？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BB%BF%E9%A1%8D%E6%8A%98%EF%BC%9A%E7%AE%97%E5%AE%8C%E5%BE%8C%EF%BC%8C%E7%B5%90%E6%9E%9C%E7%95%99%E5%9C%A8%E8%A8%82%E5%96%AE"><span class="toc-number">5.2.</span> <span class="toc-text">滿額折：算完後，結果留在訂單</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B5%A6%E9%BB%9E%E6%88%96%E7%B5%A6%E5%88%B8%EF%BC%9A%E7%AE%97%E5%AE%8C%E5%BE%8C%EF%BC%8C%E9%82%84%E8%A6%81%E8%BF%BD%E8%B9%A4%E7%99%BC%E6%94%BE%E9%80%B2%E5%BA%A6"><span class="toc-number">5.3.</span> <span class="toc-text">給點或給券：算完後，還要追蹤發放進度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%B4%BB%E5%8B%95%E4%B9%9F%E5%8F%AF%E8%83%BD%E6%9C%89%E8%87%AA%E5%B7%B1%E7%9A%84%E5%BE%8C%E7%BA%8C%E7%8B%80%E6%85%8B"><span class="toc-number">5.4.</span> <span class="toc-text">其他活動也可能有自己的後續狀態</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DynamoDB-%E7%A9%BA%E5%80%BC%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A0%85"><span class="toc-number">6.</span> <span class="toc-text">DynamoDB 空值注意事項</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A9%BA%E5%80%BC%E5%AF%AB%E5%85%A5%E8%A6%81%E5%85%88%E5%88%86%E6%B8%85%E6%A5%9A%E6%98%AF%E5%93%AA%E4%B8%80%E7%A8%AE"><span class="toc-number">6.1.</span> <span class="toc-text">空值寫入要先分清楚是哪一種</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/17/PromotionReward-%E6%9E%B6%E6%A7%8B1-pure/" title="回饋活動 - 為何用 DynamoDB"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="回饋活動 - 為何用 DynamoDB"/></a><div class="content"><a class="title" href="/2026/10/17/PromotionReward-%E6%9E%B6%E6%A7%8B1-pure/" title="回饋活動 - 為何用 DynamoDB">回饋活動 - 為何用 DynamoDB</a><time datetime="2026-10-17T12:39:00.000Z" title="Created 2026-10-17 20:39:00">2026-10-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/17/PromotionReward-%E6%9E%B6%E6%A7%8B1/" title="回饋活動 - 為何用 DynamoDB"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="回饋活動 - 為何用 DynamoDB"/></a><div class="content"><a class="title" href="/2026/10/17/PromotionReward-%E6%9E%B6%E6%A7%8B1/" title="回饋活動 - 為何用 DynamoDB">回饋活動 - 為何用 DynamoDB</a><time datetime="2026-10-17T12:39:00.000Z" title="Created 2026-10-17 20:39:00">2026-10-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/" title="pay api 1 - 設計現狀"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pay api 1 - 設計現狀"/></a><div class="content"><a class="title" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88-pure/" title="pay api 1 - 設計現狀">pay api 1 - 設計現狀</a><time datetime="2026-10-14T09:41:00.000Z" title="Created 2026-10-14 17:41:00">2026-10-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/" title="pay api 1 - 設計現狀"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pay api 1 - 設計現狀"/></a><div class="content"><a class="title" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/" title="pay api 1 - 設計現狀">pay api 1 - 設計現狀</a><time datetime="2026-10-14T09:41:00.000Z" title="Created 2026-10-14 17:41:00">2026-10-14</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
