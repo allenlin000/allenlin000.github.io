@@ -1,0 +1,652 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>凌晨0101的記憶體尖峰問題 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="問題現象與根因BookingTime 從哪裡來CronJob 與完整派工三桶分配實作雜湊與整數安全Auditor 相容性三桶為何可能不如預期   .pr-flow{--pr-ink:#493b2d;--pr-muted:#71624e;--pr-line:#e4d8bf;--pr-panel:#fbf7ef;--pr-accent:#57753f;--pr-bear:#a06a41;--pr-di">
+<meta property="og:type" content="article">
+<meta property="og:title" content="凌晨0101的記憶體尖峰問題">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/10/20/PromotionReward-0101Bookingtime%E8%A8%98%E6%86%B6%E9%AB%94%E5%B0%96%E5%B3%B0%E5%95%8F%E9%A1%8C/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="問題現象與根因BookingTime 從哪裡來CronJob 與完整派工三桶分配實作雜湊與整數安全Auditor 相容性三桶為何可能不如預期   .pr-flow{--pr-ink:#493b2d;--pr-muted:#71624e;--pr-line:#e4d8bf;--pr-panel:#fbf7ef;--pr-accent:#57753f;--pr-bear:#a06a41;--pr-di">
+<meta property="og:locale">
+<meta property="og:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png">
+<meta property="article:published_time" content="2026-10-20T03:10:00.000Z">
+<meta property="article:modified_time" content="2026-10-20T07:18:49.514Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/10/20/PromotionReward-0101Bookingtime%E8%A8%98%E6%86%B6%E9%AB%94%E5%B0%96%E5%B3%B0%E5%95%8F%E9%A1%8C/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '凌晨0101的記憶體尖峰問題',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-10-20 15:18:49'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">282</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">凌晨0101的記憶體尖峰問題</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-10-20T03:10:00.000Z" title="Created 2026-10-20 11:10:00">2026-10-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-10-20T07:18:49.514Z" title="Updated 2026-10-20 15:18:49">2026-10-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/PromotionReward/">PromotionReward</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="凌晨0101的記憶體尖峰問題"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="凌晨0101的記憶體尖峰問題"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="凌晨0101的記憶體尖峰問題-1">問題現象與根因</button><button type="button" class="tab " data-href="凌晨0101的記憶體尖峰問題-2">BookingTime 從哪裡來</button><button type="button" class="tab " data-href="凌晨0101的記憶體尖峰問題-3">CronJob 與完整派工</button><button type="button" class="tab " data-href="凌晨0101的記憶體尖峰問題-4">三桶分配實作</button><button type="button" class="tab " data-href="凌晨0101的記憶體尖峰問題-5">雜湊與整數安全</button><button type="button" class="tab " data-href="凌晨0101的記憶體尖峰問題-6">Auditor 相容性</button><button type="button" class="tab " data-href="凌晨0101的記憶體尖峰問題-7">三桶為何可能不如預期</button></ul><div class="tab-contents"><div class="tab-item-content active" id="凌晨0101的記憶體尖峰問題-1"><div class="pr-flow">
+
+<style>
+.pr-flow{--pr-ink:#493b2d;--pr-muted:#71624e;--pr-line:#e4d8bf;--pr-panel:#fbf7ef;--pr-accent:#57753f;--pr-bear:#a06a41;--pr-diagram-bg:#fffdf7;--pr-danger:#bb765f;--pr-danger-bg:#f9e9e3;color:var(--pr-ink);line-height:1.9;overflow-wrap:anywhere}
+.pr-flow *{box-sizing:border-box}
+.pr-flow h2,.pr-flow h3,.pr-flow h4{color:var(--pr-ink)}
+.pr-flow h2{margin-top:2.4em;margin-bottom:1em;font-size:1.28em}
+.pr-flow h3{margin-top:2.2em;margin-bottom:1em;font-size:1.1em;border-bottom:1px dashed var(--pr-line);padding-bottom:10px}
+.pr-lead{position:relative;overflow:hidden;padding:28px 72px 28px 26px;border-radius:24px;background:radial-gradient(circle at 12% 10%,#ffffff12,transparent 50%),linear-gradient(150deg,#6f9250,#547a3d 60%,#3f5f2e);color:#fffbed;margin:20px 0 30px;box-shadow:0 6px 18px #59462212}
+.pr-lead::before{content:'⏱️';position:absolute;right:22px;top:14px;font-size:20px;opacity:.78}
+.pr-lead::after{content:'🐻';position:absolute;right:18px;bottom:15px;font-size:32px}
+.pr-lead p{margin:0;font-size:1em;line-height:1.9}
+.pr-figure{border:1px solid var(--pr-line);border-radius:20px;overflow:hidden;margin:24px 0;background:var(--pr-diagram-bg)}
+.pr-diagram{padding:24px 16px;overflow-x:auto;background:var(--pr-diagram-bg)}
+.pr-diagram .mermaid-wrap{margin:0}
+.pr-diagram svg{display:block;margin:auto;width:100%;min-width:620px;max-width:none!important;height:auto}
+.pr-diagram.pr-wide svg{min-width:900px}
+.pr-diagram.pr-compact svg{min-width:420px;max-width:720px!important}
+.pr-diagram:focus-visible{outline:2px solid var(--pr-accent);outline-offset:-3px}
+.pr-figure figcaption{background:var(--pr-panel);color:var(--pr-muted);padding:14px 18px;font-size:13px;border-top:1px solid var(--pr-line)}
+#article-container .pr-flow code{overflow-wrap:anywhere;color:var(--pr-bear);background:var(--pr-panel)}
+.pr-flow table{font-size:14px;width:auto;max-width:100%}
+.pr-flow th{background:var(--pr-panel);color:var(--pr-ink)}
+.pr-flow th,.pr-flow td{white-space:normal;overflow-wrap:anywhere;border-color:var(--pr-line);padding:12px}
+.pr-note{border-left:4px solid var(--pr-bear);border-radius:0 16px 16px 0;padding:18px 20px;background:var(--pr-panel);margin:24px 0}
+.pr-note.pr-danger{border-left-color:var(--pr-danger);background:var(--pr-danger-bg)}
+.pr-note.pr-success{border-left-color:var(--pr-accent);background:#edf3e4}
+.pr-evidence{border:1px solid var(--pr-line);border-radius:16px;padding:16px 20px;margin:24px 0;background:var(--pr-panel)}
+.pr-evidence summary{cursor:pointer;color:var(--pr-accent);font-weight:700}
+.pr-evidence[open] summary{margin-bottom:18px}
+.pr-record-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}
+.pr-record{border:1px solid var(--pr-line);border-radius:18px;background:var(--pr-panel);padding:18px 20px;box-shadow:0 5px 18px #59462208}
+.pr-record strong{display:block;color:var(--pr-ink);margin-bottom:8px}
+.pr-record p{margin:0;color:var(--pr-muted)}
+[data-theme="dark"] .pr-flow{--pr-ink:#ece5d6;--pr-muted:#c6bca8;--pr-line:#575744;--pr-panel:#2b3025;--pr-accent:#b4cd92;--pr-bear:#e1b68c;--pr-diagram-bg:#242a20;--pr-danger:#db967f;--pr-danger-bg:#3b2925}
+[data-theme="dark"] .pr-lead{background:linear-gradient(150deg,#4b6538,#354d29)}
+[data-theme="dark"] .pr-diagram .cluster rect{fill:#343d2d!important;stroke:#8e9f78!important}
+[data-theme="dark"] .pr-diagram .cluster-label span{color:#ece5d6!important}
+[data-theme="dark"] .pr-note.pr-success{background:#293525}
+@media(max-width:600px){.pr-lead{padding:22px 52px 22px 18px}.pr-lead::after{font-size:25px;right:12px}.pr-lead::before{right:16px;font-size:16px}.pr-note,.pr-evidence{padding:15px}.pr-diagram{padding:18px 10px}.pr-flow th,.pr-flow td{padding:9px 7px;font-size:13px}.pr-record-grid{grid-template-columns:1fr}}
+</style>
+
+<div class="pr-lead">
+<p>Promotion Worker 每天凌晨 01:01 都會迎來一波集中的回饋派工。問題不在 CronJob 突然多跑，而是大量延後回饋紀錄被排到同一個整點，Dispatcher 又在同一輪查詢、分組、上傳 S3 並建立 NMQ Task，因而形成固定時刻的記憶體尖峰。</p>
+</div>
+
+<h2 id="尖峰如何形成"><a href="#尖峰如何形成" class="headerlink" title="尖峰如何形成"></a>尖峰如何形成</h2><figure class="pr-figure"><div class="pr-diagram pr-compact" tabindex="0" role="region" aria-label="凌晨一點零一分記憶體尖峰形成時間軸">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    Orders[&quot;多筆訂單命中延後回饋&quot;] --&gt; Normalize[&quot;BookingTime 集中到整點&quot;]
+    Normalize --&gt; Wait[&quot;DDB 累積 WaitToReward&quot;]
+    Wait --&gt; Cron[&quot;01:01 CronJob 啟動&quot;]
+    Cron --&gt; Dispatch[&quot;同一輪查詢與建立大量 Task&quot;]
+    Dispatch --&gt; Peak[&quot;Worker 記憶體形成尖峰&quot;]
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef waiting fill:#f5e8d3,stroke:#a06a41,color:#65442c
+    classDef danger fill:#f9e9e3,stroke:#bb765f,color:#704737
+    class Orders,Normalize service
+    class Wait,Cron waiting
+    class Dispatch,Peak danger
+  </pre></div>
+</div><figcaption>固定出現在 01:01 的尖峰，與前一小時查詢窗口及整點 BookingTime 聚集相互對應。</figcaption></figure>
+
+<p>根因可拆成三層。第一層是 <code>RewardDays &gt; 0</code> 的計算會把時間收斂到日期整點。第二層是許多紀錄因此共用相同的 <code>BookingTime</code>。第三層是 Dispatcher 會先為所有分組準備 S3 Payload 與 Task Request，再逐一送往 NMQ，單次批量越大，處理期間保留的物件也越多。</p>
+<div class="pr-record-grid" role="group" aria-label="尖峰問題的三層原因">
+<div class="pr-record"><strong>時間集中</strong><p>延後回饋把日期計算結果收斂到整點。</p></div>
+<div class="pr-record"><strong>資料累積</strong><p>大量 <code>WaitToReward</code> 紀錄落在相同查詢窗口。</p></div>
+<div class="pr-record"><strong>批量放大</strong><p>查詢、分組、S3 上傳與 Task 建立集中在同一輪。</p></div>
+</div>
+
+<div class="pr-note pr-danger">DDB 主單筆數不等於 NMQ 回饋 Task 數。Dispatcher 會依 <code>ShopId + MemberId + PromotionEngineId</code> 分組，每個群組建立一個 Task；群組內的多筆訂單則放入同一份 S3 清單。</div>
+
+</div></div><div class="tab-item-content" id="凌晨0101的記憶體尖峰問題-2"><div class="pr-flow">
+<div class="pr-lead"><p>並非所有回饋都會集中在午夜。真正會進入分桶的是 <code>RewardDays &gt; 0</code> 的延後回饋；即時回饋保留原始訂單時間，指定日期回饋則保留營運設定的時間值。</p></div>
+
+<h2 id="四條時間來源"><a href="#四條時間來源" class="headerlink" title="四條時間來源"></a>四條時間來源</h2><figure class="pr-figure"><div class="pr-diagram" tabindex="0" role="region" aria-label="BookingTime 來源與是否分桶的決策流程">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    Start[&quot;計算 BookingTime&quot;] --&gt; Timing{&quot;回饋時間類型&quot;}
+    Timing --&gt;|RewardDays 等於零| Immediate[&quot;保留原始訂單時間&quot;]
+    Timing --&gt;|指定日期| ByDate[&quot;使用 RewardDateTime&quot;]
+    Timing --&gt;|RewardDays 大於零| Delayed[&quot;以日期加 N 天&quot;]
+    Delayed --&gt; Allocate[&quot;RewardBookingTimeAllocator 分桶&quot;]
+    Retry[&quot;優惠券庫存不足重試&quot;] --&gt; Fixed[&quot;固定排到 10:00 或 22:00&quot;]
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef decision fill:#f5e8d3,stroke:#a06a41,color:#65442c
+    classDef success fill:#e8f1dc,stroke:#6f9250,color:#3f542d
+    classDef result fill:#fbf7ef,stroke:#b49b78,color:#493b2d
+    class Start,Delayed,Retry service
+    class Timing decision
+    class Allocate success
+    class Immediate,ByDate,Fixed result
+  </pre></div>
+</div><figcaption>三桶分配只處理加 N 天回饋，不會改寫即時回饋、指定日期回饋與券不足重試時間。</figcaption></figure>
+
+<table>
+<thead>
+<tr>
+<th>情境</th>
+<th>BookingTime 計算方式</th>
+<th>是否進入三桶分配</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>RewardDays = 0</code></td>
+<td>保留 <code>orderTime</code></td>
+<td>否</td>
+</tr>
+<tr>
+<td><code>RewardDays &gt; 0</code></td>
+<td>以訂單日期或重算基準加 N 天</td>
+<td>是</td>
+</tr>
+<tr>
+<td><code>RewardTimingType = ByDateTime</code></td>
+<td>使用 <code>RewardDateTime</code></td>
+<td>否</td>
+</tr>
+<tr>
+<td>優惠券庫存不足重試</td>
+<td><code>CalculateNextRetryBookingTime</code> 排到 10:00 或 22:00</td>
+<td>否</td>
+</tr>
+</tbody></table>
+<h2 id="會套用分桶的實作路徑"><a href="#會套用分桶的實作路徑" class="headerlink" title="會套用分桶的實作路徑"></a>會套用分桶的實作路徑</h2><figure class="pr-figure"><div class="pr-diagram pr-wide" tabindex="0" role="region" aria-label="四條使用共同 BookingTime 分桶元件的實作路徑">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    ECom[&quot;線上訂單初次計算&quot;] --&gt; Allocator[&quot;RewardBookingTimeAllocator&quot;]
+    CRM[&quot;線下訂單初次計算&quot;] --&gt; Allocator
+    Point[&quot;給點時間重算&quot;] --&gt; Allocator
+    Coupon[&quot;給券時間重算&quot;] --&gt; Allocator
+    Allocator --&gt; Booking[&quot;00:00、01:00 或 02:00&quot;]
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef decision fill:#f5e8d3,stroke:#a06a41,color:#65442c
+    classDef success fill:#e8f1dc,stroke:#6f9250,color:#3f542d
+    class ECom,CRM,Point,Coupon service
+    class Allocator decision
+    class Booking success
+  </pre></div>
+</div><figcaption>四條路徑使用相同分桶元件與相同 Seed 規則，避免初次計算與後續重算得到不同時間。</figcaption></figure>
+
+<table>
+<thead>
+<tr>
+<th>路徑</th>
+<th>實作位置</th>
+<th>分桶 Seed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>線上訂單初次計算</td>
+<td><code>EComOrderPromotionRewardCalculateService.GetRewardConditionSetting</code></td>
+<td><code>PromotionEngineId_TradesOrderGroupCode</code></td>
+</tr>
+<tr>
+<td>線下訂單初次計算</td>
+<td><code>OthersCrmSalesOrderPromotionRewardCalculateService.GetRewardConditionSetting</code></td>
+<td><code>PromotionEngineId_TradesOrderGroupCode</code></td>
+</tr>
+<tr>
+<td>未出貨或出貨後給點重算</td>
+<td><code>LoyaltyPointService.SetBookingTimeAsync</code></td>
+<td><code>PromotionEngineId_TradesOrderGroupCode</code></td>
+</tr>
+<tr>
+<td>未出貨或出貨後給券重算</td>
+<td><code>CouponService.SetBookingTimeAsync</code></td>
+<td><code>PromotionEngineId_TradesOrderGroupCode</code></td>
+</tr>
+</tbody></table>
+</div></div><div class="tab-item-content" id="凌晨0101的記憶體尖峰問題-3"><div class="pr-flow">
+<div class="pr-lead"><p>K8s CronJob 只負責建立 Dispatcher Task。查詢 DynamoDB、依會員與活動分組、上傳 S3，以及建立真正的給點或給券 Task，都由 <code>BookingRewardLoyaltyPointsDispatcherV2Job</code> 接手。</p></div>
+
+<h2 id="每小時-01-分如何喚起-Dispatcher"><a href="#每小時-01-分如何喚起-Dispatcher" class="headerlink" title="每小時 01 分如何喚起 Dispatcher"></a>每小時 01 分如何喚起 Dispatcher</h2><figure class="pr-figure"><div class="pr-diagram pr-wide" tabindex="0" role="region" aria-label="CronJob 建立 Dispatcher Task 的時序圖">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    autonumber
+    participant Cron as K8s CronJob
+    participant Script as CreateTask Script
+    participant Admin as NMQ Admin API
+    participant Queue as NMQ
+    participant Dispatcher as Booking Dispatcher
+    Cron-&gt;&gt;Script: 每小時 01 分啟動
+    Script-&gt;&gt;Script: 產生含時區的 ExecuteTime
+    Script-&gt;&gt;Admin: POST &#x2F;api&#x2F;v1&#x2F;task
+    Admin-&gt;&gt;Queue: 建立 Dispatcher Task
+    Queue--&gt;&gt;Dispatcher: 交付 BookingRewardLoyaltyPointsDispatcherV2
+    Note over Cron,Dispatcher: CronJob 只建立入口 Task，尚未建立給點或給券 Task
+  </pre></div>
+</div><figcaption>Production 排程為 <code>1 * * * *</code>，時區設定為 <code>Asia/Taipei</code>。</figcaption></figure>
+
+<h2 id="Dispatcher-如何把資料轉成回饋-Task"><a href="#Dispatcher-如何把資料轉成回饋-Task" class="headerlink" title="Dispatcher 如何把資料轉成回饋 Task"></a>Dispatcher 如何把資料轉成回饋 Task</h2><figure class="pr-figure"><div class="pr-diagram pr-wide" tabindex="0" role="region" aria-label="Dispatcher 查詢分組與建立回饋 Task 的完整資料流">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    Execute[&quot;解析 ExecuteTime&quot;] --&gt; Window[&quot;計算前一小時整點窗口&quot;]
+    Window --&gt; Query[&quot;依日期分區與 BookingTime 查詢 DDB&quot;]
+    Query --&gt; Filter[&quot;保留 WaitToReward&quot;]
+    Filter --&gt; Any{&quot;有符合紀錄？&quot;}
+    Any --&gt;|否| Stop[&quot;本次結束&quot;]
+    Any --&gt;|是| Group[&quot;依 ShopId、MemberId、PromotionEngineId 分組&quot;]
+    Group --&gt; Sort[&quot;群組內依 OrderTime 排序&quot;]
+    Sort --&gt; Source[&quot;判斷 ECom 或 Others 來源&quot;]
+    Source --&gt; Upload[&quot;上傳 memberDataList 至 S3&quot;]
+    Upload --&gt; RewardType{&quot;RewardType 是 ECoupon？&quot;}
+    RewardType --&gt;|是| Coupon[&quot;建立 Coupon PriorityLow Request&quot;]
+    RewardType --&gt;|否| Point[&quot;建立 LoyaltyPoints PriorityLow Request&quot;]
+    Coupon --&gt; Collect[&quot;加入 taskRequests&quot;]
+    Point --&gt; Collect
+    Collect --&gt; More{&quot;還有下一個群組？&quot;}
+    More --&gt;|是| Sort
+    More --&gt;|否| Create[&quot;逐一呼叫 Task.CreateAsync&quot;]
+    Create --&gt; Worker[&quot;回饋 Worker 下載 S3 清單並依序處理&quot;]
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef decision fill:#f5e8d3,stroke:#a06a41,color:#65442c
+    classDef success fill:#e8f1dc,stroke:#6f9250,color:#3f542d
+    classDef result fill:#fbf7ef,stroke:#b49b78,color:#493b2d
+    class Execute,Window,Query,Filter,Group,Sort,Source,Upload,Collect service
+    class Any,RewardType,More decision
+    class Coupon,Point,Create,Worker success
+    class Stop result
+  </pre></div>
+</div><figcaption>箭頭表示本次 Dispatcher 的處理順序。所有群組的 S3 上傳與 Request 組裝完成後，才進入逐一建立 NMQ Task 的階段。</figcaption></figure>
+
+<div class="pr-note">查詢窗口的計算是 <code>startTime = ExecuteTime.AddHours(-1).ToHour()</code>，<code>endTime = ExecuteTime.ToHour()</code>。DDB 查詢使用日期分區鍵與 <code>BookingTimeUTC</code> 排序鍵。</div>
+
+</div></div><div class="tab-item-content" id="凌晨0101的記憶體尖峰問題-4"><div class="pr-flow">
+<div class="pr-lead"><p>目前 Production 將加 N 天回饋分成三個整點桶。相同活動與訂單群組會穩定落到同一桶，目標是把原本集中在午夜的資料拆散，同時讓正流程、重算與稽核得到一致結果。</p></div>
+
+<h2 id="從-Seed-到-BookingTime"><a href="#從-Seed-到-BookingTime" class="headerlink" title="從 Seed 到 BookingTime"></a>從 Seed 到 BookingTime</h2><figure class="pr-figure"><div class="pr-diagram pr-wide" tabindex="0" role="region" aria-label="三桶 BookingTime 分配流程">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    Seed[&quot;PromotionEngineId 與 TradesOrderGroupCode&quot;] --&gt; MD5[&quot;計算 MD5&quot;]
+    MD5 --&gt; Bytes[&quot;取前四個 byte&quot;]
+    Bytes --&gt; UInt[&quot;轉成 uint32&quot;]
+    UInt --&gt; Mod[&quot;對 bucketCount 取餘數&quot;]
+    Mod --&gt; B0[&quot;bucket 0，00:00&quot;]
+    Mod --&gt; B1[&quot;bucket 1，01:00&quot;]
+    Mod --&gt; B2[&quot;bucket 2，02:00&quot;]
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef decision fill:#f5e8d3,stroke:#a06a41,color:#65442c
+    classDef success fill:#e8f1dc,stroke:#6f9250,color:#3f542d
+    class Seed,MD5,Bytes,UInt service
+    class Mod decision
+    class B0,B1,B2 success
+  </pre></div>
+</div><figcaption>Prod 的 <code>BookingTimeAllocatorBucketCount</code> 目前為 3，輸出為目標日期的 00:00、01:00 或 02:00。</figcaption></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> bucketIndex = (<span class="built_in">int</span>)(BitConverter.ToUInt32(hash, <span class="number">0</span>) % (<span class="built_in">uint</span>)bucketCount);</span><br><span class="line"><span class="keyword">var</span> bookingTime = dateOnlyBase.Date.AddHours(startHour + bucketIndex);</span><br></pre></td></tr></table></figure>
+
+<h2 id="實作帶來的改善範圍"><a href="#實作帶來的改善範圍" class="headerlink" title="實作帶來的改善範圍"></a>實作帶來的改善範圍</h2><figure class="pr-figure"><div class="pr-diagram pr-compact" tabindex="0" role="region" aria-label="分桶前後 BookingTime 分布比較">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    subgraph Before[&quot;分桶前&quot;]
+        All[&quot;全部延後回饋&quot;] --&gt; Midnight[&quot;00:00&quot;]
+    end
+    subgraph After[&quot;分桶後&quot;]
+        Split[&quot;延後回饋&quot;] --&gt; H0[&quot;00:00&quot;]
+        Split --&gt; H1[&quot;01:00&quot;]
+        Split --&gt; H2[&quot;02:00&quot;]
+    end
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef danger fill:#f9e9e3,stroke:#bb765f,color:#704737
+    classDef success fill:#e8f1dc,stroke:#6f9250,color:#3f542d
+    class All,Split service
+    class Midnight danger
+    class H0,H1,H2 success
+  </pre></div>
+</div><figcaption>這張圖只表示 BookingTime 已被分散，不代表 Dispatcher 實際負載一定形成三個等量批次。</figcaption></figure>
+
+<p>這項實作已於 2026 年 9 月 8 日合併至 master，merge commit 為 <code>0ac39b3c</code>，工作項目為 <code>VSTS661981</code>。它改善的是寫入時間分布；實際派工分布仍會受到查詢區間邊界影響。</p>
+</div></div><div class="tab-item-content" id="凌晨0101的記憶體尖峰問題-5"><div class="pr-flow">
+<div class="pr-lead"><p><code>MD5.ComputeHash</code> 回傳的是 16 bytes，不是可直接拿來分桶的整數。實作只取前四個 byte 轉成 <code>uint32</code>，先完成取餘數，再轉成 <code>int</code>，才能避免負數桶號。</p></div>
+
+<h2 id="型別轉換的正確順序"><a href="#型別轉換的正確順序" class="headerlink" title="型別轉換的正確順序"></a>型別轉換的正確順序</h2><figure class="pr-figure"><div class="pr-diagram pr-wide" tabindex="0" role="region" aria-label="雜湊值轉成安全桶號的正確與錯誤路徑">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    Hash[&quot;MD5 的前四個 byte&quot;] --&gt; UInt[&quot;BitConverter.ToUInt32&quot;]
+    UInt --&gt; Choice{&quot;先做哪一步？&quot;}
+    Choice --&gt;|先取餘數| SafeMod[&quot;uint32 % bucketCount&quot;]
+    SafeMod --&gt; SafeInt[&quot;結果再轉 int&quot;]
+    SafeInt --&gt; Safe[&quot;桶號落在合法範圍&quot;]
+    Choice --&gt;|先轉 int| Overflow[&quot;超過 int.MaxValue 時變成負數&quot;]
+    Overflow --&gt; Negative[&quot;負數 remainder 可能產生負桶號&quot;]
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef decision fill:#f5e8d3,stroke:#a06a41,color:#65442c
+    classDef success fill:#e8f1dc,stroke:#6f9250,color:#3f542d
+    classDef danger fill:#f9e9e3,stroke:#bb765f,color:#704737
+    class Hash,UInt service
+    class Choice decision
+    class SafeMod,SafeInt,Safe success
+    class Overflow,Negative danger
+  </pre></div>
+</div><figcaption>C# 的百分比運算是 remainder。被除數為負數時，結果也可能為負數。</figcaption></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 正確：先在 uint 範圍取餘數，最後才轉成 int</span></span><br><span class="line"><span class="keyword">var</span> bucketIndex = (<span class="built_in">int</span>)(BitConverter.ToUInt32(hash, <span class="number">0</span>) % (<span class="built_in">uint</span>)bucketCount);</span><br></pre></td></tr></table></figure>
+
+<p>以 Seed <code>28343_TG20193021</code> 為例，MD5 前四個 byte 轉出的 <code>uint32</code> 是 <code>4,273,969,079</code>。若先強制轉成 <code>int</code>，結果會變成 <code>-20,998,217</code>，再對 3 取餘數便可能得到 <code>-2</code>。</p>
+<div class="pr-note pr-success">單元測試需涵蓋大量不同 Seed，並驗證 <code>bucketIndex</code> 永遠滿足 <code>0 &lt;= bucketIndex &lt; bucketCount</code>。固定 Seed 也應重複得到相同桶號。</div>
+
+</div></div><div class="tab-item-content" id="凌晨0101的記憶體尖峰問題-6"><div class="pr-flow">
+<div class="pr-lead"><p>BookingTime 改成三桶後，未出貨訂單的稽核不能再假設時間固定是 00:00。目前該路徑已改用相同的 <code>RewardBookingTimeAllocator</code> 重算預期值，其他稽核則依各自的時間語意維持原有比較方式。</p></div>
+
+<h2 id="各稽核路徑如何比較時間"><a href="#各稽核路徑如何比較時間" class="headerlink" title="各稽核路徑如何比較時間"></a>各稽核路徑如何比較時間</h2><figure class="pr-figure"><div class="pr-diagram pr-wide" tabindex="0" role="region" aria-label="BookingTime Auditor 各驗證路徑決策圖">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    Verify[&quot;PromotionRewardBookingTimeAuditor&quot;] --&gt; Type{&quot;驗證情境&quot;}
+    Type --&gt;|已出貨訂單| Shipped[&quot;比較 BookingDate&quot;]
+    Type --&gt;|未出貨訂單| Unshipped[&quot;用相同 Allocator 重算預期 BookingTime&quot;]
+    Type --&gt;|指定日期回饋| DateTime[&quot;依 RewardDateTime 比對&quot;]
+    Type --&gt;|券不足重試| Coupon[&quot;依 10:00 或 22:00 比對&quot;]
+    Unshipped --&gt; Tolerance[&quot;容忍範圍至少涵蓋三桶&quot;]
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef decision fill:#f5e8d3,stroke:#a06a41,color:#65442c
+    classDef success fill:#e8f1dc,stroke:#6f9250,color:#3f542d
+    classDef result fill:#fbf7ef,stroke:#b49b78,color:#493b2d
+    class Verify service
+    class Type decision
+    class Unshipped,Tolerance success
+    class Shipped,DateTime,Coupon result
+  </pre></div>
+</div><figcaption>只有未出貨訂單需要與三桶配置保持一致，券不足重試仍是另一套固定時刻機制。</figcaption></figure>
+
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>比對方式</th>
+<th>三桶影響</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>VerifyBookingTimeForShippedOrder</code></td>
+<td>比對日期</td>
+<td>同日桶位不改變日期</td>
+</tr>
+<tr>
+<td><code>VerifyBookingTimeForUnshippedOrder</code></td>
+<td>共用 Allocator 重算預期值</td>
+<td>已同步三桶邏輯</td>
+</tr>
+<tr>
+<td><code>VerifyBookingTimeForRewardDateTime</code></td>
+<td>依 <code>RewardDateTime</code> 比對</td>
+<td>不受加 N 天分桶影響</td>
+</tr>
+<tr>
+<td><code>VerifyBookingTimeForInsufficientECoupon</code></td>
+<td>依 10:00 或 22:00 比對</td>
+<td>不屬於本次分桶</td>
+</tr>
+</tbody></table>
+<div class="pr-note">目前未出貨稽核容忍時數採 <code>Math.Max(bucketCount, 3)</code>。這能包住現行三桶偏移，但配置若持續增加，仍需確認容忍語意與精確邊界是否符合預期。</div>
+
+</div></div><div class="tab-item-content" id="凌晨0101的記憶體尖峰問題-7"><div class="pr-flow">
+<div class="pr-lead"><p>三個 BookingTime 不一定形成三次各三分之一的派工。Dispatcher 使用 DynamoDB <code>BETWEEN</code> 查前一小時，而 <code>BETWEEN</code> 同時包含左右邊界，因此落在整點的桶可能被相鄰兩個查詢窗口命中。</p></div>
+
+<h2 id="預期窗口與實際窗口"><a href="#預期窗口與實際窗口" class="headerlink" title="預期窗口與實際窗口"></a>預期窗口與實際窗口</h2><figure class="pr-figure"><div class="pr-diagram pr-wide" tabindex="0" role="region" aria-label="DynamoDB 閉區間造成整點桶重疊的時間窗口圖">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    B0[&quot;bucket 0，00:00&quot;] --&gt; Q1[&quot;01:01 查詢，00:00 到 01:00&quot;]
+    B1[&quot;bucket 1，01:00&quot;] --&gt; Q1
+    B1 --&gt; Q2[&quot;02:01 查詢，01:00 到 02:00&quot;]
+    B2[&quot;bucket 2，02:00&quot;] --&gt; Q2
+    B2 --&gt; Q3[&quot;03:01 查詢，02:00 到 03:00&quot;]
+    Q1 --&gt; Load1[&quot;第一波可能同時承接兩桶&quot;]
+    Q2 --&gt; Load2[&quot;第二波包含新桶與邊界重掃可能&quot;]
+    Q3 --&gt; Load3[&quot;第三波可能只剩邊界重掃&quot;]
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef decision fill:#f5e8d3,stroke:#a06a41,color:#65442c
+    classDef danger fill:#f9e9e3,stroke:#bb765f,color:#704737
+    classDef result fill:#fbf7ef,stroke:#b49b78,color:#493b2d
+    class B0,B1,B2 service
+    class Q1,Q2,Q3 decision
+    class Load1,Load2 danger
+    class Load3 result
+  </pre></div>
+</div><figcaption>連線表示閉區間可能命中的桶，不表示相鄰兩次一定重複建立 Task。是否重掃還取決於紀錄當時是否仍為 <code>WaitToReward</code>。</figcaption></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> startTime = entity.ExecuteTime.AddHours(<span class="number">-1</span>).ToHour();</span><br><span class="line"><span class="keyword">var</span> endTime = entity.ExecuteTime.ToHour();</span><br><span class="line"></span><br><span class="line"><span class="comment">// DynamoDB QueryOperator.Between 同時包含 startTime 與 endTime</span></span><br><span class="line">Values = <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; startTime, endTime &#125;;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>Dispatcher 時間</th>
+<th>閉區間可能命中的桶</th>
+<th>對負載的影響</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01:01</td>
+<td>00:00 與 01:00</td>
+<td>第一波可能接近兩桶資料</td>
+</tr>
+<tr>
+<td>02:01</td>
+<td>01:00 與 02:00</td>
+<td>01:00 邊界資料若仍待處理，可能再次命中</td>
+</tr>
+<tr>
+<td>03:01</td>
+<td>02:00 與 03:00</td>
+<td>沒有第四桶，但 02:00 邊界仍在查詢範圍</td>
+</tr>
+</tbody></table>
+<h2 id="修正方向"><a href="#修正方向" class="headerlink" title="修正方向"></a>修正方向</h2><figure class="pr-figure"><div class="pr-diagram" tabindex="0" role="region" aria-label="查詢邊界問題的三種修正方向">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TB
+    Issue[&quot;整點桶落在閉區間邊界&quot;] --&gt; Choice{&quot;選擇修正層級&quot;}
+    Choice --&gt;|查詢層| HalfOpen[&quot;改為左閉右開區間&quot;]
+    Choice --&gt;|時間層| Offset[&quot;BookingTime 避開整點邊界&quot;]
+    Choice --&gt;|派工層| Idempotent[&quot;增加派工鎖或冪等檢查&quot;]
+    HalfOpen --&gt; Preferred[&quot;優先方案，直接消除窗口重疊&quot;]
+    Offset --&gt; Sync[&quot;同步調整 Auditor 與測試&quot;]
+    Idempotent --&gt; Limit[&quot;降低重派風險，但不降低第一波兩桶負載&quot;]
+    classDef service fill:#edf3e4,stroke:#7a9a5e,color:#3f542d
+    classDef decision fill:#f5e8d3,stroke:#a06a41,color:#65442c
+    classDef success fill:#e8f1dc,stroke:#6f9250,color:#3f542d
+    classDef result fill:#fbf7ef,stroke:#b49b78,color:#493b2d
+    classDef danger fill:#f9e9e3,stroke:#bb765f,color:#704737
+    class Issue danger
+    class Choice decision
+    class HalfOpen,Preferred success
+    class Offset,Idempotent,Sync,Limit result
+  </pre></div>
+</div><figcaption>左閉右開區間讓每個整點只屬於一個窗口，最直接對齊三桶設計。</figcaption></figure>
+
+<p>建議優先將查詢語意改成 <code>BookingTime &gt;= startTime</code> 且 <code>BookingTime &lt; endTime</code>，並補上整點與跨日整合測試。在完成修正與 Production 數據複驗前，較精確的結論是：三桶已降低單一 00:00 的資料聚集，但尚不能宣稱 Dispatcher 負載穩定形成三次各三分之一。</p>
+<details class="pr-evidence"><summary>建議補齊的整合測試</summary>
+
+<ol>
+<li><code>ExecuteTime = 01:01</code> 時，只撈取 <code>00:00 &lt;= BookingTime &lt; 01:00</code>。</li>
+<li><code>BookingTime = 01:00:00</code> 時，不會被 01:01 與 02:01 兩次查詢同時命中。</li>
+<li>00:00、01:00、02:00 三桶分別落在三個不同的 Dispatcher 執行。</li>
+<li>23:00 到 00:00 的跨日窗口，能正確對應 <code>BookingDateUTC-BookingTimeUTC-index</code> 分區鍵。</li>
+</ol>
+</details>
+
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/10/20/PromotionReward-0101Bookingtime%E8%A8%98%E6%86%B6%E9%AB%94%E5%B0%96%E5%B3%B0%E5%95%8F%E9%A1%8C/">https://allenlin000.github.io.git/2026/10/20/PromotionReward-0101Bookingtime%E8%A8%98%E6%86%B6%E9%AB%94%E5%B0%96%E5%B3%B0%E5%95%8F%E9%A1%8C/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/10/17/PromotionReward-why-ddb/" title="回饋活動 - 為何用 DynamoDB"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">回饋活動 - 為何用 DynamoDB</div></div></a></div><div class="next-post pull-right"><a href="/2026/10/20/PromotionReward-0101Bookingtime%E8%A8%98%E6%86%B6%E9%AB%94%E5%B0%96%E5%B3%B0%E5%95%8F%E9%A1%8C-pure/" title="凌晨0101的記憶體尖峰問題"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">凌晨0101的記憶體尖峰問題</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">282</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%96%E5%B3%B0%E5%A6%82%E4%BD%95%E5%BD%A2%E6%88%90"><span class="toc-number">1.</span> <span class="toc-text">尖峰如何形成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E6%A2%9D%E6%99%82%E9%96%93%E4%BE%86%E6%BA%90"><span class="toc-number">2.</span> <span class="toc-text">四條時間來源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%83%E5%A5%97%E7%94%A8%E5%88%86%E6%A1%B6%E7%9A%84%E5%AF%A6%E4%BD%9C%E8%B7%AF%E5%BE%91"><span class="toc-number">3.</span> <span class="toc-text">會套用分桶的實作路徑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AF%8F%E5%B0%8F%E6%99%82-01-%E5%88%86%E5%A6%82%E4%BD%95%E5%96%9A%E8%B5%B7-Dispatcher"><span class="toc-number">4.</span> <span class="toc-text">每小時 01 分如何喚起 Dispatcher</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dispatcher-%E5%A6%82%E4%BD%95%E6%8A%8A%E8%B3%87%E6%96%99%E8%BD%89%E6%88%90%E5%9B%9E%E9%A5%8B-Task"><span class="toc-number">5.</span> <span class="toc-text">Dispatcher 如何把資料轉成回饋 Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%9E-Seed-%E5%88%B0-BookingTime"><span class="toc-number">6.</span> <span class="toc-text">從 Seed 到 BookingTime</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%A6%E4%BD%9C%E5%B8%B6%E4%BE%86%E7%9A%84%E6%94%B9%E5%96%84%E7%AF%84%E5%9C%8D"><span class="toc-number">7.</span> <span class="toc-text">實作帶來的改善範圍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9E%8B%E5%88%A5%E8%BD%89%E6%8F%9B%E7%9A%84%E6%AD%A3%E7%A2%BA%E9%A0%86%E5%BA%8F"><span class="toc-number">8.</span> <span class="toc-text">型別轉換的正確順序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%84%E7%A8%BD%E6%A0%B8%E8%B7%AF%E5%BE%91%E5%A6%82%E4%BD%95%E6%AF%94%E8%BC%83%E6%99%82%E9%96%93"><span class="toc-number">9.</span> <span class="toc-text">各稽核路徑如何比較時間</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A0%90%E6%9C%9F%E7%AA%97%E5%8F%A3%E8%88%87%E5%AF%A6%E9%9A%9B%E7%AA%97%E5%8F%A3"><span class="toc-number">10.</span> <span class="toc-text">預期窗口與實際窗口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%AD%A3%E6%96%B9%E5%90%91"><span class="toc-number">11.</span> <span class="toc-text">修正方向</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/20/PromotionReward-0101Bookingtime%E8%A8%98%E6%86%B6%E9%AB%94%E5%B0%96%E5%B3%B0%E5%95%8F%E9%A1%8C-pure/" title="凌晨0101的記憶體尖峰問題"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="凌晨0101的記憶體尖峰問題"/></a><div class="content"><a class="title" href="/2026/10/20/PromotionReward-0101Bookingtime%E8%A8%98%E6%86%B6%E9%AB%94%E5%B0%96%E5%B3%B0%E5%95%8F%E9%A1%8C-pure/" title="凌晨0101的記憶體尖峰問題">凌晨0101的記憶體尖峰問題</a><time datetime="2026-10-20T03:10:00.000Z" title="Created 2026-10-20 11:10:00">2026-10-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/20/PromotionReward-0101Bookingtime%E8%A8%98%E6%86%B6%E9%AB%94%E5%B0%96%E5%B3%B0%E5%95%8F%E9%A1%8C/" title="凌晨0101的記憶體尖峰問題"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="凌晨0101的記憶體尖峰問題"/></a><div class="content"><a class="title" href="/2026/10/20/PromotionReward-0101Bookingtime%E8%A8%98%E6%86%B6%E9%AB%94%E5%B0%96%E5%B3%B0%E5%95%8F%E9%A1%8C/" title="凌晨0101的記憶體尖峰問題">凌晨0101的記憶體尖峰問題</a><time datetime="2026-10-20T03:10:00.000Z" title="Created 2026-10-20 11:10:00">2026-10-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/17/PromotionReward-why-ddb/" title="回饋活動 - 為何用 DynamoDB"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="回饋活動 - 為何用 DynamoDB"/></a><div class="content"><a class="title" href="/2026/10/17/PromotionReward-why-ddb/" title="回饋活動 - 為何用 DynamoDB">回饋活動 - 為何用 DynamoDB</a><time datetime="2026-10-17T12:39:00.000Z" title="Created 2026-10-17 20:39:00">2026-10-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/" title="pay api 1 - 設計現狀"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/style/regular-purchase.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pay api 1 - 設計現狀"/></a><div class="content"><a class="title" href="/2026/10/14/Regular-Order-%E4%BB%98%E6%AC%BEAPI%E8%A8%AD%E8%A8%88/" title="pay api 1 - 設計現狀">pay api 1 - 設計現狀</a><time datetime="2026-10-14T09:41:00.000Z" title="Created 2026-10-14 17:41:00">2026-10-14</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
