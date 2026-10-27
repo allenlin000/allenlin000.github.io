@@ -1,0 +1,459 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>佔額 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="概念涉及服務與資料概念何時佔額：線上與線下決策與狀態流轉PCPS API 與錯誤語意返還與逆流程稽核與排查順序架構「佔額」是回饋活動在 PromoCodePool Service（PCPS） 的 Group 中，先替符合條件的訂單會員分派並兌換一筆 Code，使該筆回饋占用活動限額。這是配額操作，不是給點或給券。Promotion Worker 另外在 DynamoDB（下稱 DDB）存回饋主單及">
+<meta property="og:type" content="article">
+<meta property="og:title" content="佔額">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="概念涉及服務與資料概念何時佔額：線上與線下決策與狀態流轉PCPS API 與錯誤語意返還與逆流程稽核與排查順序架構「佔額」是回饋活動在 PromoCodePool Service（PCPS） 的 Group 中，先替符合條件的訂單會員分派並兌換一筆 Code，使該筆回饋占用活動限額。這是配額操作，不是給點或給券。Promotion Worker 另外在 DynamoDB（下稱 DDB）存回饋主單及">
+<meta property="og:locale">
+<meta property="og:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png">
+<meta property="article:published_time" content="2026-10-27T02:21:00.000Z">
+<meta property="article:modified_time" content="2026-10-27T06:43:36.802Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '佔額',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-10-27 14:43:36'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">286</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">佔額</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-10-27T02:21:00.000Z" title="Created 2026-10-27 10:21:00">2026-10-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-10-27T06:43:36.802Z" title="Updated 2026-10-27 14:43:36">2026-10-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/PromotionReward/">PromotionReward</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="佔額"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="佔額"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="佔額-1">概念</button><button type="button" class="tab " data-href="佔額-2">涉及服務與資料概念</button><button type="button" class="tab " data-href="佔額-3">何時佔額：線上與線下</button><button type="button" class="tab " data-href="佔額-4">決策與狀態流轉</button><button type="button" class="tab " data-href="佔額-5">PCPS API 與錯誤語意</button><button type="button" class="tab " data-href="佔額-6">返還與逆流程</button><button type="button" class="tab " data-href="佔額-7">稽核與排查順序</button><button type="button" class="tab " data-href="佔額-8">架構</button></ul><div class="tab-contents"><div class="tab-item-content active" id="佔額-1"><p>「佔額」是回饋活動在 <strong>PromoCodePool Service（PCPS）</strong> 的 Group 中，先替符合條件的訂單會員分派並兌換一筆 Code，使該筆回饋占用活動限額。這是配額操作，<strong>不是給點或給券</strong>。Promotion Worker 另外在 DynamoDB（下稱 DDB）存回饋主單及子單狀態，藉此決定後續是否能回饋、取消及稽核</p>
+<p>本專案支援三種相關活動類型：<code>RewardReachPriceWithPoint2</code>、<code>RewardReachPriceWithRatePoint2</code>、<code>RewardReachPriceWithCoupon</code>。有 <code>GroupCode</code> 才屬於佔額活動；分派器使用 <code>IsNullOrWhiteSpace</code> 過濾，Job 的 <code>IsQuotaPromotion</code> 使用 <code>IsNullOrEmpty</code> 判斷，兩處對純空白字串的結果不同，屬於值得留意的邊界。[S1][S4]</p>
+<pre class="mermaid">flowchart LR
+  E1[EDA OrderPlaced] --> D[PromotionRewardOccupyDispatcherJob]
+  D --> P[點數 V2 Job]
+  D --> C[給券 Job]
+  P --> X[規則與訂單試算]
+  C --> X
+  X -->|IsMatch| PCPS[PCPS dispatch-and-redeem]
+  PCPS --> DDB[DDB 回饋紀錄]
+  E2[EDA OrderCreated] --> R[OrderCreated 分派器]
+  R -->|限額活動延後 5 分 10 秒| P
+  R -->|限額活動延後 5 分 10 秒| C
+  DDB --> P
+  DDB --> C
+  P --> OUT[BookingTime 到期後給點]
+  C --> OUT2[BookingTime 到期後給券]
+  E3[EDA OrderFailed] --> D
+  D -->|僅 Occupy| REV[PCPS reverse-redeemed-and-dispatched]
+  REV --> CAN[DDB Cancel]</pre></div><div class="tab-item-content" id="佔額-2"><table>
+<thead>
+<tr>
+<th>概念／服務</th>
+<th>職責</th>
+<th>關鍵資料</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Promotion Service &#x2F; Engine</td>
+<td>查訂單時間有效的活動與活動規則；試算是否符合活動</td>
+<td><code>PromotionEngineId</code>、活動類型、<code>GroupCode</code>、<code>IsMatch</code></td>
+</tr>
+<tr>
+<td>NMQv3</td>
+<td>分派每個活動的點數／券 Job；同一 Job 依 <code>EventSource</code> 走佔額或回饋</td>
+<td><code>OrderPlaced</code>、<code>OrderCreated</code>、<code>OrderFailed</code></td>
+</tr>
+<tr>
+<td>PCPS</td>
+<td>真正分派、兌換、查詢與返還配額 Code</td>
+<td><code>GroupId</code>&#x2F;<code>GroupCode</code>、<code>CodeId</code>、<code>ReceiverId</code>、<code>Labels</code>、<code>State</code></td>
+</tr>
+<tr>
+<td>DDB 與 Locker</td>
+<td>保存回饋主／子單及歷程；以訂單＋活動鍵鎖住並行處理</td>
+<td><code>Occupy</code>、<code>WaitToReward</code>、<code>MatchWithoutQuota</code>、<code>Cancel</code></td>
+</tr>
+<tr>
+<td>點數中心／券服務</td>
+<td>在回饋條件與 BookingTime 成立時實際發點／發券</td>
+<td><code>Reward</code>、明細、已給／回收數量</td>
+</tr>
+<tr>
+<td>稽核器</td>
+<td>對照 DDB 回饋狀態和 PCPS 實際佔額筆數</td>
+<td>期望 0 或 1 筆</td>
+</tr>
+</tbody></table>
+<p>PCPS 請求的 <code>ReceiverId</code> 是會員 ID 字串，<code>Tags</code> 為空集合，<code>Labels</code> 放訂單彙總碼 TG；後續以 <code>GroupCode + TG</code> 查佔額。HTTP 標頭帶 <code>ny-market</code>、<code>ny-shop-id</code>、<code>ny-source-type=PromotionReward</code>、<code>ny-user-id</code>。線下訂單查 DDB／PCPS 時使用 <code>CrmSalesOrderCodePrefix + CrmSalesOrderId</code> 作為代碼。[S2][S5]</p>
+<p>Rule-Record 會存 GroupCode </p>
+<h2 id="建立與更新"><a href="#建立與更新" class="headerlink" title="建立與更新"></a>建立與更新</h2><h2 id="活動時間與佔額群組時間"><a href="#活動時間與佔額群組時間" class="headerlink" title="活動時間與佔額群組時間"></a>活動時間與佔額群組時間</h2><p>回饋活動的有效期和 PCPS 佔額群組的有效期是兩組設定。活動規則的 <code>Since</code>、<code>Until</code> 分別採用活動的 <code>StartDateTime</code>、<code>EndDateTime</code>，用來判斷訂單在下單當時是否符合活動時間。建立 PCPS 群組時，<code>Since</code> 同樣採用活動開始時間，但 <code>Until</code> 固定為 <code>DateTime.MaxValue</code>，沒有跟著活動結束時間到期。因此，活動已結束後，只要補跑流程仍能找到該活動與訂單，過去符合活動期間的訂單仍有機會在現在向 PCPS 佔額。[B1][B2][B3]</p>
+<table>
+<thead>
+<tr>
+<th>情境</th>
+<th>活動時間判斷</th>
+<th>PCPS 群組時間判斷</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>現在補跑活動期間內的舊訂單</td>
+<td>訂單時間落在活動開始與結束之間</td>
+<td>群組的 <code>Until</code> 尚未到期</td>
+<td>時間設定不會阻止佔額，仍須符合活動條件且有額度</td>
+</tr>
+<tr>
+<td>現在處理活動開始前的訂單</td>
+<td>訂單時間早於活動開始</td>
+<td>即使群組已存在</td>
+<td>訂單不符合活動時間，不應進入該活動佔額</td>
+</tr>
+<tr>
+<td>現在提前處理未來活動的訂單</td>
+<td>訂單時間可能落在未來活動期間</td>
+<td>處理當下早於群組 <code>Since</code></td>
+<td>依群組設定不應提前佔額；PCPS 的實際拒絕行為仍須以 PCPS 實作確認</td>
+</tr>
+</tbody></table>
+<p>建立活動時，backend API 只對支援佔額的回饋類型且 <code>Quota &gt; 0</code> 的活動建立並啟用 PCPS 群組，取得 <code>GroupId</code> 後寫入 <code>PromotionEngine_GroupCode</code>。<code>Quota = 0</code> 代表不建立佔額群組。活動開始後，更新流程會直接跳過佔額設定變更。[B4][B5]</p>
+<p>這個時間設定解決的是 PCPS 群組過期問題，不保證任意久以前的活動都能由一般 Worker 分派器找出。目前該分派器的候選活動查詢從現在往前七天開始，再用訂單時間過濾；超過查詢範圍的補跑仍需檢查實際入口。[B6]</p>
+<p><strong>程式碼證據</strong></p>
+<ul>
+<li>[B1] <code>nine1.promotion.web.api/src/BusinessLogic/Nine1.Promotion.BL.Services/PromotionEngineRules/PromotionEngineRuleBaseService.cs</code> 第 378 至 379 行：活動規則的 <code>Since</code>、<code>Until</code>。</li>
+<li>[B2] <code>nine1.promotion.web.api/src/BusinessLogic/Nine1.Promotion.BL.Services/PromoCodePool/PromoCodePoolService.cs</code> 第 126 至 151 行：PCPS 群組的 <code>Since</code>、<code>Until</code> 與額度規則。</li>
+<li>[B3] <code>nine1.promotion.web.api/src/DataAccess/Nine1.Promotion.DA.Repositories/PromotionEngines/PromotionEngineRepository.cs</code> 第 892 至 913 行：以查詢時間區間篩選活動，並回傳活動開始／結束時間與 <code>GroupCode</code>。</li>
+<li>[B4] <code>nine1.promotion.web.api/src/BusinessLogic/Nine1.Promotion.BL.Services/PromotionEngines/PromotionEngineService.cs</code> 第 730 至 735 行：建立群組及保存 <code>GroupCode</code>。</li>
+<li>[B5] 同檔第 5011 至 5058 行：活動開始後不更新佔額設定，<code>Quota = 0</code> 清空 <code>GroupCode</code>，未開始的活動可建立或更新群組。</li>
+<li>[B6] <code>nine1.promotion.worker/src/Nine1.Promotion.Console.BL/Services/Promotions/PromotionEngineService.cs</code> 第 245 至 274 行：候選活動查詢從現在往前七天開始，之後再按訂單時間過濾。</li>
+</ul>
+<h2 id="佔額更新"><a href="#佔額更新" class="headerlink" title="佔額更新"></a>佔額更新</h2><ul>
+<li>還沒開始的活動還是可以更新時間</li>
+</ul>
+<h2 id="資料表"><a href="#資料表" class="headerlink" title="資料表"></a>資料表</h2><p>PromotionEngine_GroupCode</p></div><div class="tab-item-content" id="佔額-3"><h3 id="線上訂單（ECom）"><a href="#線上訂單（ECom）" class="headerlink" title="線上訂單（ECom）"></a>線上訂單（ECom）</h3><ol>
+<li><code>OrderPlaced</code> 到達佔額分派器。它按<strong>訂單時間</strong>選出有效的三類回饋活動，保留有 <code>GroupCode</code> 的活動；點數活動還需 <code>ExtendInfo</code> 有值。每檔活動各建一個點數 V2 或券 Job，要求的 <code>EventSource=OrderPlaced</code>。分派本身<strong>尚未扣額度</strong>。[S1][S6]</li>
+<li>Job 取得同一筆 <code>PromotionRuleRecord</code>，做通路檢查和回饋試算。在 DDB key 上取鎖；沒有既有紀錄、<code>IsMatch=true</code> 才向 PCPS 呼叫 <code>dispatch-and-redeem</code>。回傳 <code>State=Redeemed</code> 才當作成功；配額不足則記為失敗。之後寫入 DDB 主／子單。既有紀錄則直接返回，以 DDB 作為重跑的防護之一。[S2][S3][S7]</li>
+<li><code>OrderCreated</code> 進入另一個分派器。對有 <code>GroupCode</code> 的活動，它把回饋 Job 的 <code>BookingTime</code> 設成 <code>UtcNow + 5 分 10 秒</code>，試圖讓佔額流程先完成。回饋 Job 若查不到線上佔額活動的 DDB 紀錄，會拋錯而不直接給點／券；查到 <code>Occupy</code> 才建立績效 Job 並轉 <code>WaitToReward</code>。到真正回饋時間前不執行給點／券。[S8][S3][S7]</li>
+</ol>
+<h3 id="線下訂單（Others）"><a href="#線下訂單（Others）" class="headerlink" title="線下訂單（Others）"></a>線下訂單（Others）</h3><p>線下回饋 Job 若尚無 DDB 紀錄，會直接試算；符合活動且有 <code>GroupCode</code> 時在<strong>同一次回饋流程</strong>呼叫 PCPS 佔額，再插入 DDB。成功的線下紀錄初始即為 <code>WaitToReward</code>，不會經過線上訂單專用的 <code>Occupy</code> 暫存狀態。<code>OrderFailed</code> 返還會略過規則通路完全不含 Web／iOS／Android 的純線下活動。[S3][S7][S9]</p>
+<h2 id="績效報表"><a href="#績效報表" class="headerlink" title="績效報表"></a>績效報表</h2><ol>
+<li>非佔額活動</li>
+<li>佔額活動且佔額成功(MATCH + 佔)</li>
+</ol></div><div class="tab-item-content" id="佔額-4"><h2 id="MatchWithoutQuota"><a href="#MatchWithoutQuota" class="headerlink" title="MatchWithoutQuota"></a>MatchWithoutQuota</h2><p>OrderPlaced 時，佔額活動且符合活動條件但佔額失敗</p>
+<h2 id="Occupy"><a href="#Occupy" class="headerlink" title="Occupy"></a>Occupy</h2><p>線上訂單，佔額活動且成功佔額且符合活動條件，狀態為佔額中　Occupy</p>
+<h2 id="WaitToReward"><a href="#WaitToReward" class="headerlink" title="WaitToReward"></a>WaitToReward</h2><p>OrderCreated: Occupy &#x3D;&gt; WaitToReward</p>
+<table>
+<thead>
+<tr>
+<th>條件</th>
+<th>PCPS 動作</th>
+<th>DDB 主單結果</th>
+<th>後續</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>沒有 <code>GroupCode</code></td>
+<td>無</td>
+<td>中活動為 <code>WaitToReward</code>，未中為 <code>Unmatch</code></td>
+<td>一般回饋路徑</td>
+</tr>
+<tr>
+<td>有 <code>GroupCode</code>，試算未中</td>
+<td>無</td>
+<td><code>Unmatch</code></td>
+<td>不給點／券</td>
+</tr>
+<tr>
+<td>有 <code>GroupCode</code>，試算中，PCPS 回 <code>Redeemed</code>，線上 <code>OrderPlaced</code></td>
+<td>分派並兌換 1 Code</td>
+<td><code>Occupy</code></td>
+<td>等 <code>OrderCreated</code> 轉狀態</td>
+</tr>
+<tr>
+<td>有 <code>GroupCode</code>，試算中，PCPS 回 <code>Redeemed</code>，線下</td>
+<td>分派並兌換 1 Code</td>
+<td><code>WaitToReward</code></td>
+<td>按 BookingTime 回饋</td>
+</tr>
+<tr>
+<td>有 <code>GroupCode</code>，試算中，額度不足或回傳狀態非 <code>Redeemed</code></td>
+<td>佔額未確認成功</td>
+<td><code>MatchWithoutQuota</code></td>
+<td>不進入回饋</td>
+</tr>
+<tr>
+<td>線上回饋 Job 無 DDB 紀錄</td>
+<td>無</td>
+<td>不建立</td>
+<td>拋錯，待前段佔額資料釐清</td>
+</tr>
+<tr>
+<td>線上回饋 Job 讀到 <code>Occupy</code></td>
+<td>無新佔額</td>
+<td><code>Occupy → WaitToReward</code></td>
+<td>建績效 Job，後續給點／券</td>
+</tr>
+<tr>
+<td><code>OrderFailed</code> 且 DDB 為 <code>Occupy</code></td>
+<td>查 Code 並返還</td>
+<td><code>Occupy → Cancel</code></td>
+<td>券另增加取消數量</td>
+</tr>
+</tbody></table>
+<pre class="mermaid">stateDiagram-v2
+  [*] --> Unmatch: 試算未中
+  [*] --> MatchWithoutQuota: 中活動但 PCPS 未成功
+  [*] --> Occupy: 線上 OrderPlaced 佔額成功
+  [*] --> WaitToReward: 線下佔額成功／非佔額活動中獎
+  Occupy --> WaitToReward: OrderCreated 回饋 Job
+  Occupy --> Cancel: OrderFailed 返還 PCPS 成功
+  WaitToReward --> Reward: 達 BookingTime 且回饋成功
+  WaitToReward --> Cancel: 取消／逆流程重算後不符條件
+  Reward --> Cancel: 全部回收或相關取消流程</pre>
+
+<p><code>Reward</code> 等狀態的後續逆流程有多種分支；上圖呈現與佔額直接相關的主要轉換，不代表每種回收情境都必定直接寫 <code>Cancel</code>。點數與券插入紀錄的狀態判斷一致。[S10]</p></div><div class="tab-item-content" id="佔額-5"><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>Worker 呼叫</th>
+<th>重要語意</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>佔額</td>
+<td><code>POST api/groups/{groupId}/dispatch-and-redeem</code></td>
+<td>成功 HTTP 回應仍需 <code>State=Redeemed</code> 才算佔額成功。[S5]</td>
+</tr>
+<tr>
+<td>查 TG 佔額</td>
+<td><code>GET api/codes/get-by-label?GroupId=...&amp;Label=...&amp;Limit=30</code></td>
+<td><code>Labels</code> 是查詢註記；<code>GetMemberPromotionQuotaInfoByTradesOrderGroup</code> 要求<strong>恰好一筆</strong>。[S5]</td>
+</tr>
+<tr>
+<td>返還</td>
+<td><code>POST api/codes/{codeId}/reverse-redeemed-and-dispatched</code></td>
+<td>以 <code>GroupId</code>、<code>ReceiverId</code> 返還；<code>OrderFailed</code> 使用單筆返還，逆流程 helper 可逐筆返還。[S5][S11]</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>失敗／例外</th>
+<th>程式處理</th>
+<th>影響</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>佔額 HTTP 409</td>
+<td>轉 <code>InsufficientQuotaException</code>，不重試</td>
+<td>Job 回 <code>isOccupy=false</code>，符合活動者記 <code>MatchWithoutQuota</code>。[S5][S2]</td>
+</tr>
+<tr>
+<td>佔額網路／其他 HTTP 錯誤</td>
+<td>Client 有有限次重試；仍失敗拋例外</td>
+<td>Job 包為可釋放鎖的失敗；不應解讀成「額度不足」。[S5][S2]</td>
+</tr>
+<tr>
+<td>佔額成功但寫 DDB 失敗</td>
+<td>PCPS 與 DDB 分開呼叫</td>
+<td>可能留下 PCPS 已兌換、DDB 缺漏；這是由呼叫順序推得的<strong>一致性風險</strong>，需靠查 PCPS 與任務日誌確認個案。[S2][S10]</td>
+</tr>
+<tr>
+<td><code>OrderFailed</code> 找不到 DDB／PCPS Code</td>
+<td>DDB 查詢有限次重試；單筆查不到或非恰好一筆會拋錯</td>
+<td>不會默默把 DDB 寫 <code>Cancel</code>。[S1][S11]</td>
+</tr>
+<tr>
+<td>逆流程 <code>ReverseOccupyQuotaAsync</code> 查無／未兌換</td>
+<td>容忍並結束；Timeout／TaskCanceled 最多三次</td>
+<td>這與 <code>OrderFailed</code> 的嚴格單筆返還路徑不同。[S11]</td>
+</tr>
+</tbody></table>
+<p>注意：<code>PromotionRewardOccupyDispatcherJob</code> 有 <code>OrderFailedDelaySeconds=30</code> 常數與「增加等待時間」註解，但目前 <code>ProcessQuotaReverseRedeemed</code> 呼叫前**沒有使用該常數或 <code>Task.Delay</code>**。該路徑以 DDB 讀取／鎖的重試應對先後順序，不宜宣稱實際固定等待 30 秒。[S1]</p></div><div class="tab-item-content" id="佔額-6"><p><code>OrderFailed</code> 走佔額分派器的另一分支：以訂單時間再找有 <code>GroupCode</code> 的活動，排除純線下活動，依活動類型取得點數／券 DDB 紀錄。只有 <code>RewardStatus=Occupy</code> 才返還；<code>Unmatch</code>、<code>MatchWithoutQuota</code>、<code>Cancel</code> 略過，其餘狀態當異常。返還先從 PCPS 以 TG 查到單筆 Code，再呼叫 Reverse；成功後把主／子單改 <code>Cancel</code>，券另外更新道具表 <code>CanceledCouponQty</code>。[S1][S9][S11]</p>
+<p>訂單後續取消、退款或重算也可能返還已佔額資源。點數流程在重算後不符合活動時呼叫 <code>ReverseOccupyQuotaAsync</code>；券流程在整單取消，或重算應給券 0 且尚未給券時呼叫它。該 helper 以 TG 查可能多筆 Code，逐筆 Reverse，查無／未兌換視為可容忍，逾時有限次重試。<strong>返還時機不限付款失敗</strong>。[S12][S13][S11]</p></div><div class="tab-item-content" id="佔額-7"><p><code>PromotionRewardQuotaAuditor</code> 對有 <code>GroupCode</code> 的活動用 <code>CheckOrderOccupiedQuota</code> 查 PCPS：<code>Occupy</code>／<code>WaitToReward</code> 預期恰一筆，未完全回收的 <code>Reward</code> 也預期恰一筆；<code>Unmatch</code>／<code>Cancel</code>／<code>MatchWithoutQuota</code> 預期零筆。點數已全回收的 <code>Reward</code> 預期零筆。這是辨別 DDB 與 PCPS 是否一致的最直接規則。[S14]</p>
+<p>排查一筆訂單時，先固定 <code>ShopId + PromotionEngineId + TG + MemberId</code>，再核對：① 活動類型、有效時間、<code>GroupCode</code>、規則通路；② <code>OrderPlaced</code>／<code>OrderCreated</code>／<code>OrderFailed</code> 的 Job 與時間；③ DDB 主單狀態及歷程；④ PCPS 依 GroupCode＋TG 查到的 Code 數、<code>State</code>、<code>CodeId</code>；⑤ 逆流程是否已執行。不要只看 <code>IsMatch</code> 就判定有額度，也不要只看 DDB <code>Occupy</code> 就略過 PCPS 實際狀態。[S1][S14]</p></div><div class="tab-item-content" id="佔額-8"></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/">https://allenlin000.github.io.git/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/10/27/PromotionReward-tg-ts-pure/" title="TG vs TS 給點"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">TG vs TS 給點</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">286</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E8%88%87%E6%9B%B4%E6%96%B0"><span class="toc-number">1.</span> <span class="toc-text">建立與更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B4%BB%E5%8B%95%E6%99%82%E9%96%93%E8%88%87%E4%BD%94%E9%A1%8D%E7%BE%A4%E7%B5%84%E6%99%82%E9%96%93"><span class="toc-number">2.</span> <span class="toc-text">活動時間與佔額群組時間</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%94%E9%A1%8D%E6%9B%B4%E6%96%B0"><span class="toc-number">3.</span> <span class="toc-text">佔額更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B3%87%E6%96%99%E8%A1%A8"><span class="toc-number">4.</span> <span class="toc-text">資料表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B7%9A%E4%B8%8A%E8%A8%82%E5%96%AE%EF%BC%88ECom%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">線上訂單（ECom）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B7%9A%E4%B8%8B%E8%A8%82%E5%96%AE%EF%BC%88Others%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">線下訂單（Others）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B8%BE%E6%95%88%E5%A0%B1%E8%A1%A8"><span class="toc-number">5.</span> <span class="toc-text">績效報表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MatchWithoutQuota"><span class="toc-number">6.</span> <span class="toc-text">MatchWithoutQuota</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Occupy"><span class="toc-number">7.</span> <span class="toc-text">Occupy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WaitToReward"><span class="toc-number">8.</span> <span class="toc-text">WaitToReward</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/" title="佔額"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="佔額"/></a><div class="content"><a class="title" href="/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/" title="佔額">佔額</a><time datetime="2026-10-27T02:21:00.000Z" title="Created 2026-10-27 10:21:00">2026-10-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/27/PromotionReward-tg-ts-pure/" title="TG vs TS 給點"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="TG vs TS 給點"/></a><div class="content"><a class="title" href="/2026/10/27/PromotionReward-tg-ts-pure/" title="TG vs TS 給點">TG vs TS 給點</a><time datetime="2026-10-27T00:40:00.000Z" title="Created 2026-10-27 08:40:00">2026-10-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/27/PromotionReward-tg-ts/" title="TG vs TS 給點"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="TG vs TS 給點"/></a><div class="content"><a class="title" href="/2026/10/27/PromotionReward-tg-ts/" title="TG vs TS 給點">TG vs TS 給點</a><time datetime="2026-10-27T00:40:00.000Z" title="Created 2026-10-27 08:40:00">2026-10-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/25/PromotionReward-BookingtimeJob-%E8%B7%A8%E6%97%A5%E8%AA%A4%E5%88%A4/" title="Bookingtime Job 跨日誤判"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Bookingtime Job 跨日誤判"/></a><div class="content"><a class="title" href="/2026/10/25/PromotionReward-BookingtimeJob-%E8%B7%A8%E6%97%A5%E8%AA%A4%E5%88%A4/" title="Bookingtime Job 跨日誤判">Bookingtime Job 跨日誤判</a><time datetime="2026-10-25T01:06:00.000Z" title="Created 2026-10-25 09:06:00">2026-10-25</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
