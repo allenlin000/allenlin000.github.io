@@ -1,0 +1,452 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>user-tags | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="從 Shopping、Cart 到促購引擎，理解 User.Tags 如何參與會員資格與回饋門檻判斷。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="user-tags">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/11/02/PromotionReward-user-tags-pure/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="從 Shopping、Cart 到促購引擎，理解 User.Tags 如何參與會員資格與回饋門檻判斷。">
+<meta property="og:locale">
+<meta property="og:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png">
+<meta property="article:published_time" content="2026-11-02T05:52:00.000Z">
+<meta property="article:modified_time" content="2026-11-02T07:52:16.743Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/11/02/PromotionReward-user-tags-pure/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'user-tags',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-11-02 15:52:16'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">288</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">user-tags</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-11-02T05:52:00.000Z" title="Created 2026-11-02 13:52:00">2026-11-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-11-02T07:52:16.743Z" title="Updated 2026-11-02 15:52:16">2026-11-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/PromotionReward/">PromotionReward</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="user-tags"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><h3 id="購物車如何告訴促購「這位會員符合什麼條件」"><a href="#購物車如何告訴促購「這位會員符合什麼條件」" class="headerlink" title="購物車如何告訴促購「這位會員符合什麼條件」"></a>購物車如何告訴促購「這位會員符合什麼條件」</h3><p>Cart 把本次計算取得的會員資料轉成幾個字串。活動規則讀取這些字串，先判斷資格，再選擇回饋門檻。</p>
+<p><code>User.Tags</code> 是本次促購請求中的<strong>可比對字串集合</strong>，不是一張額外的會員貼標籤資料表。它只提供判斷線索；是否符合活動、要套用哪組回饋，仍由各活動規則決定。</p>
+<h4 id="同一份-tags，有兩種不同用法"><a href="#同一份-tags，有兩種不同用法" class="headerlink" title="同一份 tags，有兩種不同用法"></a>同一份 tags，有兩種不同用法</h4><pre class="mermaid">flowchart TB
+  tags["Cart 送出 User.Tags"] --> qualify["活動資格"]
+  tags --> threshold["回饋門檻"]
+  qualify --> card["卡別：CrmShopMemberCard:5"]
+  qualify --> first["首購：FirstPurchase"]
+  threshold --> general["通用門檻：AllUserScope"]
+  threshold --> tier["卡別門檻：CrmShopMemberCard:5"]</pre>
+
+<p><em>使用者有某個 tag，不代表活動一定會檢查它。圖中列出本文追查到的用途。</em></p>
+<table>
+<thead>
+<tr>
+<th>tag</th>
+<th>本次計算代表什麼</th>
+<th>活動可能怎麼用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CrmShopMemberCard:5</code></td>
+<td>此次採用的 CRM 卡 ID 是 5</td>
+<td>限定卡別資格，或卡別給點門檻</td>
+</tr>
+<tr>
+<td><code>FirstPurchase</code></td>
+<td>Cart 查到會員符合首購旗標</td>
+<td>活動要求首購時檢查</td>
+</tr>
+<tr>
+<td><code>AllUserScope</code></td>
+<td>Cart 固定附上的通用 key</td>
+<td>部分回饋規則用來找通用門檻</td>
+</tr>
+</tbody></table>
+<p>「活動對象不限」使用的是 <code>AllUserScope</code> scope，該 scope 直接回傳 <code>true</code>，不檢查使用者是否有同名 tag。<code>AllUserScope</code> tag 的作用是讓部分回饋規則找到通用門檻。兩者同名，判斷位置不同。</p>
+<h3 id="用一筆回饋活動走一次"><a href="#用一筆回饋活動走一次" class="headerlink" title="用一筆回饋活動走一次"></a>用一筆回饋活動走一次</h3><h4 id="模擬輸入"><a href="#模擬輸入" class="headerlink" title="模擬輸入"></a>模擬輸入</h4><ul>
+<li><strong>會員</strong>：ID 123，CRM 卡 ID 5，符合首購</li>
+<li><strong>活動</strong>：限卡別 5、需首購，滿 800 元給 80 點</li>
+<li><strong>購物車</strong>：符合活動的商品售價合計 900 元</li>
+</ul>
+<p><em>這是依程式碼建立的靜態模擬情境，不是實際資料庫中的活動或服務執行紀錄。</em></p>
+<h4 id="資格與門檻依序通過"><a href="#資格與門檻依序通過" class="headerlink" title="資格與門檻依序通過"></a>資格與門檻依序通過</h4><pre class="mermaid">flowchart TB
+  shopping["Shopping 提供 CRM 卡 ID 5"] --> cart["Cart 組成三個 User.Tags"]
+  cart --> card{"有卡別 5 tag？"}
+  card -->|"否"| fail["活動資格不符"]
+  card -->|"是"| first{"有 FirstPurchase？"}
+  first -->|"否"| fail
+  first -->|"是"| key{"找到 AllUserScope 門檻？"}
+  key -->|"否"| failThreshold["無可用門檻"]
+  key -->|"是"| price{"900 元達 800 元？"}
+  price -->|"否"| failPrice["金額未達"]
+  price -->|"是"| matched["符合這組給 80 點條件"]</pre>
+
+<p><em>此例的規則只有一組通用門檻。若同時存在通用與卡別兩組門檻，選取順序見「優先序」分頁。</em></p>
+<p>Shopping 傳入 CRM 欄位時還沒有貼 tag。Cart 的 <code>GetUserTags</code> 才組成 <code>[&quot;AllUserScope&quot;, &quot;CrmShopMemberCard:5&quot;, &quot;FirstPurchase&quot;]</code>。引擎先用卡別與首購判斷活動資格，再以 <code>AllUserScope</code> 找到滿 800 元給 80 點的門檻；符合活動的商品售價 900 元達標。後續結果仍受活動其他設定與完整計算流程影響。</p>
+<h2 id="Shopping"><a href="#Shopping" class="headerlink" title="Shopping"></a>Shopping</h2><h3 id="Shopping-傳會員卡資料，尚未產生-User-Tags"><a href="#Shopping-傳會員卡資料，尚未產生-User-Tags" class="headerlink" title="Shopping 傳會員卡資料，尚未產生 User.Tags"></a>Shopping 傳會員卡資料，尚未產生 User.Tags</h3><p>購物車建立流程先查商店 CRM 合約，再取得會員卡。Cart 收到的是卡別欄位，之後才把它轉成 tag。</p>
+<h4 id="CRM-卡別資料怎麼進入-Cart"><a href="#CRM-卡別資料怎麼進入-Cart" class="headerlink" title="CRM 卡別資料怎麼進入 Cart"></a>CRM 卡別資料怎麼進入 Cart</h4><pre class="mermaid">flowchart TB
+  start["GetCrmMemberTierProcessor"] --> contract{"商店有 CRM 合約？"}
+  contract -->|"否"| request["保留一般建車請求"]
+  contract -->|"是"| lookup["取得有效卡清單與會員卡資料"]
+  lookup --> valid{"卡 ID 有效？"}
+  valid -->|"是"| assign["寫入 CrmMemberTier"]
+  valid -->|"否或查詢異常"| fallback["採用最低等級卡"]
+  fallback --> assign</pre>
+
+<p><em>卡 ID 為 0 時，會員 service 會先清快取重取；仍查無有效資料或發生例外，Shopping processor 才改用最低等級卡。</em></p>
+<p><code>ProcessorDefinitionCenter.CartCreateProcessorLayers</code> 把 <code>GetCrmMemberTierProcessor</code> 排在 <code>CartCreateProcessor</code> 前。這裡傳送 <code>HasCrmShopContract</code>、<code>CrmShopMemberCardList</code>、<code>CrmMemberTier</code>，沒有傳 <code>UserTags</code> 字串。</p>
+<table>
+<thead>
+<tr>
+<th>建車方式</th>
+<th><code>CartCreateProcessor</code> 呼叫</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一般下單</td>
+<td><code>api/carts/create</code></td>
+</tr>
+<tr>
+<td>代客下單</td>
+<td><code>api/carts/assist-create</code></td>
+</tr>
+</tbody></table>
+<h4 id="查看-Shopping-的資料來源與例外處理"><a href="#查看-Shopping-的資料來源與例外處理" class="headerlink" title="查看 Shopping 的資料來源與例外處理"></a>查看 Shopping 的資料來源與例外處理</h4><table>
+<thead>
+<tr>
+<th>位置</th>
+<th>處理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GetShopContractSetting</code></td>
+<td>讀商店是否啟用 CRM 合約</td>
+</tr>
+<tr>
+<td><code>VIPMemberService.GetCrmShopMemberCardDataFromWebStoreDB</code></td>
+<td>從 <code>VipMember_CrmShopMemberCardId</code> 與商店卡別清單組出會員卡 ID、名稱</td>
+</tr>
+<tr>
+<td><code>GetCrmMemberTierProcessor</code></td>
+<td>捕捉 <code>CrmMemberTierException</code> 或其他例外，選 <code>CrmShopMemberCardLevel</code> 最低的一張卡</td>
+</tr>
+</tbody></table>
+<p>因此 <code>CrmShopMemberCard:5</code> 也可能代表回退後的最低等級卡，不能單憑 tag 斷定它是會員原始 CRM 等級。</p>
+<h2 id="Cart"><a href="#Cart" class="headerlink" title="Cart"></a>Cart</h2><h3 id="Cart-在促購計算前，把會員資料組成-tags"><a href="#Cart-在促購計算前，把會員資料組成-tags" class="headerlink" title="Cart 在促購計算前，把會員資料組成 tags"></a>Cart 在促購計算前，把會員資料組成 tags</h3><p>回饋活動的主要執行點是 <code>CalculatePromotionProcessor.ExecuteAsync</code>。<code>GetUserTags</code> 是它呼叫的 service 方法，本身不是 processor。</p>
+<h4 id="回饋活動促購計算的呼叫順序"><a href="#回饋活動促購計算的呼叫順序" class="headerlink" title="回饋活動促購計算的呼叫順序"></a>回饋活動促購計算的呼叫順序</h4><ul>
+<li><strong>LogisticCalculateProcessorLayers</strong>：<code>CalculatePromoCodeProcessor</code> 之後執行 <code>CalculatePromotionProcessor</code>。</li>
+<li><strong>ArrangePromotionPayloadAsync</strong>：建立 <code>CalculateRequestEntity</code>，其中的 <code>User</code> 由 <code>ArrangeUserEntityAsync</code> 組成。</li>
+<li><strong>GetUserTags</strong>：讀取 CRM 合約、卡 ID 與會員首購旗標，寫入 <code>User.Tags</code>。</li>
+<li><strong>CalculateAsync</strong>：<code>PromotionHttpClient.Calculate</code> 將含 tags 的請求送往 Frontend API。</li>
+</ul>
+<p><em>若 <code>AssistType</code> 是 <code>FreeOfChargeAssistOrder</code>，<code>CalculatePromotionProcessor</code> 會在組請求前返回。</em></p>
+<h4 id="GetUserTags-如何決定輸出"><a href="#GetUserTags-如何決定輸出" class="headerlink" title="GetUserTags 如何決定輸出"></a>GetUserTags 如何決定輸出</h4><pre class="mermaid">flowchart TB
+  start["先加入 AllUserScope"] --> crm{"有 CRM 合約？"}
+  crm -->|"是"| card["加入 CrmShopMemberCard:卡 ID"]
+  crm -->|"否"| member{"有會員資料？"}
+  card --> member
+  member -->|"否"| output["返回目前 tags"]
+  member -->|"是"| first{"IsFirstPurchase？"}
+  first -->|"是"| add["加入 FirstPurchase"]
+  first -->|"否"| output
+  add --> output</pre>
+
+<p><em>只有拿到會員資料時，方法才會更新 <code>context.Data.IsMemberFirstPurchase</code>；無會員資料會在首購判斷前返回。</em></p>
+<p>會員首購旗標來自 <code>VipMemberInfo_IsFirstPurchase</code>。<code>VIPMemberService.GetVipMemberBriefDataAsync</code> 先查 300 秒的 Redis cache，未命中時查 Webstore 唯讀庫，再以讀寫庫回退。若查不到會員且商店不允許免登，<code>ArrangeUserEntityAsync</code> 會拋出 <code>ArgumentNullException</code>，不會正常送出促購請求。</p>
+<table>
+<thead>
+<tr>
+<th>本次情境</th>
+<th>組出的 User.Tags／結果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>允許免登、無 CRM 合約</td>
+<td><code>[&quot;AllUserScope&quot;]</code></td>
+</tr>
+<tr>
+<td>無 CRM 合約、首購</td>
+<td><code>[&quot;AllUserScope&quot;, &quot;FirstPurchase&quot;]</code></td>
+</tr>
+<tr>
+<td>CRM 卡 ID 5、非首購</td>
+<td><code>[&quot;AllUserScope&quot;, &quot;CrmShopMemberCard:5&quot;]</code></td>
+</tr>
+<tr>
+<td>CRM 卡 ID 5、首購</td>
+<td><code>[&quot;AllUserScope&quot;, &quot;CrmShopMemberCard:5&quot;, &quot;FirstPurchase&quot;]</code></td>
+</tr>
+<tr>
+<td>查不到會員且不允許免登</td>
+<td>拋錯，未送促購計算</td>
+</tr>
+</tbody></table>
+<h4 id="查看其他會間接執行-GetUserTags-的路徑"><a href="#查看其他會間接執行-GetUserTags-的路徑" class="headerlink" title="查看其他會間接執行 GetUserTags 的路徑"></a>查看其他會間接執行 GetUserTags 的路徑</h4><p><code>CalculatePromoCodeProcessor</code> 也會呼叫 <code>ArrangePromotionPayloadAsync</code> 來驗證優惠碼。<code>CalculatePriceProcessor</code> 透過 <code>ArrangePriceCalculatePayloadAsync</code> 進入 <code>ArrangeUserEntityAsync</code>。因此 <code>CalculatePromotionProcessor</code> 是本文回饋活動促購計算的主要入口，不是 <code>GetUserTags</code> 唯一可能的呼叫者。</p>
+<h2 id="Frontend-API"><a href="#Frontend-API" class="headerlink" title="Frontend API"></a>Frontend API</h2><h3 id="Frontend-API-把-tags-交給引擎判斷"><a href="#Frontend-API-把-tags-交給引擎判斷" class="headerlink" title="Frontend API 把 tags 交給引擎判斷"></a>Frontend API 把 tags 交給引擎判斷</h3><p>請求進來後，Frontend API 建立引擎的 <code>UserContext</code>。引擎依序檢查會員資格，再選出回饋門檻並比較商品金額。</p>
+<h4 id="Cart-請求在-Frontend-API-的計算時序"><a href="#Cart-請求在-Frontend-API-的計算時序" class="headerlink" title="Cart 請求在 Frontend API 的計算時序"></a>Cart 請求在 Frontend API 的計算時序</h4><pre class="mermaid">sequenceDiagram
+    participant Cart
+    participant Frontend as Promotion Frontend API
+    participant Engine as Promotion Engine
+    Cart->>Frontend: POST /api/cart-calculate，帶 User.Tags
+    Frontend->>Frontend: CartCalculateAsync → CalculateShoppingCartAsync
+    Frontend->>Frontend: 建立 UserContext(ID, Tags)
+    Frontend->>Engine: ShoppingCartContext，包含 Consumer
+    Engine->>Engine: IsUserScopeMatched 與 IsConsumerTagMatched
+    Engine->>Engine: GetThreshold 與商品金額判斷
+    Engine-->>Frontend: 活動計算結果
+    Frontend-->>Cart: CalculateResponseEntity</pre>
+
+<p><em>此圖聚焦本文的會員資格與給點門檻。其他商品、通路、地區等規則仍會在完整計算流程中判斷。</em></p>
+<table>
+<thead>
+<tr>
+<th>判斷位置</th>
+<th>本例使用的資料</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>MatchedUserScopes</code></td>
+<td><code>CrmShopMemberCard:5</code></td>
+<td>卡別資格通過</td>
+</tr>
+<tr>
+<td><code>ConsumerTags</code></td>
+<td><code>FirstPurchase</code></td>
+<td>首購必要條件通過</td>
+</tr>
+<tr>
+<td><code>Thresholds</code></td>
+<td><code>AllUserScope</code></td>
+<td>取出滿 800 元給 80 點</td>
+</tr>
+<tr>
+<td><code>IsMatch</code></td>
+<td>符合商品售價 900 元</td>
+<td>900 元達到 800 元門檻</td>
+</tr>
+</tbody></table>
+<p><code>MatchedUserScopes</code> 決定是否符合活動對象，<code>VisibleUserScopes</code> 決定活動是否可見，兩者各自呼叫 scope 的 <code>IsInScope</code>。活動若要求首購，規則建立時會把 <code>FirstPurchase</code> 放進 <code>ConsumerTags</code>；引擎要求其中<strong>全部</strong> tag 都存在。<code>AllUserScope.IsInScope</code> 直接回傳 <code>true</code>。</p>
+<h4 id="通用與卡別門檻的-key-在建立規則時決定"><a href="#通用與卡別門檻的-key-在建立規則時決定" class="headerlink" title="通用與卡別門檻的 key 在建立規則時決定"></a>通用與卡別門檻的 key 在建立規則時決定</h4><pre class="mermaid">flowchart TB
+  rule["RewardPointRuleList 的一筆規則"] --> card{"CrmShopMemberCardId = 0？"}
+  card -->|"是"| all["key = AllUserScope"]
+  card -->|"否"| tier["key = CrmShopMemberCard:ID"]
+  all --> dictionary["寫入 Thresholds 字典"]
+  tier --> dictionary</pre>
+
+<p><em><code>RewardReachPriceWithPoint2RuleService.GetPromotionEngineRule</code> 在組成活動規則時建立 key。購物車計算時讀取既有規則，不在每次請求中重新建立門檻。</em></p>
+<p>規則建立時也會把 <code>RewardPointRuleList</code> 的 <code>Condition</code> 與 <code>Point</code> 組成 <code>ReachPricePointPairs</code>。條件無法轉為數字、點數缺失，或 <code>Thresholds.Add</code> 遇到重複 key，都會失敗。給點處理階段會再用同一個 <code>GetThreshold</code> 選點數。</p>
+<h3 id="與判斷對照的原始碼"><a href="#與判斷對照的原始碼" class="headerlink" title="與判斷對照的原始碼"></a>與判斷對照的原始碼</h3><p>以下程式碼分別來自 Promotion Frontend API 與它使用的 Promotion Engine。引擎的 <code>IsMatch</code> 在活動對象、必要 tag 等條件通過後，才取門檻並檢查金額。</p>
+<h4 id="接收請求並建立-UserContext：CalculateController、BaseProcessGroup"><a href="#接收請求並建立-UserContext：CalculateController、BaseProcessGroup" class="headerlink" title="接收請求並建立 UserContext：CalculateController、BaseProcessGroup"></a>接收請求並建立 UserContext：CalculateController、BaseProcessGroup</h4><p><code>CalculateController.CartCalculateAsync</code> 將請求交給計算 service；<code>BaseProcessGroup.CreateShoppingCartContext</code> 將 <code>User.Tags</code> 傳給引擎：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">HttpPost(<span class="string">&quot;cart-calculate&quot;</span>)</span>]</span><br><span class="line">[<span class="meta">ProducesResponseType(typeof(ApiResponseEntity&lt;CalculateResponseEntity&gt;), 200)</span>]</span><br><span class="line">[<span class="meta">ProducesResponseType(typeof(ApiErrorResponseEntity&lt;object&gt;), 400)</span>]</span><br><span class="line">[<span class="meta">ProducesResponseType(typeof(ApiErrorResponseEntity&lt;object&gt;), 500)</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;IActionResult&gt; <span class="title">CartCalculateAsync</span>(<span class="params">[FromBody] CalculateRequestEntity request</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> result = <span class="keyword">await</span> _calculateService.CalculateShoppingCartAsync(_traceContext.ShopId, request);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> response = <span class="keyword">new</span> ApiResponseEntity&lt;<span class="built_in">object</span>&gt;()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ 詳細資訊</span></span><br><span class="line">        Data = result,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (request.Options.IsVerbose == <span class="literal">false</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment"><span class="doctag">///</span>/ 必要資訊</span></span><br><span class="line">        response.Data = result.ToParent();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> Ok(response);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> userContext = <span class="keyword">new</span> UserContext(context.Calculate.User.Id, context.Calculate.User.Tags);</span><br></pre></td></tr></table></figure>
+
+<h4 id="檢查資格：PromotionCommonRuleBase-IsMatch"><a href="#檢查資格：PromotionCommonRuleBase-IsMatch" class="headerlink" title="檢查資格：PromotionCommonRuleBase.IsMatch"></a>檢查資格：PromotionCommonRuleBase.IsMatch</h4><p>會員 scope 不符或活動必要 tag 不齊，規則就返回 <code>false</code>。<code>ConsumerTags</code> 的檢查使用 <code>All</code>，代表活動要求的 tag 必須全部存在。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!<span class="keyword">this</span>.IsUserScopeMatched(context.Consumer))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.IsBirthdayMonthEnabled &amp;&amp; context.Consumer.Tags.Contains(UserTagConstants.CurrentBirthdayMonth) == <span class="literal">false</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="keyword">this</span>.IsConsumerTagMatched(context.Consumer))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.ConsumerTags.All(tag =&gt; context.Tags.Contains(tag)) == <span class="literal">false</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這兩段分別節錄自同一個引擎類別的 <code>IsMatch</code> 與 <code>IsConsumerTagMatched</code>；原方法還會檢查其他條件。</p>
+<h4 id="選門檻與檢查金額：RewardReachPriceWithPoint2"><a href="#選門檻與檢查金額：RewardReachPriceWithPoint2" class="headerlink" title="選門檻與檢查金額：RewardReachPriceWithPoint2"></a>選門檻與檢查金額：RewardReachPriceWithPoint2</h4><p><code>GetThreshold</code> 枚舉使用者 tags，第一個命中的字典 key 就是本次使用的門檻。找不到或金額未達時，<code>IsMatch</code> 返回 <code>false</code>。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">IsMatch</span>(<span class="params">ShoppingCartContext context</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">base</span>.IsMatch(context)) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> threshold = <span class="keyword">this</span>.GetThreshold(context.Consumer);</span><br><span class="line">    <span class="keyword">if</span> (threshold == <span class="literal">null</span>) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> minPricePair = threshold.ReachPricePointPairs.OrderBy(x =&gt; x.ReachPrice).FirstOrDefault();</span><br><span class="line">    <span class="keyword">return</span> minPricePair != <span class="literal">null</span> &amp;&amp; <span class="keyword">this</span>.GetMatchedProductScopeItems(context).Sum(x =&gt; x.SalePrice) &gt;= minPricePair.ReachPrice;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> RewardReachPriceWithPointThreshold <span class="title">GetThreshold</span>(<span class="params">UserContext userContext</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (Thresholds == <span class="literal">null</span>) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> tag <span class="keyword">in</span> userContext.Tags)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (Thresholds.TryGetValue(tag, <span class="keyword">out</span> <span class="keyword">var</span> threshold))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> threshold;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="建立門檻-key：RewardReachPriceWithPoint2RuleService"><a href="#建立門檻-key：RewardReachPriceWithPoint2RuleService" class="headerlink" title="建立門檻 key：RewardReachPriceWithPoint2RuleService"></a>建立門檻 key：RewardReachPriceWithPoint2RuleService</h4><p>這是活動規則建立階段的程式碼。<code>CrmShopMemberCardId = 0</code> 會產生通用 key，其餘則產生卡別 key。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> crmShopMemberCard = rewardPointRule.CrmShopMemberCardId == <span class="number">0</span> ?</span><br><span class="line">    <span class="keyword">nameof</span>(AllUserScope) :</span><br><span class="line">    <span class="string">$&quot;CrmShopMemberCard:<span class="subst">&#123;rewardPointRule.CrmShopMemberCardId&#125;</span>&quot;</span>;</span><br><span class="line"></span><br><span class="line">thresholds.Add(crmShopMemberCard, rewardReachPriceWithPointThreshold);</span><br></pre></td></tr></table></figure>
+
+<h2 id="優先序"><a href="#優先序" class="headerlink" title="優先序"></a>優先序</h2><h3 id="同時命中兩組門檻，程式沒有明訂誰優先"><a href="#同時命中兩組門檻，程式沒有明訂誰優先" class="headerlink" title="同時命中兩組門檻，程式沒有明訂誰優先"></a>同時命中兩組門檻，程式沒有明訂誰優先</h3><p>Cart 可能同時送出 <code>AllUserScope</code> 與卡別 tag。若活動也同時設定通用和卡別門檻，實際選取取決於引擎先枚舉到哪個 tag。</p>
+<h4 id="同一會員，兩條可能的門檻路徑"><a href="#同一會員，兩條可能的門檻路徑" class="headerlink" title="同一會員，兩條可能的門檻路徑"></a>同一會員，兩條可能的門檻路徑</h4><pre class="mermaid">flowchart TB
+  tags["UserContext.Tags 含兩個 key"] --> first{"先枚舉到哪個命中 tag？"}
+  first -->|"AllUserScope"| general["使用滿 1000 元給 50 點"]
+  first -->|"CrmShopMemberCard:5"| tier["使用滿 800 元給 80 點"]</pre>
+
+<p><em>此圖是依程式碼的條件式推演，不是單次實測結果，也不代表兩組門檻會一起套用。</em></p>
+<p><code>RewardReachPriceWithPoint2.GetThreshold</code> 以 <code>foreach (var tag in userContext.Tags)</code> 找第一個命中值，找到就返回。Cart 雖先把 <code>AllUserScope</code> 放進陣列，Frontend API 建立 <code>UserContext</code> 時會轉成 <code>HashSet&lt;string&gt;</code>。目前沒有明確的卡別優先或通用優先規則，不能把集合枚舉順序當作業務保證。</p>
+<p>若活動只設定一組 <code>AllUserScope</code> 門檻，Cart 固定附上的同名 tag 就能讓引擎找到它；若從 Cart 移除該 tag，活動對象設為「全部」仍可通過，但這類回饋規則會找不到通用門檻。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/11/02/PromotionReward-user-tags-pure/">https://allenlin000.github.io.git/2026/11/02/PromotionReward-user-tags-pure/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/11/02/PromotionReward-user-tags/" title="user-tags"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">user-tags</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">288</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B3%BC%E7%89%A9%E8%BB%8A%E5%A6%82%E4%BD%95%E5%91%8A%E8%A8%B4%E4%BF%83%E8%B3%BC%E3%80%8C%E9%80%99%E4%BD%8D%E6%9C%83%E5%93%A1%E7%AC%A6%E5%90%88%E4%BB%80%E9%BA%BC%E6%A2%9D%E4%BB%B6%E3%80%8D"><span class="toc-number">1.1.</span> <span class="toc-text">購物車如何告訴促購「這位會員符合什麼條件」</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E4%BB%BD-tags%EF%BC%8C%E6%9C%89%E5%85%A9%E7%A8%AE%E4%B8%8D%E5%90%8C%E7%94%A8%E6%B3%95"><span class="toc-number">1.1.1.</span> <span class="toc-text">同一份 tags，有兩種不同用法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E4%B8%80%E7%AD%86%E5%9B%9E%E9%A5%8B%E6%B4%BB%E5%8B%95%E8%B5%B0%E4%B8%80%E6%AC%A1"><span class="toc-number">1.2.</span> <span class="toc-text">用一筆回饋活動走一次</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A8%A1%E6%93%AC%E8%BC%B8%E5%85%A5"><span class="toc-number">1.2.1.</span> <span class="toc-text">模擬輸入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B3%87%E6%A0%BC%E8%88%87%E9%96%80%E6%AA%BB%E4%BE%9D%E5%BA%8F%E9%80%9A%E9%81%8E"><span class="toc-number">1.2.2.</span> <span class="toc-text">資格與門檻依序通過</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shopping"><span class="toc-number">2.</span> <span class="toc-text">Shopping</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Shopping-%E5%82%B3%E6%9C%83%E5%93%A1%E5%8D%A1%E8%B3%87%E6%96%99%EF%BC%8C%E5%B0%9A%E6%9C%AA%E7%94%A2%E7%94%9F-User-Tags"><span class="toc-number">2.1.</span> <span class="toc-text">Shopping 傳會員卡資料，尚未產生 User.Tags</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CRM-%E5%8D%A1%E5%88%A5%E8%B3%87%E6%96%99%E6%80%8E%E9%BA%BC%E9%80%B2%E5%85%A5-Cart"><span class="toc-number">2.1.1.</span> <span class="toc-text">CRM 卡別資料怎麼進入 Cart</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B-Shopping-%E7%9A%84%E8%B3%87%E6%96%99%E4%BE%86%E6%BA%90%E8%88%87%E4%BE%8B%E5%A4%96%E8%99%95%E7%90%86"><span class="toc-number">2.1.2.</span> <span class="toc-text">查看 Shopping 的資料來源與例外處理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cart"><span class="toc-number">3.</span> <span class="toc-text">Cart</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Cart-%E5%9C%A8%E4%BF%83%E8%B3%BC%E8%A8%88%E7%AE%97%E5%89%8D%EF%BC%8C%E6%8A%8A%E6%9C%83%E5%93%A1%E8%B3%87%E6%96%99%E7%B5%84%E6%88%90-tags"><span class="toc-number">3.1.</span> <span class="toc-text">Cart 在促購計算前，把會員資料組成 tags</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9E%E9%A5%8B%E6%B4%BB%E5%8B%95%E4%BF%83%E8%B3%BC%E8%A8%88%E7%AE%97%E7%9A%84%E5%91%BC%E5%8F%AB%E9%A0%86%E5%BA%8F"><span class="toc-number">3.1.1.</span> <span class="toc-text">回饋活動促購計算的呼叫順序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetUserTags-%E5%A6%82%E4%BD%95%E6%B1%BA%E5%AE%9A%E8%BC%B8%E5%87%BA"><span class="toc-number">3.1.2.</span> <span class="toc-text">GetUserTags 如何決定輸出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%85%B6%E4%BB%96%E6%9C%83%E9%96%93%E6%8E%A5%E5%9F%B7%E8%A1%8C-GetUserTags-%E7%9A%84%E8%B7%AF%E5%BE%91"><span class="toc-number">3.1.3.</span> <span class="toc-text">查看其他會間接執行 GetUserTags 的路徑</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Frontend-API"><span class="toc-number">4.</span> <span class="toc-text">Frontend API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Frontend-API-%E6%8A%8A-tags-%E4%BA%A4%E7%B5%A6%E5%BC%95%E6%93%8E%E5%88%A4%E6%96%B7"><span class="toc-number">4.1.</span> <span class="toc-text">Frontend API 把 tags 交給引擎判斷</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Cart-%E8%AB%8B%E6%B1%82%E5%9C%A8-Frontend-API-%E7%9A%84%E8%A8%88%E7%AE%97%E6%99%82%E5%BA%8F"><span class="toc-number">4.1.1.</span> <span class="toc-text">Cart 請求在 Frontend API 的計算時序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E7%94%A8%E8%88%87%E5%8D%A1%E5%88%A5%E9%96%80%E6%AA%BB%E7%9A%84-key-%E5%9C%A8%E5%BB%BA%E7%AB%8B%E8%A6%8F%E5%89%87%E6%99%82%E6%B1%BA%E5%AE%9A"><span class="toc-number">4.1.2.</span> <span class="toc-text">通用與卡別門檻的 key 在建立規則時決定</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%88%87%E5%88%A4%E6%96%B7%E5%B0%8D%E7%85%A7%E7%9A%84%E5%8E%9F%E5%A7%8B%E7%A2%BC"><span class="toc-number">4.2.</span> <span class="toc-text">與判斷對照的原始碼</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8E%A5%E6%94%B6%E8%AB%8B%E6%B1%82%E4%B8%A6%E5%BB%BA%E7%AB%8B-UserContext%EF%BC%9ACalculateController%E3%80%81BaseProcessGroup"><span class="toc-number">4.2.1.</span> <span class="toc-text">接收請求並建立 UserContext：CalculateController、BaseProcessGroup</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AA%A2%E6%9F%A5%E8%B3%87%E6%A0%BC%EF%BC%9APromotionCommonRuleBase-IsMatch"><span class="toc-number">4.2.2.</span> <span class="toc-text">檢查資格：PromotionCommonRuleBase.IsMatch</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%81%B8%E9%96%80%E6%AA%BB%E8%88%87%E6%AA%A2%E6%9F%A5%E9%87%91%E9%A1%8D%EF%BC%9ARewardReachPriceWithPoint2"><span class="toc-number">4.2.3.</span> <span class="toc-text">選門檻與檢查金額：RewardReachPriceWithPoint2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E9%96%80%E6%AA%BB-key%EF%BC%9ARewardReachPriceWithPoint2RuleService"><span class="toc-number">4.2.4.</span> <span class="toc-text">建立門檻 key：RewardReachPriceWithPoint2RuleService</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%84%AA%E5%85%88%E5%BA%8F"><span class="toc-number">5.</span> <span class="toc-text">優先序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%99%82%E5%91%BD%E4%B8%AD%E5%85%A9%E7%B5%84%E9%96%80%E6%AA%BB%EF%BC%8C%E7%A8%8B%E5%BC%8F%E6%B2%92%E6%9C%89%E6%98%8E%E8%A8%82%E8%AA%B0%E5%84%AA%E5%85%88"><span class="toc-number">5.1.</span> <span class="toc-text">同時命中兩組門檻，程式沒有明訂誰優先</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E6%9C%83%E5%93%A1%EF%BC%8C%E5%85%A9%E6%A2%9D%E5%8F%AF%E8%83%BD%E7%9A%84%E9%96%80%E6%AA%BB%E8%B7%AF%E5%BE%91"><span class="toc-number">5.1.1.</span> <span class="toc-text">同一會員，兩條可能的門檻路徑</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/02/PromotionReward-user-tags-pure/" title="user-tags"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="user-tags"/></a><div class="content"><a class="title" href="/2026/11/02/PromotionReward-user-tags-pure/" title="user-tags">user-tags</a><time datetime="2026-11-02T05:52:00.000Z" title="Created 2026-11-02 13:52:00">2026-11-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/02/PromotionReward-user-tags/" title="user-tags"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="user-tags"/></a><div class="content"><a class="title" href="/2026/11/02/PromotionReward-user-tags/" title="user-tags">user-tags</a><time datetime="2026-11-02T05:52:00.000Z" title="Created 2026-11-02 13:52:00">2026-11-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/29/PromotionReward-%E5%A3%BD%E6%98%9F/" title="壽星"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="壽星"/></a><div class="content"><a class="title" href="/2026/10/29/PromotionReward-%E5%A3%BD%E6%98%9F/" title="壽星">壽星</a><time datetime="2026-10-29T09:27:00.000Z" title="Created 2026-10-29 17:27:00">2026-10-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/" title="佔額"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="佔額"/></a><div class="content"><a class="title" href="/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/" title="佔額">佔額</a><time datetime="2026-10-27T02:21:00.000Z" title="Created 2026-10-27 10:21:00">2026-10-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
