@@ -1,0 +1,565 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>線下回饋活動的每日調度中心 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="從前一天的線下訂單出發，看 PromotionRewardBatchDispatcherV2Job 如何分類、比對活動、分派回饋與回收任務。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="線下回饋活動的每日調度中心">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/11/04/PromotionReward-%E7%B7%9A%E4%B8%8B%E5%9B%9E%E9%A5%8B%E6%B4%BB%E5%8B%95%E7%9A%84%E6%AF%8F%E6%97%A5%E8%AA%BF%E5%BA%A6%E4%B8%AD%E5%BF%83/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="從前一天的線下訂單出發，看 PromotionRewardBatchDispatcherV2Job 如何分類、比對活動、分派回饋與回收任務。">
+<meta property="og:locale">
+<meta property="og:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png">
+<meta property="article:published_time" content="2026-11-04T06:52:00.000Z">
+<meta property="article:modified_time" content="2026-11-04T09:54:44.459Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/11/04/PromotionReward-%E7%B7%9A%E4%B8%8B%E5%9B%9E%E9%A5%8B%E6%B4%BB%E5%8B%95%E7%9A%84%E6%AF%8F%E6%97%A5%E8%AA%BF%E5%BA%A6%E4%B8%AD%E5%BF%83/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '線下回饋活動的每日調度中心',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-11-04 17:54:44'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">287</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">線下回饋活動的每日調度中心</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-11-04T06:52:00.000Z" title="Created 2026-11-04 14:52:00">2026-11-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-11-04T09:54:44.459Z" title="Updated 2026-11-04 17:54:44">2026-11-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/PromotionReward/">PromotionReward</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="線下回饋活動的每日調度中心"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="promotionrewardbatchdispatcherv2job"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="promotionrewardbatchdispatcherv2job-1">從一個早晨說起</button><button type="button" class="tab " data-href="promotionrewardbatchdispatcherv2job-2">昨天有哪些訂單</button><button type="button" class="tab " data-href="promotionrewardbatchdispatcherv2job-3">活動看哪個時間</button><button type="button" class="tab " data-href="promotionrewardbatchdispatcherv2job-4">正向怎麼給</button><button type="button" class="tab " data-href="promotionrewardbatchdispatcherv2job-5">逆向怎麼收</button><button type="button" class="tab " data-href="promotionrewardbatchdispatcherv2job-6">工作何時出發</button></ul><div class="tab-contents"><div class="tab-item-content active" id="promotionrewardbatchdispatcherv2job-1"><div class="daily-article">
+<style>
+.daily-article{--d-ink:#493b2d;--d-muted:#71624e;--d-line:#e4d8bf;--d-panel:#fbf7ef;--d-green:#57753f;--d-brown:#a06a41;--d-paper:#fffdf7;color:var(--d-ink);line-height:1.9;overflow-wrap:anywhere}
+.daily-article *{box-sizing:border-box}
+.daily-article h2,.daily-article h3{color:var(--d-ink)}
+.daily-article h2{margin:2.2em 0 .85em;padding-bottom:10px;border-bottom:1px dashed var(--d-line);font-size:1.18em}
+.daily-article h3{margin:1.6em 0 .6em;font-size:1.04em}
+.daily-article p{margin:1em 0}
+.daily-hero{padding:27px 32px;border-radius:21px;background:linear-gradient(145deg,#6f9250,#547a3d 62%,#3f5f2e);color:#fffbed;margin:12px 0 25px}
+.daily-hero h2,.daily-hero p{color:#fffbed!important;margin:0!important;border:0!important;padding:0!important}
+.daily-hero h2{font-size:1.34em!important;margin-bottom:9px!important}
+.daily-figure{border:1px solid var(--d-line);border-radius:18px;overflow:hidden;margin:25px 0;background:var(--d-paper)}
+.daily-figure h3{margin:0!important;padding:14px 19px;border:0!important;background:var(--d-panel);font-size:1em!important}
+.daily-diagram{padding:20px 14px;overflow-x:auto;background:var(--d-paper)}
+.daily-diagram svg{display:block;margin:auto;width:100%;min-width:520px;max-width:none!important;height:auto}
+.daily-diagram.daily-wide svg{min-width:780px}
+.daily-diagram.daily-sequence svg{min-width:970px}
+.daily-diagram.daily-compact svg{min-width:450px;max-width:700px!important}
+.daily-diagram:focus-visible{outline:2px solid var(--d-green);outline-offset:-3px}
+.daily-figure figcaption{padding:11px 17px;border-top:1px solid var(--d-line);background:var(--d-panel);color:var(--d-muted);font-size:13px;line-height:1.7}
+.daily-note{border-left:4px solid var(--d-brown);border-radius:0 13px 13px 0;padding:13px 18px;margin:21px 0;background:var(--d-panel)}
+.daily-note p{margin:0}
+.daily-rail{border-left:3px solid var(--d-green);margin:23px 0 23px 14px;padding-left:22px}
+.daily-step{position:relative;margin:0 0 20px;padding-bottom:2px}
+.daily-step:before{content:'';position:absolute;left:-32px;top:10px;width:15px;height:15px;border-radius:50%;background:var(--d-paper);border:3px solid var(--d-green)}
+.daily-step strong{display:block;color:var(--d-ink)}
+.daily-step p{margin:0;color:var(--d-muted)}
+.daily-step.is-late:before{border-color:var(--d-brown)}
+.daily-step.is-late strong{color:var(--d-brown)}
+.daily-article table{display:block;overflow-x:auto;width:auto;max-width:100%;font-size:14px;margin:20px 0;border:1px solid var(--d-line);border-radius:14px}
+.daily-article table th{background:var(--d-panel);color:var(--d-ink)}
+.daily-article table td,.daily-article table th{padding:11px 13px;white-space:normal;overflow-wrap:anywhere;border-color:var(--d-line);vertical-align:top}
+.daily-article details{border:1px solid var(--d-line);border-radius:13px;background:var(--d-panel);padding:12px 17px;margin:20px 0}
+.daily-article details summary{cursor:pointer;color:var(--d-green);font-weight:700}
+.daily-article details[open] summary{margin-bottom:12px}
+#article-container .daily-article code{overflow-wrap:anywhere;color:var(--d-brown);background:var(--d-panel)}
+#article-container .tabs[id^="PromotionRewardBatchDispatcherV2Job"] .nav-tabs{gap:8px;padding:12px;margin-bottom:24px;background:var(--card-bg,#fbf7ef)}
+#article-container .tabs[id^="PromotionRewardBatchDispatcherV2Job"] .nav-tabs button.tab{flex:1 1 180px;width:auto!important;min-width:0;padding:10px 13px!important;border:1px solid #e4d8bf!important;border-radius:12px!important;background:#fffdf7!important;color:#493b2d!important;text-align:left!important;line-height:1.45}
+#article-container .tabs[id^="PromotionRewardBatchDispatcherV2Job"] .nav-tabs button.tab.active{background:#e8f1dc!important;border-color:#7a9a5e!important;color:#3f542d!important}
+[data-theme="dark"] .daily-article{--d-ink:#ece5d6;--d-muted:#c6bba8;--d-line:#575744;--d-panel:#303226;--d-paper:#25291f;--d-green:#9cbd7d;--d-brown:#d6a371}
+[data-theme="dark"] #article-container .tabs[id^="PromotionRewardBatchDispatcherV2Job"] .nav-tabs button.tab{background:#2b3025!important;color:#ece5d6!important;border-color:#575744!important}
+[data-theme="dark"] #article-container .tabs[id^="PromotionRewardBatchDispatcherV2Job"] .nav-tabs button.tab.active{background:#3a4b30!important;color:#ece5d6!important;border-color:#8e9f78!important}
+@media(max-width:600px){.daily-hero{padding:22px 20px}.daily-diagram{padding:15px 8px}.daily-article table td,.daily-article table th{padding:9px;font-size:13px}}
+</style>
+<div class="daily-hero"><h2>清晨四點半，昨天的訂單開始排隊</h2><p>商店昨天有人成交，也有人退貨。會員等級計算完成後，回饋活動的工作才剛開始：哪些訂單要給回饋，哪些已給的回饋要收回？</p></div>
+
+<p>這個問題由 <code>PromotionRewardBatchDispatcherV2Job</code> 接手。它像一位值早班的調度員，先核對訂單與活動，再把工作分給後面的給點、給券和回收 Job。調度員只負責整理與派發；點數和券是否真的變動，要看下游執行結果。</p>
+<figure class="daily-figure"><h3>這個 Job 手上的三件事</h3><div class="daily-diagram daily-wide" tabindex="0" role="region" aria-label="每日調度的資料來源與三項工作">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+  event[&quot;會員等級計算完成事件&quot;] --&gt; dispatcher[&quot;每日調度 Job&quot;]
+  orders[&quot;CRM 訂單&quot;] --&gt; dispatcher
+  activity[&quot;回饋活動&quot;] --&gt; dispatcher
+  dispatcher --&gt; classify[&quot;辨認正向與負向訂單&quot;]
+  dispatcher --&gt; match[&quot;比對當時有效的活動&quot;]
+  dispatcher --&gt; tasks[&quot;建立回饋、回收與稽核 Task&quot;]
+  </pre></div>
+</div><figcaption>箭頭表示資料與工作去向。這張圖是責任總覽，實際處理順序會在後面逐段展開。</figcaption></figure>
+
+<p>排程以商店和 <code>CalculateDate</code> 為單位。上游 <code>PromotionRewardActiveCrmShopDispatcherJob</code> 逐商店建立 <code>PromotionRewardBatchDispatcherV2</code> Task，事件的 <code>Source</code> 帶著 <code>ShopId</code>、<code>CalculateDate</code>、<code>CreatedBy</code>。其中 <code>CalculateDate</code> 決定要讀哪一天的子單；它不等於這個 Job 真正起跑的時間。</p>
+</div></div><div class="tab-item-content" id="promotionrewardbatchdispatcherv2job-2"><div class="daily-article">
+<div class="daily-hero"><h2>先點名，再分隊</h2><p>調度員打開的不是「昨天成立的訂單」清冊，而是昨天完成會員等級計算的有效子單。這批資料到手後，才有正向與負向之分。</p></div>
+
+<figure class="daily-figure"><h3>04:30 起跑，查詢範圍停在午夜</h3><div class="daily-rail"><div class="daily-step"><strong>2026-11-02 00:00</strong><p>查詢下界，包含這個時刻。</p></div><div class="daily-step"><strong>2026-11-03 00:00</strong><p>查詢上界，不包含這個時刻。</p></div><div class="daily-step is-late"><strong>2026-11-03 04:30</strong><p>Job 實際起跑；不會因此多查到 00:00 至 04:30 的子單。</p></div></div><figcaption>假設 <code>CalculateDate=2026-11-03</code>。篩選欄位是 <code>CrmSalesOrderSlaveCalculateMemberTierDateTime</code>，不是訂單完成時間。</figcaption></figure>
+
+<p>程式用 <code>GetCrmSalesOrderSlavesByDateAsync(ShopId, CalculateDate)</code> 取得指定商店、<code>CrmSalesOrderSlaveValidFlag=true</code>，且會員等級計算時間落在上述區間的子單。若一筆都沒有，這次調度就到此結束。</p>
+<h2 id="正向單與負向單，怎麼分？"><a href="#正向單與負向單，怎麼分？" class="headerlink" title="正向單與負向單，怎麼分？"></a>正向單與負向單，怎麼分？</h2><figure class="daily-figure"><h3>先看 PurchaseType 與 TypeMemo，再看勾稽欄位</h3><div class="daily-diagram daily-compact" tabindex="0" role="region" aria-label="正向與負向子單的分類條件">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+  child[&quot;本批有效子單&quot;] --&gt; kind{&quot;PurchaseType 與 TypeMemo&quot;}
+  kind --&gt;|&quot;Normal 配一般類，或 Return 配折扣類&quot;| positive[&quot;正向候選子單&quot;]
+  kind --&gt;|&quot;Return 配一般類，或 Normal 配折扣類&quot;| linked{&quot;勾稽子單 ID 不等於 0？&quot;}
+  kind --&gt;|&quot;其他組合&quot;| outside[&quot;不進本 Job 的正逆集合&quot;]
+  linked --&gt;|&quot;是&quot;| negative[&quot;負向候選子單&quot;]
+  linked --&gt;|&quot;否&quot;| outside
+  </pre></div>
+</div><figcaption>正向分類不檢查 <code>CrmSalesOrderSlaveOriginalCrmSalesOrderSlaveId</code>；負向分類一定要求該欄位不等於 <code>0</code>。</figcaption></figure>
+
+<table>
+<thead>
+<tr>
+<th><code>CrmSalesOrderSlavePurchaseType</code></th>
+<th><code>CrmSalesOrderSlaveTypeMemo</code></th>
+<th>分類</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Normal</code></td>
+<td><code>Normal</code>、<code>Others</code>、<code>Other</code>、<code>Ignored</code>、<code>Gift</code>、空字串</td>
+<td>正向</td>
+</tr>
+<tr>
+<td><code>Return</code></td>
+<td><code>Coupon</code>、<code>Point</code></td>
+<td>正向</td>
+</tr>
+<tr>
+<td><code>Return</code></td>
+<td>前述一般類</td>
+<td>負向，但還要有勾稽子單 ID</td>
+</tr>
+<tr>
+<td><code>Normal</code></td>
+<td><code>Coupon</code>、<code>Point</code></td>
+<td>負向，但還要有勾稽子單 ID</td>
+</tr>
+</tbody></table>
+<p>所以，一筆 <code>Normal</code> 加一般類的子單，即使 <code>CrmSalesOrderSlaveOriginalCrmSalesOrderSlaveId</code> 有值，仍被視為正向候選。負向候選則相反，欄位若為 <code>0</code>，連第一輪名單都進不去；欄位有值也只表示「寫了要勾稽的 ID」，尚不能保證查得到對應子單。</p>
+<h2 id="五個集合，像五次逐步核對的名單"><a href="#五個集合，像五次逐步核對的名單" class="headerlink" title="五個集合，像五次逐步核對的名單"></a>五個集合，像五次逐步核對的名單</h2><figure class="daily-figure"><h3>負向名單怎麼一路收斂</h3><div class="daily-diagram daily-wide" tabindex="0" role="region" aria-label="負向子單從候選到獨立回收的篩選流程">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+  candidates[&quot;allReturnOrderSlaves：負向候選子單&quot;] --&gt; mains[&quot;returnOrders：查到的有效 Others 主單&quot;]
+  mains --&gt; passed[&quot;returnOrderSlaves：所屬主單通過檢查的負向子單&quot;]
+  candidates --&gt; passed
+  passed --&gt; origin[&quot;originOrderSlaves：依勾稽子單 ID 查回的有效子單&quot;]
+  passed --&gt; check{&quot;勾稽主單在本批 normalOrders？&quot;}
+  check --&gt;|&quot;是&quot;| together[&quot;重算模式：本批正流程一起處理&quot;]
+  check --&gt;|&quot;否&quot;| filtered[&quot;filteredReturnOrderSlaves：逆流程嘗試獨立回收&quot;]
+  </pre></div>
+</div><figcaption><code>originOrderSlaves</code> 是另外查回的資料，不是從 <code>returnOrderSlaves</code> 再篩出的子集合。圖中最後的分流只決定重算模式的獨立回收。</figcaption></figure>
+
+<table>
+<thead>
+<tr>
+<th>名單</th>
+<th>實際裝的是什麼</th>
+<th>留給下一步做什麼</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>allReturnOrderSlaves</code></td>
+<td>符合負向欄位組合、且勾稽子單 ID 不為 <code>0</code> 的候選子單</td>
+<td>查這些子單所屬主單。</td>
+</tr>
+<tr>
+<td><code>returnOrders</code></td>
+<td>同商店、有效、<code>CrmSalesOrderTypeDef=Others</code> 的主單</td>
+<td>確認候選子單能否繼續。</td>
+</tr>
+<tr>
+<td><code>returnOrderSlaves</code></td>
+<td>所屬主單出現在 <code>returnOrders</code> 的負向子單</td>
+<td>正流程可讀其關聯 ID；逆流程以它逐筆比對。</td>
+</tr>
+<tr>
+<td><code>originOrderSlaves</code></td>
+<td>依 <code>CrmSalesOrderSlaveOriginalCrmSalesOrderSlaveId</code> 查回的有效子單</td>
+<td>取得當時的完成時間與 CRM 會員 ID。</td>
+</tr>
+<tr>
+<td><code>filteredReturnOrderSlaves</code></td>
+<td>勾稽主單不在本批 <code>normalOrders</code> 的負向子單</td>
+<td>重算模式下嘗試獨立回收。</td>
+</tr>
+</tbody></table>
+<p>正向那一邊也會用候選子單的 <code>CrmSalesOrderSlaveCrmSalesOrderId</code> 查主單；同商店、有效且類型為 <code>Others</code> 的主單，才進 <code>normalOrders</code>。因此 <code>normalOrders</code> 與 <code>returnOrders</code> 都裝主單，兩者來源子單不同。</p>
+<div class="daily-note"><p>假設負向子單 <code>201</code> 的 <code>CrmSalesOrderSlaveOriginalCrmSalesOrderId=100</code>。主單 <code>100</code> 在本批 <code>normalOrders</code>，子單 <code>201</code> 就不進 filtered；主單 <code>100</code> 不在，才進 filtered。程式比的是本批主單 ID，沒有直接比較兩筆子單的日期。</p></div>
+
+<p>舊模式仍會從 <code>returnOrderSlaves</code> 逐筆找對應子單與活動，不看 filtered 名單；不能把 filtered 當成所有回收請求的唯一入口。主單與子單 ID 的查詢會先去重，再分批讀取。</p>
+</div></div><div class="tab-item-content" id="promotionrewardbatchdispatcherv2job-3"><div class="daily-article">
+<div class="daily-hero"><h2>訂單是昨天進名單，活動卻要看當時</h2><p>昨日完成會員等級計算，只決定哪些子單被拿出來檢查。真正要比對哪檔活動，還得回到那張訂單完成的時刻。</p></div>
+
+<figure class="daily-figure"><h3>正、逆流程各拿哪個完成時間</h3><div class="daily-diagram daily-wide" tabindex="0" role="region" aria-label="正向與逆向活動時間比對">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+  main[&quot;正向：本批 normalOrders 主單&quot;] --&gt; mainTime[&quot;主單完成時間&quot;]
+  origin[&quot;逆向：originOrderSlaves 對應子單&quot;] --&gt; originTime[&quot;對應子單完成時間&quot;]
+  mainTime --&gt; range[&quot;先查時間範圍內的候選活動&quot;]
+  originTime --&gt; range
+  range --&gt; gate[&quot;排除開始時間晚於執行當日 04:00 的活動&quot;]
+  gate --&gt; final[&quot;逐筆檢查：活動開始 ≤ 完成時間 ≤ 活動結束&quot;]
+  </pre></div>
+</div><figcaption>正向時間欄位為 <code>CrmSalesOrderTradesOrderFinishDateTime</code>；逆向為對應子單的 <code>CrmSalesOrderSlaveTradesOrderFinishDateTime</code>。候選活動限固定點數、比例點數、優惠券三類。</figcaption></figure>
+
+<p>正流程先取本批主單最早與最晚的完成時間，逆流程則取 <code>originOrderSlaves</code> 對應資料的最早與最晚完成時間，各自向活動 API 查候選活動。拿到候選名單後，程式先用執行當天的凌晨四點做活動開始時間門檻；最後才對每張主單或每筆對應子單，檢查完成時間是否落在活動有效期內。四點限制的是活動何時開始，並不限制訂單的完成時間。</p>
+<h2 id="晚一天執行，哪裡會變？"><a href="#晚一天執行，哪裡會變？" class="headerlink" title="晚一天執行，哪裡會變？"></a>晚一天執行，哪裡會變？</h2><figure class="daily-figure"><h3>同一個 CalculateDate，活動門檻可能向後移</h3><div class="daily-rail"><div class="daily-step"><strong>原定 11/03 執行</strong><p>活動開始時間須不晚於 11/03 04:00。</p></div><div class="daily-step is-late"><strong>實際 11/04 才執行</strong><p>活動開始時間門檻變成 11/04 04:00；<code>CalculateDate</code> 仍帶 11/03，子單查詢區間不變。</p></div><div class="daily-step"><strong>逐筆比對仍要過關</strong><p>活動須由 API 回傳，且訂單完成時間落在活動有效期，才可能建立請求。</p></div></div><figcaption>例如 11/03 12:00 開始的活動，晚一天執行時可能多通過四點門檻；若訂單在活動開始前已完成，仍不匹配。</figcaption></figure>
+
+<p>這個差異來自 <code>DateTime.Now</code>，不是 <code>CalculateDate</code>。同一批訂單若延後處理，活動候選名單可能不同。至於被填成未來的完成時間，這段 Job 與 <code>PromotionService</code> 沒有額外的「不得晚於現在」檢查；只要其他查詢與活動期間條件都成立，仍可能產生請求。這是依程式碼推演，未以真實資料驗證。</p>
+</div></div><div class="tab-item-content" id="promotionrewardbatchdispatcherv2job-4"><div class="daily-article">
+<div class="daily-hero"><h2>一張主單，可能走進不只一檔活動</h2><p>正流程逐張看主單完成當時有哪些活動。每組符合的「主單 × 活動」都變成一筆待派發的回饋請求。</p></div>
+
+<figure class="daily-figure"><h3>ProcessPromotionRewardByOrders 如何寫出請求</h3><div class="daily-diagram daily-wide" tabindex="0" role="region" aria-label="正向回饋請求的建立流程">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+  mains[&quot;normalSalesOrders&quot;] --&gt; member[&quot;把 CRM 會員 ID 對應到 NineYi MemberId&quot;]
+  member --&gt; activity[&quot;按主單完成時間查活動&quot;]
+  activity --&gt; matched{&quot;這張主單在活動期間完成？&quot;}
+  matched --&gt;|&quot;否&quot;| skip[&quot;不建立這組請求&quot;]
+  matched --&gt;|&quot;是&quot;| mode{&quot;活動走重算模式？&quot;}
+  mode --&gt;|&quot;是&quot;| related[&quot;帶入跨主單勾稽的負向子單 ID&quot;]
+  mode --&gt;|&quot;否&quot;| empty[&quot;RelatedOrderSlaveIdList 留空&quot;]
+  related --&gt; request[&quot;建立 PromotionRewardRequestEntity&quot;]
+  empty --&gt; request
+  </pre></div>
+</div><figcaption>同一主單符合多檔活動時，每檔活動各建一筆請求。這裡只整理請求，尚未計算回饋金額，也尚未給點或給券。</figcaption></figure>
+
+<h2 id="為什麼先查-MemberId？"><a href="#為什麼先查-MemberId？" class="headerlink" title="為什麼先查 MemberId？"></a>為什麼先查 MemberId？</h2><p>CRM 主單上的 <code>CrmSalesOrderCrmMemberId</code> 是訂單的會員線索，派發階段卻要用 NineYi 的 <code>MemberId</code> 分組。程式先批次建立兩者的對照，再把 <code>MemberId</code> 寫進請求。如此，同會員、同商店、同活動的多張訂單才會被放進同一批，依 <code>OrderDateTime</code> 由早到晚交給下游處理。</p>
+<figure class="daily-figure"><h3>同一會員的兩張主單如何排隊</h3><div class="daily-rail"><div class="daily-step"><strong>12:00，主單 100</strong><p>CRM 會員對應 NineYi <code>MemberId=9001</code>，符合活動 <code>300</code>。</p></div><div class="daily-step"><strong>13:00，主單 102</strong><p>同樣是會員 <code>9001</code>、商店 <code>125</code>、活動 <code>300</code>。</p></div><div class="daily-step"><strong>派發時合成一個會員批次</strong><p>以 <code>(9001, 125, 300)</code> 分組，先處理主單 <code>100</code>，再處理主單 <code>102</code>。</p></div></div><figcaption>時間與 ID 是示意值。<code>ProcessPromotionRewardByOrders</code> 先建請求；排序發生在 Dispatcher 的會員分組階段。</figcaption></figure>
+
+<p>若 CRM 會員映射不到 NineYi <code>MemberId</code>，方法仍把請求加入 <code>requests</code> 並記警告。到後面的會員分組，<code>MemberId &lt;= 0</code> 才被略過，該筆不會上傳 S3，也不會產生對應的處理 Task。</p>
+<h2 id="RelatedOrderSlaveIdList：把跨主單的負向子單帶進來"><a href="#RelatedOrderSlaveIdList：把跨主單的負向子單帶進來" class="headerlink" title="RelatedOrderSlaveIdList：把跨主單的負向子單帶進來"></a>RelatedOrderSlaveIdList：把跨主單的負向子單帶進來</h2><figure class="daily-figure"><h3>為什麼主單 100 的請求會帶上子單 201</h3><div class="daily-diagram daily-compact" tabindex="0" role="region" aria-label="跨主單負向子單與正向請求的關係">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+  main[&quot;正在算主單 100&quot;] --&gt; reward[&quot;主單 100 的回饋請求&quot;]
+  returnMain[&quot;負向主單 200&quot;] --&gt; child[&quot;負向子單 201&quot;]
+  child --&gt;|&quot;勾稽主單 ID 指向 100&quot;| reward
+  reward --&gt; list[&quot;RelatedOrderSlaveIdList &#x3D; [201]&quot;]
+  </pre></div>
+</div><figcaption>只有活動走重算模式，且負向子單所屬主單不同於目前主單，才從 <code>returnOrderSlaves</code> 取其 ID；舊模式傳空清單。</figcaption></figure>
+
+<p>判斷使用兩個欄位：負向子單的 <code>CrmSalesOrderSlaveOriginalCrmSalesOrderId</code> 必須等於目前主單 ID；它自己的 <code>CrmSalesOrderSlaveCrmSalesOrderId</code> 又必須不同於目前主單 ID。符合後把 <code>CrmSalesOrderSlaveId</code> 去重，放進 <code>RelatedOrderSlaveIdList</code>。這裡取的是全部 <code>returnOrderSlaves</code>，不是 filtered 名單；同主單的負向子單不會從這個清單額外帶入。</p>
+<details><summary>展開一筆正向請求的示意資料</summary>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;ShopId&quot;</span><span class="punctuation">:</span> <span class="number">125</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;CrmSalesOrderId&quot;</span><span class="punctuation">:</span> <span class="number">100</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;OrderDateTime&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2025-06-27T12:00:00&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;PromotionEngineId&quot;</span><span class="punctuation">:</span> <span class="number">300</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;PromotionEngineType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;RewardReachPriceWithPoint2&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;RewardFlowEnum&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Reward&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;OrderTypeDefEnum&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Others&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;RelatedOrderSlaveIdList&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="number">201</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;MemberId&quot;</span><span class="punctuation">:</span> <span class="number">9001</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;TradesOrderGroupCode&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;S3Key&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>OrderDateTime</code> 取自主單完成時間；<code>S3Key</code> 此時仍為空。這是程式碼推演的範例，沒有查真實訂單或活動。</p>
+</details>
+
+<p>這筆清單之後會隨完整請求上傳 S3。下游給點或給券 Job 下載後，<code>OthersCrmSalesOrderPromotionRewardCalculateService</code> 會依清單查子單，再確認勾稽主單與子單關係是否對得上，才加入該次計算。</p>
+</div></div><div class="tab-item-content" id="promotionrewardbatchdispatcherv2job-5"><div class="daily-article">
+<div class="daily-hero"><h2>退貨來了，先找它當初對應哪一筆</h2><p>回收不能只看今天這筆負向子單。程式要先找到它勾稽的子單，再回到那筆資料完成時，確認當時有哪些活動。</p></div>
+
+<figure class="daily-figure"><h3>ProcessRecycleByOrderSalves 的檢查次序</h3><div class="daily-diagram daily-wide" tabindex="0" role="region" aria-label="逆向回收請求的檢查與分支">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+  start[&quot;負向子單與勾稽對應子單&quot;] --&gt; exists{&quot;兩組資料都有？&quot;}
+  exists --&gt;|&quot;否&quot;| stop[&quot;直接返回&quot;]
+  exists --&gt;|&quot;是&quot;| member[&quot;準備 CRM 與 NineYi 會員對照&quot;]
+  member --&gt; activity[&quot;按 originSalesOrderSlaves 完成時間查活動&quot;]
+  activity --&gt; link{&quot;這筆負向子單找得到對應子單與在期活動？&quot;}
+  link --&gt;|&quot;否&quot;| next[&quot;略過這筆&quot;]
+  link --&gt;|&quot;是&quot;| mode{&quot;這檔活動走重算模式？&quot;}
+  mode --&gt;|&quot;是&quot;| filtered{&quot;這筆在 filteredReturnOrderSlaves？&quot;}
+  filtered --&gt;|&quot;否&quot;| next
+  filtered --&gt;|&quot;是&quot;| request[&quot;建立回收請求&quot;]
+  mode --&gt;|&quot;否，舊模式&quot;| request
+  </pre></div>
+</div><figcaption>每筆負向子單與每檔符合的活動都會各自判斷。圖中的「略過這筆」是當前組合不建立請求，不代表整批 Job 停止。</figcaption></figure>
+
+<p>方法先合併負向子單與查回的對應子單，批次準備 CRM 會員 ID 到 NineYi <code>MemberId</code> 的映射；真正寫入回收請求時，用的是對應子單上的 <code>CrmSalesOrderSlaveCrmMemberId</code>。接著以 <code>originSalesOrderSlaves</code> 的完成時間範圍查候選活動，逐筆用 <code>CrmSalesOrderSlaveOriginalCrmSalesOrderSlaveId</code> 找對應子單，再拿該子單的完成時間比對活動期間。</p>
+<h2 id="重算與舊模式，分界就在-filtered-名單"><a href="#重算與舊模式，分界就在-filtered-名單" class="headerlink" title="重算與舊模式，分界就在 filtered 名單"></a>重算與舊模式，分界就在 filtered 名單</h2><table>
+<thead>
+<tr>
+<th>活動模式</th>
+<th>目前負向子單</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>重算</td>
+<td>不在 <code>filteredReturnOrderSlaves</code></td>
+<td>不另建回收請求；它勾稽的主單已在本批 <code>normalOrders</code>。</td>
+</tr>
+<tr>
+<td>重算</td>
+<td>在 <code>filteredReturnOrderSlaves</code></td>
+<td>建立獨立回收請求。</td>
+</tr>
+<tr>
+<td>舊模式</td>
+<td>不論是否在 filtered</td>
+<td>找到對應子單與在期活動後，建立回收請求。</td>
+</tr>
+</tbody></table>
+<p>給券活動的 <code>IsRecalculateMode</code> 直接為 <code>true</code>；其他活動依 <code>PromotionReward/CalculateSwitch</code> 設定，以活動開始時間判斷。重算分支若整個 filtered 名單為空，也會直接跳過獨立回收。這張表的前提是：負向子單已找到對應資料，且至少有一檔當時有效的活動。</p>
+<figure class="daily-figure"><h3>子單 201 的一趟模擬旅程</h3><div class="daily-rail"><div class="daily-step"><strong>找到負向子單 201</strong><p>它的 <code>CrmSalesOrderSlaveOriginalCrmSalesOrderSlaveId=101</code>。</p></div><div class="daily-step"><strong>查回對應子單 101</strong><p>完成時間為 <code>2026-11-03 12:00</code>；會員映射到 <code>MemberId=9001</code>。</p></div><div class="daily-step"><strong>活動 300 當時有效</strong><p>假設活動走重算，且子單 <code>201</code> 在 filtered 名單。</p></div><div class="daily-step"><strong>留下回收請求一筆</strong><p>請求指出子單 <code>201</code>、活動 <code>300</code>、會員 <code>9001</code>，等待 Dispatcher 分派。</p></div></div><figcaption>這是靜態情境模擬，並非資料庫、活動 API 或 NMQ 的實際執行紀錄。</figcaption></figure>
+
+<details><summary>展開這筆回收請求的示意資料</summary>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;ShopId&quot;</span><span class="punctuation">:</span> <span class="number">125</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;CrmSalesOrderSlaveId&quot;</span><span class="punctuation">:</span> <span class="number">201</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;OrderCreateDate&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2026-11-03T12:00:00&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;PromotionId&quot;</span><span class="punctuation">:</span> <span class="number">300</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;PromotionEngineType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;RewardReachPriceWithPoint2&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;EventName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Return&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;TriggerDatetime&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2026-11-04T04:30:00&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;TSCode&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;OrderTypeDefEnum&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Others&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;MemberId&quot;</span><span class="punctuation">:</span> <span class="number">9001</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;S3Key&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>OrderCreateDate</code> 這個欄位名稱容易讓人聯想到成立時間，這裡實際放的是子單 <code>101</code> 的 <code>CrmSalesOrderSlaveTradesOrderFinishDateTime</code>。<code>TriggerDatetime</code> 在建構時讀取 <code>DateTime.Now</code>，示意值不會剛好等於真實時間。</p>
+</details>
+
+<p>回收請求加入 <code>requests</code>，仍不表示點數已回收。若會員映射失敗，請求仍加入清單；Dispatcher 後續只把 <code>MemberId &gt; 0</code> 的請求分組派發。</p>
+</div></div><div class="tab-item-content" id="promotionrewardbatchdispatcherv2job-6"><div class="daily-article">
+<div class="daily-hero"><h2>名單備妥後，工作分批出發</h2><p>正向與逆向請求先各自整理。完整資料放在 S3，NMQ Task 只帶能找到那份資料的索引；回饋先走，回收稍後，稽核再接手。</p></div>
+
+<figure class="daily-figure"><h3>Dispatcher 到下游 Job 的交接</h3><div class="daily-diagram daily-sequence" tabindex="0" role="region" aria-label="會員分組後上傳 S3 與建立 NMQ Task 的時序">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+  participant D as Dispatcher
+  participant S as S3
+  participant Q as NMQ
+  participant W as 下游 Job
+  D-&gt;&gt;D: 先整理正向請求，再整理逆向請求
+  D-&gt;&gt;D: 依會員、商店、活動分組
+  D-&gt;&gt;S: 上傳每組完整請求
+  S--&gt;&gt;D: 上傳成功
+  D-&gt;&gt;Q: 建立含 S3Key 的處理 Task
+  Note over Q,W: BookingTime 到達後才可能開始處理
+  Note over Q,W: 下游 Job 取得已預約的 Task Data
+  W-&gt;&gt;S: 依 S3Key 下載完整請求
+  S--&gt;&gt;W: 回傳請求清單
+  W-&gt;&gt;W: 逐筆進入回饋或回收處理
+  </pre></div>
+</div><figcaption>建立 Task 與下游完成業務是兩個階段。正向各組按 <code>OrderDateTime</code> 排序；回收各組保留原請求順序。</figcaption></figure>
+
+<p>回饋以 <code>(MemberId, ShopId, PromotionEngineId)</code> 分組；回收以 <code>(MemberId, ShopId, PromotionId)</code> 分組。每組的完整請求清單先上傳 S3，Task Data 只帶商店、會員、活動、類型與 <code>S3Key</code> 等代表資料。S3 key 形如 <code>&#123;環境&#125;/PromotionRewardBatchDispatcherV2/&#123;ShopId&#125;/&#123;MemberId&#125;/&#123;活動ID&#125;/&#123;Guid&#125;.json</code>；環境值為 <code>PP</code> 時會寫成 <code>Prod</code>。上傳失敗會記錄錯誤並拋例外，不能當成已成功派發。</p>
+<table>
+<thead>
+<tr>
+<th>活動類型</th>
+<th>回饋 Task</th>
+<th>回收 Task</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>RewardReachPriceWithPoint2</code>、<code>RewardReachPriceWithRatePoint2</code></td>
+<td><code>PromotionRewardLoyaltyPointsV2PriorityLow</code></td>
+<td><code>RecycleLoyaltyPointsV2PriorityLow</code></td>
+</tr>
+<tr>
+<td><code>RewardReachPriceWithCoupon</code></td>
+<td><code>PromotionRewardCouponPriorityLow</code></td>
+<td><code>PromotionRecycleCouponPriorityLow</code></td>
+</tr>
+</tbody></table>
+<p>若活動類型沒有對應 JobName，S3 資料已上傳，但程式只記警告，不建立該組處理 Task。<code>MemberId &lt;= 0</code> 的請求在上傳前被略過。這兩種情況的請求仍可能留在原始清單；稽核是否排程，看的正是原始回饋或回收清單是否非空。</p>
+<h2 id="四點半起跑，各種-Task-約何時-Booking？"><a href="#四點半起跑，各種-Task-約何時-Booking？" class="headerlink" title="四點半起跑，各種 Task 約何時 Booking？"></a>四點半起跑，各種 Task 約何時 Booking？</h2><figure class="daily-figure"><h3>排程相對的是實際執行時間</h3><div class="daily-rail"><div class="daily-step"><strong>約 04:30：回饋處理 Task</strong><p>建立後不設定 <code>BookingTime</code>，可進入排隊。</p></div><div class="daily-step"><strong>約 11:00：回收 Task、回饋分派稽核 Task</strong><p>各自以建立時的 <code>DateTime.Now + 6 小時 30 分</code> 預約。</p></div><div class="daily-step"><strong>約 14:30：回收分派稽核 Task</strong><p>以建立時的 <code>DateTime.Now + 10 小時</code> 預約。</p></div><div class="daily-step"><strong>約 15:00：給點回收稽核 Task</strong><p>以建立時的 <code>DateTime.Now + 10 小時 30 分</code> 預約。</p></div></div><figcaption>時間是以 04:30 起跑換算的示意。各方法各自讀 <code>DateTime.Now</code>，查詢與 S3 上傳也會耗時；NMQ 真正執行時間另受佇列與 Worker 影響。</figcaption></figure>
+
+<table>
+<thead>
+<tr>
+<th>何時建立稽核 Task</th>
+<th>JobName</th>
+<th>帶入的時間資料</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>回饋請求清單非空</td>
+<td><code>AuditPromotionRewardLoyaltyPointsDispatchV2</code></td>
+<td><code>ExecuteTime=CalculateDate.Date</code>。</td>
+</tr>
+<tr>
+<td>回收請求清單非空</td>
+<td><code>AuditPromotionRecycleDispatch</code></td>
+<td><code>ExecuteTime=CalculateDate.Date</code>。</td>
+</tr>
+<tr>
+<td>回收請求清單非空</td>
+<td><code>BatchAuditLoyaltyPoints</code></td>
+<td><code>StartDateTime=CalculateDate.Date.AddDays(-1)</code>，<code>EndDateTime=CalculateDate.Date</code>。</td>
+</tr>
+</tbody></table>
+<div class="daily-note"><p><code>CalculateDate</code> 決定查詢哪批子單，也成為稽核 Task 的資料日期；<code>DateTime.Now</code> 決定活動四點門檻與各 Task 的預約時間。兩個時間各司其職，延後執行時尤其要分清。</p></div>
+
+<details><summary>查看本篇對照的主要程式碼</summary>
+<p><code>PromotionRewardBatchDispatcherV2Job.cs</code> 負責查詢、分類、分組、S3 與 NMQ 派發；<code>PromotionService.cs</code> 的 <code>ProcessPromotionRewardByOrders</code> 和 <code>ProcessRecycleByOrderSalves</code> 負責活動比對與請求建立；<code>RecycleLoyaltyPointsV2.cs</code> 是點數回收下游入口。</p>
+</details>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/11/04/PromotionReward-%E7%B7%9A%E4%B8%8B%E5%9B%9E%E9%A5%8B%E6%B4%BB%E5%8B%95%E7%9A%84%E6%AF%8F%E6%97%A5%E8%AA%BF%E5%BA%A6%E4%B8%AD%E5%BF%83/">https://allenlin000.github.io.git/2026/11/04/PromotionReward-%E7%B7%9A%E4%B8%8B%E5%9B%9E%E9%A5%8B%E6%B4%BB%E5%8B%95%E7%9A%84%E6%AF%8F%E6%97%A5%E8%AA%BF%E5%BA%A6%E4%B8%AD%E5%BF%83/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/10/29/PromotionReward-%E5%A3%BD%E6%98%9F/" title="壽星"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">壽星</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">287</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-1"><span class="toc-number">1.</span> <span class="toc-text">清晨四點半，昨天的訂單開始排隊</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-1"><span class="toc-number">1.1.</span> <span class="toc-text">這個 Job 手上的三件事</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-2"><span class="toc-number">2.</span> <span class="toc-text">先點名，再分隊</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-2"><span class="toc-number">2.1.</span> <span class="toc-text">04:30 起跑，查詢範圍停在午夜</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%90%91%E5%96%AE%E8%88%87%E8%B2%A0%E5%90%91%E5%96%AE%EF%BC%8C%E6%80%8E%E9%BA%BC%E5%88%86%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">正向單與負向單，怎麼分？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-2"><span class="toc-number">3.1.</span> <span class="toc-text">先看 PurchaseType 與 TypeMemo，再看勾稽欄位</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E5%80%8B%E9%9B%86%E5%90%88%EF%BC%8C%E5%83%8F%E4%BA%94%E6%AC%A1%E9%80%90%E6%AD%A5%E6%A0%B8%E5%B0%8D%E7%9A%84%E5%90%8D%E5%96%AE"><span class="toc-number">4.</span> <span class="toc-text">五個集合，像五次逐步核對的名單</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-2"><span class="toc-number">4.1.</span> <span class="toc-text">負向名單怎麼一路收斂</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-3"><span class="toc-number">5.</span> <span class="toc-text">訂單是昨天進名單，活動卻要看當時</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-3"><span class="toc-number">5.1.</span> <span class="toc-text">正、逆流程各拿哪個完成時間</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%99%9A%E4%B8%80%E5%A4%A9%E5%9F%B7%E8%A1%8C%EF%BC%8C%E5%93%AA%E8%A3%A1%E6%9C%83%E8%AE%8A%EF%BC%9F"><span class="toc-number">6.</span> <span class="toc-text">晚一天執行，哪裡會變？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-3"><span class="toc-number">6.1.</span> <span class="toc-text">同一個 CalculateDate，活動門檻可能向後移</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-4"><span class="toc-number">7.</span> <span class="toc-text">一張主單，可能走進不只一檔活動</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-4"><span class="toc-number">7.1.</span> <span class="toc-text">ProcessPromotionRewardByOrders 如何寫出請求</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E5%85%88%E6%9F%A5-MemberId%EF%BC%9F"><span class="toc-number">8.</span> <span class="toc-text">為什麼先查 MemberId？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-4"><span class="toc-number">8.1.</span> <span class="toc-text">同一會員的兩張主單如何排隊</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RelatedOrderSlaveIdList%EF%BC%9A%E6%8A%8A%E8%B7%A8%E4%B8%BB%E5%96%AE%E7%9A%84%E8%B2%A0%E5%90%91%E5%AD%90%E5%96%AE%E5%B8%B6%E9%80%B2%E4%BE%86"><span class="toc-number">9.</span> <span class="toc-text">RelatedOrderSlaveIdList：把跨主單的負向子單帶進來</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-4"><span class="toc-number">9.1.</span> <span class="toc-text">為什麼主單 100 的請求會帶上子單 201</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-5"><span class="toc-number">10.</span> <span class="toc-text">退貨來了，先找它當初對應哪一筆</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-5"><span class="toc-number">10.1.</span> <span class="toc-text">ProcessRecycleByOrderSalves 的檢查次序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E7%AE%97%E8%88%87%E8%88%8A%E6%A8%A1%E5%BC%8F%EF%BC%8C%E5%88%86%E7%95%8C%E5%B0%B1%E5%9C%A8-filtered-%E5%90%8D%E5%96%AE"><span class="toc-number">11.</span> <span class="toc-text">重算與舊模式，分界就在 filtered 名單</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-5"><span class="toc-number">11.1.</span> <span class="toc-text">子單 201 的一趟模擬旅程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-6"><span class="toc-number">12.</span> <span class="toc-text">名單備妥後，工作分批出發</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-6"><span class="toc-number">12.1.</span> <span class="toc-text">Dispatcher 到下游 Job 的交接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E9%BB%9E%E5%8D%8A%E8%B5%B7%E8%B7%91%EF%BC%8C%E5%90%84%E7%A8%AE-Task-%E7%B4%84%E4%BD%95%E6%99%82-Booking%EF%BC%9F"><span class="toc-number">13.</span> <span class="toc-text">四點半起跑，各種 Task 約何時 Booking？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#promotionrewardbatchdispatcherv2job-6"><span class="toc-number">13.1.</span> <span class="toc-text">排程相對的是實際執行時間</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/04/PromotionReward-%E7%B7%9A%E4%B8%8B%E5%9B%9E%E9%A5%8B%E6%B4%BB%E5%8B%95%E7%9A%84%E6%AF%8F%E6%97%A5%E8%AA%BF%E5%BA%A6%E4%B8%AD%E5%BF%83/" title="線下回饋活動的每日調度中心"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="線下回饋活動的每日調度中心"/></a><div class="content"><a class="title" href="/2026/11/04/PromotionReward-%E7%B7%9A%E4%B8%8B%E5%9B%9E%E9%A5%8B%E6%B4%BB%E5%8B%95%E7%9A%84%E6%AF%8F%E6%97%A5%E8%AA%BF%E5%BA%A6%E4%B8%AD%E5%BF%83/" title="線下回饋活動的每日調度中心">線下回饋活動的每日調度中心</a><time datetime="2026-11-04T06:52:00.000Z" title="Created 2026-11-04 14:52:00">2026-11-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/29/PromotionReward-%E5%A3%BD%E6%98%9F/" title="壽星"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="壽星"/></a><div class="content"><a class="title" href="/2026/10/29/PromotionReward-%E5%A3%BD%E6%98%9F/" title="壽星">壽星</a><time datetime="2026-10-29T09:27:00.000Z" title="Created 2026-10-29 17:27:00">2026-10-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/" title="佔額"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="佔額"/></a><div class="content"><a class="title" href="/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/" title="佔額">佔額</a><time datetime="2026-10-27T02:21:00.000Z" title="Created 2026-10-27 10:21:00">2026-10-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/27/PromotionReward-tg-ts/" title="TG vs TS 給點"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="TG vs TS 給點"/></a><div class="content"><a class="title" href="/2026/10/27/PromotionReward-tg-ts/" title="TG vs TS 給點">TG vs TS 給點</a><time datetime="2026-10-27T00:40:00.000Z" title="Created 2026-10-27 08:40:00">2026-10-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
