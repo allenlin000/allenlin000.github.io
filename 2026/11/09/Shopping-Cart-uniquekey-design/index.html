@@ -1,0 +1,581 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>uniquekey 設計 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="消費者打開購物車，系統整理此刻要買的商品，交出第一把鑰匙。按下結帳後，另一把鑰匙帶著這次交易走向付款頁。兩把鑰匙都叫 unique key，卻分別守著購物車與結帳流程。先看它們各自指向什麼，再循著程式的交接路線往下走。 第一把鑰匙：當下的購物車第二把鑰匙：這一次結帳從進車到結帳，鑰匙如何交接？第一把鑰匙的程式路徑第二把鑰匙的程式路徑PayLite APIPayProcessContextCheck">
+<meta property="og:type" content="article">
+<meta property="og:title" content="uniquekey 設計">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/11/09/Shopping-Cart-uniquekey-design/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="消費者打開購物車，系統整理此刻要買的商品，交出第一把鑰匙。按下結帳後，另一把鑰匙帶著這次交易走向付款頁。兩把鑰匙都叫 unique key，卻分別守著購物車與結帳流程。先看它們各自指向什麼，再循著程式的交接路線往下走。 第一把鑰匙：當下的購物車第二把鑰匙：這一次結帳從進車到結帳，鑰匙如何交接？第一把鑰匙的程式路徑第二把鑰匙的程式路徑PayLite APIPayProcessContextCheck">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.imgur.com/f2eWUWv.png">
+<meta property="article:published_time" content="2026-11-09T09:52:00.000Z">
+<meta property="article:modified_time" content="2026-11-10T07:19:52.801Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/f2eWUWv.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/11/09/Shopping-Cart-uniquekey-design/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'uniquekey 設計',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-11-10 15:19:52'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">288</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/f2eWUWv.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">uniquekey 設計</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-11-09T09:52:00.000Z" title="Created 2026-11-09 17:52:00">2026-11-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-11-10T07:19:52.801Z" title="Updated 2026-11-10 15:19:52">2026-11-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Shopping-Cart/">Shopping-Cart</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="uniquekey 設計"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>消費者打開購物車，系統整理此刻要買的商品，交出第一把鑰匙。按下結帳後，另一把鑰匙帶著這次交易走向付款頁。兩把鑰匙都叫 unique key，卻分別守著購物車與結帳流程。先看它們各自指向什麼，再循著程式的交接路線往下走。</p>
+<div class="tabs" id="uniquekey"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="uniquekey-1">第一把鑰匙：當下的購物車</button><button type="button" class="tab " data-href="uniquekey-2">第二把鑰匙：這一次結帳</button><button type="button" class="tab " data-href="uniquekey-3">從進車到結帳，鑰匙如何交接？</button><button type="button" class="tab " data-href="uniquekey-4">第一把鑰匙的程式路徑</button><button type="button" class="tab " data-href="uniquekey-5">第二把鑰匙的程式路徑</button><button type="button" class="tab " data-href="uniquekey-6">PayLite API</button><button type="button" class="tab " data-href="uniquekey-7">PayProcessContext</button><button type="button" class="tab " data-href="uniquekey-8">CheckoutEntity 與 PayProcessContext</button></ul><div class="tab-contents"><div class="tab-item-content active" id="uniquekey-1"><style>
+#uniquekey{--uk-ink:#182228;--uk-teal:#0e3746;--uk-muted:#3d4d52;--uk-paper:#f4f2ec;--uk-line:#d7cfba;--uk-tan:#a9946a;--uk-red:#be2623}
+#uniquekey .uk-hero{position:relative;overflow:hidden;border-radius:18px;padding:28px 32px;margin:2px 0 26px;background:linear-gradient(160deg,#f4f2ec 0%,#eae8dc 67%,#e3dfcd 100%);border:1.5px solid var(--uk-line)}
+#uniquekey .uk-hero:after{content:"";position:absolute;top:-32px;right:-28px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c9403c,#8f1c1a);opacity:.13}
+#uniquekey .uk-tag{display:inline-block;background:var(--uk-teal);color:#f4f2ec;font-size:.72rem;letter-spacing:.12em;font-weight:700;padding:5px 14px;border-radius:3px;margin-bottom:12px}
+#uniquekey .uk-title{font-weight:800;font-size:1.3rem;line-height:1.4;color:var(--uk-ink);margin-bottom:8px}
+#uniquekey .uk-lead{max-width:56rem;color:var(--uk-muted);font-size:.92rem;line-height:1.8}
+#uniquekey .uk-hero code,#uniquekey .uk-note code{background:#e3ddc9;color:var(--uk-teal);padding:1px 5px;border-radius:4px}
+#uniquekey h3{color:var(--uk-teal);border-left:4px solid var(--uk-tan);padding-left:12px;margin:28px 0 12px}
+#uniquekey p{line-height:1.85}
+#uniquekey table{display:block;max-width:100%;overflow-x:auto;border:1.5px solid var(--uk-line);border-radius:10px;border-collapse:separate;border-spacing:0;background:var(--uk-paper);margin:16px 0 25px;box-shadow:0 8px 20px -10px rgba(14,55,70,.18)}
+#uniquekey table th{background:var(--uk-teal);color:#f4f2ec;text-align:left;padding:10px 14px;white-space:nowrap}
+#uniquekey table td{padding:10px 14px;border-bottom:1px solid #e3ddc9;vertical-align:top;line-height:1.65}
+#uniquekey table tr:last-child td{border-bottom:0}
+#uniquekey table code{overflow-wrap:anywhere;white-space:normal}
+#uniquekey .uk-note{border-left:5px solid var(--uk-tan);background:#f3ecd8;color:var(--uk-muted);border-radius:8px;padding:13px 18px;margin:18px 0;line-height:1.75}
+#uniquekey .uk-note.info{border-left-color:#37606b;background:#e6edef}
+#uniquekey .uk-note.alert{border-left-color:var(--uk-red);background:#f8e2e0}
+#uniquekey .uk-timeline{list-style:none;counter-reset:ukstep;border-left:2px solid #b9c3c6;margin:18px 0 25px 15px;padding:0 0 0 23px}
+#uniquekey .uk-timeline li{position:relative;counter-increment:ukstep;margin:0 0 18px;padding:0 0 2px 8px;line-height:1.75}
+#uniquekey .uk-timeline li:before{content:counter(ukstep);position:absolute;left:-38px;top:1px;width:24px;height:24px;border-radius:5px;background:var(--uk-teal);color:#fff;text-align:center;line-height:24px;font-size:.76rem;font-weight:800}
+#uniquekey .mermaid-wrap,#uniquekey pre.mermaid{max-width:100%;overflow-x:auto;margin:17px 0 23px}
+#uniquekey .uk-caption{font-size:.82rem;color:var(--uk-muted);margin:-9px 0 20px}
+@media(max-width:600px){ #uniquekey .uk-hero{padding:23px 20px}#uniquekey .uk-title{font-size:1.13rem}#uniquekey table{font-size:.83rem}}
+[data-theme="dark"] #uniquekey .uk-hero,[data-theme="dark"] #uniquekey table{background:#233238;color:#e9e7dd;border-color:#516066}
+[data-theme="dark"] #uniquekey .uk-title,[data-theme="dark"] #uniquekey h3{color:#d8e7e7}
+[data-theme="dark"] #uniquekey .uk-lead,[data-theme="dark"] #uniquekey .uk-note{color:#e2e4df}
+[data-theme="dark"] #uniquekey .uk-note{background:#344247}
+[data-theme="dark"] #uniquekey .uk-note.alert{background:#523a3c}
+</style>
+
+<div class="uk-hero">
+<div class="uk-tag">CART KEY</div>
+<div class="uk-title">第一把鑰匙，找回此刻的購物車</div>
+<div class="uk-lead"><code>CartUniqueKey</code> 對應一次建立或讀取購物車時的 <code>CartEntity</code>。它不是會員永久固定的購物車編號。</div>
+</div>
+
+<h3 id="商品如何變成購物車快照？"><a href="#商品如何變成購物車快照？" class="headerlink" title="商品如何變成購物車快照？"></a>商品如何變成購物車快照？</h3><pre class="mermaid">flowchart LR
+  A["ShoppingCart 商品"] --> B["Cart Domain 計算"]
+  B --> C["CartEntity 快照"]
+  D["CartUniqueKey 沿用或新建"] --> C
+  C --> E["CartCache Redis"]
+  C --> F["Shopping 回傳給呼叫方"]</pre>
+
+<p>一般進車流程會依會員，或免登入情境的 <code>UnloginId</code>，從 <code>ShoppingCart</code> table 取商品，再計算出 <code>CartEntity</code>。同一位會員再次進車，可能取得另一個 key。<code>CartEntity</code> 除了商品與數量，也包含勾選狀態、不可購買商品、價格、促銷與優惠券計算結果，以及金流、物流選擇。它會隨操作重新計算與更新。</p>
+<table>
+<thead>
+<tr>
+<th>追查點</th>
+<th>現行實作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>產生位置</td>
+<td>Cart Domain <code>CartCreateProcessor</code></td>
+</tr>
+<tr>
+<td>產生條件</td>
+<td><code>context.CartUniqueKey ?? Guid.NewGuid().ToString()</code>；已有 key 就沿用</td>
+</tr>
+<tr>
+<td>取得入口</td>
+<td>Shopping <code>POST /api/carts/create</code> 呼叫 Cart Domain <code>POST /api/carts/create</code></td>
+</tr>
+<tr>
+<td>用途</td>
+<td>找回 <code>CartEntity</code>、組成 Redis 快取 key、帶入 checkout create</td>
+</tr>
+</tbody></table>
+<div class="uk-note info">此時建立的是購物車資料，還沒有 <code>CheckoutUniqueKey</code>。產生 <code>CartUniqueKey</code> 也不保證每個分支都完成 Redis 寫入；空車與全售完的情況見「第一把鑰匙的程式路徑」。</div></div><div class="tab-item-content" id="uniquekey-2"><div class="uk-hero">
+<div class="uk-tag">CHECKOUT KEY</div>
+<div class="uk-title">第二把鑰匙，連起同一次結帳</div>
+<div class="uk-lead">按下結帳後，Cart Domain 需要一份可操作的結帳資料，MWeb 則需要能載入的付款流程。兩邊共用流程 key，資料各自保存。</div>
+</div>
+
+<h3 id="一個流程-key，分別落在哪裡？"><a href="#一個流程-key，分別落在哪裡？" class="headerlink" title="一個流程 key，分別落在哪裡？"></a>一個流程 key，分別落在哪裡？</h3><pre class="mermaid">flowchart LR
+  A["CartUniqueKey"] -->|"讀取"| B["CartEntity"]
+  B -->|"建立"| C["CheckoutEntity"]
+  D["WebStore PayLite"] -->|"產生"| E["CheckoutUniqueKey"]
+  E -->|"儲存索引"| C
+  E -->|"儲存索引"| F["PayProcessContext"]
+  E -->|"放入 k"| G["MWeb 付款 URL"]</pre>
+
+<p><code>CheckoutEntity</code> 繼承 <code>CartEntity</code>，再加入 <code>CheckoutUniqueKey</code>、信用卡顯示資訊等結帳欄位。WebStore 的 <code>PayProcessContext</code> 則供 MWeb 付款頁與後續付款處理使用。<code>CheckoutUniqueKey</code> 不是從 <code>CartUniqueKey</code> 複製或轉換而來；WebStore 會為這次流程另外產生 GUID，Cart Domain 再採用回傳的值。</p>
+<table>
+<thead>
+<tr>
+<th>追查點</th>
+<th>現行實作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>產生位置</td>
+<td>WebStore WebAPI <code>PayLiteController.RequestPayProcessUrlV3</code> 進入的共用方法</td>
+</tr>
+<tr>
+<td>寫入位置</td>
+<td><code>PayProcessContext.UniqueKey</code>、<code>ContextId</code>、付款 URL 的 <code>k</code></td>
+</tr>
+<tr>
+<td>取得入口</td>
+<td>Shopping <code>POST /api/checkout/create</code> 帶 <code>CartUniqueKey</code>；Cart Domain 呼叫 PayLite</td>
+</tr>
+<tr>
+<td>用途</td>
+<td>查找 <code>CheckoutEntity</code>，並讓 MWeb 找到同次的 <code>PayProcessContext</code></td>
+</tr>
+</tbody></table></div><div class="tab-item-content" id="uniquekey-3"><div class="uk-hero">
+<div class="uk-tag">OVERVIEW</div>
+<div class="uk-title">先有購物車，再有結帳流程</div>
+<div class="uk-lead">第一把鑰匙讓購物車可以反覆讀取與重算；第二把鑰匙標記一次已開始的結帳。下面把 API 的交接與資料有效時間分開看。</div>
+</div>
+
+<h3 id="API-交接表"><a href="#API-交接表" class="headerlink" title="API 交接表"></a>API 交接表</h3><table>
+<thead>
+<tr>
+<th>階段</th>
+<th>入口與帶入值</th>
+<th>回傳或使用的值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>進購物車</td>
+<td>Shopping <code>POST /api/carts/create</code>；不要求先提供 <code>CartUniqueKey</code></td>
+<td><code>CartEntity.CartUniqueKey</code></td>
+</tr>
+<tr>
+<td>讀購物車</td>
+<td>Shopping <code>GET /api/carts?cartUniqueKey=...</code></td>
+<td>既有 <code>CartUniqueKey</code></td>
+</tr>
+<tr>
+<td>建立結帳</td>
+<td>Shopping <code>POST /api/checkout/create</code>；帶 <code>CartUniqueKey</code></td>
+<td><code>CheckoutCreateResponse.UniqueKey</code>，即 <code>CheckoutUniqueKey</code>，以及付款 URL</td>
+</tr>
+<tr>
+<td>讀結帳</td>
+<td>Shopping <code>GET /api/checkout?checkoutUniqueKey=...</code></td>
+<td>既有 <code>CheckoutUniqueKey</code></td>
+</tr>
+</tbody></table>
+<h3 id="有效時間各由誰決定？"><a href="#有效時間各由誰決定？" class="headerlink" title="有效時間各由誰決定？"></a>有效時間各由誰決定？</h3><table>
+<thead>
+<tr>
+<th>資料</th>
+<th>邏輯或實體期限</th>
+<th>已查到的設定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CartEntity</code>、<code>CheckoutEntity</code></td>
+<td>邏輯有效時間從 <code>ShoppingDateTimeUtc</code> 起算 30 分鐘</td>
+<td>Redis 實體 TTL 由 <code>CacheExpireSetting:CoreData.ExpireMinutes</code> 控制；TW Prod 30 分鐘，HK&#x2F;MY Prod 60 分鐘</td>
+</tr>
+<tr>
+<td><code>PayProcessContext</code></td>
+<td>WebStore 暫存期限，與上列分開</td>
+<td><code>ShoppingCart.TmpData.RedisExpiredDays</code> 預設 7 天；本機 WebAPI Prod 設定 3 天</td>
+</tr>
+</tbody></table>
+<div class="uk-note info">本文的「進購物車」特指 create API，不涵蓋商品加入購物車之前所有前端操作；呼叫方如何保存兩種 key，也不在這次後端追查範圍。表中的設定來自程式碼與設定檔，未以實際 Redis 內容驗證。</div></div><div class="tab-item-content" id="uniquekey-4"><div class="uk-hero">
+<div class="uk-tag">CART TRACE</div>
+<div class="uk-title">Cart Domain 決定沿用，還是造一把新鑰匙</div>
+<div class="uk-lead">這條鏈路有兩個要分開看的動作：先把 key 放進 <code>CartEntity</code>，再視流程分支決定是否走到快取寫入。</div>
+</div>
+
+<h3 id="產生與快取的分支"><a href="#產生與快取的分支" class="headerlink" title="產生與快取的分支"></a>產生與快取的分支</h3><pre class="mermaid">flowchart TD
+  A["CartCreateProcessor"] --> B{"context.CartUniqueKey 有值？"}
+  B -->|"有"| C["沿用既有 key"]
+  B -->|"沒有"| D["Guid.NewGuid"]
+  C --> E["寫入 context.Data.CartUniqueKey"]
+  D --> E
+  E --> F{"購物車內容"}
+  F -->|"正常商品"| G["CacheCartDataProcessor 儲存"]
+  F -->|"空車或全售完"| H["可能提早中斷 Processor"]</pre>
+
+<h3 id="程式呼叫的先後"><a href="#程式呼叫的先後" class="headerlink" title="程式呼叫的先後"></a>程式呼叫的先後</h3><ol class="uk-timeline">
+<li>Shopping <code>CartsController.Create</code> 交給 <code>CartService.CartCreateAsync</code> 建立 <code>CartContext</code>。</li>
+<li>Shopping <code>CartCreateProcessor</code> 透過 <code>DomainApiHelper</code> 呼叫 Cart Domain <code>api/carts/create</code>，並把回傳 <code>Data</code> 放進 <code>context.Data</code>。</li>
+<li>Cart Domain <code>CartsController.Create</code> 呼叫 <code>CartService.CartCreateAsync</code>；<code>GetCart</code> 流程先跑 <code>CartCreateProcessor</code>，後段有 <code>CacheCartDataProcessor</code>。</li>
+<li>Cart Domain 以 <code>context.CartUniqueKey ?? Guid.NewGuid().ToString()</code> 決定 key，放入 <code>context.Data.CartUniqueKey</code>，再由 Shopping 回傳 <code>CartEntity</code>。</li>
+</ol>
+
+<p>一般 Cart create 的 <code>CartContext</code> 未預填 key，所以會新建；代客下單或保留既有 context key 的情境可能沿用。正常商品分支會走到 <code>CacheCartDataProcessor</code>；空車或全售完可能提前中斷。Cart Service 因金流或物流重新計算時，也會傳入既有 <code>CartUniqueKey</code>。</p></div><div class="tab-item-content" id="uniquekey-5"><div class="uk-hero">
+<div class="uk-tag">CHECKOUT TRACE</div>
+<div class="uk-title">WebStore 發出流程 key，Cart Domain 接住它</div>
+<div class="uk-lead">從 <code>CartUniqueKey</code> 找到購物車後，Cart Domain 呼叫 PayLite。WebStore 建立流程、暫存 context，並把新 key 放進網址，讓 Cart Domain 與 MWeb 都能接續。</div>
+</div>
+
+<h3 id="跨系統呼叫時序"><a href="#跨系統呼叫時序" class="headerlink" title="跨系統呼叫時序"></a>跨系統呼叫時序</h3><pre class="mermaid">sequenceDiagram
+  participant S as Shopping
+  participant C as Cart Domain
+  participant W as WebStore PayLite
+  S->>C: checkout/create 帶 CartUniqueKey
+  C->>C: 檢查過期並讀 CartEntity
+  C->>W: RequestPayProcessUrlV3
+  W->>W: 建 PayProcessContext 並產生 GUID
+  W->>W: 暫存 context，URL 加入 k
+  W-->>C: 回傳付款 URL
+  C->>C: 解析 k，儲存 CheckoutEntity
+  C-->>S: 回傳 UniqueKey 與 URL</pre>
+
+<table>
+<thead>
+<tr>
+<th>圖中階段</th>
+<th>對應程式與資料</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Shopping 送出</td>
+<td><code>CheckoutController.Create</code> → <code>CheckoutService.CheckoutCreateAsync</code> → <code>CheckoutCreateApiProcessor</code></td>
+</tr>
+<tr>
+<td>Cart 讀車</td>
+<td><code>CheckOutService.Create</code> 檢查快取期限；<code>GetCartAndCalculateProcessor</code> 用 <code>CartUniqueKey</code> 讀 <code>CartEntity</code></td>
+</tr>
+<tr>
+<td>Cart 轉接</td>
+<td><code>DoPayProcessFlowProcessor</code> 轉成舊 WebStore 格式，呼叫 <code>PayLite/RequestPayProcessUrlV3</code></td>
+</tr>
+<tr>
+<td>WebStore 發 key</td>
+<td><code>PayLiteController.RequestPayProcessUrlV3</code> 進入共用 <code>RequestPayProcessUrl</code>；<code>Guid.NewGuid().ToString()</code> 寫入 <code>payProcessContext.UniqueKey</code>、<code>ContextId</code> 與 URL 的 <code>k</code></td>
+</tr>
+<tr>
+<td>Cart 採用</td>
+<td>從 URL 解析 <code>k</code>，經 HK&#x2F;MY 特殊處理後填入 <code>CheckoutEntity.CheckoutUniqueKey</code> 並存 Redis；<code>CheckOutService.Create</code> 回傳 <code>UniqueKey</code>，Shopping 取 <code>Response.Data.UniqueKey</code></td>
+</tr>
+</tbody></table>
+<p>Cart Domain 接收並採用這把 key；現行流程真正產生它的是 WebStore。</p></div><div class="tab-item-content" id="uniquekey-6"><div class="uk-hero">
+<div class="uk-tag">PAYLITE</div>
+<div class="uk-title">WebAPI 交付的是一段付款流程</div>
+<div class="uk-lead">Cart Domain 自己產生 GUID 並不困難。現行 MWeb 還需要 PayLite 建好的 <code>PayProcessContext</code>、排隊資訊與付款頁入口，才能用網址上的 <code>k</code> 繼續。</div>
+</div>
+
+<h3 id="PayLite-做完哪些事？"><a href="#PayLite-做完哪些事？" class="headerlink" title="PayLite 做完哪些事？"></a>PayLite 做完哪些事？</h3><pre class="mermaid">flowchart TD
+  A["Cart Domain 傳入 ShoppingCartClientEntity"] --> B["PayLite 檢查登入、次數、購物車與贈品條件"]
+  B -->|"檢查不通過"| X["回傳對應 API 結果"]
+  B -->|"可建立流程"| C["建立 PayProcessContext 並產生 GUID"]
+  C --> D["依設定取得排隊票券"]
+  D --> E["IUserDataHelper.Save 暫存流程"]
+  E --> F{"能立即結帳？"}
+  F -->|"可以"| G["回傳 /V2/Pay?k=..."]
+  F -->|"需要排隊"| H["回傳排隊頁 URL"]</pre>
+
+<table>
+<thead>
+<tr>
+<th>檢查與產物</th>
+<th>補充</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>登入、呼叫次數、空車、贈品庫存與運費、超重</td>
+<td>可能回傳 <code>API0001</code>、<code>API0006</code>、<code>API0007</code> 等結果</td>
+</tr>
+<tr>
+<td><code>PayProcessContext</code></td>
+<td>包含購物車、會員、拆單等資訊；流程 GUID 不是 <code>CartUniqueKey</code></td>
+</tr>
+<tr>
+<td>排隊票券</td>
+<td>依設定決定付款頁或排隊頁</td>
+</tr>
+<tr>
+<td><code>IUserDataHelper.Save</code></td>
+<td>暫存 context 與結帳可用性資料</td>
+</tr>
+<tr>
+<td>付款 URL</td>
+<td>依裝置與商店取得網域，讓 <code>k</code> 指向同一次流程</td>
+</tr>
+</tbody></table>
+<h3 id="為什麼不能只在-Cart-產生？"><a href="#為什麼不能只在-Cart-產生？" class="headerlink" title="為什麼不能只在 Cart 產生？"></a>為什麼不能只在 Cart 產生？</h3><p>現行 V3 Action 接收轉換後的購物車資料，沒有接收 Cart 指定的 checkout key；共用方法仍會自行執行 <code>Guid.NewGuid().ToString()</code>。若 Cart 先造 GUID，WebAPI 仍會用自己的 key 保存 <code>PayProcessContext</code>、取得排隊票券並組付款 URL。Cart 的 GUID 無法找到那份資料。</p>
+<p>MWeb V2 <code>PayController.Index(string k)</code> 以 <code>k</code> 呼叫 <code>PayProcessService.GetPayProcess</code>；排隊頁 <code>LandingV2(string k)</code> 也以會員 ID 與 <code>k</code> 載入 <code>PayProcessContext</code>。依現行程式碼推論，只建立 Cart 的 <code>CheckoutEntity</code> 或 GUID，付款頁就缺少可讀的 WebStore context。</p>
+<div class="uk-note alert">若改由 Cart Domain 產生 <code>CheckoutUniqueKey</code>，需修改 V3 契約，讓 WebAPI 接受並使用同一 key，並檢查其他呼叫端與驗證方式。若連 PayLite 呼叫都移除，則驗證、context 建立與存取、排隊及付款入口也要一併遷移或重設。這是改造方向，不是目前行為。</div></div><div class="tab-item-content" id="uniquekey-7"><div class="uk-hero">
+<div class="uk-tag">STORAGE</div>
+<div class="uk-title">付款流程放在哪裡？</div>
+<div class="uk-lead"><code>PayProcess-20190918180000</code> 是固定的快取類型名稱。真正把某位會員的一次付款流程找回來的，是會員 ID 加上當次的流程 key。</div>
+</div>
+
+<h3 id="Redis-key-的三段結構"><a href="#Redis-key-的三段結構" class="headerlink" title="Redis key 的三段結構"></a>Redis key 的三段結構</h3><table>
+<thead>
+<tr>
+<th>固定前綴與類型</th>
+<th>會員</th>
+<th>流程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>TmpData:PayProcess-20190918180000</code></td>
+<td><code>{memberId}</code></td>
+<td><code>{checkoutUniqueKey}</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TmpData:PayProcess-20190918180000:&#123;memberId&#125;:&#123;checkoutUniqueKey&#125;</span><br></pre></td></tr></table></figure>
+
+<p>PayLite 呼叫 <code>IUserDataHelper.Save(PayProcessContextEntity.CacheTypeName, payProcessContext)</code>。Redis 實作依 <code>TmpData:{dataType}:{memberId}:{uniqueKey}</code> 組 key。<code>ShoppingCart.TmpData.RedisExpiredDays</code> 控制保存天數，程式預設 7 天；本機 WebAPI Prod 設定 3 天。</p>
+<h3 id="實際寫到哪個-provider？"><a href="#實際寫到哪個-provider？" class="headerlink" title="實際寫到哪個 provider？"></a>實際寫到哪個 provider？</h3><pre class="mermaid">flowchart TD
+  A["IUserDataHelper.Save"] --> B{"EnableRedis？"}
+  B -->|"否"| C["檔案實作"]
+  B -->|"是"| D{"EnableRedisReroute？"}
+  D -->|"否"| E["Redis Data"]
+  D -->|"是"| F["按尾字元分流 Data 或 Data2"]
+  F --> G["Data2 讀取失敗則回查 Data"]</pre>
+
+<p>WebAPI Prod 的 <code>PayProcess.UserData.EnableRedis</code> 設定為 <code>true</code>。檔案實作的路徑是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;File.Path.Tmp&#125;/PayProcess-20190918180000/PayProcess-20190918180000_&#123;memberId&#125;_&#123;checkoutUniqueKey&#125;.txt</span><br></pre></td></tr></table></figure>
+
+<div class="uk-note info">這些保存時間與路由來自程式碼及設定檔，尚未核對實際部署環境的 Redis 內容。</div></div><div class="tab-item-content" id="uniquekey-8"><div class="uk-hero">
+<div class="uk-tag">TWO CONTEXTS</div>
+<div class="uk-title">同一把流程鑰匙，開的是兩份資料</div>
+<div class="uk-lead">Cart Domain 維護結帳頁當下的選擇；WebStore 維護 MWeb 能接續的付款流程。共用 key 讓兩邊指向同一次結帳，不代表資料同步成同一份。</div>
+</div>
+
+<h3 id="資料與責任對照"><a href="#資料與責任對照" class="headerlink" title="資料與責任對照"></a>資料與責任對照</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>Cart Domain <code>CheckoutEntity</code></th>
+<th>WebStore <code>PayProcessContext</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>工作</td>
+<td>Shopping 結帳頁操作、成單前檢核</td>
+<td>MWeb 付款頁、付款處理與成單後續</td>
+</tr>
+<tr>
+<td>內容</td>
+<td>繼承 <code>CartEntity</code> 的商品、優惠、金物流與金額，另有結帳欄位</td>
+<td>含轉換後的 <code>ShoppingCartV2</code>，可承載付款方式、交易、訂單與流程狀態</td>
+</tr>
+<tr>
+<td>更新者</td>
+<td><code>checkout/get</code>、<code>pay-set</code>、配送等 Cart API</td>
+<td>WebStore 付款流程 Processor</td>
+</tr>
+<tr>
+<td>儲存</td>
+<td>Cart 專案 <code>CartCache</code> Redis Hash</td>
+<td>WebStore <code>IUserDataHelper</code>；本機 WebAPI Prod 設定使用 Redis</td>
+</tr>
+<tr>
+<td>查詢 key</td>
+<td><code>Core:CheckoutEntity-20230207:{shopId}:{memberId}:{checkoutUniqueKey}</code></td>
+<td><code>TmpData:PayProcess-20190918180000:{memberId}:{流程key}</code></td>
+</tr>
+</tbody></table>
+<h3 id="建立、操作、付款、成單"><a href="#建立、操作、付款、成單" class="headerlink" title="建立、操作、付款、成單"></a>建立、操作、付款、成單</h3><pre class="mermaid">sequenceDiagram
+  participant C as Cart Domain
+  participant W as WebStore
+  participant M as MWeb
+  C->>W: PayLite 建立付款流程
+  W->>W: 暫存 PayProcessContext
+  W-->>C: 回傳流程 key 與 URL
+  C->>C: 儲存 CheckoutEntity
+  C->>C: 結帳頁操作更新 CheckoutEntity
+  M->>W: 以 URL 的 k 載入付款流程
+  W-->>M: 提供 PayProcessContext
+  C->>C: 成單前讀取並檢核 CheckoutEntity
+  C->>W: CompleteForNewCartV2 傳入轉換後資料</pre>
+
+<p>更換付款方式時，Cart Domain 以 <code>CheckoutUniqueKey</code> 找 <code>CheckoutEntity</code>，更新 <code>SelectedCheckoutPayTypeGroup</code>；不能推定每次修改都同步寫入 WebStore 暫存的 context。MWeb 以 URL 的 <code>k</code> 載入自己的 <code>PayProcessContext</code>，不直接讀 Cart 的 <code>CheckoutEntity</code>。成立訂單時，Cart 再讀取、檢核 <code>CheckoutEntity</code>，轉成 WebStore 接受的 <code>PayProcessContext</code> 格式送往 <code>CompleteForNewCartV2</code>，所以傳入的資料不只是 PayLite 最初暫存的版本。</p></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/11/09/Shopping-Cart-uniquekey-design/">https://allenlin000.github.io.git/2026/11/09/Shopping-Cart-uniquekey-design/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/f2eWUWv.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/11/09/Shopping-Cart-uniquekey-design-pure/" title="uniquekey 設計"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">uniquekey 設計</div></div></a></div><div class="next-post pull-right"><a href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img class="cover" src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">Hallucination</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">288</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%95%86%E5%93%81%E5%A6%82%E4%BD%95%E8%AE%8A%E6%88%90%E8%B3%BC%E7%89%A9%E8%BB%8A%E5%BF%AB%E7%85%A7%EF%BC%9F"><span class="toc-text">商品如何變成購物車快照？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E5%80%8B%E6%B5%81%E7%A8%8B-key%EF%BC%8C%E5%88%86%E5%88%A5%E8%90%BD%E5%9C%A8%E5%93%AA%E8%A3%A1%EF%BC%9F"><span class="toc-text">一個流程 key，分別落在哪裡？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#API-%E4%BA%A4%E6%8E%A5%E8%A1%A8"><span class="toc-text">API 交接表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%89%E6%95%88%E6%99%82%E9%96%93%E5%90%84%E7%94%B1%E8%AA%B0%E6%B1%BA%E5%AE%9A%EF%BC%9F"><span class="toc-text">有效時間各由誰決定？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A2%E7%94%9F%E8%88%87%E5%BF%AB%E5%8F%96%E7%9A%84%E5%88%86%E6%94%AF"><span class="toc-text">產生與快取的分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8B%E5%BC%8F%E5%91%BC%E5%8F%AB%E7%9A%84%E5%85%88%E5%BE%8C"><span class="toc-text">程式呼叫的先後</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%A8%E7%B3%BB%E7%B5%B1%E5%91%BC%E5%8F%AB%E6%99%82%E5%BA%8F"><span class="toc-text">跨系統呼叫時序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PayLite-%E5%81%9A%E5%AE%8C%E5%93%AA%E4%BA%9B%E4%BA%8B%EF%BC%9F"><span class="toc-text">PayLite 做完哪些事？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E4%B8%8D%E8%83%BD%E5%8F%AA%E5%9C%A8-Cart-%E7%94%A2%E7%94%9F%EF%BC%9F"><span class="toc-text">為什麼不能只在 Cart 產生？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis-key-%E7%9A%84%E4%B8%89%E6%AE%B5%E7%B5%90%E6%A7%8B"><span class="toc-text">Redis key 的三段結構</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%A6%E9%9A%9B%E5%AF%AB%E5%88%B0%E5%93%AA%E5%80%8B-provider%EF%BC%9F"><span class="toc-text">實際寫到哪個 provider？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B3%87%E6%96%99%E8%88%87%E8%B2%AC%E4%BB%BB%E5%B0%8D%E7%85%A7"><span class="toc-text">資料與責任對照</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E3%80%81%E6%93%8D%E4%BD%9C%E3%80%81%E4%BB%98%E6%AC%BE%E3%80%81%E6%88%90%E5%96%AE"><span class="toc-text">建立、操作、付款、成單</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/09/Shopping-Cart-uniquekey-design/" title="uniquekey 設計"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="uniquekey 設計"/></a><div class="content"><a class="title" href="/2026/11/09/Shopping-Cart-uniquekey-design/" title="uniquekey 設計">uniquekey 設計</a><time datetime="2026-11-09T09:52:00.000Z" title="Created 2026-11-09 17:52:00">2026-11-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/09/Shopping-Cart-uniquekey-design-pure/" title="uniquekey 設計"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="uniquekey 設計"/></a><div class="content"><a class="title" href="/2026/11/09/Shopping-Cart-uniquekey-design-pure/" title="uniquekey 設計">uniquekey 設計</a><time datetime="2026-11-09T09:52:00.000Z" title="Created 2026-11-09 17:52:00">2026-11-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/29/PromotionReward-%E5%A3%BD%E6%98%9F/" title="壽星"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="壽星"/></a><div class="content"><a class="title" href="/2026/10/29/PromotionReward-%E5%A3%BD%E6%98%9F/" title="壽星">壽星</a><time datetime="2026-10-29T09:27:00.000Z" title="Created 2026-10-29 17:27:00">2026-10-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/" title="佔額"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="佔額"/></a><div class="content"><a class="title" href="/2026/10/27/PromotionReward-%E4%BD%94%E9%A1%8D/" title="佔額">佔額</a><time datetime="2026-10-27T02:21:00.000Z" title="Created 2026-10-27 10:21:00">2026-10-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
