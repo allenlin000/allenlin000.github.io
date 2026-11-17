@@ -1,0 +1,783 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>正式給券回饋設計 | 平屋慢生活</title><meta name="author" content="Allen"><meta name="copyright" content="Allen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="從付款前佔額、付款後給券，到取消退貨與回饋張數，拆解 PromotionRewardCouponJob 的判斷與紀錄。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="正式給券回饋設計">
+<meta property="og:url" content="https://allenlin000.github.io.git/2026/11/15/PromotionReward-%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88/">
+<meta property="og:site_name" content="平屋慢生活">
+<meta property="og:description" content="從付款前佔額、付款後給券，到取消退貨與回饋張數，拆解 PromotionRewardCouponJob 的判斷與紀錄。">
+<meta property="og:locale">
+<meta property="og:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png">
+<meta property="article:published_time" content="2026-11-15T06:55:00.000Z">
+<meta property="article:modified_time" content="2026-11-17T05:42:21.562Z">
+<meta property="article:author" content="Allen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png"><link rel="shortcut icon" href="/img/kiwibird.png"><link rel="canonical" href="https://allenlin000.github.io.git/2026/11/15/PromotionReward-%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Error',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '正式給券回饋設計',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-11-17 13:42:21'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.imgur.com/q4xr50n.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">293</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png')"><nav id="nav"><span id="blog-info"><a href="/" title="平屋慢生活"><span class="site-name">平屋慢生活</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">正式給券回饋設計</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-11-15T06:55:00.000Z" title="Created 2026-11-15 14:55:00">2026-11-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-11-17T05:42:21.562Z" title="Updated 2026-11-17 13:42:21">2026-11-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/PromotionReward/">PromotionReward</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="正式給券回饋設計"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="tabs" id="正式給券回饋設計"><ul class="nav-tabs"><button type="button" class="tab  active" data-href="正式給券回饋設計-1">全貌</button><button type="button" class="tab " data-href="正式給券回饋設計-2">處理的維度</button><button type="button" class="tab " data-href="正式給券回饋設計-3">OrderPlaced vs OrderCreated</button><button type="button" class="tab " data-href="正式給券回饋設計-4">狀態決策與流轉</button><button type="button" class="tab " data-href="正式給券回饋設計-5">有取消單</button><button type="button" class="tab " data-href="正式給券回饋設計-6">發現已經整單取消／退貨</button><button type="button" class="tab " data-href="正式給券回饋設計-7">線上與線下給券方法的差異</button><button type="button" class="tab " data-href="正式給券回饋設計-8">怎麼發券</button><button type="button" class="tab " data-href="正式給券回饋設計-9">回饋張數怎麼對應</button></ul><div class="tab-contents"><div class="tab-item-content active" id="正式給券回饋設計-1"><div class="coupon-article">
+<style>
+.coupon-article{--c-ink:#493b2d;--c-muted:#71624e;--c-line:#e4d8bf;--c-panel:#fbf7ef;--c-green:#57753f;--c-brown:#a06a41;--c-paper:#fffdf7;color:var(--c-ink);line-height:1.9;overflow-wrap:anywhere}
+.coupon-article *{box-sizing:border-box}
+.coupon-article h2,.coupon-article h3{color:var(--c-ink)}
+.coupon-article h2{margin:2.1em 0 .8em;padding-bottom:9px;border-bottom:1px dashed var(--c-line);font-size:1.18em}
+.coupon-article h3{margin:1.5em 0 .6em;font-size:1.04em}
+.coupon-article p{margin:1em 0}
+.coupon-hero{padding:27px 32px;border-radius:21px;background:linear-gradient(145deg,#6f9250,#547a3d 62%,#3f5f2e);color:#fffbed;margin:12px 0 25px}
+.coupon-hero h2,.coupon-hero p{color:#fffbed!important;margin:0!important;border:0!important;padding:0!important}
+.coupon-hero h2{font-size:1.34em!important;margin-bottom:9px!important}
+.coupon-figure{border:1px solid var(--c-line);border-radius:18px;overflow:hidden;margin:25px 0;background:var(--c-paper)}
+.coupon-figure h3{margin:0!important;padding:14px 19px;border:0!important;background:var(--c-panel);font-size:1em!important}
+.coupon-diagram{padding:20px 14px;overflow-x:auto;background:var(--c-paper)}
+.coupon-diagram svg{display:block;margin:auto;width:100%;min-width:520px;max-width:none!important;height:auto}
+.coupon-diagram.coupon-wide svg{min-width:780px}
+.coupon-diagram.coupon-compact svg{min-width:450px;max-width:700px!important}
+.coupon-diagram:focus-visible{outline:2px solid var(--c-green);outline-offset:-3px}
+.coupon-figure figcaption{padding:11px 17px;border-top:1px solid var(--c-line);background:var(--c-panel);color:var(--c-muted);font-size:13px;line-height:1.7}
+.coupon-note{border-left:4px solid var(--c-brown);border-radius:0 13px 13px 0;padding:13px 18px;margin:21px 0;background:var(--c-panel)}
+.coupon-note p{margin:0}
+.coupon-rail{border-left:3px solid var(--c-green);margin:23px 0 23px 14px;padding-left:22px}
+.coupon-step{position:relative;margin:0 0 20px;padding-bottom:2px}
+.coupon-step:before{content:'';position:absolute;left:-32px;top:10px;width:15px;height:15px;border-radius:50%;background:var(--c-paper);border:3px solid var(--c-green)}
+.coupon-step strong{display:block;color:var(--c-ink)}
+.coupon-step p{margin:0;color:var(--c-muted)}
+.coupon-step.is-caution:before{border-color:var(--c-brown)}
+.coupon-step.is-caution strong{color:var(--c-brown)}
+.coupon-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0}
+.coupon-metric{border:1px solid var(--c-line);border-radius:14px;padding:14px 16px;background:var(--c-paper)}
+.coupon-metric strong{display:block;color:var(--c-green);font-size:1.3em;line-height:1.3}
+.coupon-metric span{display:block;color:var(--c-muted);font-size:13px;margin-top:5px}
+.coupon-article table{display:block;overflow-x:auto;width:auto;max-width:100%;font-size:14px;margin:20px 0;border:1px solid var(--c-line);border-radius:14px}
+.coupon-article table th{background:var(--c-panel);color:var(--c-ink)}
+.coupon-article table td,.coupon-article table th{padding:11px 13px;white-space:normal;overflow-wrap:anywhere;border-color:var(--c-line);vertical-align:top}
+.coupon-article details{border:1px solid var(--c-line);border-radius:13px;background:var(--c-panel);padding:12px 17px;margin:20px 0}
+.coupon-article details summary{cursor:pointer;color:var(--c-green);font-weight:700}
+.coupon-article details[open] summary{margin-bottom:12px}
+#article-container .coupon-article code{overflow-wrap:anywhere;color:var(--c-brown);background:var(--c-panel)}
+#article-container .tabs[id^="正式給券回饋設計"] .nav-tabs{gap:8px;padding:12px;margin-bottom:24px;background:var(--card-bg,#fbf7ef)}
+#article-container .tabs[id^="正式給券回饋設計"] .nav-tabs button.tab{flex:1 1 180px;width:auto!important;min-width:0;padding:10px 13px!important;border:1px solid #e4d8bf!important;border-radius:12px!important;background:#fffdf7!important;color:#493b2d!important;text-align:left!important;line-height:1.45}
+#article-container .tabs[id^="正式給券回饋設計"] .nav-tabs button.tab.active{background:#e8f1dc!important;border-color:#7a9a5e!important;color:#3f542d!important}
+[data-theme="dark"] .coupon-article{--c-ink:#ece5d6;--c-muted:#c6bba8;--c-line:#575744;--c-panel:#303226;--c-paper:#25291f;--c-green:#9cbd7d;--c-brown:#d6a371}
+[data-theme="dark"] #article-container .tabs[id^="正式給券回饋設計"] .nav-tabs button.tab{background:#2b3025!important;color:#ece5d6!important;border-color:#575744!important}
+[data-theme="dark"] #article-container .tabs[id^="正式給券回饋設計"] .nav-tabs button.tab.active{background:#3a4b30!important;color:#ece5d6!important;border-color:#8e9f78!important}
+@media(max-width:600px){.coupon-hero{padding:22px 20px}.coupon-diagram{padding:15px 8px}.coupon-article table td,.coupon-article table th{padding:9px;font-size:13px}}
+</style>
+<div class="coupon-hero"><h2>付款前先留名額，付款後才談給券</h2><p>同一筆回饋券，會跟著訂單從未付款走到已付款；活動若有名額限制，還得先確認佔額紀錄。</p></div>
+
+<p>顧客建立訂單、還沒付款時，系統就會收到 <code>OrderPlaced</code> 事件；等付款成功，才會收到 <code>OrderCreated</code> 事件。回饋券也跟著這兩個時間點分工：需要限量名額的活動先佔額，付款成功後再進入給券流程。<code>PromotionRewardCouponJob</code> 負責處理這兩步。</p>
+<p>先看這兩個事件如何接力：</p>
+<figure class="coupon-figure"><h3>事件進來後，Job 分別做什麼</h3><div class="coupon-diagram coupon-wide" tabindex="0" role="region" aria-label="事件進來後，Job 分別做什麼">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[&quot;OrderPlaced：已建單，未付款&quot;] --&gt; B[&quot;佔額活動分派&quot;]
+    C[&quot;OrderCreated：付款成功&quot;] --&gt; D[&quot;回饋活動分派&quot;]
+    E[&quot;批次或預約回饋&quot;] --&gt; F[&quot;低優先權任務&quot;]
+    B --&gt; G[&quot;PromotionRewardCouponJob&quot;]
+    D --&gt; G
+    F --&gt; G
+    G --&gt; H{&quot;事件是 OrderPlaced？&quot;}
+    H -- &quot;是&quot; --&gt; I[&quot;佔額並寫入回饋紀錄&quot;]
+    H -- &quot;否&quot; --&gt; J[&quot;讀取或建立紀錄，檢查回饋時間&quot;]
+    J --&gt; M{&quot;狀態與時間都允許給券？&quot;}
+    M -- &quot;是&quot; --&gt; K[&quot;呼叫 SCM API 發券&quot;]
+    M -- &quot;否&quot; --&gt; N[&quot;等待或略過本次給券&quot;]
+    I --&gt; L[(&quot;DynamoDB 回饋資料&quot;)]
+    J --&gt; L
+    K --&gt; L
+  </pre></div>
+</div><figcaption>這是責任總覽；發券前還會檢查紀錄狀態、回饋時間與訂單現況。</figcaption></figure>
+
+<figure class="coupon-figure"><h3>同一筆訂單的三個時間點</h3><div class="coupon-rail"><div class="coupon-step"><strong>已建單、未付款：OrderPlaced</strong><p>商店建立佔額活動時會配 <code>GroupCode</code>。分派器只找有此欄位的在期活動，先嘗試保留名額並留下紀錄。</p></div><div class="coupon-step"><strong>付款成功：OrderCreated</strong><p>分派器找所有 <code>RewardReachPriceWithCoupon</code> 活動。有佔額的接續舊紀錄；沒有佔額的在這一步試算、建檔。</p></div><div class="coupon-step is-caution"><strong>佔額活動的給券任務：再等 5 分 10 秒</strong><p>兩個事件各自建立任務，付款成功時不能假設佔額紀錄已寫好。</p></div></div><figcaption>線上佔額活動若找不到先前紀錄，Job 會拒絕給券。程式註解只說明額外 10 秒是避免剛好排在 5 分鐘時任務立即執行，沒有交代為何選 5 分鐘。</figcaption></figure>
+
+
+
+</div></div><div class="tab-item-content" id="正式給券回饋設計-2"><div class="coupon-article">
+<div class="coupon-hero"><h2>同一支 Job，兩種任務大小</h2><p>付款成功帶來一張訂單；回饋時間到了，分派器可能把同會員、同活動的多張訂單排成一隊。</p></div>
+
+<p>同樣是進入 <code>PromotionRewardCouponJob</code>，任務裡裝的資料卻不一定一樣。付款成功的 <code>OrderCreated</code> 入口，通常是一筆任務處理一張訂單與一個活動；到了回饋紀錄的 <code>BookingTime</code>，則可能把同一會員、同一活動的多張訂單放進一筆任務。兩條路徑如下：</p>
+<figure class="coupon-figure"><h3>即時與回饋時間入口的任務大小</h3><div class="coupon-diagram coupon-wide" tabindex="0" role="region" aria-label="即時與回饋時間入口的任務大小">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[&quot;OrderCreated：付款成功&quot;] --&gt; B[&quot;每張訂單、每個回饋券活動建立任務&quot;]
+    B --&gt; C{&quot;活動有 GroupCode？&quot;}
+    C -- &quot;有&quot; --&gt; D[&quot;NMQ 任務排在 5 分 10 秒後&quot;]
+    C -- &quot;沒有&quot; --&gt; E[&quot;NMQ 任務未設定預約時間&quot;]
+    D --&gt; F[&quot;單筆請求：一張訂單與一個活動&quot;]
+    E --&gt; F
+    G[&quot;DynamoDB 回饋紀錄的 BookingTime 進入查詢時段&quot;] --&gt; H[&quot;分派器找出 WaitToReward 紀錄&quot;]
+    H --&gt; I[&quot;依商店、會員、活動分組&quot;]
+    I --&gt; J[&quot;組內按訂單時間排序，清單存入 S3&quot;]
+    J --&gt; K[&quot;每組建立一筆低優先權任務&quot;]
+    K --&gt; L[&quot;批次請求：一組訂單與一個活動&quot;]
+    F --&gt; M[&quot;PromotionRewardCouponJob&quot;]
+    L --&gt; M
+    M --&gt; N{&quot;任務帶會員編號與 S3Key？&quot;}
+    N -- &quot;否&quot; --&gt; O[&quot;直接處理這張訂單&quot;]
+    N -- &quot;是&quot; --&gt; P[&quot;下載 S3 清單，依序逐筆處理&quot;]
+    O --&gt; Q[&quot;共用給券處理流程&quot;]
+    P --&gt; Q
+  </pre></div>
+</div><figcaption>上方是一張訂單的任務；下方是按會員、活動分組的任務。</figcaption></figure>
+
+<figure class="coupon-figure"><h3>兩個 BookingTime 指的是不同時間</h3><div class="coupon-metrics"><div class="coupon-metric"><strong>5 分 10 秒</strong><span>NMQ 任務的預約執行時間，讓佔額任務有機會先留下紀錄。</span></div><div class="coupon-metric"><strong>回饋時間</strong><span>DynamoDB 紀錄的 BookingTime，用來挑出已到期的待回饋訂單。</span></div></div><figcaption>回饋時間分派器先排序同組訂單再存 S3。Job 依清單處理，不重新排序；即使只有一張，也走 S3 批次入口。</figcaption></figure>
+
+<p>同一支 Job 會收到單筆任務，也會收到一組訂單。處理順序要看任務帶的是單張訂單資料，還是會員與 S3 清單索引。</p>
+<details><summary>查看任務欄位各自負責什麼</summary>
+
+<table>
+<thead>
+<tr>
+<th>欄位</th>
+<th>在流程裡負責什麼</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ShopId</code>、<code>PromotionEngineId</code>、<code>OrderDateTime</code></td>
+<td>找到訂單成立時適用的活動規則，並用來試算</td>
+</tr>
+<tr>
+<td><code>OrderTypeDefEnum</code></td>
+<td>區分訂單來源；<code>ECom</code> 用 <code>TradesOrderGroupCode</code>，<code>Others</code> 用 <code>CrmSalesOrderId</code></td>
+</tr>
+<tr>
+<td><code>EventSource</code></td>
+<td>決定入口；<code>OrderPlaced</code> 走佔額，其餘走給券。沒提供時預設為 <code>OrderCreated</code></td>
+</tr>
+<tr>
+<td><code>RewardFlowEnum</code></td>
+<td>預設為 <code>Reward</code>；試算服務在 <code>Recycle</code> 時改用未回收訂單計算，但這個 Job 仍以 <code>EventSource</code> 決定主分支</td>
+</tr>
+<tr>
+<td><code>MemberId</code>、<code>S3Key</code></td>
+<td>會員編號大於 0 且 S3 鍵值非空白，才會從 S3 下載多筆訂單</td>
+</tr>
+<tr>
+<td><code>PromotionEngineType</code>、<code>RelatedOrderSlaveIdList</code></td>
+<td>線下訂單試算會用到；計算服務也會檢查活動類型</td>
+</tr>
+</tbody></table>
+</details>
+
+<div class="coupon-note"><p>不論入口是哪一種，實際處理前都會先鎖住「活動加訂單」，再讀規則與 DynamoDB 紀錄，避免同一筆回饋同時被兩個任務處理。</p></div>
+
+</div></div><div class="tab-item-content" id="正式給券回饋設計-3"><div class="coupon-article">
+<div class="coupon-hero"><h2>先保留，再確認能不能發</h2><p>未付款時只嘗試佔額。付款成功後，Job 才依紀錄狀態與回饋時間決定要等待還是給券。</p></div>
+
+<h2 id="OrderPlaced：先替訂單保留額度"><a href="#OrderPlaced：先替訂單保留額度" class="headerlink" title="OrderPlaced：先替訂單保留額度"></a><code>OrderPlaced</code>：先替訂單保留額度</h2><p>訂單已建立、還沒付款。Job 在這一步只確認資格並嘗試保留名額，流程到寫入紀錄為止。</p>
+<figure class="coupon-figure"><h3>付款前如何留下佔額紀錄</h3><div class="coupon-diagram coupon-compact" tabindex="0" role="region" aria-label="付款前如何留下佔額紀錄">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[&quot;OrderPlaced：尚未付款&quot;] --&gt; B[&quot;取得鎖與活動規則&quot;]
+    B --&gt; C{&quot;活動有 GroupCode？&quot;}
+    C -- &quot;沒有&quot; --&gt; Z[&quot;略過佔額&quot;]
+    C -- &quot;有&quot; --&gt; D{&quot;DynamoDB 已有回饋紀錄？&quot;}
+    D -- &quot;有&quot; --&gt; Y[&quot;結束，避免重複佔額&quot;]
+    D -- &quot;沒有&quot; --&gt; E[&quot;取訂單與會員資料，試算回饋券&quot;]
+    E --&gt; F{&quot;符合活動？&quot;}
+    F -- &quot;沒有&quot; --&gt; G[&quot;記為 Unmatch&quot;]
+    F -- &quot;有&quot; --&gt; H[&quot;呼叫 OccupyQuotaAsync&quot;]
+    H --&gt; I{&quot;回傳 Redeemed？&quot;}
+    I -- &quot;有&quot; --&gt; J[&quot;記為 Occupy&quot;]
+    I -- &quot;沒有&quot; --&gt; K[&quot;記為 MatchWithoutQuota&quot;]
+    G --&gt; L[&quot;寫入 DynamoDB 回饋紀錄&quot;]
+    J --&gt; L
+    K --&gt; L
+  </pre></div>
+</div><figcaption>這一步只寫回饋紀錄，不呼叫 SCM 發券。</figcaption></figure>
+
+<p>試算會取得券種、張數、回饋時間與子單資訊。此時線上訂單的 ERP 資料尚未產生，Job 會從 WebStore 取單。這一步不呼叫發券 API，也不建立績效 Task。</p>
+<p>對限量活動來說，這一步的意義是先替尚未付款的訂單爭取名額；名額保留下來，也還不能當成券已經發給會員。付款成功後，另一個任務才會接手。</p>
+<p>程式位置：<code>PromotionRewardCouponJob.cs:259-317,597-645</code>、<code>PromotionRewardCalculateServiceBase.cs:245-372</code>、<code>EComOrderPromotionRewardCalculateService.cs:231-257</code>、<code>CouponService.cs:477-546</code>。</p>
+<h2 id="OrderCreated-或未帶事件來源：確認何時能發券"><a href="#OrderCreated-或未帶事件來源：確認何時能發券" class="headerlink" title="OrderCreated 或未帶事件來源：確認何時能發券"></a><code>OrderCreated</code> 或未帶事件來源：確認何時能發券</h2><p>付款成功後，Job 要先看佔額紀錄是否已留下。上一節提到的回饋時間批次任務，也會從「讀取紀錄」走進同一段給券流程。</p>
+<figure class="coupon-figure"><h3>付款後如何走向發券</h3><div class="coupon-diagram coupon-wide" tabindex="0" role="region" aria-label="付款後如何走向發券">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[&quot;OrderCreated 或回饋時間批次任務&quot;] --&gt; B[&quot;取得鎖與活動規則，讀取 DynamoDB&quot;]
+    B --&gt; C{&quot;已有回饋紀錄？&quot;}
+    C -- &quot;沒有&quot; --&gt; D{&quot;線上佔額活動？&quot;}
+    D -- &quot;是&quot; --&gt; E[&quot;報錯：不能跳過付款前佔額&quot;]
+    D -- &quot;否&quot; --&gt; F[&quot;重新試算，依規則佔額並建立紀錄&quot;]
+    C -- &quot;有&quot; --&gt; G{&quot;狀態是 Occupy？&quot;}
+    F --&gt; G
+    G -- &quot;是&quot; --&gt; H[&quot;建立績效 Task，轉為 WaitToReward&quot;]
+    G -- &quot;否&quot; --&gt; I{&quot;狀態是 WaitToReward？&quot;}
+    H --&gt; I
+    I -- &quot;否&quot; --&gt; J[&quot;停止，不進入給券&quot;]
+    I -- &quot;是&quot; --&gt; K{&quot;線上訂單且要求完成後回饋？&quot;}
+    K -- &quot;是&quot; --&gt; L[&quot;依訂單狀態重算 BookingTime&quot;]
+    K -- &quot;否&quot; --&gt; M{&quot;回饋時間到了？&quot;}
+    L --&gt; M
+    M -- &quot;沒有&quot; --&gt; N[&quot;保留 WaitToReward，繼續等待&quot;]
+    M -- &quot;到了&quot; --&gt; O{&quot;線上或線下訂單？&quot;}
+    O -- &quot;線上&quot; --&gt; P[&quot;核對子單與會員資料&quot;]
+    P --&gt; Q[&quot;ProcessRewardCouponAsync&quot;]
+    O -- &quot;線下&quot; --&gt; R[&quot;取得門市與 CRM 訂單代碼&quot;]
+    R --&gt; S[&quot;ProcessCrmOrderRewardCouponAsync&quot;]
+  </pre></div>
+</div><figcaption>付款成功也可能先等待；只有待回饋且時間已到才進入給券方法。</figcaption></figure>
+
+<p>圖中省略了兩個細節：</p>
+<ul>
+<li><strong>首次建檔</strong>：非佔額活動與線下訂單會重新試算；符合活動，且不需佔額或佔額成功時，才建立績效 Task。</li>
+<li><strong>會員核對</strong>：線上訂單的會員編號若與紀錄不同，Job 會查目前的會員資料，更新這次發券使用的編號；查不到就拋錯。</li>
+</ul>
+<p>績效 Task 建立失敗只記錄錯誤，不會讓給券主流程立刻中斷。程式位置：<code>PromotionRewardCouponJob.cs:323-453,461-499,647-678</code>。</p>
+<p>因此「付款成功」只代表可以開始檢查回饋，並不等於立刻拿到券。<code>WaitToReward</code> 還要通過回饋時間與訂單狀態的檢查，才會走到真正的發券方法。</p>
+</div></div><div class="tab-item-content" id="正式給券回饋設計-4"><div class="coupon-article">
+<div class="coupon-hero"><h2>狀態記下回饋走到哪一步</h2><p>保留名額、等待發券、真正發完，是不同階段。看狀態時，先分清楚會員是否已經拿到券。</p></div>
+
+<p>回饋紀錄像一張進度單。它先記下是否中活動、是否佔到額度；等到發券時間，才記下最後有沒有把券送完。不同情況會留下不同狀態：</p>
+<details><summary>查看各種情境對應的主表狀態</summary>
+
+<table>
+<thead>
+<tr>
+<th>發生什麼事</th>
+<th>主表狀態</th>
+<th>接下來怎麼走</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>試算沒有中活動</td>
+<td><code>Unmatch</code></td>
+<td>不發券</td>
+</tr>
+<tr>
+<td>中活動，且不需要預先佔額</td>
+<td><code>WaitToReward</code></td>
+<td>等 <code>BookingTime</code> 到了再處理</td>
+</tr>
+<tr>
+<td>中活動，但佔額失敗</td>
+<td><code>MatchWithoutQuota</code></td>
+<td>不發券，也不計入應給券統計</td>
+</tr>
+<tr>
+<td>線上訂單佔額成功</td>
+<td><code>Occupy</code></td>
+<td>等 <code>OrderCreated</code> 轉成 <code>WaitToReward</code></td>
+</tr>
+<tr>
+<td>線下訂單佔額成功</td>
+<td><code>WaitToReward</code></td>
+<td>到了回饋時間後處理</td>
+</tr>
+<tr>
+<td>券已全部發出</td>
+<td><code>Reward</code></td>
+<td>給券完成</td>
+</tr>
+<tr>
+<td>只發出部分券</td>
+<td><code>WaitToReward</code></td>
+<td>保留已給張數，依失敗原因安排後續處理</td>
+</tr>
+<tr>
+<td>線上整單取消或退貨，且已無可給明細</td>
+<td><code>Cancel</code></td>
+<td>不發券；佔額活動返還額度</td>
+</tr>
+</tbody></table>
+</details>
+
+<figure class="coupon-figure"><h3>從保留名額到發券完成</h3><div class="coupon-diagram coupon-compact" tabindex="0" role="region" aria-label="從保留名額到發券完成">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  stateDiagram-v2
+    [*] --&gt; Unmatch: 未中活動
+    [*] --&gt; MatchWithoutQuota: 中活動但佔額失敗
+    [*] --&gt; Occupy: 線上中活動且佔額成功
+    [*] --&gt; WaitToReward: 無須預佔或線下佔額成功
+    Occupy --&gt; WaitToReward: OrderCreated
+    WaitToReward --&gt; WaitToReward: 未到時間、逆流程進行中或發券未完成
+    WaitToReward --&gt; Reward: 已給張數達應給張數
+    WaitToReward --&gt; Cancel: 線上整單取消或退貨
+  </pre></div>
+</div><figcaption>WaitToReward 表示尚待處理，並不代表會員已拿到券。</figcaption></figure>
+
+<p>這些狀態記的是回饋走到哪一步，不只是成功或失敗。<code>Occupy</code> 表示名額已保留、仍在等付款後接手；<code>WaitToReward</code> 表示可以等待給券，但券尚未送出。因此，<code>Unmatch</code> 與 <code>MatchWithoutQuota</code> 不進入發券，<code>WaitToReward</code> 也不能當作已發券。</p>
+</div></div><div class="tab-item-content" id="正式給券回饋設計-5"><div class="coupon-article">
+<div class="coupon-hero"><h2>取消還沒定案，券先不要走</h2><p>給券前若碰到處理中的取消或退貨，Job 先把下一次檢查時間往後移。</p></div>
+
+<figure class="coupon-figure"><h3>逆流程還在處理時，這次給券如何收場</h3><div class="coupon-rail"><div class="coupon-step"><strong>先查四種單據</strong><p>取消申請、取消單、退貨申請、退貨單；其中任一流程未結束，就先停下發券。</p></div><div class="coupon-step is-caution"><strong>回饋時間往後一天</strong><p>主表 <code>BookingTime</code> 加一天，狀態仍是 <code>WaitToReward</code>。</p></div><div class="coupon-step"><strong>下次再看結果</strong><p>這次不改 <code>TotalCouponQty</code>、<code>GivenCouponQty</code>，也不返還佔額。</p></div></div><figcaption>一天是下次檢查時間，不代表取消或退貨一定會在一天內結束。</figcaption></figure>
+
+<div class="coupon-note"><p>先等逆流程定案，能避免對可能被取消的訂單發券，也避免太早放回已保留的活動名額。</p></div>
+
+</div></div><div class="tab-item-content" id="正式給券回饋設計-6"><div class="coupon-article">
+<div class="coupon-hero"><h2>訂單已全退，名額也該回去</h2><p>即使任務走在正向給券流程，發券前看見整單已取消或退貨，也會停下來處理佔額返還。</p></div>
+
+<p>這個判斷仍發生在正向給券流程中，即使 <code>RewardFlowEnum=Reward</code>，Job 也會在發券前確認子單是否仍有可給明細。</p>
+<figure class="coupon-figure"><h3>什麼時候改成 Cancel，並返還名額</h3><div class="coupon-diagram coupon-compact" tabindex="0" role="region" aria-label="整單取消與返還佔額的決策流程">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+  A[&quot;線上訂單到給券時間&quot;] --&gt; B{&quot;取消或退貨仍在處理？&quot;}
+  B --&gt;|&quot;是&quot;| C[&quot;順延一天，不發券&quot;]
+  B --&gt;|&quot;否&quot;| D{&quot;有取消明細且無可給明細？&quot;}
+  D --&gt;|&quot;否&quot;| E[&quot;繼續一般給券流程&quot;]
+  D --&gt;|&quot;是&quot;| F[&quot;主表與明細改 Cancel，不呼叫發券 API&quot;]
+  F --&gt; G{&quot;活動有 GroupCode？&quot;}
+  G --&gt;|&quot;有&quot;| H[&quot;返還先前佔用的名額&quot;]
+  G --&gt;|&quot;沒有&quot;| I[&quot;無須返還佔額&quot;]
+  H --&gt; J[&quot;寫回結果，不以未發完券拋 Redo&quot;]
+  I --&gt; J
+  </pre></div>
+</div><figcaption>沒有可給明細，才走整單取消分支；仍有可給明細時走一般給券流程。</figcaption></figure>
+
+<figure class="coupon-figure"><h3>模擬訂單 TG250625T00005 的四個動作</h3><div class="coupon-rail"><div class="coupon-step"><strong>確認取消已完成</strong><p><code>GetCancelOrderSlaves</code> 取得 <code>TS-A</code>、<code>TS-B</code>；沒有進行中的逆流程。</p></div><div class="coupon-step"><strong>可給明細已歸零</strong><p>兩筆明細都已取消或退貨，沒有仍應給券的明細。</p></div><div class="coupon-step is-caution"><strong>停止發券，返還佔額</strong><p><code>ProcessAllOrderCanceledAsync</code> 改為 <code>Cancel</code>；活動 <code>7307</code> 的 <code>GroupCode=POOL-A</code>，因此呼叫 <code>ReverseOccupyQuotaAsync</code>。</p></div><div class="coupon-step"><strong>寫回結果</strong><p><code>FinalizeCouponRewardProcessAsync</code> 更新紀錄與統計，不因券未發完而拋 Redo。</p></div></div><figcaption>這是依程式碼推演的情境，並非實際訂單執行紀錄。</figcaption></figure>
+
+<figure class="coupon-figure"><h3>狀態變了，原本應給張數仍保留</h3><div class="coupon-metrics"><div class="coupon-metric"><strong>WaitToReward → Cancel</strong><span>主表狀態</span></div><div class="coupon-metric"><strong>5 → 5</strong><span>主表 TotalCouponQty</span></div><div class="coupon-metric"><strong>0 → 0</strong><span>主表 GivenCouponQty</span></div></div><figcaption>這次一張券都沒有發。Info 的 <code>GivenCouponQty</code> 不增加，<code>CanceledCouponQty</code> 也不由這段正流程直接增加。</figcaption></figure>
+
+<div class="coupon-note"><p><code>Cancel</code> 表示這筆回饋已終止。<code>TotalCouponQty=5</code> 保留原本試算的張數，不能單靠它推斷還有券待發。</p></div>
+
+
+
+</div></div><div class="tab-item-content" id="正式給券回饋設計-7"><div class="coupon-article">
+<div class="coupon-hero"><h2>線上訂單還會變，給券前得再看一次</h2><p>線上子單可能出貨、取消或退貨；線下訂單在這段流程視為已完成，因此兩種入口需要的檢查不同。</p></div>
+
+
+
+<p><code>OrderTypeDefEnum</code> 決定方法入口。線上訂單付款後還可能出貨、取消或退貨，因此得核對子單與逆流程；線下訂單在此段流程視為完成，直接進入發券核心。</p>
+<figure class="coupon-figure"><h3>兩種訂單如何抵達同一套發券核心</h3><div class="coupon-diagram coupon-wide" tabindex="0" role="region" aria-label="線上與線下給券方法的條件分支">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+  A[&quot;OrderTypeDefEnum&quot;] --&gt; B{&quot;訂單來源？&quot;}
+  B --&gt;|&quot;ECom 線上&quot;| C[&quot;ProcessRewardCouponAsync&quot;]
+  B --&gt;|&quot;Others 線下&quot;| D[&quot;ProcessCrmOrderRewardCouponAsync&quot;]
+  C --&gt; E{&quot;取消或退貨仍在處理？&quot;}
+  E --&gt;|&quot;是&quot;| F[&quot;BookingTime 順延一天&quot;]
+  E --&gt;|&quot;否&quot;| G{&quot;整單已取消且無可給明細？&quot;}
+  G --&gt;|&quot;是&quot;| H[&quot;Cancel，佔額活動返還名額&quot;]
+  G --&gt;|&quot;否&quot;| I[&quot;ExecuteCouponRewardCoreAsync&quot;]
+  D --&gt; I
+  I --&gt; J[&quot;更新明細、主表與已給券統計&quot;]
+  </pre></div>
+</div><figcaption>線上路徑多了訂單狀態檢查；能發券時，兩條路徑共用張數計算與 SCM 發券核心。</figcaption></figure>
+
+<details><summary>查看線上與線下的逐項差異</summary>
+
+<table>
+<thead>
+<tr>
+<th>比較項目</th>
+<th>線上：<code>ProcessRewardCouponAsync</code></th>
+<th>線下：<code>ProcessCrmOrderRewardCouponAsync</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>發券前</td>
+<td>檢查取消申請、取消單、退貨申請與退貨單</td>
+<td>不做這段檢查，直接進入發券核心</td>
+</tr>
+<tr>
+<td>逆流程仍在處理</td>
+<td><code>BookingTime</code> 順延一天，本次不發券</td>
+<td>沒有對應分支</td>
+</tr>
+<tr>
+<td>已整單取消或退貨，且無可給明細</td>
+<td>改成 <code>Cancel</code>；佔額活動返還額度</td>
+<td>沒有對應分支</td>
+</tr>
+<tr>
+<td>可以發券</td>
+<td>呼叫 <code>ExecuteCouponRewardCoreAsync</code></td>
+<td>呼叫同一個核心方法</td>
+</tr>
+<tr>
+<td>發券後</td>
+<td>更新明細、主表與已給券統計；整單取消會影響是否拋出 Redo 例外</td>
+<td>使用相同更新方法，但沒有整單取消分支</td>
+</tr>
+</tbody></table>
+</details>
+
+<p>線下方法雖然接收 <code>locationName</code>、<code>crmSalesOrderCode</code>，目前方法內並沒有讀取它們；這兩個參數不影響這段 <code>DispatchAsync</code> 請求或 DynamoDB 狀態。</p>
+</div></div><div class="tab-item-content" id="正式給券回饋設計-8"><div class="coupon-article">
+<div class="coupon-hero"><h2>一張一張發，成功幾張就記幾張</h2><p>Worker 先算還差多少券，再逐張呼叫 SCM；回應裡的成功張數，才會推動已給張數前進。</p></div>
+
+
+
+<figure class="coupon-figure"><h3>應給五張，已給兩張，這次只補三張</h3><div class="coupon-rail"><div class="coupon-step"><strong>總共應給 5 張</strong><p>主表 <code>TotalCouponQty=5</code>。</p></div><div class="coupon-step"><strong>已成功發出 2 張</strong><p>主表 <code>GivenCouponQty=2</code>。</p></div><div class="coupon-step"><strong>這次還要嘗試 3 張</strong><p><code>5 - 2 = 3</code>；每張各呼叫一次 <code>DispatchAsync</code>，請求 <code>Qty=1</code>。</p></div></div><figcaption>部分成功會留在已給張數裡。下一次任務按差額補發，不重新從第一張開始。</figcaption></figure>
+
+<p>Worker 呼叫 SCM 的 <code>/v2/ECoupon/Dispatch</code>，請求帶商店、會員、券 ID、新產生的 <code>EventCode</code> 與 <code>SourceDef=PromotionWorker</code>。</p>
+<figure class="coupon-figure"><h3>每張券的回應如何影響最後的紀錄</h3><div class="coupon-diagram coupon-wide" tabindex="0" role="region" aria-label="逐張呼叫 SCM 與更新已給張數的流程">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+  A[&quot;計算剩餘張數&quot;] --&gt; B[&quot;每張券呼叫 DispatchAsync，Qty&#x3D;1&quot;]
+  B --&gt; C{&quot;得到什麼結果？&quot;}
+  C --&gt;|&quot;一般回應&quot;| D[&quot;讀取 Data.SuccessCount 與券序號&quot;]
+  C --&gt;|&quot;券庫不足&quot;| E[&quot;停止後續發券&quot;]
+  C --&gt;|&quot;指定連線或逾時例外&quot;| F[&quot;本張券指數退避重試&quot;]
+  F --&gt; B
+  D --&gt; G[&quot;迴圈結束後累加 GivenCouponQty&quot;]
+  E --&gt; G
+  G --&gt; H{&quot;GivenCouponQty 達 TotalCouponQty？&quot;}
+  H --&gt;|&quot;是&quot;| I[&quot;記為 Reward&quot;]
+  H --&gt;|&quot;否&quot;| J[&quot;保留 WaitToReward，按失敗原因處理&quot;]
+  </pre></div>
+</div><figcaption>有收到一般失敗回應時，不自動重試該張；仍讀取可取得的成功張數。圖中省略重試上限與特殊例外，見下方明細。</figcaption></figure>
+
+<details><summary>查看 SCM 回傳欄位與 Worker 的判斷</summary>
+
+<table>
+<thead>
+<tr>
+<th>回傳欄位</th>
+<th>Worker 如何使用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Status</code></td>
+<td>不是 <code>Success</code> 就記錄錯誤，再檢查是否為券庫不足；一般失敗回應不會自動重試</td>
+</tr>
+<tr>
+<td><code>ErrorMessage</code></td>
+<td>比對「券已發送一空／完畢」等多語言文字；若判定券不足，停止後續發券</td>
+</tr>
+<tr>
+<td><code>Data.SuccessCount</code></td>
+<td>累加本次成功張數，之後加到主表與 Info 表的 <code>GivenCouponQty</code></td>
+</tr>
+<tr>
+<td><code>Data.FailCount</code></td>
+<td>累加供日誌與結果比對，不直接決定主表狀態</td>
+</tr>
+<tr>
+<td><code>Data.ECouponSlaves[].Id</code></td>
+<td>記下實際發出的券序號</td>
+</tr>
+<tr>
+<td><code>Data.ReturnCode</code></td>
+<td>回傳模型有這個欄位，但這段 Worker 沒拿它做判斷</td>
+</tr>
+</tbody></table>
+</details>
+
+<div class="coupon-note"><p><code>Status</code> 用來辨識錯誤與是否停止；真正增加已給張數的是 <code>Data.SuccessCount</code>。呼叫過 API，並不代表會員已收到券。</p></div>
+
+<details><summary>查看券不足、部分成功與例外的後續處理</summary>
+
+<table>
+<thead>
+<tr>
+<th>給券結果</th>
+<th>主表與後續處理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>應給張數全數發完</td>
+<td>主表與明細改為 <code>Reward</code>，累加 Info 表已給券張數</td>
+</tr>
+<tr>
+<td>只發出部分，且不是券庫不足</td>
+<td>保留已給張數與 <code>WaitToReward</code>，拋出可釋放鎖的失敗例外，供後續 Redo</td>
+</tr>
+<tr>
+<td>券庫不足</td>
+<td>停止呼叫發券 API，保留 <code>WaitToReward</code>；符合條件時重新安排 <code>BookingTime</code>。若活動在排除清單或已超過活動結束後 90 天，則保留原時間並記錄原因</td>
+</tr>
+<tr>
+<td>活動或通路不符合、線下查不到訂單</td>
+<td>釋放鎖，結束本次處理</td>
+</tr>
+<tr>
+<td>線上佔額紀錄或會員資料缺失</td>
+<td>釋放鎖並拋出失敗例外</td>
+</tr>
+<tr>
+<td>其他未分類例外</td>
+<td>記錄 MetricsLog 並重新拋出；這個 catch 本身沒有釋放鎖</td>
+</tr>
+</tbody></table>
+<p>券不足時拋出的例外會由 Job 釋放鎖並結束本次任務。其他給券未完成的情況則會釋放鎖後重新拋出。</p>
+</details>
+
+
+
+</div></div><div class="tab-item-content" id="正式給券回饋設計-9"><div class="coupon-article">
+<div class="coupon-hero"><h2>一張訂單的帳，和整檔活動的帳</h2><p>主表追單筆訂單，Info 表累加同活動、同券的多筆訂單。兩邊都叫「應給」，範圍卻不同。</p></div>
+
+<p>主表追一筆訂單在一個活動中的回饋；<code>PromotionRewardCouponInfo</code> 則把同商店、同活動、同一種券的多筆訂單加在一起，key 是 <code>ShopId_PromotionEngineId_ECouponId</code>。</p>
+<figure class="coupon-figure"><h3>兩張訂單的張數，怎麼加到同一筆 Info</h3><div class="coupon-diagram coupon-compact" tabindex="0" role="region" aria-label="訂單主表與 Info 表應給及已給張數的彙總關係">
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+  A[&quot;訂單 A：應給 2，已給 2&quot;] --&gt;|&quot;應給 +2&quot;| C[&quot;Info ShouldGive &#x3D; 5&quot;]
+  B[&quot;訂單 B：應給 3，已給 1&quot;] --&gt;|&quot;應給 +3&quot;| C
+  A --&gt;|&quot;已給 +2&quot;| D[&quot;Info Given &#x3D; 3&quot;]
+  B --&gt;|&quot;已給 +1&quot;| D
+  </pre></div>
+</div><figcaption>假設兩張訂單屬於同一商店、活動與券。這是正常建立與發券路徑的數字示例，並非實際 DynamoDB 紀錄。</figcaption></figure>
+
+<details><summary>查看主表與 Info 表各欄位的用途</summary>
+
+<table>
+<thead>
+<tr>
+<th>欄位</th>
+<th>代表的張數</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主表 <code>TotalCouponQty</code></td>
+<td>這筆訂單試算應給幾張；正常發券不改動</td>
+</tr>
+<tr>
+<td>主表 <code>GivenCouponQty</code></td>
+<td>這筆訂單至今實際成功發出幾張</td>
+</tr>
+<tr>
+<td>Info <code>ShouldGiveCouponQty</code></td>
+<td>同商店、活動、券的累計應給張數；符合條件的新紀錄會把該筆 <code>TotalCouponQty</code> 加進來</td>
+</tr>
+<tr>
+<td>Info <code>GivenCouponQty</code></td>
+<td>同商店、活動、券的累計已給張數；每次只加本次實際成功張數</td>
+</tr>
+<tr>
+<td>Info <code>CanceledCouponQty</code></td>
+<td>供重算流程記錄取消張數；正流程整單取消不會直接增加它</td>
+</tr>
+</tbody></table>
+</details>
+
+<div class="coupon-note"><p>主表回答「這張訂單下次還要補幾張」；Info 表回答「這檔活動的這種券累計應給、已給多少張」。不能把單筆主表的 <code>TotalCouponQty</code> 當成 Info 的 <code>ShouldGiveCouponQty</code>。</p></div>
+
+<p>正流程發現整單取消時，主表可能改為 <code>Cancel</code>，但 <code>TotalCouponQty</code> 不會在這裡歸零，Info 的 <code>CanceledCouponQty</code> 也不會直接增加。因此不能把 Info 的 <code>ShouldGiveCouponQty - GivenCouponQty</code> 直接當成「接下來一定會發出的張數」。取消或退貨後的重算是另一段流程，會嘗試依新的應給張數調整主表與 Info 統計。</p>
+<figure class="coupon-figure"><h3>退貨後從五張重算成三張，差額在哪裡遺失</h3><div class="coupon-rail"><div class="coupon-step"><strong>重算前：應給 5，已給 0</strong><p>假設 Info 只有這筆訂單，<code>ShouldGiveCouponQty=5</code>、<code>CanceledCouponQty=0</code>。</p></div><div class="coupon-step"><strong>退貨重算：應給變成 3</strong><p>第一個方法先把主表 <code>TotalCouponQty</code> 從 <code>5</code> 改成 <code>3</code>。</p></div><div class="coupon-step is-caution"><strong>更新 Info 時，舊張數已不在</strong><p>下一個方法把同一欄位的 <code>3</code> 當成原本張數，算出 <code>3 - 3 = 0</code>。</p></div></div><figcaption>依目前程式碼推演，Info 仍是 ShouldGive 5、Canceled 0；若記下少掉的兩張，Canceled 應加到 2。尚未用實際資料驗證。</figcaption></figure>
+
+<details><summary>查看重算前後的欄位數字</summary>
+
+<table>
+<thead>
+<tr>
+<th>欄位</th>
+<th align="right">重算前</th>
+<th align="right">依目前程式碼推演</th>
+<th align="right">若正確記下減少的 2 張</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主表 <code>TotalCouponQty</code></td>
+<td align="right">5</td>
+<td align="right">3</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td>主表 <code>GivenCouponQty</code></td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td>Info <code>ShouldGiveCouponQty</code></td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td>Info <code>CanceledCouponQty</code></td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+</tr>
+</tbody></table>
+</details>
+
+<p><code>UpdateBasedOnCalculation</code> 先改主表，才從同一物件取「原本張數」更新 Info。呼叫順序可確認舊張數會遺失；實際資料是否已受影響，仍需重算測試或查詢紀錄。程式位置：<code>CouponService.cs:801-855,869-915,1059-1107</code>。</p>
+</div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git">Allen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://allenlin000.github.io.git/2026/11/15/PromotionReward-%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88/">https://allenlin000.github.io.git/2026/11/15/PromotionReward-%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/11/09/Shopping-Cart-uniquekey-design-pure/" title="uniquekey 設計"><img class="cover" src="https://i.imgur.com/f2eWUWv.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous</div><div class="prev_info">uniquekey 設計</div></div></a></div><div class="next-post pull-right"><a href="/2026/11/15/PromotionReward-%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-pure/" title="正式給券回饋設計"><img class="cover" src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next</div><div class="next_info">正式給券回饋設計</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.imgur.com/q4xr50n.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Allen</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">293</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">57</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">41</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CHI-KEKE"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/CHI-KEKE" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:chilly37647@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">世界上總會有一些溫暖的小角落</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-1"><span class="toc-number">1.</span> <span class="toc-text">付款前先留名額，付款後才談給券</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-1"><span class="toc-number">1.1.</span> <span class="toc-text">事件進來後，Job 分別做什麼</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-1"><span class="toc-number">1.2.</span> <span class="toc-text">同一筆訂單的三個時間點</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-2"><span class="toc-number">2.</span> <span class="toc-text">同一支 Job，兩種任務大小</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-2"><span class="toc-number">2.1.</span> <span class="toc-text">即時與回饋時間入口的任務大小</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-2"><span class="toc-number">2.2.</span> <span class="toc-text">兩個 BookingTime 指的是不同時間</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-3"><span class="toc-number">3.</span> <span class="toc-text">先保留，再確認能不能發</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OrderPlaced%EF%BC%9A%E5%85%88%E6%9B%BF%E8%A8%82%E5%96%AE%E4%BF%9D%E7%95%99%E9%A1%8D%E5%BA%A6"><span class="toc-number">4.</span> <span class="toc-text">OrderPlaced：先替訂單保留額度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-3"><span class="toc-number">4.1.</span> <span class="toc-text">付款前如何留下佔額紀錄</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OrderCreated-%E6%88%96%E6%9C%AA%E5%B8%B6%E4%BA%8B%E4%BB%B6%E4%BE%86%E6%BA%90%EF%BC%9A%E7%A2%BA%E8%AA%8D%E4%BD%95%E6%99%82%E8%83%BD%E7%99%BC%E5%88%B8"><span class="toc-number">5.</span> <span class="toc-text">OrderCreated 或未帶事件來源：確認何時能發券</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-3"><span class="toc-number">5.1.</span> <span class="toc-text">付款後如何走向發券</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-4"><span class="toc-number">6.</span> <span class="toc-text">狀態記下回饋走到哪一步</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-4"><span class="toc-number">6.1.</span> <span class="toc-text">從保留名額到發券完成</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-5"><span class="toc-number">7.</span> <span class="toc-text">取消還沒定案，券先不要走</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-5"><span class="toc-number">7.1.</span> <span class="toc-text">逆流程還在處理時，這次給券如何收場</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-6"><span class="toc-number">8.</span> <span class="toc-text">訂單已全退，名額也該回去</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-6"><span class="toc-number">8.1.</span> <span class="toc-text">什麼時候改成 Cancel，並返還名額</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-6"><span class="toc-number">8.2.</span> <span class="toc-text">模擬訂單 TG250625T00005 的四個動作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-6"><span class="toc-number">8.3.</span> <span class="toc-text">狀態變了，原本應給張數仍保留</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-7"><span class="toc-number">9.</span> <span class="toc-text">線上訂單還會變，給券前得再看一次</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-7"><span class="toc-number">9.1.</span> <span class="toc-text">兩種訂單如何抵達同一套發券核心</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-8"><span class="toc-number">10.</span> <span class="toc-text">一張一張發，成功幾張就記幾張</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-8"><span class="toc-number">10.1.</span> <span class="toc-text">應給五張，已給兩張，這次只補三張</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-8"><span class="toc-number">10.2.</span> <span class="toc-text">每張券的回應如何影響最後的紀錄</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-9"><span class="toc-number">11.</span> <span class="toc-text">一張訂單的帳，和整檔活動的帳</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-9"><span class="toc-number">11.1.</span> <span class="toc-text">兩張訂單的張數，怎麼加到同一筆 Info</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-9"><span class="toc-number">11.2.</span> <span class="toc-text">退貨後從五張重算成三張，差額在哪裡遺失</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination"><img src="https://raw.githubusercontent.com/CHI-KEKE/pics/refs/heads/main/AI/landing.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hallucination"/></a><div class="content"><a class="title" href="/2027/03/16/DeepType-AI-Thinking-Hallucination/" title="Hallucination">Hallucination</a><time datetime="2027-03-16T03:10:11.000Z" title="Created 2027-03-16 11:10:11">2027-03-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/15/PromotionReward-%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-pure/" title="正式給券回饋設計"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="正式給券回饋設計"/></a><div class="content"><a class="title" href="/2026/11/15/PromotionReward-%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88-pure/" title="正式給券回饋設計">正式給券回饋設計</a><time datetime="2026-11-15T06:55:00.000Z" title="Created 2026-11-15 14:55:00">2026-11-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/15/PromotionReward-%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88/" title="正式給券回饋設計"><img src="https://pub-d7e550ef212547d888a6e01348459946.r2.dev/ecom/promotion/promotionreward.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="正式給券回饋設計"/></a><div class="content"><a class="title" href="/2026/11/15/PromotionReward-%E6%AD%A3%E5%BC%8F%E7%B5%A6%E5%88%B8%E5%9B%9E%E9%A5%8B%E8%A8%AD%E8%A8%88/" title="正式給券回饋設計">正式給券回饋設計</a><time datetime="2026-11-15T06:55:00.000Z" title="Created 2026-11-15 14:55:00">2026-11-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/09/Shopping-Cart-uniquekey-design-pure/" title="uniquekey 設計"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="uniquekey 設計"/></a><div class="content"><a class="title" href="/2026/11/09/Shopping-Cart-uniquekey-design-pure/" title="uniquekey 設計">uniquekey 設計</a><time datetime="2026-11-09T09:52:00.000Z" title="Created 2026-11-09 17:52:00">2026-11-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/09/Shopping-Cart-uniquekey-design/" title="uniquekey 設計"><img src="https://i.imgur.com/f2eWUWv.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="uniquekey 設計"/></a><div class="content"><a class="title" href="/2026/11/09/Shopping-Cart-uniquekey-design/" title="uniquekey 設計">uniquekey 設計</a><time datetime="2026-11-09T09:52:00.000Z" title="Created 2026-11-09 17:52:00">2026-11-09</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.imgur.com/yZlXwed.png')"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By Allen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">What you'll find out there is boundless freedom !</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap, #article-container pre.mermaid')
+  if ($mermaid.length === 0) return
+  const mermaidItems = Array.from($mermaid).map((item, index) => ({
+    item,
+    index,
+    isMermaidWrap: item.classList.contains('mermaid-wrap'),
+    source: (item.classList.contains('mermaid-wrap') ? item.firstElementChild : item).textContent
+  }))
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    mermaidItems.forEach(({ item, index, isMermaidWrap, source }) => {
+      if (!isMermaidWrap) item.textContent = source
+      const previousSvg = item.nextElementSibling
+      if (previousSvg && previousSvg.tagName.toLowerCase() === 'svg') previousSvg.remove()
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + source
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const insertSvg = (svg) => {
+        const template = document.createElement('template')
+        template.innerHTML = svg
+        template.content.querySelectorAll('marker[id]').forEach(marker => {
+          const oldId = marker.id
+          const newId = mermaidID + '-' + oldId
+          marker.id = newId
+          template.content.querySelectorAll('[marker-start], [marker-mid], [marker-end]').forEach(element => {
+            ;['marker-start', 'marker-mid', 'marker-end'].forEach(attribute => {
+              if (element.getAttribute(attribute) === 'url(#' + oldId + ')') {
+                element.setAttribute(attribute, 'url(#' + newId + ')')
+              }
+            })
+          })
+        })
+        item.insertAdjacentHTML('afterend', template.innerHTML)
+        if (!isMermaidWrap) item.style.display = 'none'
+      }
+
+      const renderV10 = () => {
+        renderFn.then(({ svg }) => insertSvg(svg))
+      }
+
+      const renderV9 = svg => insertSvg(svg)
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
